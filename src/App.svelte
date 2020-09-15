@@ -1,6 +1,6 @@
 <script>
   import GoTrue from 'gotrue-js';
-  import { session, user } from './session.js';
+  import { session, user } from './stores.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
   import LogOutButton from './components/LogOutButton.svelte';

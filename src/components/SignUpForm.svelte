@@ -1,5 +1,5 @@
 <script>
-  import { session } from '../session.js';
+  import { session } from '../stores.js';
  
   function submit (e) {
     const form = e.target;
@@ -31,11 +31,11 @@
   <form name="signup" on:submit|preventDefault={ submit }>
     <label>
       Email
-      <input type="email" name="email" />
+      <input type="email" name="email" required />
     </label>
     <label>
       Password
-      <input type="password" name="password" />
+      <input type="password" name="password" required />
     </label>
     <button type="submit">
       Submit
