@@ -1,5 +1,5 @@
 <script>
-  import { user } from '../session.js';
+  import { user } from '../stores.js';
 
   function logout () {
     $user
