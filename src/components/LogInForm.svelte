@@ -1,5 +1,5 @@
 <script>
-  import { session } from '../session.js';
+  import { session, user } from '../session.js';
 
   function loginUser (e) {
     const form = e.target;
@@ -15,9 +15,11 @@
     } = form.elements;
 
     $session
-      .login(email.value, password.value)
+      .login(email.value, password.value, true)
       .then(response => {
         console.log('Success', response);
+        console.log('user', $session.currentUser());
+        user.update(() => response);
         // 
       })
       .catch(error => {

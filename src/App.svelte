@@ -1,12 +1,17 @@
 <script>
   import GoTrue from 'gotrue-js';
-  import { session } from './session.js';
+  import { session, user } from './session.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
+  import LogOutButton from './components/LogOutButton.svelte';
+
+  $: console.log('> logging:', $session);
+  $: console.log('> user:', $user);
 
   async function getAuthentication () {
     let response = await new GoTrue.default({
       APIUrl: 'https://boring-wozniak-bbc476.netlify.app/.netlify/identity',
+      setCookie: true,
     });
 
     console.log('response:', response);
@@ -36,8 +41,13 @@
 </script>
 
 <main>
-  <SignUpForm />
-  <LogInForm />
+  { #if $user }
+    <p>User is: { $user.email }</p>
+    <LogOutButton />
+  { :else }
+    <SignUpForm />
+    <LogInForm />
+  { /if }
 </main>
 
 <style>
