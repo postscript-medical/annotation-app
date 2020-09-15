@@ -1,46 +1,79 @@
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
+<script>
+  import { onMount } from 'svelte';
+  import GoTrue from 'gotrue-js';
+  import { session } from '../session.js';
 
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
+  function loginUser (e) {
+    console.log('Log user in', e);
+    e.preventDefault();
+    const form = e.target;
 
-	figure {
-		margin: 0 0 1em 0;
-	}
+    if (!auth) {
+      console.log('No auth object!');
+      return;
+    }
 
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
+    const {
+      email,
+      password
+    } = form.elements;
 
-	p {
-		margin: 1em auto;
-	}
+    auth
+      .login(email.value, password.value)
+      .then(response => {
+        console.log('Success', response);
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      })
+  }
 
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
-		}
-	}
-</style>
+  async function getAuthentication () {
+    let response = await new GoTrue.default({
+      APIUrl: 'https://boring-wozniak-bbc476.netlify.app/.netlify/identity',
+    });
+
+    console.log('response:', response);
+
+    $session = response;
+
+    const hash = location.hash;
+    if (hash) {
+      const [tokenId, token] = hash.split('=');
+
+      console.log('bits', tokenId, token)
+
+      if (tokenId === '') return ;
+      $session
+        .confirm(token)
+        .then(response => {
+          console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        })
+    }
+  }
+
+  onMount(() => {
+    getAuthentication();
+  });
+</script>
 
 <svelte:head>
-	<title>Sapper project template</title>
+	<title>PostScript Digital</title>
 </svelte:head>
 
-<h1>Great success!</h1>
-
-<figure>
-	<img alt='Success Kid' src='successkid.jpg'>
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+<form name="login" on:submit|preventDefault={ loginUser }>
+    <label>
+    Email
+    <input type="email" name="email" />
+  </label>
+  <label>
+    Password
+    <input type="password" name="password" />
+  </label>
+  <button type="submit">
+    Log in
+  </button>
+</form>
