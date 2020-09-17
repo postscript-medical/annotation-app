@@ -36,6 +36,7 @@
         .then(response => {
           console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
           // navigate to the main url
+          alert('Account confirmed, sign in');
         })
         .catch(error => {
           console.error('Error:', error);
