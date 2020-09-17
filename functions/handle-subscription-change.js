@@ -48,7 +48,7 @@ exports.handler = async ({ body, headers }, context) => {
         product: 'prod_I2TcP6mqPNGT8p',
       },
     ];
-    const subscription = subscriptions.find(({ product }) => product === plan);
+    const newSubscription = subscriptions.find(({ product }) => product === plan);
 
     // send a call to the Netlify Identity admin API to update the user role
     const { identity } = context.clientContext;
@@ -60,7 +60,7 @@ exports.handler = async ({ body, headers }, context) => {
       },
       body: JSON.stringify({
         app_metadata: {
-          roles: [subscription.role],
+          roles: [newSubscription.role],
         },
       }),
     });
