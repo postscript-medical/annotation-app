@@ -1,5 +1,5 @@
 [build]
-  command = "npm run buil"
+  command = "npm run build"
   publish = "publish"
   functions = "functions"
 
