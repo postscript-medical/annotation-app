@@ -14,10 +14,17 @@ const content = {
 };
 
 exports.handler = async (event, context) => {
+  console.log('>>>>>>>>>>>>>>>>>>>getProtectedContent:', event.body);
   const { type } = JSON.parse(event.body);
   const { user } = context.clientContext;
   const roles = user ? user.app_metadata.roles : false;
   const { allowedRoles } = content[type];
+
+  console.log('context:', content);
+  console.log('type:', type);
+  console.log('user', user);
+  console.log('roles:', roles);
+  console.log('allowedRoles:', allowedRoles);
 
   if (!roles || !roles.some(role => allowedRoles.include(role))) {
     return {
