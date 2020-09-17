@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "gotrue-js": "^0.9.27",
-    "sirv-cli": "^1.0.0"
+    "node-fetch": "^2.6.1",
+    "sirv-cli": "^1.0.0",
+    "stripe": "^8.96.0"
   }
 }
