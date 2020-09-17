@@ -2,7 +2,7 @@
   import { user } from '../stores.js';
 
   function openStripeCustomePortal () {
-    console.log('user:', user.token.access_token)
+    console.log('user:', $user.token.access_token)
     fetch('/.netlify/functions/create-manage-link', {
       method: 'POST',
       headers: {
