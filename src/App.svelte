@@ -1,14 +1,20 @@
 <script>
   import GoTrue from 'gotrue-js';
-  import { session, user } from './stores.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
   import LogOutButton from './components/LogOutButton.svelte';
+  import {
+    session,
+    user,
+    isLoading,
+    protectedContent
+  } from './stores.js';
+  import loadProtectedContent from './methods/load-protected-content.js';
 
-  $: console.log('> logging:', $session);
+  $: console.log('> session:', $session);
   $: console.log('> user:', $user);
 
-  async function getAuthentication () {
+  async function initAuthentication () {
     let response = await new GoTrue.default({
       APIUrl: 'https://boring-wozniak-bbc476.netlify.app/.netlify/identity',
       setCookie: true,
@@ -34,20 +40,30 @@
         .catch(error => {
           console.error('Error:', error);
         })
+    } else {
+      console.log('try to load content');
+      loadProtectedContent($user);
     }
-  }
+  };
 
-  getAuthentication();
+  initAuthentication();
 </script>
 
 <main>
-  { #if $user }
+  { #if $isLoading }
+    <div>
+    Please wait...
+    </div>
+  { :else if $user }
     <p>User is: { $user.email }</p>
     <LogOutButton />
   { :else }
     <SignUpForm />
     <LogInForm />
   { /if }
+  <h1>
+    { $protectedContent }
+  </h1>
 </main>
 
 <style>

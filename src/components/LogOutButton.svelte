@@ -1,12 +1,17 @@
 <script>
-  import { user } from '../stores.js';
+  import { user, isLoading } from '../stores.js';
+  import loadProtectedContent from '../methods/load-protected-content.js';
 
   function logout () {
+    $isLoading = true;
+
     $user
       .logout()
       .then(response => {
         console.log('logout:', response);
-        user.update(() => false);
+        $user = false;
+        loadProtectedContent($user);
+        $isLoading = false;
       })
       .catch(error => {
         console.error('Error:', error);

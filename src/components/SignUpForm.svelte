@@ -1,5 +1,5 @@
 <script>
-  import { session } from '../stores.js';
+  import { session, isLoading } from '../stores.js';
  
   function submit (e) {
     const form = e.target;
@@ -8,6 +8,8 @@
       console.error('No $session object!');
       return;
     }
+
+    $isLoading = true;
 
     const {
       email,
@@ -18,6 +20,7 @@
       .signup(email.value, password.value)
       .then(response => {
         console.log('created user', response);
+        $isLoading = false;
         }
       )
       .catch(error => {

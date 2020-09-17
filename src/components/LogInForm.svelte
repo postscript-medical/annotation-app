@@ -1,5 +1,6 @@
 <script>
-  import { session, user } from '../stores.js';
+  import { session, user, isLoading } from '../stores.js';
+  import loadProtectedContent from '../methods/load-protected-content.js';
 
   function loginUser (e) {
     const form = e.target;
@@ -8,6 +9,8 @@
       console.log('No $session object!');
       return;
     }
+
+    $isLoading = true;
 
     const {
       email,
@@ -19,8 +22,9 @@
       .then(response => {
         console.log('Success', response);
         console.log('user', $session.currentUser());
-        user.update(() => response);
-        // 
+        $user = response;
+        loadProtectedContent($user);
+        $isLoading = false;
       })
       .catch(error => {
         console.error("Error:", error);
