@@ -1,8 +1,9 @@
 import { protectedContent } from '../stores.js';
 
-export default function (user) {
+export default async function (user) {
   console.log('_loadProtectedContent', user);
-  const token = user ? user.jwt(true) : false;
+  const token = user ? await user.jwt(true) : false;
+  console.log('token:', token);
   // TODO: convert these into shared CONSTANTS
   ['individual', 'department', 'organization'].forEach(type => {
     fetch('/.netlify/functions/get-protected-content', {
@@ -12,10 +13,13 @@ export default function (user) {
       },
       body: JSON.stringify({ type }),
     })
-      .then(response => response.json())
+      .then(response => {
+        console.log('................', response)
+        return response
+      })
       .then(data => {
         console.log('data:', data);
-        protectedContent.set(data.copy);
+        // protectedContent.set(data.copy);
       })
   });
 };

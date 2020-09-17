@@ -20,8 +20,7 @@
     $session
       .login(email.value, password.value, true)
       .then(response => {
-        console.log('Success', response);
-        console.log('user', $session.currentUser());
+        console.log('Success, user:', response);
         $user = response;
         loadProtectedContent($user);
         $isLoading = false;
