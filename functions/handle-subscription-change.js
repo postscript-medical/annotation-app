@@ -35,6 +35,8 @@ exports.handler = async ({ body, headers }, context) => {
     const plan = subscription.items.data[0].plan.nickname;
     const role = plan.split(' ')[0].toLowerCase();
 
+    console.log('role:', role, 'plan:', plan);
+
     // send a call to the Netlify Identity admin API to update the user role
     const { identity } = context.clientContext;
     await fetch(`${identity.url}/admin/users/${netlifyID}`, {
