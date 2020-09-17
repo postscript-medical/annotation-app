@@ -3,6 +3,7 @@
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
   import LogOutButton from './components/LogOutButton.svelte';
+  import ManageSubscriptionButton from './components/ManageSubscriptionButton.svelte';
   import {
     session,
     user,
@@ -58,6 +59,7 @@
   { :else if $user }
     <p>User is: { $user.email }</p>
     <LogOutButton />
+    <ManageSubscriptionButton />
   { :else }
     <SignUpForm />
     <LogInForm />
