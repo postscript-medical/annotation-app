@@ -32,10 +32,23 @@ exports.handler = async ({ body, headers }, context) => {
     const { netlifyID } = result.data.getUserByStripeID;
 
     // take the first word of the plan name and use it as the role
-    const plan = subscription.items.data[0].plan.nickname;
-    const role = plan.split(' ')[0].toLowerCase();
-
-    console.log('role:', role, 'plan:', plan);
+    const plan = subscription.items.data[0].plan.product;
+    // TODO: Convert this to a shared CONSTANT
+    const subscriptions = [
+      {
+        role: 'department',
+        product: 'prod_I2TeDsdb73yBup',
+      },
+      {
+        role: 'organization',
+        product: 'prod_I2TeAQV4Qe41cc',
+      },
+      {
+        role: 'individual',
+        product: 'prod_I2TcP6mqPNGT8p',
+      },
+    ];
+    const role = subscriptions.find(({ product }) => product === plan);
 
     // send a call to the Netlify Identity admin API to update the user role
     const { identity } = context.clientContext;
