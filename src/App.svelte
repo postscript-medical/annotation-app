@@ -24,20 +24,23 @@
     console.log('response:', response);
 
     $session = response;
+    $user = $session.currentUser();
 
-    const hash = location.hash;
+    const hash = window.location.hash;
 
     if (hash) {
-      const [tokenId, token] = hash.split('=');
+      const [hashId, token] = hash.split('=');
 
-      if (tokenId !== '#confirmation_token') return ;
+      if (hashId !== '#confirmation_token') return ;
 
       $session
         .confirm(token)
         .then(response => {
           console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
           // navigate to the main url
+          window.location.hash = '';
           alert('Account confirmed, sign in');
+          loadProtectedContent($user);
         })
         .catch(error => {
           console.error('Error:', error);
@@ -56,7 +59,8 @@
     <div>
     Please wait...
     </div>
-  { :else if $user }
+  { /if }
+  { #if $user }
     <p>User is: { $user.email }</p>
     <LogOutButton />
     <ManageSubscriptionButton />

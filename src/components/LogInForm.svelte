@@ -1,49 +1,77 @@
 <script>
   import { session, user, isLoading } from '../stores.js';
   import loadProtectedContent from '../methods/load-protected-content.js';
+  import ErrorMessage from './ErrorMessage.svelte';
 
-  function loginUser (e) {
-    const form = e.target;
+  let email;
+  let password;
+  let stayLogged = false;
+  let errorMessage;
 
+  function loginUser () {
     if (!$session) {
-      console.log('No $session object!');
+      console.warn('No $session object!');
       return;
     }
 
     $isLoading = true;
 
-    const {
-      email,
-      password
-    } = form.elements;
-
     $session
-      .login(email.value, password.value, true)
+      .login(email.value, password.value, stayLogged)
       .then(response => {
-        console.log('Success, user:', response);
         $user = response;
         loadProtectedContent($user);
         $isLoading = false;
       })
       .catch(error => {
-        console.error("Error:", error);
+        errorMessage = error.json.error_description;
+        $isLoading = false;
       })
   }
 </script>
 
 <article>
-  <h3>Login</h3>
-  <form name="login" on:submit|preventDefault={ loginUser }>
+  <h3>
+    Login
+  </h3>
+  <form
+    name="login"
+    on:submit|preventDefault={loginUser}
+  >
     <label>
-    Email
-    <input type="email" name="email" required />
-  </label>
-  <label>
-    Password
-    <input type="password" name="password" required />
-  </label>
-  <button type="submit">
-    Log in
-  </button>
-</form>
+      Email
+      <input
+        type="email"
+        name="email"
+        bind:this={email}
+        required
+      />
+    </label>
+    <label>
+      Password
+      <input
+        type="password"
+        name="password"
+        bind:this={password}
+        required
+      />
+    </label>
+    <label>
+      <input
+        type="checkbox"
+        bind:checked={stayLogged}
+      />
+      Stay logged in.
+    </label>
+    <button
+      type="submit"
+    >
+      Log in
+    </button>
+  </form>
+  { #if errorMessage }
+    <ErrorMessage>
+      { errorMessage }
+    </ErrorMessage>
+  { /if }
 </article>
