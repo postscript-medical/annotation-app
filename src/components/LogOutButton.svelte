@@ -1,5 +1,9 @@
 <script>
-  import { user, isLoading } from '../stores.js';
+  import {
+    user,
+    isLoading
+  } from '../stores.js';
+    import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
 
   function logout () {
@@ -9,8 +13,9 @@
       .logout()
       .then(response => {
         console.log('logout:', response);
-        $user = false;
+        $user = null;
         loadProtectedContent($user);
+        window.sessionStorage.removeItem(STORAGE_KEY);
         $isLoading = false;
       })
       .catch(error => {

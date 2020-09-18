@@ -1,19 +1,36 @@
 <script>
   import GoTrue from 'gotrue-js';
-  import SignUpForm from  './components/SignUpForm.svelte';
-  import LogInForm from './components/LogInForm.svelte';
-  import LogOutButton from './components/LogOutButton.svelte';
-  import ManageSubscriptionButton from './components/ManageSubscriptionButton.svelte';
   import {
     session,
     user,
     isLoading,
     protectedContent
   } from './stores.js';
+  import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
+  import SignUpForm from  './components/SignUpForm.svelte';
+  import LogInForm from './components/LogInForm.svelte';
+  import LogOutButton from './components/LogOutButton.svelte';
+  import ManageSubscriptionButton from './components/ManageSubscriptionButton.svelte';
 
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
+
+  async function getUserFromSessionStorage () {
+    const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
+
+    if (!sessionStorage) return false;
+
+    const { email, password } = JSON.parse(sessionStorage);
+
+    $isLoading = true;
+
+    const user = await $session.login(email, password);
+
+    $isLoading = false;
+
+    return user;
+  }
 
   async function initAuthentication () {
     let response = await new GoTrue.default({
@@ -24,7 +41,7 @@
     console.log('response:', response);
 
     $session = response;
-    $user = $session.currentUser();
+    $user = await getUserFromSessionStorage() || $session.currentUser();
 
     const hash = window.location.hash;
 

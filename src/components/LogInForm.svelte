@@ -1,5 +1,10 @@
 <script>
-  import { session, user, isLoading } from '../stores.js';
+  import {
+    session,
+    user,
+    isLoading
+  } from '../stores.js';
+  import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
   import ErrorMessage from './ErrorMessage.svelte';
 
@@ -22,6 +27,10 @@
         $user = response;
         loadProtectedContent($user);
         $isLoading = false;
+
+        if (!stayLogged) {
+          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email: email.value, password: password.value }));
+        }
       })
       .catch(error => {
         errorMessage = error.json.error_description;
