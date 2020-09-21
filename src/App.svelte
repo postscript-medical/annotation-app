@@ -17,6 +17,8 @@
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
 
+  let showSignUpForm = true;
+
   async function getUserFromSessionStorage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
 
@@ -24,16 +26,14 @@
 
     const { email, password } = JSON.parse(sessionStorage);
 
-    $isLoading = true;
-
     const user = await $session.login(email, password);
-
-    $isLoading = false;
 
     return user;
   }
 
   async function initAuthentication () {
+    $isLoading = true;
+
     let response = await new GoTrue.default({
       APIUrl: 'https://boring-wozniak-bbc476.netlify.app/.netlify/identity',
       setCookie: true,
@@ -49,28 +49,37 @@
     if (hash) {
       const [hashId, token] = hash.split('=');
 
-      if (hashId !== '#confirmation_token') return ;
+      if (hashId === '#confirmation_token') {
+        $session
+          .confirm(token)
+          .then(response => {
+            console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
+            // navigate to the main url
+            window.location.hash = '';
+            // alert('Account confirmed, sign in');
+            // loadProtectedContent($user);
+            const key = response.app_metadata.publishableKey;
+            const sessionId = response.app_metadata.sessionId;
+            redirectToStripeCheckout(key, sessionId)
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          })
+      };
 
-      // show loading spinner
+      if (hashId === '#subscription_success') {
+        // TODO: Hide sign up form
+        showSignUpForm = false;
+        // TODO: Thank user for validating the address and entering payment
+        // TODO: Ask user to sign in
+        loadProtectedContent($user);
+        $isLoading = false;
+      }
 
-      $session
-        .confirm(token)
-        .then(response => {
-          console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
-          // navigate to the main url
-          window.location.hash = '';
-          // alert('Account confirmed, sign in');
-          // loadProtectedContent($user);
-          const key = response.app_metadata.publishableKey;
-          const sessionId = response.app_metadata.sessionId;
-          redirectToStripeCheckout(key, sessionId)
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        })
     } else {
       console.log('try to load content');
       loadProtectedContent($user);
+      $isLoading = false;
     }
   };
 
@@ -88,7 +97,9 @@
     <LogOutButton />
     <ManageSubscriptionButton />
   { :else }
-    <SignUpForm />
+    { #if showSignUpForm }
+      <SignUpForm />
+    { /if }
     <LogInForm />
   { /if }
   <h1>

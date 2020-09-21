@@ -1,6 +1,9 @@
 export default function (key, sessionId) {
   /*
-  * Global Stripe object is imported via extrenal <script> tag
+  * This Stripe is an external link in the index.html page
+  * it does not get included in the bundler as a requirement
+  * to be PCI compliant.
+  * The key used here is the public key. NEVER the secret key.
   */
   const stripe = Stripe(key);
   stripe.redirectToCheckout({
