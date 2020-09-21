@@ -7,12 +7,21 @@ exports.handler = async event => {
   // create a new customer in Stripe
   const customer = await stripe.customers.create({ email: user.email });
 
-  // collect card information
-  // subscribe the new customer to the free plan
-  // await stripe.subscriptions.create({
-  //   customer: customer.id,
-  //   items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
-  // });
+  // const create a new checkout session in Stripe
+  const session = await stripe.checkout.sessions.create({
+    customer: customer.id,
+    payment_method_types: ['card'],
+    billing_address_collection: 'auto',
+    success_url: `${process.env.URL}/#subscription-success`,
+    cancel_url: process.env.URL,
+    line_items: [
+      {
+        price: 'price_1HSOf2ApFf30oe2K0xcc0gqn',
+        quantity: 1,
+      }
+    ],
+    mode: 'subscription'
+  })
 
   // store the Netlify and Stripe IDs in Fauna
   await faunaFetch({
@@ -41,7 +50,8 @@ exports.handler = async event => {
     statusCode: 200,
     body: JSON.stringify({
       app_metadata: {
-        roles: ['individual'], /* TODO: convert to a shared constant */
+        sessionId: session.id,
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
       },
     }),
   };
