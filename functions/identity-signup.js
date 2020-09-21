@@ -46,6 +46,8 @@ exports.handler = async event => {
     },
   });
 
+  console.log('Stripe session', session.id);
+
   return {
     statusCode: 200,
     body: JSON.stringify({
