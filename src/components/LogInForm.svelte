@@ -45,14 +45,14 @@
   </h3>
   <form
     name="login"
-    on:submit|preventDefault={loginUser}
+    on:submit|preventDefault={ loginUser }
   >
     <label>
       Email
       <input
-        type="email"
+        bind:this={ email }
         name="email"
-        bind:this={email}
+        type="email"
         required
       />
     </label>
@@ -61,14 +61,14 @@
       <input
         type="password"
         name="password"
-        bind:this={password}
+        bind:this={ password }
         required
       />
     </label>
     <label>
       <input
         type="checkbox"
-        bind:checked={stayLogged}
+        bind:checked={ stayLogged }
       />
       Stay logged in.
     </label>
