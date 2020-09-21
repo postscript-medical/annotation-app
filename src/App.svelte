@@ -8,6 +8,7 @@
   } from './stores.js';
   import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
+  import redirectToStripeCheckout from './methods/stripe/redirect-to-checkout.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
   import LogOutButton from './components/LogOutButton.svelte';
@@ -50,14 +51,19 @@
 
       if (hashId !== '#confirmation_token') return ;
 
+      // show loading spinner
+
       $session
         .confirm(token)
         .then(response => {
           console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
           // navigate to the main url
           window.location.hash = '';
-          alert('Account confirmed, sign in');
-          loadProtectedContent($user);
+          // alert('Account confirmed, sign in');
+          // loadProtectedContent($user);
+          const key = response.app_metadata.publishableKey;
+          const sessionId = response.app_metadata.sessionId;
+          redirectToStripeCheckout(key, sessionId)
         })
         .catch(error => {
           console.error('Error:', error);

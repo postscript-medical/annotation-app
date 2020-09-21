@@ -54,7 +54,7 @@
       .signup(email.value, password.value)
       .then(response => {
         console.log('created user', response);
-        // now ask for credit card
+        // tell user to verify email address
         $isLoading = false;
         }
       )
