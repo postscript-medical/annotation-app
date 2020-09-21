@@ -12,7 +12,7 @@ exports.handler = async event => {
     customer: customer.id,
     payment_method_types: ['card'],
     billing_address_collection: 'auto',
-    success_url: `${process.env.URL}/#subscription-success`,
+    success_url: `${process.env.URL}/#subscription_success`,
     cancel_url: process.env.URL,
     line_items: [
       {
