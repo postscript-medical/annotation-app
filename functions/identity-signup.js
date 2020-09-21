@@ -16,7 +16,7 @@ exports.handler = async event => {
     cancel_url: process.env.URL,
     line_items: [
       {
-        price: 'price_1HSOf2ApFf30oe2K0xcc0gqn',
+        price: 'price_1HSOhAApFf30oe2KqzMBRqyn',
         quantity: 1,
       }
     ],
