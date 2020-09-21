@@ -13,8 +13,8 @@
   * to be PCI compliant.
   * The key used here is the public key. NEVER the secret key.
   */
-  const stripe = Stripe('pk_test_51HRFNnApFf30oe2K3dr1r6nLyYkJfisTDUzVAQ8uCh3SGIcHwY49wndXzVLpnuu5B0WX4QFW9lmFaQYUhcsKW09900IiYkkBpQ');
-  const stripeElements = stripe.elements();
+  // const stripe = Stripe('pk_test_51HRFNnApFf30oe2K3dr1r6nLyYkJfisTDUzVAQ8uCh3SGIcHwY49wndXzVLpnuu5B0WX4QFW9lmFaQYUhcsKW09900IiYkkBpQ');
+  // const stripeElements = stripe.elements();
 
   // Set up Stripe.js and Elements to use in checkout form
   const style = {
@@ -33,12 +33,12 @@
     }
   };
 
-  const cardElement = stripeElements.create("card", { style: style });
-  cardElement.on('change', toggleCardErrorMessage);
+  // const cardElement = stripeElements.create("card", { style: style });
+  // cardElement.on('change', toggleCardErrorMessage);
 
-  function toggleCardErrorMessage (e) {
-    errorMessage = e.error ? e.error.message : '';
-  };
+  // function toggleCardErrorMessage (e) {
+  //   errorMessage = e.error ? e.error.message : '';
+  // };
  
   function submit (e) {
     const form = e.target;
@@ -62,45 +62,45 @@
       });
   };
 
-  function createPaymentMethod({ card, isPaymentRetry, invoiceId }) {
-    // Set up payment method for recurring usage
-    let billingName = document.querySelector('#name').value;
+  // function createPaymentMethod({ card, isPaymentRetry, invoiceId }) {
+  //   // Set up payment method for recurring usage
+  //   let billingName = document.querySelector('#name').value;
 
-    stripe
-      .createPaymentMethod({
-        type: 'card',
-        card: card,
-        billing_details: {
-          name: name.value,
-        },
-      })
-      .then((result) => {
-        if (result.error) {
-          displayError(result);
-        } else {
-          if (isPaymentRetry) {
-            // Update the payment method and retry invoice payment
-            retryInvoiceWithNewPaymentMethod({
-              customerId: customerId,
-              paymentMethodId: result.paymentMethod.id,
-              invoiceId: invoiceId,
-              priceId: priceId,
-            });
-          } else {
-            // Create the subscription
-            createSubscription({
-              customerId: customerId,
-              paymentMethodId: result.paymentMethod.id,
-              priceId: priceId,
-            });
-          }
-        }
-      });
-  }
+  //   stripe
+  //     .createPaymentMethod({
+  //       type: 'card',
+  //       card: card,
+  //       billing_details: {
+  //         name: name.value,
+  //       },
+  //     })
+  //     .then((result) => {
+  //       if (result.error) {
+  //         displayError(result);
+  //       } else {
+  //         if (isPaymentRetry) {
+  //           // Update the payment method and retry invoice payment
+  //           retryInvoiceWithNewPaymentMethod({
+  //             customerId: customerId,
+  //             paymentMethodId: result.paymentMethod.id,
+  //             invoiceId: invoiceId,
+  //             priceId: priceId,
+  //           });
+  //         } else {
+  //           // Create the subscription
+  //           createSubscription({
+  //             customerId: customerId,
+  //             paymentMethodId: result.paymentMethod.id,
+  //             priceId: priceId,
+  //           });
+  //         }
+  //       }
+  //     });
+  // }
 
-  onMount(() => {
-    cardElement.mount("#card-element");
-  });
+  // onMount(() => {
+  //   cardElement.mount("#card-element");
+  // });
 </script>
 
 <article>
@@ -111,7 +111,7 @@
     name="signup"
     on:submit|preventDefault={ submit }
   >
-    <label>
+    <!-- <label>
       Name
       <input
         bind:this={ name }
@@ -119,7 +119,7 @@
         type="text"
         required
       />
-    </label>
+    </label> -->
     <label>
       Email
       <input
