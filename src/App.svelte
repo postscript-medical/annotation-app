@@ -8,11 +8,11 @@
   } from './stores.js';
   import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
-  import redirectToStripeCheckout from './methods/stripe/redirect-to-checkout.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
   import LogOutButton from './components/LogOutButton.svelte';
   import ManageSubscriptionButton from './components/ManageSubscriptionButton.svelte';
+  import LoadingOverlay from './components/LoadingOverlay.svelte';
 
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
@@ -54,31 +54,21 @@
           .confirm(token)
           .then(response => {
             console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
-            // navigate to the main url
+
             window.location.hash = '';
+
             // alert('Account confirmed, sign in');
-            // loadProtectedContent($user);
-            const key = response.app_metadata.publishableKey;
-            const sessionId = response.app_metadata.sessionId;
-            redirectToStripeCheckout(key, sessionId)
+            loadProtectedContent($user);
+            // TODO: wait a frame before toggling this
+            $isLoading = false;
           })
           .catch(error => {
             console.error('Error:', error);
           })
       };
-
-      if (hashId === '#subscription_success') {
-        // TODO: Hide sign up form
-        showSignUpForm = false;
-        // TODO: Thank user for validating the address and entering payment
-        // TODO: Ask user to sign in
-        loadProtectedContent($user);
-        $isLoading = false;
-      }
-
     } else {
-      console.log('try to load content');
       loadProtectedContent($user);
+      // TODO: wait a frame before toggling this
       $isLoading = false;
     }
   };
@@ -87,11 +77,6 @@
 </script>
 
 <main>
-  { #if $isLoading }
-    <div>
-    Please wait...
-    </div>
-  { /if }
   { #if $user }
     <p>User is: { $user.email }</p>
     <LogOutButton />
@@ -106,6 +91,11 @@
     { $protectedContent }
   </h1>
 </main>
+
+{ #if $isLoading }
+  <LoadingOverlay />
+{ /if }
+
 
 <style>
   main {
