@@ -60,27 +60,40 @@
 
   function onDocumentPointerMove( event ) {
     event.preventDefault();
-    
+
     var location = getPointerLocation( event, hasPointer );
 
     if (isErasing) {
-      context.save();
+      erase(location);
+    } else {
+      draw(location);
     }
-    
-    context.beginPath();
-    context.moveTo( mouse.x, mouse.y );
-    context.lineTo( location.x, location.y );
-    context.stroke();
-
-    context.restore();
 
     mouse = getPointerLocation( event, hasPointer )
   }
 
+  function draw (location) {
+    // TODO: research a way to create smoother lines when moving drawing too fast
+    context.beginPath();
+    context.moveTo( mouse.x, mouse.y );
+    context.lineTo( location.x, location.y );
+    context.stroke();
+  };
+
+  function erase (location) {
+    // TODO: Try and fill the gap between arcs when moving the eraser very fast
+    context.save();
+    context.beginPath();
+    context.arc(mouse.x, mouse.y, 32, 0, (2 * 3.14159));
+    context.fill()
+    context.restore();
+  };
+
   function selectEraser () {
+    // TODO: have a visual aid to show the size of the eraser
     context.globalCompositeOperation = "destination-out";
     context.strokeStyle = 'rgb(0,0,0)';
-    context.lineWidth = 32;
+    context.lineWidth = 1;
     selectedTool = TOOL_ERASER;
   };
 
