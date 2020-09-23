@@ -26,7 +26,7 @@
 
   $: isErasing = selectedTool === TOOL_ERASER;
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
-  $: src = selectedImage ? selectedImage.url + selectedImage.format : null;
+  $: src = selectedImage ? selectedImage.url : null;
 
   function init() {
     if (hasPointer) {
@@ -123,9 +123,18 @@
 </script>
 
 <div class="paper">
-  <picture>
-    <img {src} alt="">
-  </picture>
+  { #if src }
+    <picture>
+      <source
+        type="image/webp"
+        srcset={ src + '.webp' }
+      />
+      <img
+        src={ src + '.jpg' }
+        alt=""
+      />
+    </picture>
+  { /if }
 
   <canvas
     bind:this={ canvas }
