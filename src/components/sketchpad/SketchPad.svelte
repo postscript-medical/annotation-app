@@ -173,6 +173,7 @@
   picture {
     display: block;
     position: relative;
+    flex: 1;
   }
 
   picture > * {
@@ -180,8 +181,8 @@
     width: 100%;
     height: auto;
     display: block;
-    max-height: 100vh;
     max-width: 100vw;
+    max-height: 100vh;
   }
 
   .paper {
@@ -189,11 +190,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-  }
-
-  .paper > picture {
-    flex: 1;
+    height: 100%;
   }
 
   .ui {
