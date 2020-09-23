@@ -4,15 +4,13 @@
     session,
     user,
     isLoading,
-    protectedContent
   } from './stores.js';
   import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
   import SignUpForm from  './components/SignUpForm.svelte';
   import LogInForm from './components/LogInForm.svelte';
-  import LogOutButton from './components/LogOutButton.svelte';
-  import ManageSubscriptionButton from './components/ManageSubscriptionButton.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
+  import SketchPad from './components/sketchpad/SketchPad.svelte';
 
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
@@ -78,18 +76,13 @@
 
 <main>
   { #if $user }
-    <p>User is: { $user.email }</p>
-    <LogOutButton />
-    <ManageSubscriptionButton />
+    <SketchPad />
   { :else }
     { #if showSignUpForm }
       <SignUpForm />
     { /if }
     <LogInForm />
   { /if }
-  <h1>
-    { $protectedContent }
-  </h1>
 </main>
 
 { #if $isLoading }
@@ -100,9 +93,10 @@
 <style>
   main {
     text-align: center;
-    padding: 1em;
+    padding: 0;
     max-width: 240px;
     margin: 0 auto;
+    position: relative;
   }
 
   @media (min-width: 640px) {
