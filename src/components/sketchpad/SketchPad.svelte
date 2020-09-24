@@ -5,6 +5,7 @@
   } from 'svelte';
   import getPointerLocation from './helpers/get-pointer-location.js';
   import { user } from '../../stores.js';
+  import debounce from './helpers/debounce.js';
   import { gastroImages } from './helpers/fake-database.js';
   import LogOutButton from '../LogOutButton.svelte';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
@@ -13,7 +14,16 @@
   const TOOL_PEN = 'pen';
 
   const hasPointer = window.PointerEvent;
+  const inMemoryCanvas = document.createElement('canvas');
+  const inMemoryContext = inMemoryCanvas.getContext('2d');
   let canvas;
+  /*
+  * canvasHistory = [{
+  *  action: string
+  *  _pointer: { x: number, y: number },
+  *  _location: { x: number, y: number },
+  * }]
+  */
   let canvasHistory = [];
   let context;
   let mouse = { x: 0, y: 0 };
@@ -47,7 +57,7 @@
     selectPen();
   }
 
-  function onDocumentPointerDown( event ) {
+  function onDocumentPointerDown(event) {
     event.preventDefault();
     
     mouse = getPointerLocation( event, hasPointer )
@@ -59,7 +69,7 @@
     disableDrawing();
   }
 
-  function onDocumentPointerMove( event ) {
+  function onDocumentPointerMove(event) {
     event.preventDefault();
 
     var location = getPointerLocation( event, hasPointer );
@@ -77,7 +87,7 @@
     canvas.removeEventListener( eventType.move, onDocumentPointerMove, false );
   }
 
-  function draw ( _location, _pointer, redrawing ) {
+  function draw (_location, _pointer, redrawing) {
     context.globalCompositeOperation = "source-over";
     context.strokeStyle = 'rgb(0,0,0)';
     context.lineWidth = 3;
@@ -101,14 +111,14 @@
     });
   };
 
-  function erase ( _mouse, redrawing ) {
+  function erase (_pointer, redrawing) {
     context.globalCompositeOperation = "destination-out";
     context.strokeStyle = 'rgb(0,0,0)';
     context.lineWidth = 1;
     // TODO: Try and fill the gap between arcs when moving the eraser very fast
     context.save();
     context.beginPath();
-    context.arc(_mouse.x, _mouse.y, 32, 0, 6.28318); /* 6.28318 is approx. 1 radian */
+    context.arc(_pointer.x, _pointer.y, 32, 0, 6.28318); /* 6.28318 is approx. 1 radian */
     context.fill()
     context.restore();
 
@@ -116,8 +126,8 @@
 
     recordCanvasHistory({
       _pointer: {
-        x: _mouse.x,
-        y: _mouse.y,
+        x: _pointer.x,
+        y: _pointer.y,
       },
     });
   };
@@ -135,7 +145,7 @@
     // canvasHistory = [];
   };
 
-  function recordCanvasHistory ( { _pointer, _location } ) {
+  function recordCanvasHistory ({ _pointer, _location }) {
     canvasHistory = [
         ...canvasHistory,
         {
@@ -159,17 +169,37 @@
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  function selectNewImage ( { detail: id } ) {
+  function selectNewImage ({ detail: id }) {
     selectedImageId = id;
   }
 
   // TODO: handle window resize
   function resizeCanvas () {
-    console.log('resize');
-    // TODO:  debounce this
+    // work out the size difference
+    // if the new canvas is smaller than the old one, shrink the image
+    // if the new canvas is bigger than the old one, do not stretch it and place in the middle
+    const widthDifference = window.innerWidth / canvas.width;
+    const heightDifference = window.innerHeight / canvas.height;
+
+    // loop over the history, replace the x,y points according to the new canvas size
+    canvasHistory = canvasHistory.map(({ action, _pointer, _location }) => {
+      return {
+        action: action,
+        _pointer: { x: _pointer.x * widthDifference, y: _pointer.y * heightDifference },
+        _location: _location ? { x: _location.x * widthDifference, y: _location.y * heightDifference } : undefined,
+      }
+    });
+
+    // we need to lock the aspect ratio of the new drawn canvas to be the same as the image
+
+    /* **** */
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    console.log('resize', widthDifference, heightDifference);
+    eraseAll();
+    redraw();
     // TODO: make sure the image is drawn in the middle of the updated canvas
   }
 
@@ -200,7 +230,7 @@
 </script>
 
 <svelte:window
-  on:resize={ resizeCanvas }
+  on:resize={ debounce(resizeCanvas, 500) }
 />
 <svelte:body
   on:mouseleave={ disableDrawing }
