@@ -1,5 +1,4 @@
 <script>
-  // TODO: stop drawing if user moves pointer outside the canvas/html body
   import {
     onDestroy,
     onMount,
@@ -56,8 +55,8 @@
     canvas.addEventListener( eventType.move, onDocumentPointerMove, false );
   }
 
-  function onDocumentPointerUp( event ) {
-    canvas.removeEventListener( eventType.move, onDocumentPointerMove, false );
+  function onDocumentPointerUp() {
+    disableDrawing();
   }
 
   function onDocumentPointerMove( event ) {
@@ -74,7 +73,11 @@
     mouse = getPointerLocation( event, hasPointer );
   }
 
-  function draw (_location, _pointer, redrawing) {
+  function disableDrawing () {
+    canvas.removeEventListener( eventType.move, onDocumentPointerMove, false );
+  }
+
+  function draw ( _location, _pointer, redrawing ) {
     context.globalCompositeOperation = "source-over";
     context.strokeStyle = 'rgb(0,0,0)';
     context.lineWidth = 3;
@@ -98,7 +101,7 @@
     });
   };
 
-  function erase (_mouse, redrawing) {
+  function erase ( _mouse, redrawing ) {
     context.globalCompositeOperation = "destination-out";
     context.strokeStyle = 'rgb(0,0,0)';
     context.lineWidth = 1;
@@ -133,7 +136,7 @@
     // canvasHistory = [];
   };
 
-  function recordCanvasHistory ({ _pointer, _location }) {
+  function recordCanvasHistory ( { _pointer, _location } ) {
     canvasHistory = [
         ...canvasHistory,
         {
@@ -157,7 +160,7 @@
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  function selectNewImage ({ detail: id }) {
+  function selectNewImage ( { detail: id } ) {
     selectedImageId = id;
   }
 
@@ -173,16 +176,22 @@
   }
 
   onMount(() => {
-    window.addEventListener('resize', resizeCanvas, false);
     init();
   });
 
   onDestroy(() => {
-    window.removeEventListener('resize', resizeCanvas, false);
     canvas.removeEventListener( eventType.down, onDocumentPointerDown, false );
     canvas.removeEventListener( eventType.up, onDocumentPointerUp, false );
   });
 </script>
+
+<svelte:window
+  on:resize={ resizeCanvas }
+/>
+
+<svelte:body
+  on:mouseleave={ disableDrawing }
+/>
 
 <div class="paper">
   { #if src }
