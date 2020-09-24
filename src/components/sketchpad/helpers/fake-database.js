@@ -5,18 +5,18 @@ export const gastroImages = [
     id: 'one',
     title: 'Hepatic encephalopathy',
     url: '/images/medical/v1600862513/gastroenterology/Hepatic_encephalopathy_2x',
-    format: '.webp',
+    format: '.jpg',
   },
   {
     id: 'two',
     title: 'ERCP',
     url: '/images/medical/v1600862511/gastroenterology/ECCP_2x',
-    format: '.webp',
+    format: '.jpg',
   },
   {
     id: 'three',
     title: 'Hepatic encephalopathy',
     url: '/images/medical/v1600862515/gastroenterology/LIVER_ABCESS_drainage_2x',
-    format: '.webp',
+    format: '.jpg',
   },
 ];
