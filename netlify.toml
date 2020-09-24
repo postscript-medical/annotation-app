@@ -5,3 +5,8 @@
 
 [dev]
   command = "npm run dev"
+
+[[redirects]]
+  from = 'images/medical/*'
+  to = 'https://res.cloudinary.com/obscura-limited/image/upload/q_auto:eco/:splat'
+  status = 200
