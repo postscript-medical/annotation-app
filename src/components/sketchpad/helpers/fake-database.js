@@ -4,19 +4,19 @@ export const gastroImages = [
   {
     id: 'one',
     title: 'Hepatic encephalopathy',
-    url: 'https://res.cloudinary.com/obscura-limited/image/upload/q_auto:eco/v1600862513/gastroenterology/Hepatic_encephalopathy_2x',
+    url: '/images/medical/v1600862513/gastroenterology/Hepatic_encephalopathy_2x',
     format: '.webp',
   },
   {
     id: 'two',
     title: 'ERCP',
-    url: 'https://res.cloudinary.com/obscura-limited/image/upload/q_auto:eco/v1600862511/gastroenterology/ECCP_2x',
+    url: '/images/medical/v1600862511/gastroenterology/ECCP_2x',
     format: '.webp',
   },
   {
     id: 'three',
     title: 'Hepatic encephalopathy',
-    url: 'https://res.cloudinary.com/obscura-limited/image/upload/f_auto,q_auto:eco/v1600862515/gastroenterology/LIVER_ABCESS_drainage_2x',
+    url: '/images/medical/v1600862515/gastroenterology/LIVER_ABCESS_drainage_2x',
     format: '.webp',
   },
 ];
