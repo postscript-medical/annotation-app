@@ -1,4 +1,5 @@
 <script>
+  // TODO: stop drawing if user moves pointer outside the canvas/html body
   import {
     onDestroy,
     onMount,
@@ -14,6 +15,7 @@
 
   const hasPointer = window.PointerEvent;
   let canvas;
+  let canvasHistory = [];
   let context;
   let mouse = { x: 0, y: 0 };
   let selectedTool;
@@ -64,43 +66,90 @@
     var location = getPointerLocation( event, hasPointer );
 
     if (isErasing) {
-      erase(location);
+      erase(mouse);
     } else {
-      draw(location);
+      draw(location, mouse);
     }
 
-    mouse = getPointerLocation( event, hasPointer )
+    mouse = getPointerLocation( event, hasPointer );
   }
 
-  function draw (location) {
+  function draw (_location, _pointer, redrawing) {
+    context.globalCompositeOperation = "source-over";
+    context.strokeStyle = 'rgb(0,0,0)';
+    context.lineWidth = 3;
     // TODO: research a way to create smoother lines when moving drawing too fast
     context.beginPath();
-    context.moveTo( mouse.x, mouse.y );
-    context.lineTo( location.x, location.y );
+    context.moveTo( _pointer.x, _pointer.y );
+    context.lineTo( _location.x, _location.y );
     context.stroke();
+
+    if (redrawing) return;
+
+    recordCanvasHistory({
+      _pointer: {
+        x: _pointer.x,
+        y: _pointer.y,
+      },
+      _location: {
+        x: _location.x,
+        y: _location.y,
+      },
+    });
   };
 
-  function erase (location) {
+  function erase (_mouse, redrawing) {
+    context.globalCompositeOperation = "destination-out";
+    context.strokeStyle = 'rgb(0,0,0)';
+    context.lineWidth = 1;
     // TODO: Try and fill the gap between arcs when moving the eraser very fast
     context.save();
     context.beginPath();
-    context.arc(mouse.x, mouse.y, 32, 0, (2 * 3.14159));
+    context.arc(_mouse.x, _mouse.y, 32, 0, 6.28318); /* 6.28318 is approx. 1 radian */
     context.fill()
     context.restore();
+
+    if (redrawing) return;
+
+    recordCanvasHistory({
+      _pointer: {
+        x: _mouse.x,
+        y: _mouse.y,
+      },
+    });
+  };
+
+  function redraw () {
+    console.log('redrawing:', canvasHistory);
+    eraseAll();
+    canvasHistory.forEach(({ action, _pointer, _location }) => {
+      if (action === TOOL_PEN) {
+        draw(_location, _pointer, true);
+      } else {
+        erase(_pointer, true);
+      };
+    });
+
+    // canvasHistory = [];
+  };
+
+  function recordCanvasHistory ({ _pointer, _location }) {
+    canvasHistory = [
+        ...canvasHistory,
+        {
+          action: selectedTool,
+          _pointer,
+          _location,
+        }
+      ];
   };
 
   function selectEraser () {
     // TODO: have a visual aid to show the size of the eraser
-    context.globalCompositeOperation = "destination-out";
-    context.strokeStyle = 'rgb(0,0,0)';
-    context.lineWidth = 1;
     selectedTool = TOOL_ERASER;
   };
 
   function selectPen () {
-    context.globalCompositeOperation = "source-over";
-    context.strokeStyle = 'rgb(0,0,0)';
-    context.lineWidth = 3;
     selectedTool = TOOL_PEN;
   };
 
@@ -179,6 +228,12 @@
     on:update={ selectNewImage 
     }
   />
+  <button
+    on:click={ redraw }
+    disabled={ canvasHistory < 1 }
+  >
+    Redraw
+  </button>
 </div>
 
 
