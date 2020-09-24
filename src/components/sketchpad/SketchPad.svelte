@@ -124,7 +124,6 @@
 
   function redraw () {
     console.log('redrawing:', canvasHistory);
-    eraseAll();
     canvasHistory.forEach(({ action, _pointer, _location }) => {
       if (action === TOOL_PEN) {
         draw(_location, _pointer, true);
@@ -172,8 +171,23 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     // TODO: make sure the image is drawn in the middle of the updated canvas
-
   }
+
+  function downloadImage () {
+    const srcImg = document.querySelector('#displayed-image');
+    const boundingRect = srcImg.getBoundingClientRect();
+    const top = canvas.height - boundingRect.height;
+    context.fillStyle = 'white';
+    context.fillRect(0,0, canvas.width, canvas.height);
+    context.drawImage(srcImg, 0, boundingRect.top, boundingRect.width, boundingRect.height);
+    redraw();
+
+    const imageURI = canvas.toDataURL('image/jpg', 0.7);
+    const hiddenLink = document.createElement('a');
+    hiddenLink.setAttribute('href', imageURI);
+    hiddenLink.setAttribute('download', 'myImage.jpg');
+    hiddenLink.click();
+  };
 
   onMount(() => {
     init();
@@ -188,7 +202,6 @@
 <svelte:window
   on:resize={ resizeCanvas }
 />
-
 <svelte:body
   on:mouseleave={ disableDrawing }
 />
@@ -201,6 +214,7 @@
         srcset={ src + '.webp' }
       />
       <img
+        id="displayed-image"
         src={ src + '.jpg' }
         alt=""
       />
@@ -242,6 +256,12 @@
     disabled={ canvasHistory < 1 }
   >
     Redraw
+  </button>
+  <button
+    on:click={ downloadImage }
+    disabled={ !selectedImage }
+  >
+    Download
   </button>
 </div>
 
