@@ -12,6 +12,7 @@
 
   const TOOL_ERASER = 'eraser';
   const TOOL_PEN = 'pen';
+  const RADIAN = 6.28318; /* 6.28318 is approx. 1 radian */
 
   const hasPointer = window.PointerEvent;
   const inMemoryCanvas = document.createElement('canvas');
@@ -50,9 +51,10 @@
 
     context = canvas.getContext( '2d' );
 
-    resizeCanvas();
     canvas.addEventListener( eventType.down, onDocumentPointerDown, false );
     canvas.addEventListener( eventType.up, onDocumentPointerUp, false );
+
+    resizeCanvas();
 
     selectPen();
   }
@@ -62,7 +64,7 @@
     
     mouse = getPointerLocation( event, hasPointer )
 
-    canvas.addEventListener( eventType.move, onDocumentPointerMove, false );
+    canvas.addEventListener(eventType.move, onDocumentPointerMove, false);
   }
 
   function onDocumentPointerUp() {
@@ -116,13 +118,22 @@
     context.strokeStyle = 'rgb(0,0,0)';
     context.lineWidth = 1;
     // TODO: Try and fill the gap between arcs when moving the eraser very fast
+    // work out the distance between the two circles and draw a box between them
     context.save();
     context.beginPath();
-    context.arc(_pointer.x, _pointer.y, 32, 0, 6.28318); /* 6.28318 is approx. 1 radian */
-    context.fill()
+    context.arc(_pointer.x, _pointer.y, 32, 0, RADIAN);
+    context.fill();
     context.restore();
 
     if (redrawing) return;
+
+    // context.globalCompositeOperation = 'source-over';
+    // context.beginPath();
+    // context.arc(_pointer.x, _pointer.y, 32, 0, RADIAN);
+    // context.fillStyle = "#FF6A6A";
+    // context.fill();
+
+    // If we createa dom element and set it to follow the mouse, we can achieve the same result
 
     recordCanvasHistory({
       _pointer: {
@@ -142,6 +153,7 @@
       };
     });
 
+    // Only delete history if the user clicked to redraw
     // canvasHistory = [];
   };
 
@@ -156,12 +168,37 @@
       ];
   };
 
+  let eraserHead;
+  function createEraserHead () {
+    eraserHead = document.createElement('div');
+    eraserHead.setAttribute('id', 'eraser-head');
+    document.body.appendChild(eraserHead);
+    document.addEventListener(eventType.move, followPointer, false);
+  };
+
+  function destroyEraserHead () {
+    // const eraserHead = document.querySelector('#eraser-head');
+    if (eraserHead) {
+      eraserHead.parentNode.removeChild(eraserHead);
+      document.removeEventListener(eventType.move, followPointer, false);
+    }
+  };
+
+  function followPointer (event) {
+    mouse = getPointerLocation(event, hasPointer);
+    console.log('mouse', mouse);
+    console.log('eraser', eraserHead);
+    eraserHead.style.transform = `translate3d(${mouse.x - 21}px,${mouse.y - 21}px,0px)`;
+  };
+
   function selectEraser () {
     // TODO: have a visual aid to show the size of the eraser
+    createEraserHead();
     selectedTool = TOOL_ERASER;
   };
 
   function selectPen () {
+    destroyEraserHead();
     selectedTool = TOOL_PEN;
   };
 
@@ -341,5 +378,15 @@
 
   :global(.ui > *) {
     pointer-events: auto;
+  }
+
+  :global(#eraser-head) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 1px solid black;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
   }
 </style>
