@@ -304,6 +304,7 @@
     left: 0;
     top: 0;
     cursor: crosshair;
+    touch-action: none;
   }
 
   picture {
