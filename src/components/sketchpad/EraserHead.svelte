@@ -1,22 +1,22 @@
 <script>
-  export let position = { x: 0, y: 0 };
-  export let radius = 20;
+  export let position = { x: -1000, y: -1000 };
+  export let size = 10;
 
-  $: updatedPosition = `transform: translate3d(${position.x - radius}px,${position.y - radius}px,0px);`
+  $: radius = size / 2
+
+  $: style = `width: ${size}px; height: ${size}px; transform: translate3d(${position.x - radius}px,${position.y - radius}px,0px);`
 </script>
 
-<div style={ updatedPosition } ></div>
+<div {style}></div>
 
 <style>
   div {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     border: 1px solid black;
     border-radius: 50%;
     box-sizing: border-box;
-    width: 40px;
-    height: 40px;
     pointer-events: none;
   }
 </style>
