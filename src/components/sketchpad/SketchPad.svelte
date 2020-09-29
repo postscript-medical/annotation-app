@@ -38,7 +38,7 @@
     lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
   };
-  let selectedTool;
+  let selectedToolId;
   let selectedImageId;
   let strokes = [];
   let strokesIndex = 0;
@@ -48,6 +48,7 @@
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: isErasing = selectedTool && selectedTool.name === TOOL_ERASER;
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
+  $: selectedTool = selectedToolId && selectedToolId === TOOL_PEN ? pen : eraser;
   $: src = selectedImage ? selectedImage.url : null;
 
   function drawStrokes () {
@@ -131,11 +132,11 @@
   };
 
   function selectEraser () {
-    selectedTool = { ...eraser };
+    selectedToolId = TOOL_ERASER;
   };
 
   function selectPen () {
-    selectedTool = { ...pen };
+    selectedToolId = TOOL_PEN;
   };
 
   function clearCanvas () {
@@ -235,42 +236,90 @@
 </div>
 
 <div class="ui">
-  <p>User is: { $user.email }</p>
-  <LogOutButton />
-  <button
-    on:click={ selectEraser }
-    disabled={ isErasing }
-  >
-    Eraser
-  </button>
-  <button
-    on:click={ clearCanvas }
-  >
-    Erase all
-  </button>
-  <button
-    on:click={ selectPen }
-    disabled={ !isErasing }
-  >
-    Pen
-  </button>
-  <ImageSelectorButton
-    options={ gastroImages }
-    on:update={ selectNewImage 
-    }
-  />
-  <button
-    on:click={ render }
-    disabled={ strokes.length === 0 }
-  >
-    Redraw
-  </button>
-  <button
-    on:click={ downloadImage }
-    disabled={ !selectedImage }
-  >
-    Download
-  </button>
+  <div>
+    <span>User is: { $user.email }</span>
+    <LogOutButton />
+  </div>
+  <div>
+    <button
+      on:click={ selectEraser }
+      disabled={ isErasing }
+    >
+      Eraser
+    </button>
+    <button
+      on:click={ clearCanvas }
+    >
+      Erase all
+    </button>
+    <form>
+    { #each ERASER_SIZES as size }
+      <label>
+        <input
+          type="radio"
+          value={ size.value }
+          bind:group={ eraser.lineWidth }
+        />
+        { size.alias }
+      </label>
+    { /each }
+  </form>
+  </div>
+  <div>
+    <button
+      on:click={ selectPen }
+      disabled={ !isErasing }
+    >
+      Pen
+    </button>
+    <p>Color</p>
+    <form>
+    { #each PEN_COLORS as color }
+      <label>
+        <input
+          type="radio"
+          value={ color.value }
+          bind:group={ pen.color }
+        />
+        { color.alias }
+      </label>
+    { /each }
+  </form>
+  <p>Size</p>
+  <form>
+    { #each PEN_SIZES as size }
+      <label>
+        <input
+          type="radio"
+          value={ size.value }
+          bind:group={ pen.lineWidth }
+        />
+        { size.alias }
+      </label>
+    { /each }
+  </form>
+  </div>
+  <div>
+    <ImageSelectorButton
+      options={ gastroImages }
+      on:update={ selectNewImage 
+      }
+    />
+  </div>
+  <div>
+    <button
+      on:click={ render }
+      disabled={ strokes.length === 0 }
+    >
+      Redraw
+    </button>
+    <button
+      on:click={ downloadImage }
+      disabled={ !selectedImage }
+    >
+      Download
+    </button>
+  </div>
 
   { #if isPointerActive && selectedTool }
     <StokeCursor
@@ -324,9 +373,16 @@
     left: 0;
     top: 0;
     pointer-events: none;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  :global(.ui > *) {
+  :global(.ui button),
+  :global(.ui label),
+  :global(.ui select) {
     pointer-events: auto;
   }
 </style>

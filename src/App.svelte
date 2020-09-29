@@ -92,16 +92,9 @@
 
 <style>
   main {
-    text-align: center;
     padding: 0;
     margin: 0;
     position: relative;
     height: 100%;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
   }
 </style>
