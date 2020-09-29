@@ -38,6 +38,7 @@
     lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
   };
+  let offsetTop = 0;
   let selectedToolId;
   let selectedImageId;
   let strokes = [];
@@ -87,6 +88,9 @@
     context.lineJoin = 'round';
 
     selectPen();
+
+    resizeCanvas();
+    console.log('canvas', canvas);
   }
 
   function onPointerDown(event) {
@@ -122,9 +126,15 @@
   };
 
   function recordPoint (event) {
-    pointerLocation = getPointerLocation(event, hasPointer)
+    pointerLocation = getPointerLocation(event, hasPointer);
 
-    if (isPointerActive) strokes[strokesIndex].points = [...strokes[strokesIndex].points, pointerLocation];
+    if (isPointerActive) strokes[strokesIndex].points = [
+      ...strokes[strokesIndex].points,
+      {
+        x: pointerLocation.x,
+        y: pointerLocation.y - offsetTop,
+      }
+    ];
   };
 
   function stopDrawing () {
@@ -147,25 +157,34 @@
     selectedImageId = id;
   }
 
-  // TODO: handle window resize
+  function updateOffsetTop () {
+    offsetTop = canvas.getBoundingClientRect().top;
+  }
+
   function resizeCanvas () {
-    // work out the size difference
-    // if the new canvas is smaller than the old one, shrink the image
-    // if the new canvas is bigger than the old one, do not stretch it and place in the middle
-    const widthDifference = window.innerWidth / canvas.width;
-    const heightDifference = window.innerHeight / canvas.height;
+    // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
+    const oldSize = { width: canvas.width, height: canvas.height };
 
+    context = setupCanvas(canvas);
 
-    // we need to lock the aspect ratio of the new drawn canvas to be the same as the image
+    updateOffsetTop();
 
-    /* **** */
+    const scaleFactor = { width: canvas.width / oldSize.width, height: canvas.height / oldSize.height };
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // loop over the history, replace the x,y points according to the new canvas size
+    strokes = strokes.map(stroke => {
+      return {
+        ...stroke,
+        points: stroke.points.map(({ x, y }) => {
+          return {
+            x: x * scaleFactor.width,
+            y: y * scaleFactor.height,
+          }
+        })
+      }
+    });
 
-    console.log('resize', widthDifference, heightDifference);
     render();
-    // TODO: make sure the image is drawn in the middle of the updated canvas
   }
 
   function downloadImage () {
@@ -350,20 +369,28 @@
   }
 
   picture > * {
-    object-fit: contain;
     width: 100%;
     height: auto;
     display: block;
-    max-width: 100vw;
-    max-height: 100vh;
   }
 
   .paper {
+    background: white;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
+    flex: 1;
+  }
+  .paper::before {
+    content: '';
+    width: 1px;
+    margin-left: -1px;
+    height: 0;
+    padding-top: 56.25%;
+    float: left;
+  }
+  .paper::after {
+    content: '';
+    display: table;
+    clear: both;
   }
 
   .ui {

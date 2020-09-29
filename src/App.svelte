@@ -96,5 +96,9 @@
     margin: 0;
     position: relative;
     height: 100%;
+    background: lightgrey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
