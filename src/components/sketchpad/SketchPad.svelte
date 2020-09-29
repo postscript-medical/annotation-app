@@ -19,7 +19,7 @@
     TOOL_ERASER,
     TOOL_PEN,
   } from '../../constants/sketch-pad.js';
-  import EraserHead from './EraserHead.svelte';
+  import StokeCursor from './StokeCursor.svelte';
   import LogOutButton from '../LogOutButton.svelte';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
 
@@ -273,7 +273,7 @@
   </button>
 
   { #if isPointerActive && selectedTool }
-    <EraserHead
+    <StokeCursor
       position={ pointerLocation }
       size={ selectedTool.lineWidth }
     />
