@@ -4,205 +4,143 @@
     onMount,
   } from 'svelte';
   import getPointerLocation from './helpers/get-pointer-location.js';
-  import { user } from '../../stores.js';
   import debounce from './helpers/debounce.js';
+  import setupCanvas from './helpers/setup-canvas.js';
   import { gastroImages } from './helpers/fake-database.js';
+  import { user } from '../../stores.js';
+  import {
+    DEFAULT_COLOR_ALIAS,
+    DEFAULT_SIZE_ALIAS,
+    EVENTS_POINTER,
+    EVENTS_TOUCH,
+    ERASER_SIZES,
+    PEN_COLORS,
+    PEN_SIZES,
+    TOOL_ERASER,
+    TOOL_PEN,
+  } from '../../constants/sketch-pad.js';
+  import EraserHead from './EraserHead.svelte';
   import LogOutButton from '../LogOutButton.svelte';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
 
-  const TOOL_ERASER = 'eraser';
-  const TOOL_PEN = 'pen';
-  const RADIAN = 6.28318; /* 6.28318 is approx. 1 radian */
-
   const hasPointer = window.PointerEvent;
-  const inMemoryCanvas = document.createElement('canvas');
-  const inMemoryContext = inMemoryCanvas.getContext('2d');
   let canvas;
-  /*
-  * canvasHistory = [{
-  *  action: string
-  *  _pointer: { x: number, y: number },
-  *  _location: { x: number, y: number },
-  * }]
-  */
-  let canvasHistory = [];
   let context;
-  let mouse = { x: 0, y: 0 };
+  let eraser = {
+    domEl: undefined,
+    name: TOOL_ERASER,
+    lineWidth: ERASER_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value,
+    color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value,
+  };
+  let isPointerActive = false;
+  let pointerLocation = { x: 0, y: 0 };
+  let pen = {
+    domEl: undefined,
+    name: TOOL_PEN,
+    lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
+    color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
+  };
   let selectedTool;
   let selectedImageId;
-  let eventType = {
-    down: 'touchstart',
-    up: 'touchend',
-    move: 'touchmove',
-  };
+  let strokes = [];
+  let strokesIndex = 0;
+  let rafID;
 
+
+  $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: isErasing = selectedTool === TOOL_ERASER;
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
   $: src = selectedImage ? selectedImage.url : null;
 
-  function init() {
-    if (hasPointer) {
-      eventType = {
-        down: 'pointerdown',
-        up: 'pointerup',
-        move: 'pointermove'
+  function drawStrokes () {
+    strokes.forEach(({ action, lineWidth, color, points }) => {
+      if (points.length < 3) return;
+
+      const maxIndex = points.length - 2;
+      const isDrawing = action === TOOL_PEN;
+
+      context.save();
+      context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
+      context.strokeStyle = color;
+      context.beginPath();
+      context.lineWidth = lineWidth;
+      context.moveTo(points[0].x, points[0].y);
+
+      for(let i = 1; i < maxIndex; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
       }
-    };
 
-    context = canvas.getContext( '2d' );
+      context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x,points[maxIndex+1].y);
+      context.stroke();
+      context.restore();
+    });
+  };
 
-    canvas.addEventListener( eventType.down, onDocumentPointerDown, false );
-    canvas.addEventListener( eventType.up, onDocumentPointerUp, false );
+  function init() {
+    canvas.addEventListener(eventType.down, onPointerDown, false);
+    canvas.addEventListener(eventType.up, onPointerUp, false);
+    canvas.addEventListener(eventType.move, onPointerMove, false);
 
-    resizeCanvas();
+    context = setupCanvas(canvas);
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
 
     selectPen();
   }
 
-  function onDocumentPointerDown(event) {
-    event.preventDefault();
-    
-    mouse = getPointerLocation( event, hasPointer )
-
-    canvas.addEventListener(eventType.move, onDocumentPointerMove, false);
-  }
-
-  function onDocumentPointerUp() {
-    disableDrawing();
-  }
-
-  function onDocumentPointerMove(event) {
+  function onPointerDown(event) {
     event.preventDefault();
 
-    var location = getPointerLocation( event, hasPointer );
+    isPointerActive = true;
 
-    if (isErasing) {
-      erase(mouse);
-    } else {
-      draw(location, mouse);
-    }
+    strokes = [
+      ...strokes,
+      {
+        action: selectedTool.name,
+        lineWidth: selectedTool.lineWidth,
+        color: selectedTool.color,
+        points: [],
+      }
+    ];
 
-    mouse = getPointerLocation( event, hasPointer );
-  }
+    recordPoint(event, hasPointer);
 
-  function disableDrawing () {
-    canvas.removeEventListener( eventType.move, onDocumentPointerMove, false );
-  }
-
-  function draw (_location, _pointer, redrawing) {
-    context.globalCompositeOperation = "source-over";
-    context.strokeStyle = 'rgb(0,0,0)';
-    context.lineWidth = 3;
-    // TODO: research a way to create smoother lines when moving drawing too fast
-    context.beginPath();
-    context.moveTo( _pointer.x, _pointer.y );
-    context.lineTo( _location.x, _location.y );
-    context.stroke();
-
-    if (redrawing) return;
-
-    recordCanvasHistory({
-      _pointer: {
-        x: _pointer.x,
-        y: _pointer.y,
-      },
-      _location: {
-        x: _location.x,
-        y: _location.y,
-      },
-    });
+    render();
   };
 
-  function erase (_pointer, redrawing) {
-    context.globalCompositeOperation = "destination-out";
-    context.strokeStyle = 'rgb(0,0,0)';
-    context.lineWidth = 1;
-    // TODO: Try and fill the gap between arcs when moving the eraser very fast
-    // work out the distance between the two circles and draw a box between them
-    context.save();
-    context.beginPath();
-    context.arc(_pointer.x, _pointer.y, 32, 0, RADIAN);
-    context.fill();
-    context.restore();
-
-    if (redrawing) return;
-
-    // context.globalCompositeOperation = 'source-over';
-    // context.beginPath();
-    // context.arc(_pointer.x, _pointer.y, 32, 0, RADIAN);
-    // context.fillStyle = "#FF6A6A";
-    // context.fill();
-
-    // If we createa dom element and set it to follow the mouse, we can achieve the same result
-
-    recordCanvasHistory({
-      _pointer: {
-        x: _pointer.x,
-        y: _pointer.y,
-      },
-    });
+  function onPointerUp(event) {
+    recordPoint(event);
+    stopDrawing();
+    ++strokesIndex;
   };
 
-  function redraw () {
-    console.log('redrawing:', canvasHistory);
-    canvasHistory.forEach(({ action, _pointer, _location }) => {
-      if (action === TOOL_PEN) {
-        draw(_location, _pointer, true);
-      } else {
-        erase(_pointer, true);
-      };
-    });
+  function onPointerMove(event) {
+    event.preventDefault();
 
-    // Only delete history if the user clicked to redraw
-    // canvasHistory = [];
+    recordPoint(event);
   };
 
-  function recordCanvasHistory ({ _pointer, _location }) {
-    canvasHistory = [
-        ...canvasHistory,
-        {
-          action: selectedTool,
-          _pointer,
-          _location,
-        }
-      ];
+  function recordPoint (event) {
+    pointerLocation = getPointerLocation(event, hasPointer)
+
+    if (isPointerActive) strokes[strokesIndex].points = [...strokes[strokesIndex].points, pointerLocation];
   };
 
-  let eraserHead;
-  function createEraserHead () {
-    eraserHead = document.createElement('div');
-    eraserHead.setAttribute('id', 'eraser-head');
-    document.body.appendChild(eraserHead);
-    document.addEventListener(eventType.move, followPointer, false);
-  };
-
-  function destroyEraserHead () {
-    // const eraserHead = document.querySelector('#eraser-head');
-    if (eraserHead) {
-      eraserHead.parentNode.removeChild(eraserHead);
-      document.removeEventListener(eventType.move, followPointer, false);
-    }
-  };
-
-  function followPointer (event) {
-    mouse = getPointerLocation(event, hasPointer);
-    console.log('mouse', mouse);
-    console.log('eraser', eraserHead);
-    eraserHead.style.transform = `translate3d(${mouse.x - 21}px,${mouse.y - 21}px,0px)`;
+  function stopDrawing () {
+    isPointerActive = false;
   };
 
   function selectEraser () {
-    // TODO: have a visual aid to show the size of the eraser
-    createEraserHead();
-    selectedTool = TOOL_ERASER;
+    selectedTool = eraser;
   };
 
   function selectPen () {
-    destroyEraserHead();
-    selectedTool = TOOL_PEN;
+    selectedTool = pen;
   };
 
-  function eraseAll () {
+  function clearCanvas () {
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
@@ -218,14 +156,6 @@
     const widthDifference = window.innerWidth / canvas.width;
     const heightDifference = window.innerHeight / canvas.height;
 
-    // loop over the history, replace the x,y points according to the new canvas size
-    canvasHistory = canvasHistory.map(({ action, _pointer, _location }) => {
-      return {
-        action: action,
-        _pointer: { x: _pointer.x * widthDifference, y: _pointer.y * heightDifference },
-        _location: _location ? { x: _location.x * widthDifference, y: _location.y * heightDifference } : undefined,
-      }
-    });
 
     // we need to lock the aspect ratio of the new drawn canvas to be the same as the image
 
@@ -235,8 +165,7 @@
     canvas.height = window.innerHeight;
 
     console.log('resize', widthDifference, heightDifference);
-    eraseAll();
-    redraw();
+    render();
     // TODO: make sure the image is drawn in the middle of the updated canvas
   }
 
@@ -247,7 +176,7 @@
     context.fillStyle = 'white';
     context.fillRect(0,0, canvas.width, canvas.height);
     context.drawImage(srcImg, 0, boundingRect.top, boundingRect.width, boundingRect.height);
-    redraw();
+    drawStrokes();
 
     const imageURI = canvas.toDataURL('image/jpg', 0.7);
     const hiddenLink = document.createElement('a');
@@ -256,13 +185,26 @@
     hiddenLink.click();
   };
 
+  function render () {
+    clearCanvas();
+
+    drawStrokes();
+  
+    if (isPointerActive) {
+      rafID = requestAnimationFrame(render);
+    } else {
+      cancelAnimationFrame(rafID);
+    }
+  };
+
   onMount(() => {
     init();
   });
 
   onDestroy(() => {
-    canvas.removeEventListener( eventType.down, onDocumentPointerDown, false );
-    canvas.removeEventListener( eventType.up, onDocumentPointerUp, false );
+    canvas.removeEventListener(eventType.down, onPointerDown, false);
+    canvas.removeEventListener(eventType.up, onPointerUp, false);
+    canvas.removeEventListener(eventType.move, onPointerMove, false);
   });
 </script>
 
@@ -270,7 +212,7 @@
   on:resize={ debounce(resizeCanvas, 500) }
 />
 <svelte:body
-  on:mouseleave={ disableDrawing }
+  on:mouseleave={ stopDrawing }
 />
 
 <div class="paper">
@@ -303,7 +245,7 @@
     Eraser
   </button>
   <button
-    on:click={ eraseAll }
+    on:click={ clearCanvas }
   >
     Erase all
   </button>
@@ -319,8 +261,7 @@
     }
   />
   <button
-    on:click={ redraw }
-    disabled={ canvasHistory < 1 }
+    on:click={ render }
   >
     Redraw
   </button>
@@ -330,6 +271,8 @@
   >
     Download
   </button>
+
+  <EraserHead position={ pointerLocation } />
 </div>
 
 
@@ -342,6 +285,8 @@
     top: 0;
     cursor: crosshair;
     touch-action: none;
+    width: 100%;
+    height: 100%;
   }
 
   picture {
@@ -378,15 +323,5 @@
 
   :global(.ui > *) {
     pointer-events: auto;
-  }
-
-  :global(#eraser-head) {
-    position: absolute;
-    left: 0;
-    top: 0;
-    border: 1px solid black;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
   }
 </style>
