@@ -47,11 +47,11 @@ export const PEN_COLORS = [
 export const PEN_SIZES = [
   {
     alias: DEFAULT_SIZE_ALIAS,
-    value: 1
+    value: 2
   },
   {
     alias: 'medium',
-    value: 3
+    value: 4
   },
   {
     alias: 'large',

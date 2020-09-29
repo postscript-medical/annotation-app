@@ -27,7 +27,6 @@
   let canvas;
   let context;
   let eraser = {
-    domEl: undefined,
     name: TOOL_ERASER,
     lineWidth: ERASER_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value,
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value,
@@ -35,7 +34,6 @@
   let isPointerActive = false;
   let pointerLocation = { x: 0, y: 0 };
   let pen = {
-    domEl: undefined,
     name: TOOL_PEN,
     lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
@@ -48,7 +46,7 @@
 
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
-  $: isErasing = selectedTool === TOOL_ERASER;
+  $: isErasing = selectedTool && selectedTool.name === TOOL_ERASER;
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
   $: src = selectedImage ? selectedImage.url : null;
 
@@ -133,11 +131,11 @@
   };
 
   function selectEraser () {
-    selectedTool = eraser;
+    selectedTool = { ...eraser };
   };
 
   function selectPen () {
-    selectedTool = pen;
+    selectedTool = { ...pen };
   };
 
   function clearCanvas () {
@@ -232,6 +230,7 @@
 
   <canvas
     bind:this={ canvas }
+    style={ isPointerActive ? 'cursor: none;' : '' }
   ></canvas>
 </div>
 
@@ -262,6 +261,7 @@
   />
   <button
     on:click={ render }
+    disabled={ strokes.length === 0 }
   >
     Redraw
   </button>
@@ -272,7 +272,12 @@
     Download
   </button>
 
-  <EraserHead position={ pointerLocation } />
+  { #if isPointerActive && selectedTool }
+    <EraserHead
+      position={ pointerLocation }
+      size={ selectedTool.lineWidth }
+    />
+  { /if }
 </div>
 
 
