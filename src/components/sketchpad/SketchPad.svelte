@@ -305,17 +305,7 @@
   class="paper"
 >
   { #if src }
-    <picture>
-      <source
-        type="image/webp"
-        srcset={ src + '.webp' }
-      />
-      <img
-        id="displayed-image"
-        src={ src + '.jpg' }
-        alt=""
-      />
-    </picture>
+    <img { src } alt="" />
   { /if }
 
   <canvas
@@ -324,7 +314,7 @@
   ></canvas>
 
   <div class="typed-text">
-    { #each typedText as entry }
+    { #each typedText as entry (entry.index) }
       <TypedTextEntry
         { ...entry }
         on:message={ toggleTypedTextDrag }
@@ -451,16 +441,10 @@
     height: 100%;
   }
 
-  picture {
+  img {
     display: block;
-    position: relative;
-    flex: 1;
-  }
-
-  picture > * {
     width: 100%;
     height: auto;
-    display: block;
   }
 
   .paper {
@@ -473,7 +457,7 @@
     width: 1px;
     margin-left: -1px;
     height: 0;
-    padding-top: 56.25%;
+    padding-top: calc(768 / 1024 * 100%);
     float: left;
   }
   .paper::after {
