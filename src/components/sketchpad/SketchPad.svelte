@@ -84,14 +84,28 @@
     typedText = [
       ...typedText,
       {
+        content: '',
+        eventType,
+        index: typedTextIndex,
         x: pointerLocation.x,
         y: pointerLocation.y - offsetTop,
-        index: typedTextIndex,
-        eventType,
       }
     ];
 
     ++typedTextIndex;
+  };
+
+  function drawTypedText (parentBoundingRect) {
+    const entries = Array.from(paper.querySelectorAll('.typed-annotation'));
+    context.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
+    context.textBaseline = 'middle';
+    entries.forEach(entry => {
+      const boundingRect = entry.getBoundingClientRect();
+      const x = boundingRect.x - parentBoundingRect.x + 7; /* 7 is the padding in the input */
+      const y = boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2);
+      context.fillStyle = 'black';
+      context.fillText(entry.value, x, y);
+    });
   };
 
   function drawStrokes () {
@@ -163,10 +177,10 @@
         ...typedText[targetIndex],
         x: pointerLocation.x,
         y: pointerLocation.y - offsetTop,
-      }
+      };
 
       typedText = [...typedText];
-    }
+    };
   };
 
   function recordPoint (event) {
@@ -179,39 +193,6 @@
         y: pointerLocation.y - offsetTop,
       }
     ];
-  };
-
-  function stopDrawing () {
-    if (isPointerActive) ++strokesIndex;
-    isPointerActive = false;
-  };
-
-  function selectEraserTool () {
-    selectedToolId = TOOL_ERASER;
-  };
-
-  function selectPenTool () {
-    selectedToolId = TOOL_PEN;
-  };
-
-  function selectTextTool () {
-    selectedToolId = TOOL_TEXT;
-  };
-
-  function clearCanvas () {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  function selectNewImage ({ detail: id }) {
-    selectedImageId = id;
-  };
-
-  function toggleTypedTextDrag ({ detail }) {
-    dragTypedText = detail;
-  }; 
-
-  function updateOffsetTop () {
-    offsetTop = canvas.getBoundingClientRect().top;
   };
 
   function resizeCanvas () {
@@ -248,8 +229,52 @@
     render();
   };
 
+  function stopDrawing () {
+    if (isPointerActive) ++strokesIndex;
+    isPointerActive = false;
+  };
+
+  function selectEraserTool () {
+    selectedToolId = TOOL_ERASER;
+  };
+
+  function selectPenTool () {
+    selectedToolId = TOOL_PEN;
+  };
+
+  function selectTextTool () {
+    selectedToolId = TOOL_TEXT;
+  };
+
+  function clearCanvas () {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  function selectNewImage ({ detail: id }) {
+    selectedImageId = id;
+  };
+
+  function toggleTypedTextDrag ({ detail }) {
+    dragTypedText = detail;
+  }; 
+
+  function updateOffsetTop () {
+    offsetTop = canvas.getBoundingClientRect().top;
+  };
+
+  // This probably won't be needed :(
+  function updateTypedTextEntryContent ({ detail }) {
+    const targetIndex = typedText.findIndex(({ index }) => index === detail.index);
+    typedText[targetIndex] = {
+      ...typedText[targetIndex],
+      content: detail.content,
+    };
+
+    typedText = [...typedText];
+  };
+
   function removeTypedTextEntry ({ detail }) {
-    const targetIndex = typedText.findIndex(({ index }) => index === detail.index)
+    const targetIndex = typedText.findIndex(({ index }) => index === detail.index);
     let updatedArray = [...typedText];
     updatedArray.splice(targetIndex, 1);
 
@@ -258,12 +283,14 @@
 
   function downloadImage () {
     const srcImg = document.querySelector('#displayed-image');
-    const boundingRect = srcImg.getBoundingClientRect();
-    const top = canvas.height - boundingRect.height;
+    const boundingRect = canvas.getBoundingClientRect();
+
     context.fillStyle = 'white';
     context.fillRect(0,0, canvas.width, canvas.height);
-    context.drawImage(srcImg, 0, boundingRect.top, boundingRect.width, boundingRect.height);
+    context.drawImage(srcImg, 0, 0, canvas.width, canvas.height);
     drawStrokes();
+
+    drawTypedText(boundingRect);
 
     const imageURI = canvas.toDataURL('image/jpg', 0.7);
     const hiddenLink = document.createElement('a');
@@ -305,7 +332,7 @@
   class="paper"
 >
   { #if src }
-    <img { src } alt="" />
+    <img id="displayed-image" { src } alt="" />
   { /if }
 
   <canvas
@@ -317,8 +344,9 @@
     { #each typedText as entry (entry.index) }
       <TypedTextEntry
         { ...entry }
-        on:message={ toggleTypedTextDrag }
         on:close={ removeTypedTextEntry }
+        on:drag={ toggleTypedTextDrag }
+        on:input={ updateTypedTextEntryContent }
       />
     { /each }
   </div>
