@@ -18,12 +18,16 @@
     PEN_SIZES,
     TOOL_ERASER,
     TOOL_PEN,
+    TOOL_TEXT,
   } from '../../constants/sketch-pad.js';
-  import StokeCursor from './StokeCursor.svelte';
-  import LogOutButton from '../LogOutButton.svelte';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
+  import LogOutButton from '../LogOutButton.svelte';
+  import StokeCursor from './StokeCursor.svelte';
+  import TypedTextEntry from './TypedTextEntry.svelte';
 
   const hasPointer = window.PointerEvent;
+  // TODO: replace strokes with actions
+  let actions = [];
   let canvas;
   let context;
   let eraser = {
@@ -32,18 +36,22 @@
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value,
   };
   let isPointerActive = false;
-  let pointerLocation = { x: 0, y: 0 };
+  let dragTypedText = { index: 0, active: false };
+  let offsetTop = 0;
+  let paper;
   let pen = {
     name: TOOL_PEN,
     lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
     color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
   };
-  let offsetTop = 0;
+  let pointerLocation = { x: 0, y: 0 };
+  let rafID;
   let selectedToolId;
   let selectedImageId;
   let strokes = [];
   let strokesIndex = 0;
-  let rafID;
+  let typedText = [];
+  let typedTextIndex = 0;
 
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
@@ -51,6 +59,40 @@
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
   $: selectedTool = selectedToolId && selectedToolId === TOOL_PEN ? pen : eraser;
   $: src = selectedImage ? selectedImage.url : null;
+
+  function addStroke (event ) {
+    isPointerActive = true;
+
+    strokes = [
+      ...strokes,
+      {
+        action: selectedTool.name,
+        lineWidth: selectedTool.lineWidth,
+        color: selectedTool.color,
+        points: [],
+      }
+    ];
+
+    recordPoint(event);
+
+    render();
+  };
+
+  function addTypedText (event) {
+    recordPoint(event);
+
+    typedText = [
+      ...typedText,
+      {
+        x: pointerLocation.x,
+        y: pointerLocation.y - offsetTop,
+        index: typedTextIndex,
+        eventType,
+      }
+    ];
+
+    ++typedTextIndex;
+  };
 
   function drawStrokes () {
     strokes.forEach(({ action, lineWidth, color, points }) => {
@@ -79,50 +121,52 @@
   };
 
   function init() {
+    document.body.addEventListener(eventType.up, stopDrawing, false);
     canvas.addEventListener(eventType.down, onPointerDown, false);
     canvas.addEventListener(eventType.up, onPointerUp, false);
-    canvas.addEventListener(eventType.move, onPointerMove, false);
+    paper.addEventListener(eventType.move, onPointerMove, false);
 
     context = setupCanvas(canvas);
     context.lineCap = 'round';
     context.lineJoin = 'round';
 
-    selectPen();
+    selectPenTool();
 
     resizeCanvas();
-    console.log('canvas', canvas);
   }
 
   function onPointerDown(event) {
     event.preventDefault();
 
-    isPointerActive = true;
+    if (selectedToolId === TOOL_TEXT) {
+      addTypedText(event);
 
-    strokes = [
-      ...strokes,
-      {
-        action: selectedTool.name,
-        lineWidth: selectedTool.lineWidth,
-        color: selectedTool.color,
-        points: [],
-      }
-    ];
+      return;
+    };
 
-    recordPoint(event, hasPointer);
-
-    render();
+    addStroke(event);
   };
 
   function onPointerUp(event) {
     recordPoint(event);
     stopDrawing();
-    ++strokesIndex;
   };
 
   function onPointerMove(event) {
     event.preventDefault();
 
     recordPoint(event);
+
+    if (dragTypedText.active) {
+      const targetIndex = typedText.findIndex(({ index }) => index === dragTypedText.index)
+      typedText[targetIndex] = {
+        index: dragTypedText.index,
+        x: pointerLocation.x,
+        y: pointerLocation.y - offsetTop,
+      }
+
+      typedText = [...typedText];
+    }
   };
 
   function recordPoint (event) {
@@ -138,28 +182,37 @@
   };
 
   function stopDrawing () {
+    if (isPointerActive) ++strokesIndex;
     isPointerActive = false;
   };
 
-  function selectEraser () {
+  function selectEraserTool () {
     selectedToolId = TOOL_ERASER;
   };
 
-  function selectPen () {
+  function selectPenTool () {
     selectedToolId = TOOL_PEN;
+  };
+
+  function selectTextTool () {
+    selectedToolId = TOOL_TEXT;
   };
 
   function clearCanvas () {
     context.clearRect(0, 0, canvas.width, canvas.height);
-  }
+  };
 
   function selectNewImage ({ detail: id }) {
     selectedImageId = id;
-  }
+  };
+
+  function toggleTypedTextDrag ({ detail }) {
+    dragTypedText = detail;
+  }; 
 
   function updateOffsetTop () {
     offsetTop = canvas.getBoundingClientRect().top;
-  }
+  };
 
   function resizeCanvas () {
     // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
@@ -184,8 +237,24 @@
       }
     });
 
+    typedText = typedText.map(text => {
+      return {
+        ...text,
+        x: text.x * scaleFactor.width,
+        y: text.y * scaleFactor.height,
+      }
+    })
+
     render();
-  }
+  };
+
+  function removeTypedTextEntry ({ detail }) {
+    const targetIndex = typedText.findIndex(({ index }) => index === detail.index)
+    let updatedArray = [...typedText];
+    updatedArray.splice(targetIndex, 1);
+
+    typedText = updatedArray;
+  };
 
   function downloadImage () {
     const srcImg = document.querySelector('#displayed-image');
@@ -220,20 +289,21 @@
   });
 
   onDestroy(() => {
+    document.body.removeEventListener(eventType.up, stopDrawing, false);
     canvas.removeEventListener(eventType.down, onPointerDown, false);
     canvas.removeEventListener(eventType.up, onPointerUp, false);
-    canvas.removeEventListener(eventType.move, onPointerMove, false);
+    paper.removeEventListener(eventType.move, onPointerMove, false);
   });
 </script>
 
 <svelte:window
-  on:resize={ debounce(resizeCanvas, 500) }
-/>
-<svelte:body
-  on:mouseleave={ stopDrawing }
+  on:resize={ debounce(resizeCanvas, 125) }
 />
 
-<div class="paper">
+<div
+  bind:this={ paper }
+  class="paper"
+>
   { #if src }
     <picture>
       <source
@@ -252,16 +322,28 @@
     bind:this={ canvas }
     style={ isPointerActive ? 'cursor: none;' : '' }
   ></canvas>
+
+  <div class="typed-text">
+    { #each typedText as entry }
+      <TypedTextEntry
+        { ...entry }
+        on:message={ toggleTypedTextDrag }
+        on:close={ removeTypedTextEntry }
+      />
+    { /each }
+  </div>
 </div>
 
 <div class="ui">
   <div>
+    <p>Pointer location: { pointerLocation.x } | { pointerLocation.y }</p>
+    <p>Stroke index: { strokesIndex }</p>
     <span>User is: { $user.email }</span>
     <LogOutButton />
   </div>
   <div>
     <button
-      on:click={ selectEraser }
+      on:click={ selectEraserTool }
       disabled={ isErasing }
     >
       Eraser
@@ -286,7 +368,7 @@
   </div>
   <div>
     <button
-      on:click={ selectPen }
+      on:click={ selectPenTool }
       disabled={ !isErasing }
     >
       Pen
@@ -337,6 +419,13 @@
       disabled={ !selectedImage }
     >
       Download
+    </button>
+  </div>
+  <div>
+    <button
+      on:click={ selectTextTool }
+    >
+      Write
     </button>
   </div>
 
@@ -391,6 +480,15 @@
     content: '';
     display: table;
     clear: both;
+  }
+
+  .typed-text {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    left: 0;
+    top: 0;
   }
 
   .ui {
