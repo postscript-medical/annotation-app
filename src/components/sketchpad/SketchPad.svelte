@@ -160,7 +160,7 @@
     if (dragTypedText.active) {
       const targetIndex = typedText.findIndex(({ index }) => index === dragTypedText.index)
       typedText[targetIndex] = {
-        index: dragTypedText.index,
+        ...typedText[targetIndex],
         x: pointerLocation.x,
         y: pointerLocation.y - offsetTop,
       }
