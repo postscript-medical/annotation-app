@@ -6,10 +6,11 @@
   } from 'svelte';
   import { EVENTS_TOUCH } from '../../constants/sketch-pad.js'
 
+  export let content;
+  export let eventType = EVENTS_TOUCH;
   export let index = 1;
   export let x = 0;
   export let y = 0;
-  export let eventType = EVENTS_TOUCH;
 
   const dispatch = createEventDispatcher();
 
@@ -18,17 +19,21 @@
 
   $: style = `transform: translate3d(${x}px,${y}px,0px)`;
 
+ function closeEntry () {
+    dispatch('close', { index });
+  };
+
   function startDrag () {
-    dispatch('message', { index, active: true });
+    dispatch('drag', { index, active: true });
   };
 
   function stopDrag () {
-    dispatch('message', { index, active: false });
+    dispatch('drag', { index, active: false });
   };
 
-  function closeEntry () {
-    dispatch('close', { index });
-  };
+  function updateContent ({ target }) {
+    dispatch('input', { index, content: target.value });
+  }
 
   onMount(() => {
     dragHandler.addEventListener(eventType.down, startDrag, false);
@@ -56,11 +61,14 @@
     bind:this={ closeButton }
     class="close-button"
   >x</div>
-  <p>
-    Here be: { index }
-  </p>
   <!-- svelte-ignore a11y-autofocus -->
-  <input type="text" autofocus />
+  <input
+    autofocus
+    value={ content }
+    on:input={ updateContent }
+    type="text"
+    class="typed-annotation"
+  />
 </div>
 
 <style>
