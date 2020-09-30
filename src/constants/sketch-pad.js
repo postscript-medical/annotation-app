@@ -4,14 +4,14 @@ export const DEFAULT_SIZE_ALIAS = 'small';
 
 export const EVENTS_TOUCH = {
   down: 'touchstart',
-  up: 'touchend',
   move: 'touchmove',
+  up: 'touchend',
 };
 
 export const EVENTS_POINTER = {
   down: 'pointerdown',
+  move: 'pointermove',
   up: 'pointerup',
-  move: 'pointermove'
 };
 
 export const ERASER_SIZES = [
@@ -62,3 +62,5 @@ export const PEN_SIZES = [
 export const TOOL_ERASER = 'eraser';
 
 export const TOOL_PEN = 'pen';
+
+export const TOOL_TEXT = 'text';

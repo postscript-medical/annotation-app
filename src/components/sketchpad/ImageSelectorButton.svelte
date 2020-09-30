@@ -11,6 +11,7 @@
   }
 </script>
 
+<!-- svelte-ignore a11y-no-onchange -->
 <select bind:value={ selected } on:change={ selectionChange }>
   <option>Please choose an image</option>
   { #each options as option }
