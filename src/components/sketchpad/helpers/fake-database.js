@@ -1,22 +1,22 @@
 // TODO: Move this into FaunaDB
-// TODO: Redirect via Netlify > https://markus.oberlehner.net/blog/using-netlify-redirects-to-proxy-images-hosted-on-a-third-party-image-provider-or-a-headless-cms
+/*
+* Redirect via Netlify > https://markus.oberlehner.net/blog/using-netlify-redirects-to-proxy-images-hosted-on-a-third-party-image-provider-or-a-headless-cms
+*/
+const redirectPath = '/images/medical/'
 export const gastroImages = [
   {
     id: 'one',
-    title: 'Hepatic encephalopathy',
-    url: '/images/medical/v1600862513/gastroenterology/Hepatic_encephalopathy_2x',
-    format: '.jpg',
+    title: 'Hemorroids',
+    url: redirectPath + 'v1601475878/testing/hemhorroids_fcrnwt.svg',
   },
   {
     id: 'two',
-    title: 'ERCP',
-    url: '/images/medical/v1600862511/gastroenterology/ECCP_2x',
-    format: '.jpg',
+    title: 'Endoscopy',
+    url: redirectPath + 'v1601475875/testing/endoscopy_yjegl4.svg',
   },
   {
     id: 'three',
-    title: 'Hepatic encephalopathy',
-    url: '/images/medical/v1600862515/gastroenterology/LIVER_ABCESS_drainage_2x',
-    format: '.jpg',
+    title: 'Capsule endoscopy',
+    url: redirectPath + 'v1601475876/testing/capsule_endoscopy_dunxfc.svg',
   },
 ];
