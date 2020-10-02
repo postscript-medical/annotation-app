@@ -22,6 +22,7 @@
   } from '../../constants/sketch-pad.js';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
   import LogOutButton from '../LogOutButton.svelte';
+  import SendEmailForm from '../SendEmailForm.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';
 
@@ -30,6 +31,7 @@
   let actions = [];
   let canvas;
   let context;
+  let encodedImage = '';
   let eraser = {
     name: TOOL_ERASER,
     lineWidth: ERASER_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value,
@@ -48,6 +50,7 @@
   let rafID;
   let selectedToolId;
   let selectedImageId;
+  let showEmailForm = false;
   let strokes = [];
   let strokesIndex = 0;
   let typedText = [];
@@ -95,43 +98,67 @@
     ++typedTextIndex;
   };
 
-  function drawTypedText (parentBoundingRect) {
+  function closeModal () {
+    showEmailForm = false;
+  };
+
+  function drawTypedText (parentBoundingRect, _context) {
     const entries = Array.from(paper.querySelectorAll('.typed-annotation'));
-    context.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
-    context.textBaseline = 'middle';
+    _context.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
+    _context.textBaseline = 'middle';
     entries.forEach(entry => {
       const boundingRect = entry.getBoundingClientRect();
       const x = boundingRect.x - parentBoundingRect.x + 7; /* 7 is the padding in the input */
       const y = boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2);
-      context.fillStyle = 'black';
-      context.fillText(entry.value, x, y);
+      _context.fillStyle = 'black';
+      _context.fillText(entry.value, x, y);
     });
   };
 
-  function drawStrokes () {
-    strokes.forEach(({ action, lineWidth, color, points }) => {
+  function drawStrokes (_strokes, _context) {
+    _strokes.forEach(({ action, lineWidth, color, points }) => {
       if (points.length < 3) return;
 
       const maxIndex = points.length - 2;
       const isDrawing = action === TOOL_PEN;
 
-      context.save();
-      context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
-      context.strokeStyle = color;
-      context.beginPath();
-      context.lineWidth = lineWidth;
-      context.moveTo(points[0].x, points[0].y);
+      _context.save();
+      _context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
+      _context.strokeStyle = color;
+      _context.beginPath();
+      _context.lineWidth = lineWidth;
+      _context.moveTo(points[0].x, points[0].y);
 
       for(let i = 1; i < maxIndex; i++) {
         const xc = (points[i].x + points[i + 1].x) / 2;
         const yc = (points[i].y + points[i + 1].y) / 2;
-        context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        _context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
       }
 
-      context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x,points[maxIndex+1].y);
-      context.stroke();
-      context.restore();
+      _context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x, points[maxIndex+1].y);
+      _context.stroke();
+      _context.restore();
     });
+  };
+
+  function generateAnnotatedImage () {
+    const _canvas = document.createElement('canvas');
+    const _context = _canvas.getContext('2d');
+
+    _canvas.width = canvas.width;
+    _canvas.height = canvas.height;
+
+    const srcImg = document.querySelector('#displayed-image');
+
+    _context.fillStyle = 'white';
+    _context.fillRect(0,0, _canvas.width, _canvas.height);
+    _context.drawImage(srcImg, 0, 0, _canvas.width, _canvas.height);
+    _context.drawImage(canvas, 0, 0);
+
+    const boundingRect = canvas.getBoundingClientRect();
+    drawTypedText(boundingRect, _context);
+
+    return _canvas;
   };
 
   function init() {
@@ -254,6 +281,12 @@
     selectedImageId = id;
   };
 
+  function openEmailForm () {
+    const annotedImage = generateAnnotatedImage();
+    encodedImage = annotedImage.toDataURL()
+    showEmailForm = true;
+  };
+
   function toggleTypedTextDrag ({ detail }) {
     dragTypedText = detail;
   }; 
@@ -282,19 +315,11 @@
   };
 
   function downloadImage () {
-    const srcImg = document.querySelector('#displayed-image');
-    const boundingRect = canvas.getBoundingClientRect();
-
-    context.fillStyle = 'white';
-    context.fillRect(0,0, canvas.width, canvas.height);
-    context.drawImage(srcImg, 0, 0, canvas.width, canvas.height);
-    drawStrokes();
-
-    drawTypedText(boundingRect);
-
-    const imageURI = canvas.toDataURL('image/jpg', 0.7);
+    const annotedImage = generateAnnotatedImage();
+    encodedImage = annotedImage.toDataURL('image/jpg', 0.7);
     const hiddenLink = document.createElement('a');
-    hiddenLink.setAttribute('href', imageURI);
+
+    hiddenLink.setAttribute('href', encodedImage);
     hiddenLink.setAttribute('download', 'myImage.jpg');
     hiddenLink.click();
   };
@@ -302,7 +327,7 @@
   function render () {
     clearCanvas();
 
-    drawStrokes();
+    drawStrokes(strokes, context);
   
     if (isPointerActive) {
       rafID = requestAnimationFrame(render);
@@ -438,6 +463,12 @@
     >
       Download
     </button>
+    <button
+      on:click={ openEmailForm }
+      disabled={ !selectedImage }
+    >
+      Share via email
+    </button>
   </div>
   <div>
     <button
@@ -454,6 +485,13 @@
     />
   { /if }
 </div>
+
+{ #if showEmailForm }
+  <SendEmailForm
+    { encodedImage }
+    on:close={ closeModal }
+  />
+{ /if }
 
 
 <style>
