@@ -9,15 +9,20 @@
   import { gastroImages } from './helpers/fake-database.js';
   import { user } from '../../stores.js';
   import {
-    DEFAULT_COLOR_ALIAS,
-    DEFAULT_SIZE_ALIAS,
+    DEFAULT_COLOR_ID,
+    DEFAULT_SIZE_ID,
     EVENTS_POINTER,
     EVENTS_TOUCH,
     ERASER_SIZES,
     PEN_COLORS,
     PEN_SIZES,
+    RADIAN,
+    SHAPES,
+    TOOL_ARROW,
     TOOL_ERASER,
+    TOOL_ELLIPSE,
     TOOL_PEN,
+    TOOL_RECTANGLE,
     TOOL_TEXT,
   } from '../../constants/sketch-pad.js';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
@@ -34,8 +39,8 @@
   let encodedImage = '';
   let eraser = {
     name: TOOL_ERASER,
-    lineWidth: ERASER_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value,
-    color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value,
+    lineWidth: ERASER_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value,
+    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value,
   };
   let isPointerActive = false;
   let dragTypedText = { index: 0, active: false };
@@ -43,13 +48,15 @@
   let paper;
   let pen = {
     name: TOOL_PEN,
-    lineWidth: PEN_SIZES.find(({ alias }) => alias === DEFAULT_SIZE_ALIAS).value, 
-    color: PEN_COLORS.find(({ alias }) => alias === DEFAULT_COLOR_ALIAS).value
+    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value, 
+    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value
   };
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
   let selectedToolId;
   let selectedImageId;
+  let shapes = [];
+  let shapesIndex = 0;
   let showEmailForm = false;
   let strokes = [];
   let strokesIndex = 0;
@@ -63,9 +70,54 @@
   $: selectedTool = selectedToolId && selectedToolId === TOOL_PEN ? pen : eraser;
   $: src = selectedImage ? selectedImage.url : null;
 
-  function addStroke (event ) {
+  function addShape (shapeId, event) {
+    const { x, y } = pointerLocation;
+
+    let newShape = {
+      id: shapeId,
+      index: shapesIndex,
+      x,
+      y: y - offsetTop,
+      dx: 0,
+      dy: 0,
+    };
+
+    // this causes every single click to add an entry to the array, potentially bloating it with empty entries
     isPointerActive = true;
 
+    switch (shapeId) {
+      case TOOL_ARROW:
+        
+        break;
+
+      case TOOL_ELLIPSE:
+        
+        break;
+
+      case TOOL_RECTANGLE:
+        
+        break;
+    
+      default:
+        break;
+    }
+
+    // this seems redundant as we're recording a point immediately after
+    shapes = [
+      ...shapes,
+      newShape,
+    ];
+
+    recordPoint(event);
+
+    render();
+  };
+
+  function addStroke (event) {
+    // this causes every single click to add an entry to the array, potentially bloating it with empty entries
+    isPointerActive = true;
+
+    // this seems redundant as we're recording a point immediately after
     strokes = [
       ...strokes,
       {
@@ -141,6 +193,13 @@
     });
   };
 
+  function drawShapes (_shapes, _context) {
+    if (shapes.length < 1) return;
+    _shapes.forEach(shape => {
+      _context.strokeRect(shape.x, shape.y, shape.dx, shape.dy);
+    })
+  };
+
   function generateAnnotatedImage () {
     const _canvas = document.createElement('canvas');
     const _context = _canvas.getContext('2d');
@@ -171,7 +230,7 @@
     context.lineCap = 'round';
     context.lineJoin = 'round';
 
-    selectPenTool();
+    selectTool(TOOL_PEN);
 
     resizeCanvas();
   }
@@ -179,13 +238,21 @@
   function onPointerDown(event) {
     event.preventDefault();
 
-    if (selectedToolId === TOOL_TEXT) {
-      addTypedText(event);
+    switch (selectedToolId) {
+      case TOOL_TEXT:
+        addTypedText(event);
+        break;
 
-      return;
+      case TOOL_ARROW:
+      case TOOL_ELLIPSE:
+      case TOOL_RECTANGLE:
+        addShape(selectedToolId, event);
+        break;
+    
+      default:
+        addStroke(event);
+        break;
     };
-
-    addStroke(event);
   };
 
   function onPointerUp(event) {
@@ -213,13 +280,39 @@
   function recordPoint (event) {
     pointerLocation = getPointerLocation(event, hasPointer);
 
-    if (isPointerActive) strokes[strokesIndex].points = [
-      ...strokes[strokesIndex].points,
-      {
-        x: pointerLocation.x,
-        y: pointerLocation.y - offsetTop,
+    if (isPointerActive) {
+      switch (selectedToolId) {
+        case TOOL_PEN:
+        case TOOL_ERASER:
+          strokes[strokesIndex].points = [
+            ...strokes[strokesIndex].points,
+            {
+              x: pointerLocation.x,
+              y: pointerLocation.y - offsetTop,
+            }
+          ];
+          break;
+
+        case TOOL_ARROW:
+        case TOOL_ELLIPSE:
+        case TOOL_RECTANGLE:
+          const targetIndex = shapes.findIndex(({ index }) => index === shapesIndex);
+          let target = shapes[targetIndex];
+          target = {
+            ...target,
+            dx: pointerLocation.x - target.x,
+            dy: pointerLocation.y - target.y - offsetTop,
+          };
+
+          shapes[targetIndex] = target;
+
+          shapes = [...shapes];
+          break;
+      
+        default:
+          break;
       }
-    ];
+    };
   };
 
   function resizeCanvas () {
@@ -257,21 +350,29 @@
   };
 
   function stopDrawing () {
-    if (isPointerActive) ++strokesIndex;
+    if (isPointerActive) {
+      switch (selectedToolId) {
+        case TOOL_PEN:
+        case TOOL_ERASER:
+          ++strokesIndex;
+          break;
+
+        case TOOL_ARROW:
+        case TOOL_ELLIPSE:
+        case TOOL_RECTANGLE:
+          ++shapesIndex;
+          break;
+      
+        default:
+          break;
+      }
+    };
     isPointerActive = false;
   };
 
-  function selectEraserTool () {
-    selectedToolId = TOOL_ERASER;
-  };
-
-  function selectPenTool () {
-    selectedToolId = TOOL_PEN;
-  };
-
-  function selectTextTool () {
-    selectedToolId = TOOL_TEXT;
-  };
+  function selectTool (toolId) {
+    selectedToolId = toolId;
+  }
 
   function clearCanvas () {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -328,7 +429,9 @@
     clearCanvas();
 
     drawStrokes(strokes, context);
-  
+
+    drawShapes(shapes, context);
+
     if (isPointerActive) {
       rafID = requestAnimationFrame(render);
     } else {
@@ -386,7 +489,7 @@
   </div>
   <div>
     <button
-      on:click={ selectEraserTool }
+      on:click={ () => selectTool(TOOL_ERASER) }
       disabled={ isErasing }
     >
       Eraser
@@ -397,51 +500,51 @@
       Erase all
     </button>
     <form>
-    { #each ERASER_SIZES as size }
-      <label>
-        <input
-          type="radio"
-          value={ size.value }
-          bind:group={ eraser.lineWidth }
-        />
-        { size.alias }
-      </label>
-    { /each }
-  </form>
+      { #each ERASER_SIZES as size }
+        <label>
+          <input
+            type="radio"
+            value={ size.value }
+            bind:group={ eraser.lineWidth }
+          />
+          { size.id }
+        </label>
+      { /each }
+    </form>
   </div>
   <div>
     <button
-      on:click={ selectPenTool }
+      on:click={ () => selectTool(TOOL_PEN) }
       disabled={ !isErasing }
     >
       Pen
     </button>
     <p>Color</p>
     <form>
-    { #each PEN_COLORS as color }
-      <label>
-        <input
-          type="radio"
-          value={ color.value }
-          bind:group={ pen.color }
-        />
-        { color.alias }
-      </label>
-    { /each }
-  </form>
-  <p>Size</p>
-  <form>
-    { #each PEN_SIZES as size }
-      <label>
-        <input
-          type="radio"
-          value={ size.value }
-          bind:group={ pen.lineWidth }
-        />
-        { size.alias }
-      </label>
-    { /each }
-  </form>
+      { #each PEN_COLORS as color }
+        <label>
+          <input
+            type="radio"
+            value={ color.value }
+            bind:group={ pen.color }
+          />
+          { color.id }
+        </label>
+      { /each }
+    </form>
+    <p>Size</p>
+    <form>
+      { #each PEN_SIZES as size }
+        <label>
+          <input
+            type="radio"
+            value={ size.value }
+            bind:group={ pen.lineWidth }
+          />
+          { size.id }
+        </label>
+      { /each }
+    </form>
   </div>
   <div>
     <ImageSelectorButton
@@ -472,9 +575,24 @@
   </div>
   <div>
     <button
-      on:click={ selectTextTool }
+      on:click={ () => selectTool(TOOL_TEXT) }
     >
       Write
+    </button>
+    <button
+      on:click={ () => selectTool(TOOL_ARROW) }
+    >
+      Arrow
+    </button>
+    <button
+      on:click={ () => selectTool(TOOL_ELLIPSE) }
+    >
+      Ellipse
+    </button>
+    <button
+      on:click={ () => selectTool(TOOL_RECTANGLE) }
+    >
+      Rectangle
     </button>
   </div>
 
