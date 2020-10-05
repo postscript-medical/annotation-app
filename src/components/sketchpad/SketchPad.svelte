@@ -316,13 +316,14 @@
       switch (selectedToolId) {
         case TOOL_ARROW:
           target.dx = pointerLocation.x - target.x;
-          target.dy = pointerLocation.y - target.y;
+          target.dy = pointerLocation.y - target.y - offsetTop;
           target.length = Math.sqrt(target.dx * target.dx + target.dy * target.dy);
           target.angle = Math.atan2(target.dy, target.dx);
           break;
+
         case TOOL_ELLIPSE:
           target.dx = (pointerLocation.x - target.x) / 2;
-          target.dy = (pointerLocation.y - target.y) / 2;
+          target.dy = (pointerLocation.y - target.y - offsetTop) / 2;
           break;
 
         case TOOL_RECTANGLE:
@@ -353,13 +354,32 @@
     strokes = strokes.map(stroke => {
       return {
         ...stroke,
-        points: stroke.points.map(({ x, y }) => {
+        points: stroke.points.map(({ x, y, lineWidth }) => {
           return {
             x: x * scaleFactor.width,
             y: y * scaleFactor.height,
-          }
+            lineWidth: lineWidth * scaleFactor.width,
+          };
         })
-      }
+      };
+    });
+
+    shapes = shapes.map(shape => {
+      const scaledShape = {
+        ...shape,
+        x: shape.x * scaleFactor.width,
+        y: shape.y * scaleFactor.height,
+        dx: shape.dx * scaleFactor.width,
+        dy: shape.dy * scaleFactor.height,
+        lineWidth: shape.lineWidth * scaleFactor.width,
+      };
+
+      if (shape.id === TOOL_ARROW) {
+        scaledShape.length = Math.sqrt(scaledShape.dx * scaledShape.dx + scaledShape.dy * scaledShape.dy);
+        scaledShape.angle = Math.atan2(scaledShape.dy, scaledShape.dx);
+      };
+
+      return scaledShape;
     });
 
     typedText = typedText.map(text => {
@@ -456,9 +476,9 @@
   function render () {
     clearCanvas();
 
-    drawStrokes(strokes, context);
-
     drawShapes(shapes, context);
+
+    drawStrokes(strokes, context);
 
     if (isPointerActive) {
       rafID = requestAnimationFrame(render);
@@ -480,7 +500,7 @@
 </script>
 
 <svelte:window
-  on:resize={ debounce(resizeCanvas, 125) }
+  on:resize={ debounce(resizeCanvas, 50) }
 />
 
 <div
