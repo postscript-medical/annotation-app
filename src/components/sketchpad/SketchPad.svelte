@@ -255,6 +255,8 @@
   function onPointerDown(event) {
     event.preventDefault();
 
+    recordPoint(event);
+
     switch (selectedToolId) {
       case TOOL_TEXT:
         addTypedText(event);
@@ -669,6 +671,7 @@
     top: 0;
     cursor: crosshair;
     touch-action: none;
+    user-select: none;
     width: 100%;
     height: 100%;
   }
@@ -719,6 +722,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    user-select: none;
   }
 
   :global(.ui button),
