@@ -99,8 +99,6 @@
       newShape,
     ];
 
-    recordPoint(event);
-
     render();
   };
 
@@ -118,8 +116,6 @@
         points: [],
       }
     ];
-
-    recordPoint(event);
 
     render();
   };
@@ -275,7 +271,12 @@
   };
 
   function onPointerUp(event) {
-    recordPoint(event);
+    if (hasPointer && pointerLocation.id && pointerLocation.id === event.pointerId) {
+      pointerLocation = {
+        ...pointerLocation,
+        id: undefined,
+      };
+    };
     stopDrawing();
   };
 
@@ -297,7 +298,13 @@
   };
 
   function recordPoint (event) {
-    pointerLocation = getPointerLocation(event, hasPointer);
+    const previousLocation = { ...pointerLocation };
+    pointerLocation = getPointerLocation(event, previousLocation, hasPointer);
+
+    if (!pointerLocation) {
+      pointerLocation = { ...previousLocation };
+      return;
+    }
 
     if (isPointerActive) {
       if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
@@ -670,8 +677,6 @@
     left: 0;
     top: 0;
     cursor: crosshair;
-    touch-action: none;
-    user-select: none;
     width: 100%;
     height: 100%;
   }
@@ -722,7 +727,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    user-select: none;
   }
 
   :global(.ui button),
