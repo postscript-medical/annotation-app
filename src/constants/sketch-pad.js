@@ -78,30 +78,28 @@ export const PEN_SIZES = [
   },
 ];
 
-const SHAPE_ARROW = {
-  id: TOOL_ARROW,
-  src: redirectPath + '/v1601715180/postscript-medical/annotation-app/icons/left_arrow.svg',
+const SHAPE_DEFAULT = {
   x: 0,
   y: 0,
   dx: 0,
   dy: 0,
+};
+
+export const SHAPE_ARROW = {
+  ...SHAPE_DEFAULT,
+  id: TOOL_ARROW,
+  src: redirectPath + '/v1601715180/postscript-medical/annotation-app/icons/left_arrow.svg',
   length: 0,
 };
 
 const SHAPE_ELLIPSE = {
+  ...SHAPE_DEFAULT,
   id: TOOL_ELLIPSE,
-  x: 0,
-  y: 0,
-  dx: 0,
-  dy: 0,
 };
 
 const SHAPE_RECTANGLE = {
+  ...SHAPE_DEFAULT,
   id: TOOL_RECTANGLE,
-  x: 0,
-  y: 0,
-  dx: 0,
-  dy: 0,
 };
 
 export const SHAPES = [
