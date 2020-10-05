@@ -17,7 +17,7 @@
     PEN_COLORS,
     PEN_SIZES,
     RADIAN,
-    SHAPES,
+    SHAPE_ARROW,
     TOOL_ARROW,
     TOOL_ERASER,
     TOOL_ELLIPSE,
@@ -32,6 +32,7 @@
   import TypedTextEntry from './TypedTextEntry.svelte';
 
   const hasPointer = window.PointerEvent;
+  const arrowIcon = new Image();
   // TODO: replace strokes with actions
   let actions = [];
   let canvas;
@@ -80,27 +81,17 @@
       y: y - offsetTop,
       dx: 0,
       dy: 0,
+      lineWidth: pen.lineWidth,
+      color: pen.color,
     };
 
     // this causes every single click to add an entry to the array, potentially bloating it with empty entries
     isPointerActive = true;
 
-    switch (shapeId) {
-      case TOOL_ARROW:
-        
-        break;
-
-      case TOOL_ELLIPSE:
-        
-        break;
-
-      case TOOL_RECTANGLE:
-        
-        break;
-    
-      default:
-        break;
-    }
+    if (shapeId === TOOL_ARROW) {
+      newShape.src = arrowIcon;
+      newShape.lenght = SHAPE_ARROW.length;
+    };
 
     // this seems redundant as we're recording a point immediately after
     shapes = [
@@ -196,8 +187,34 @@
   function drawShapes (_shapes, _context) {
     if (shapes.length < 1) return;
     _shapes.forEach(shape => {
-      _context.strokeRect(shape.x, shape.y, shape.dx, shape.dy);
-    })
+      _context.save();
+      _context.lineWidth = shape.lineWidth;
+      _context.strokeStyle = shape.color;
+
+      switch (shape.id) {
+          case TOOL_ARROW:
+            _context.translate(shape.x, shape.y);
+            _context.rotate(shape.angle);
+            _context.drawImage(shape.src, 0, -(shape.length / 2), shape.length, shape.length);
+            break;
+
+          case TOOL_ELLIPSE:
+          _context.translate(shape.x, shape.y);
+          _context.beginPath();
+          _context.ellipse(shape.dx, shape.dy, Math.abs(shape.dx), Math.abs(shape.dy), 0, 0, RADIAN);
+          _context.stroke();
+          break;
+
+        case TOOL_RECTANGLE:
+          _context.strokeRect(shape.x, shape.y, shape.dx, shape.dy);
+          break;
+
+        default:
+          break;
+      };
+
+      _context.restore();
+    });
   };
 
   function generateAnnotatedImage () {
@@ -281,37 +298,44 @@
     pointerLocation = getPointerLocation(event, hasPointer);
 
     if (isPointerActive) {
+      if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
+        strokes[strokesIndex].points = [
+          ...strokes[strokesIndex].points,
+          {
+            x: pointerLocation.x,
+            y: pointerLocation.y - offsetTop,
+          }
+        ];
+
+        return;
+      };
+
+      const targetIndex = shapes.findIndex(({ index }) => index === shapesIndex);
+      let target = { ...shapes[targetIndex] };
+
       switch (selectedToolId) {
-        case TOOL_PEN:
-        case TOOL_ERASER:
-          strokes[strokesIndex].points = [
-            ...strokes[strokesIndex].points,
-            {
-              x: pointerLocation.x,
-              y: pointerLocation.y - offsetTop,
-            }
-          ];
+        case TOOL_ARROW:
+          target.dx = pointerLocation.x - target.x;
+          target.dy = pointerLocation.y - target.y;
+          target.length = Math.sqrt(target.dx * target.dx + target.dy * target.dy);
+          target.angle = Math.atan2(target.dy, target.dx);
+          break;
+        case TOOL_ELLIPSE:
+          target.dx = (pointerLocation.x - target.x) / 2;
+          target.dy = (pointerLocation.y - target.y) / 2;
           break;
 
-        case TOOL_ARROW:
-        case TOOL_ELLIPSE:
         case TOOL_RECTANGLE:
-          const targetIndex = shapes.findIndex(({ index }) => index === shapesIndex);
-          let target = shapes[targetIndex];
-          target = {
-            ...target,
-            dx: pointerLocation.x - target.x,
-            dy: pointerLocation.y - target.y - offsetTop,
-          };
-
-          shapes[targetIndex] = target;
-
-          shapes = [...shapes];
+          target.dx = pointerLocation.x - target.x;
+          target.dy = pointerLocation.y - target.y - offsetTop;
           break;
       
         default:
           break;
-      }
+      };
+
+      shapes[targetIndex] = target;
+      shapes = [...shapes];
     };
   };
 
@@ -371,6 +395,10 @@
   };
 
   function selectTool (toolId) {
+    if (toolId === TOOL_ARROW && !arrowIcon.src) {
+      arrowIcon.src = SHAPE_ARROW.src;
+    };
+
     selectedToolId = toolId;
   }
 
