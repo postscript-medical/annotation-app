@@ -213,6 +213,12 @@
     });
   };
 
+  function eraseAll () {
+    clearCanvas();
+    strokes = [];
+    shapes = [];
+  };
+
   function generateAnnotatedImage () {
     const _canvas = document.createElement('canvas');
     const _context = _canvas.getContext('2d');
@@ -552,7 +558,7 @@
       Eraser
     </button>
     <button
-      on:click={ clearCanvas }
+      on:click={ eraseAll }
     >
       Erase all
     </button>
