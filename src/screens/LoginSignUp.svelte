@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
   import EmailConfirmed from '../components/EmailConfirmed.svelte';
   import LogInForm from '../components/LogInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
@@ -9,7 +8,8 @@
   export let showEmailConfirmed = false;
 
   let userEmail;
-  let showSignUpForm = true;
+  
+  $: showSignUpForm = !showEmailConfirmed;
 
   function showThankYou ({ detail }) {
     userEmail = detail.email;
@@ -18,10 +18,6 @@
   function confirmationAcknoleged () {
     showEmailConfirmed = false;
   };
-
-  onMount(() => {
-    showSignUpForm = !showEmailConfirmed;
-  });
 </script>
 
 <main>
