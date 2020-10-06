@@ -1,32 +1,38 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
   import { session, isLoading } from '../stores.js';
   import CredentialsForm from './CredentialsForm.svelte';
+  
+  const dispatch = createEventDispatcher();
  
   let errorMessage;
 
   function submit ({ detail }) {
-    console.log('submit', detail);
-    // if (!$session) {
-    //   console.error('No $session object!');
-    //   return;
-    // }
+    if (!$session) {
+      console.error('No $session object!');
+      return;
+    }
 
-    // $isLoading = true;
+    const { email, password } = detail;
 
-    // $session
-    //   .signup(email.value, password.value)
-    //   .then(response => {
-    //     console.log('created user', response);
-    //     // TODO: tell user to verify email address
-    //     $isLoading = false;
-    //     }
-    //   )
-    //   .catch(error => {
-    //     console.error('Error', error);
-    //   });
+    errorMessage = undefined;
+    $isLoading = true;
+
+    $session
+      .signup(email, password)
+      .then(response => {
+        dispatch('user-created', { email: response.email });
+        $isLoading = false;
+        }
+      )
+      .catch(error => {
+        errorMessage = error.json.msg;
+        $isLoading = false;
+      });
   };
 </script>
 
 <CredentialsForm
+  { errorMessage }
   on:submit={ submit }
 />

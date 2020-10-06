@@ -5,11 +5,11 @@
 
   const dispatch = createEventDispatcher();
 
+  export let errorMessage;
   export let onDark = false;
   export let rememberMe = false;
 
   let email;
-  let errorMessage; // receives error as a prop
   let password;
   let stayLogged = false;
 
@@ -17,8 +17,8 @@
     dispatch(
       'submit',
       {
-        email,
-        password,
+        email: email.value,
+        password: password.value,
         stayLogged
       }
     );
@@ -45,6 +45,9 @@
         </h2>
       </slot>
     </header>
+    <ErrorMessage
+      message={ errorMessage }
+    />
     <form
       on:submit|preventDefault={ submitForm }
     >
@@ -54,7 +57,7 @@
         Email
       </label>
       <input
-        bind:value={ email }
+        bind:this={ email }
         id="put_a_dynamic_value_here"
         type="email"
         required
@@ -65,7 +68,7 @@
         Password
       </label>
       <input
-        bind:value={ password }
+        bind:this={ password }
         id="put_a_dynamic_value_here_2"
         type="password"
         required

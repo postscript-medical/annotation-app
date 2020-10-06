@@ -6,7 +6,6 @@
   } from '../stores.js';
   import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
-  // import ErrorMessage from './ErrorMessage.svelte';
   import CredentialsForm from './CredentialsForm.svelte';
   import PsButton from './PsButton.svelte';
   import PsLink from './PsLink.svelte';
@@ -14,7 +13,6 @@
   let errorMessage;
 
   function submit ({ detail }) {
-    console.log('submit', detail);
     if (!$session) {
       console.warn('No $session object!');
       return;
@@ -22,6 +20,7 @@
 
     const { email, password, stayLogged } = detail;
 
+    errorMessage = undefined;
     $isLoading = true;
 
     $session
@@ -43,9 +42,10 @@
 </script>
 
 <CredentialsForm
+  { errorMessage }
   onDark
-  rememberMe
   on:submit={ submit }
+  rememberMe
 >
   <h2
     slot="cta"
