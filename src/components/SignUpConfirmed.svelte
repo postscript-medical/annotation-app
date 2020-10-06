@@ -4,28 +4,26 @@
  export let userEmail;
 </script>
 
-{ #if userEmail }
-  <article>
-    <PsHeader />
-    <h2>
-      Thank you for signing up
-    </h2>
-    <p>
-      We have just emailed <strong>{ userEmail }</strong>.
-    </p>
-    <p>
-      Please use the link in the email to confirm your details and complete your sign up.
-    </p>
-    <div>
-      <strong>
-        Didn&apos;t receive it?
-      </strong>
-      <button>
-        Resend
-      </button>
-    </div>
-  </article>
-{ /if }
+<article>
+  <PsHeader />
+  <h2>
+    Thank you for signing up
+  </h2>
+  <p>
+    We have just emailed <strong>{ userEmail }</strong>.
+  </p>
+  <p>
+    Please use the link in the email to confirm your details and complete your sign up.
+  </p>
+  <div>
+    <strong>
+      Didn&apos;t receive it?
+    </strong>
+    <button>
+      Resend
+    </button>
+  </div>
+</article>
 
 <style>
   article {

@@ -14,6 +14,8 @@
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
 
+  let emailConfirmed = false;
+
   async function getUserFromSessionStorage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
 
@@ -48,12 +50,14 @@
         $session
           .confirm(token)
           .then(response => {
-            console.log("Account confirmed!Welcome to the party!", JSON.stringify({ response }));
+            console.log("Account confirmed! Welcome to the party!", JSON.stringify({ response }));
 
             window.location.hash = '';
 
-            // alert('Account confirmed, sign in');
+            emailConfirmed = true;
+
             loadProtectedContent($user);
+
             // TODO: wait a frame before toggling this
             $isLoading = false;
           })
@@ -74,7 +78,9 @@
 { #if $user }
   <ImageAnnotation />
 { :else }
-  <LoginSignUp />
+  <LoginSignUp
+    showEmailConfirmed={ emailConfirmed }
+  />
 { /if }
 
 { #if $isLoading }
