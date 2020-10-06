@@ -1,30 +1,53 @@
 <script>
+  import { onMount } from 'svelte';
+  import EmailConfirmed from '../components/EmailConfirmed.svelte';
   import LogInForm from '../components/LogInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
-  import SignUpConfirmation from '../components/SignUpConfirmation.svelte';
+  import SignUpConfirmed from '../components/SignUpConfirmed.svelte';
   import PsHeader from '../components/PsHeader.svelte';
 
-  // let showSignUpForm = true;
+  export let showEmailConfirmed = false;
+
   let userEmail;
+  let showSignUpForm = true;
 
   function showThankYou ({ detail }) {
     userEmail = detail.email;
   }
+
+  function confirmationAcknoleged () {
+    showEmailConfirmed = false;
+  };
+
+  onMount(() => {
+    showSignUpForm = !showEmailConfirmed;
+  });
 </script>
 
 <main>
   <PsHeader />
-  <!-- { #if showSignUpForm } -->
-  <SignUpForm
-    on:user-created={ showThankYou }
-  />
-  <!-- { /if } -->
+
+  { #if showSignUpForm }
+    <SignUpForm
+      on:user-created={ showThankYou }
+    />
+  { :else }
+    <div></div>
+  { /if }
 
   <LogInForm />
 
-  <SignUpConfirmation
-    { userEmail }
-  />
+  { #if userEmail }
+    <SignUpConfirmed
+      { userEmail }
+    />
+  { /if }
+
+  { #if showEmailConfirmed }
+    <EmailConfirmed
+      on:confirm={ confirmationAcknoleged }
+    />
+  { /if }
 </main>
 
 <style>
