@@ -13,8 +13,6 @@
     border-radius: 0.25rem;
     border: transparent;
     color: white;
-    margin: 0;
-    padding: 0.75rem 1.25rem;
   }
 
   button.on-dark {
