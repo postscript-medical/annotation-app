@@ -74,7 +74,6 @@
 <style>
   div {
     border: 1px solid lightgreen;
-    box-sizing: border-box;
     position: absolute;
     left: 0;
     top: 0;

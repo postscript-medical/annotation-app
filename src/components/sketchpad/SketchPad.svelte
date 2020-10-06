@@ -678,7 +678,6 @@
 <style>
   canvas {
     display: block;
-    box-sizing: border-box;
     position: absolute;
     left: 0;
     top: 0;
@@ -729,7 +728,6 @@
     top: 0;
     pointer-events: none;
     padding: 1rem;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

@@ -16,7 +16,6 @@
     top: 0;
     border: 1px solid black;
     border-radius: 50%;
-    box-sizing: border-box;
     pointer-events: none;
   }
 </style>
