@@ -6,30 +6,33 @@
   } from '../stores.js';
   import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
-  import ErrorMessage from './ErrorMessage.svelte';
+  // import ErrorMessage from './ErrorMessage.svelte';
+  import CredentialsForm from './CredentialsForm.svelte';
+  import PsButton from './PsButton.svelte';
+  import PsLink from './PsLink.svelte';
 
-  let email;
-  let password;
-  let stayLogged = false;
   let errorMessage;
 
-  function loginUser () {
+  function submit ({ detail }) {
+    console.log('submit', detail);
     if (!$session) {
       console.warn('No $session object!');
       return;
     }
 
+    const { email, password, stayLogged } = detail;
+
     $isLoading = true;
 
     $session
-      .login(email.value, password.value, stayLogged)
+      .login(email, password, stayLogged)
       .then(response => {
         $user = response;
         loadProtectedContent($user);
         $isLoading = false;
 
         if (!stayLogged) {
-          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email: email.value, password: password.value }));
+          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
         }
       })
       .catch(error => {
@@ -39,48 +42,43 @@
   }
 </script>
 
-<article>
-  <h3>
-    Login
-  </h3>
-  <form
-    name="login"
-    on:submit|preventDefault={ loginUser }
+<CredentialsForm
+  onDark
+  rememberMe
+  on:submit={ submit }
+>
+  <h2
+    slot="cta"
   >
-    <label>
-      Email
-      <input
-        bind:this={ email }
-        name="email"
-        type="email"
-        required
-      />
-    </label>
-    <label>
-      Password
-      <input
-        type="password"
-        name="password"
-        bind:this={ password }
-        required
-      />
-    </label>
-    <label>
-      <input
-        type="checkbox"
-        bind:checked={ stayLogged }
-      />
-      Stay logged in.
-    </label>
-    <button
-      type="submit"
+    Already have an account?
+  </h2>
+  <h2
+    slot="header"
+  >
+    Sign in
+  </h2>
+  <div
+    slot="footer"
+    class="log-in"
+  >
+    <PsButton
+      onDark
     >
-      Log in
-    </button>
-  </form>
-  { #if errorMessage }
-    <ErrorMessage>
-      { errorMessage }
-    </ErrorMessage>
-  { /if }
-</article>
+      Login
+    </PsButton>
+    <PsLink
+      href="toReplaceLater"
+      onDark
+    >
+      Forgot your password?
+    </PsLink>
+  </div>
+</CredentialsForm>
+
+<style>
+  .log-in {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+</style>

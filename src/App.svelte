@@ -7,15 +7,12 @@
   } from './stores.js';
   import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
-  import SignUpForm from  './components/SignUpForm.svelte';
-  import LogInForm from './components/LogInForm.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
-  import SketchPad from './components/sketchpad/SketchPad.svelte';
+  import LoginSignUp from './screens/LoginSignUp.svelte';
+  import ImageAnnotation from './screens/ImageAnnotation.svelte';
 
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
-
-  let showSignUpForm = true;
 
   async function getUserFromSessionStorage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
@@ -74,31 +71,12 @@
   initAuthentication();
 </script>
 
-<main>
-  { #if $user }
-    <SketchPad />
-  { :else }
-    { #if showSignUpForm }
-      <SignUpForm />
-    { /if }
-    <LogInForm />
-  { /if }
-</main>
+{ #if $user }
+  <ImageAnnotation />
+{ :else }
+  <LoginSignUp />
+{ /if }
 
 { #if $isLoading }
   <LoadingOverlay />
 { /if }
-
-
-<style>
-  main {
-    padding: 0;
-    margin: 0;
-    position: relative;
-    height: 100%;
-    background: lightgrey;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
