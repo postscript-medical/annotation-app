@@ -9,7 +9,8 @@
 
   let userEmail;
   
-  $: showSignUpForm = !showEmailConfirmed;
+  // $: showSignUpForm = !showEmailConfirmed;
+  let showSignUpForm = false;
 
   function showThankYou ({ detail }) {
     userEmail = detail.email;
