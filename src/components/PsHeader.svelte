@@ -1,5 +1,9 @@
+<script>
+  import PsLogo from './PsLogo.svelte';
+</script>
+
 <header>
-  <img src="" alt="PostScript Medical logo" />
+  <PsLogo />
 </header>
 
 <style>
