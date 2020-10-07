@@ -1,6 +1,4 @@
-export default function getPointerLocation (event, location, hasPointer) {
-  console.log('should return', !!location.id && location.id !== event.pointerId);
-  
+export default function getPointerLocation (event, location, hasPointer) {  
   if (hasPointer) {
     if (location.id && location.id !== event.pointerId) return;
     location.x = event.clientX;
