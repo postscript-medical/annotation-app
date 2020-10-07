@@ -1,9 +1,6 @@
 <script>
-  import {
-    user,
-    isLoading
-  } from '../stores.js';
-    import { STORAGE_KEY } from '../constants/session.js'
+  import { user, isLoading } from '../stores.js';
+  import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
 
   function logout () {
@@ -25,5 +22,5 @@
 </script>
 
 <button on:click={ logout }>
-  Logout
+  X
 </button>

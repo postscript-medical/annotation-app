@@ -27,6 +27,7 @@
   } from '../../constants/sketch-pad.js';
   import ImageSelectorButton from './ImageSelectorButton.svelte';
   import LogOutButton from '../LogOutButton.svelte';
+  import ToolButton from './ToolButton.svelte';
   import SendEmailForm from '../SendEmailForm.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';
@@ -64,6 +65,7 @@
   let typedText = [];
   let typedTextIndex = 0;
 
+  let selectedShape;
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: isErasing = selectedTool && selectedTool.name === TOOL_ERASER;
@@ -139,6 +141,20 @@
 
   function closeModal () {
     showEmailForm = false;
+  };
+
+  function changeLineThickness (thickness, tool) {
+    if (tool === TOOL_PEN) {
+      pen = {
+        ...pen,
+        lineWidth: Number(thickness),
+      };
+    } else {
+      eraser = {
+        ...eraser,
+        lineWidth: Number(thickness),
+      }
+    };
   };
 
   function drawTypedText (parentBoundingRect, _context) {
@@ -552,36 +568,59 @@
   </div>
   <div>
     <button
-      on:click={ () => selectTool(TOOL_ERASER) }
-      disabled={ isErasing }
-    >
-      Eraser
-    </button>
-    <button
       on:click={ eraseAll }
     >
       Erase all
     </button>
-    <form>
-      { #each ERASER_SIZES as size }
-        <label>
-          <input
-            type="radio"
-            value={ size.value }
-            bind:group={ eraser.lineWidth }
-          />
-          { size.id }
-        </label>
-      { /each }
-    </form>
   </div>
   <div>
-    <button
-      on:click={ () => selectTool(TOOL_PEN) }
-      disabled={ !isErasing }
+
+    <ToolButton
+      primaryValue={ selectedToolId }
+      toolName={ TOOL_PEN }
+      secondaryTools={ PEN_SIZES }
+      secondaryValue={ pen.lineWidth }
+      on:change-primary={ ({ detail }) => selectTool(detail) }
+      on:change-secondary={ ({ detail }) => changeLineThickness(detail, TOOL_PEN) }
     >
-      Pen
-    </button>
+      <span>
+        P
+      </span>
+    </ToolButton>
+
+    <ToolButton
+      primaryValue={ selectedToolId }
+      toolName={ TOOL_ERASER }
+      secondaryTools={ ERASER_SIZES }
+      secondaryValue={ eraser.lineWidth }
+      on:change-primary={ ({ detail }) => selectTool(detail) }
+      on:change-secondary={ ({ detail }) => changeLineThickness(detail, TOOL_ERASER) }
+    >
+      <span>
+        E
+      </span>
+    </ToolButton>
+
+    <ToolButton
+      primaryValue={ selectedToolId }
+      toolName={ 'shape' }
+      secondaryTools={ [{id: 'arrow', value: 1}] }
+      secondaryValue={ selectedShape }
+      on:change-primary={ ({detail}) => selectTool(detail) }
+      on:change-secondary={ () => {} }
+    >
+      S
+    </ToolButton>
+
+    <ToolButton
+      primaryValue={ selectedToolId }
+      toolName={ TOOL_TEXT }
+      on:change-primary={ ({detail}) => selectTool(detail) }
+    >
+      T
+    </ToolButton>
+  </div>
+  <div>
     <p>Color</p>
     <form>
       { #each PEN_COLORS as color }
@@ -595,21 +634,7 @@
         </label>
       { /each }
     </form>
-    <p>Size</p>
-    <form>
-      { #each PEN_SIZES as size }
-        <label>
-          <input
-            type="radio"
-            value={ size.value }
-            bind:group={ pen.lineWidth }
-          />
-          { size.id }
-        </label>
-      { /each }
-    </form>
-  </div>
-  <div>
+
     <ImageSelectorButton
       options={ gastroImages }
       on:update={ selectNewImage 

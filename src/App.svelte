@@ -47,6 +47,8 @@
       const [hashId, token] = hash.split('=');
 
       if (hashId === '#confirmation_token') {
+        // Navigate to Stripe's payment provider
+        // wait for confirmation from Stripe before progressing
         $session
           .confirm(token)
           .then(response => {
