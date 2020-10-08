@@ -15,6 +15,8 @@ export const TOOL_ARROW = 'arrow';
 
 export const TOOL_ELLIPSE =  'ellipse';
 
+export const TOOL_ERASE_ALL = 'erase_all';
+
 export const TOOL_ERASER = 'eraser';
 
 export const TOOL_PEN = 'pen';

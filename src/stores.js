@@ -1,4 +1,5 @@
-import { readable, writable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
+import { TOOL_TEXT } from './constants/sketch-pad';
 
 let _contentLevel = 'Not logged in';
 
@@ -12,3 +13,15 @@ export const user = writable(false);
 export const isLoading = writable(true);
 
 export const protectedContent = writable(_contentLevel);
+
+/**
+ * Canvas-related stores
+ */
+export const actions = writable([]);
+export const canvas = writable();
+export const context = writable();
+
+export const typedTextEntries = derived(
+  actions,
+  $actions => $actions.filter(({ name }) => name === TOOL_TEXT)
+);
