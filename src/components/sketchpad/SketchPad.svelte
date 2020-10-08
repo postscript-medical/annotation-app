@@ -3,8 +3,13 @@
     onDestroy,
     onMount,
   } from 'svelte';
+  import {
+    actions,
+    canvas,
+    context,
+    typedTextEntries,
+  } from '../../stores.js';
   import getPointerLocation from './helpers/get-pointer-location.js';
-  import debounce from './helpers/debounce.js';
   import setupCanvas from './helpers/setup-canvas.js';
   import { gastroImages } from './helpers/fake-database.js';
   import { user } from '../../stores.js';
@@ -36,66 +41,32 @@
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';
 
+  export let pen;
+  export let selectedTool;
+  export let selectedToolId;
+  export let shape;
+
+    // TODO: change this from an SVG to a secondary canvas so we can control the color
   const arrowIcon = new Image();
+  arrowIcon.src = SHAPE_ARROW.src;
   const dpr = window.devicePixelRatio || 1;
   const hasPointer = window.PointerEvent;
 
-  let actions = [];
   let actionsIndex = 0;
-  let canvas;
-  let context;
   let encodedImage = '';
-  let eraser = {
-    name: TOOL_ERASER,
-    lineWidth: ERASER_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value,
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value,
-  };
   let isPointerActive = false;
   let dragTypedText = { index: 0, active: false };
   let offsetTop = 0;
   let paper;
-  let pen = {
-    name: TOOL_PEN,
-    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value, 
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value
-  };
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
-  let selectedTool;
-  let selectedToolId;
   let selectedImageId;
-  let shape = {
-    name: TOOL_SHAPE,
-    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value,
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value,
-    type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE_ID).id,
-  };
   let showEmailForm = false;
 
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
   $: src = selectedImage ? selectedImage.url : null;
-  $: typedTextEntries = actions.filter(({ name }) => name === TOOL_TEXT);
-  $: {
-    switch (selectedToolId) {
-      case TOOL_ERASER:
-        selectedTool = eraser;
-        break;
-
-      case TOOL_SHAPE:
-        selectedTool = shape;
-        break;
-
-      case TOOL_TEXT:
-        selectedTool = {};
-        break;
-    
-      default:
-        selectedTool = pen;
-        break;
-    }
-  }
 
   function addShape (shapeId, event) {
     const { x, y } = pointerLocation;
@@ -103,6 +74,7 @@
     let newShape = {
       name: shapeId,
       index: actionsIndex,
+      src: shape.src,
       type: shape.type,
       x,
       y: y - offsetTop,
@@ -151,41 +123,12 @@
   };
 
   function clearCanvas () {
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    $context.clearRect(0, 0, $canvas.width, $canvas.height);
   };
 
   // TODO: This should be in the modal component
   function closeModal () {
     showEmailForm = false;
-  };
-
-  function changePenColor (color) {
-    pen = {
-      ...pen,
-      color,
-    };
-    console.log('changePenColor', color);
-  };
-
-  function changeLineThickness (thickness, tool) {
-    if (tool === TOOL_PEN) {
-      pen = {
-        ...pen,
-        lineWidth: Number(thickness),
-      };
-    } else {
-      eraser = {
-        ...eraser,
-        lineWidth: Number(thickness),
-      };
-    };
-  };
-
-  function changeShapeType (type) {
-    shape = {
-      ...shape,
-      type,
-    }
   };
 
   function downloadImage () {
@@ -198,7 +141,7 @@
     hiddenLink.click();
   };
 
-  function drawTypedText (parentBoundingRect, _context) {
+  function drawTypedText (_context, parentBoundingRect) {
     const entries = Array.from(paper.querySelectorAll('.typed-annotation'));
     const fontSize = `${16 * dpr}px`;
     
@@ -210,104 +153,93 @@
       const x = (boundingRect.x - parentBoundingRect.x + 7) * dpr; /* 7 is the padding in the input */
       const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * dpr;
 
-      console.log('drawTypedText x:', x, '| y:', y);
-      console.log('bounding x:', boundingRect.x, '| y:', boundingRect.y);
-      console.log('parent x:', parentBoundingRect.x, '| y:', parentBoundingRect.y);
-
       _context.fillStyle = 'black';
       _context.fillText(entry.value, x, y);
     });
   };
 
-  function drawStroke ({ name, lineWidth, color, points }) {
+  function drawStroke (_context, { name, lineWidth, color, points }) {
       if (points.length < 3) return;
 
       const maxIndex = points.length - 2;
       const isDrawing = name === TOOL_PEN;
 
-      context.save();
-      context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
-      context.strokeStyle = color;
-      context.beginPath();
-      context.lineWidth = lineWidth;
-      context.moveTo(points[0].x, points[0].y);
+      _context.save();
+      _context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
+      _context.strokeStyle = color;
+      _context.beginPath();
+      _context.lineWidth = lineWidth;
+      _context.moveTo(points[0].x, points[0].y);
 
       for(let i = 1; i < maxIndex; i++) {
         const xc = (points[i].x + points[i + 1].x) / 2;
         const yc = (points[i].y + points[i + 1].y) / 2;
-        context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        _context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
       }
 
-      context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x, points[maxIndex+1].y);
-      context.stroke();
-      context.restore();
+      _context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x, points[maxIndex+1].y);
+      _context.stroke();
+      _context.restore();
   };
 
-  function drawShape (shape) {
-    context.save();
-    context.lineWidth = shape.lineWidth;
-    context.strokeStyle = shape.color;
+  function drawShape (_context, shape) {
+    _context.save();
+    _context.lineWidth = shape.lineWidth;
+    _context.strokeStyle = shape.color;
 
     switch (shape.type) {
       case TOOL_ARROW:
-        context.translate(shape.x, shape.y);
-        context.rotate(shape.angle);
-        context.drawImage(shape.src, 0, -(shape.length / 2), shape.length, shape.length);
+        _context.translate(shape.x, shape.y);
+        _context.rotate(shape.angle);
+        _context.drawImage(shape.src, 0, -(shape.length / 2), shape.length, shape.length);
         break;
 
       case TOOL_ELLIPSE:
-        context.translate(shape.x, shape.y);
-        context.beginPath();
-        context.ellipse(shape.dx, shape.dy, Math.abs(shape.dx), Math.abs(shape.dy), 0, 0, RADIAN);
-        context.stroke();
+        _context.translate(shape.x, shape.y);
+        _context.beginPath();
+        _context.ellipse(shape.dx, shape.dy, Math.abs(shape.dx), Math.abs(shape.dy), 0, 0, RADIAN);
+        _context.stroke();
         break;
 
       case TOOL_RECTANGLE:
-        context.strokeRect(shape.x, shape.y, shape.dx, shape.dy);
+        _context.strokeRect(shape.x, shape.y, shape.dx, shape.dy);
         break;
 
       default:
         break;
     };
 
-    context.restore();
-  };
-
-  function eraseAll () {
-    clearCanvas();
-    actions = [];
+    _context.restore();
   };
 
   function generateAnnotatedImage () {
     const _canvas = document.createElement('canvas');
     const _context = _canvas.getContext('2d');
     const _srcImg = document.querySelector('#displayed-image');
-    const _boundingRect = canvas.getBoundingClientRect();
+    const _boundingRect = $canvas.getBoundingClientRect();
 
-    _canvas.width = canvas.width;
-    _canvas.height = canvas.height;
+    _canvas.width = $canvas.width;
+    _canvas.height = $canvas.height;
 
     _context.fillStyle = 'white';
     _context.fillRect(0,0, _canvas.width, _canvas.height);
     _context.drawImage(_srcImg, 0, 0, _canvas.width, _canvas.height);
-    _context.drawImage(canvas, 0, 0);
+    _context.drawImage($canvas, 0, 0);
 
-    drawTypedText(_boundingRect, _context);
+    drawTypedText(_context, _boundingRect);
 
     return _canvas;
   };
 
   function init() {
     document.body.addEventListener(eventType.up, stopDrawing, false);
-    canvas.addEventListener(eventType.down, onPointerDown, false);
-    canvas.addEventListener(eventType.up, onPointerUp, false);
+    $canvas.addEventListener(eventType.down, onPointerDown, false);
+    $canvas.addEventListener(eventType.up, onPointerUp, false);
     paper.addEventListener(eventType.move, onPointerMove, false);
 
-    context = setupCanvas(canvas);
-    context.lineCap = 'round';
-    context.lineJoin = 'round';
-
-    selectTool(TOOL_PEN);
+    $context = setupCanvas($canvas);
+    $context.lineCap = 'round';
+    $context.lineJoin = 'round';
 
     resizeCanvas();
   };
@@ -334,8 +266,8 @@
         break;
     };
 
-    actions = [
-      ...actions,
+    $actions = [
+      ...$actions,
       newAction
     ];
 
@@ -378,8 +310,8 @@
     }
 
     if (isPointerActive) {
-      const targetIndex = actions.findIndex(({ index }) => index === actionsIndex);
-      let target = { ...actions[targetIndex] };
+      const targetIndex = $actions.findIndex(({ index }) => index === actionsIndex);
+      let target = { ...$actions[targetIndex] };
 
       if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
         target.points = [
@@ -415,23 +347,23 @@
         };
       };
 
-      actions[targetIndex] = target;
-      actions = [...actions];
+      $actions[targetIndex] = target;
+      $actions = [...$actions];
     };
   };
 
   function render () {
     clearCanvas();
 
-    actions.forEach(action => {
+    $actions.forEach(action => {
       switch (action.name) {
         case TOOL_PEN:
         case TOOL_ERASER:
-          drawStroke(action);
+          drawStroke($context, action);
           break;
 
         case TOOL_SHAPE:
-          drawShape(action);
+          drawShape($context, action);
           break;
       
         default:
@@ -448,15 +380,15 @@
 
   function resizeCanvas () {
     // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
-    const oldSize = { width: canvas.width, height: canvas.height };
+    const oldSize = { width: $canvas.width, height: $canvas.height };
 
-    context = setupCanvas(canvas);
+    $context = setupCanvas($canvas);
 
     updateOffsetTop();
 
-    const scaleFactor = { width: canvas.width / oldSize.width, height: canvas.height / oldSize.height };
+    const scaleFactor = { width: $canvas.width / oldSize.width, height: $canvas.height / oldSize.height };
 
-    actions = actions.map(action => {
+    $actions = $actions.map(action => {
       switch (action.name) {
         case TOOL_PEN:
         case TOOL_ERASER:
@@ -506,14 +438,6 @@
     isPointerActive = false;
   };
 
-  function selectTool (toolId) {
-    if (toolId === TOOL_SHAPE && !arrowIcon.src) {
-      arrowIcon.src = SHAPE_ARROW.src;
-    };
-
-    selectedToolId = toolId;
-  }
-
   function selectNewImage ({ detail: id }) {
     selectedImageId = id;
   };
@@ -523,40 +447,40 @@
   }; 
 
   function typedTextDragBox () {
-      const targetIndex = actions.findIndex(({ index }) => index === dragTypedText.index);
+      const targetIndex = $actions.findIndex(({ index }) => index === dragTypedText.index);
       // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
       let target = {
-        ...actions[targetIndex],
+        ...$actions[targetIndex],
         x: pointerLocation.x,
         y: pointerLocation.y - offsetTop,
       };
 
-      actions[targetIndex] = target;
-      actions = [...actions];
+      $actions[targetIndex] = target;
+      $actions = [...$actions];
   };
 
   function typedTexRemovetEntry ({ detail }) {
-    const targetIndex = actions.findIndex(({ index }) => index === detail.index);
-    let target = [...actions];
+    const targetIndex = $actions.findIndex(({ index }) => index === detail.index);
+    let target = [...$actions];
 
     target.splice(targetIndex, 1);
 
-    actions = target;
+    $actions = target;
   };
 
   function typedTextUpdateEntryContent ({ detail }) {
-    const targetIndex = actions.findIndex(({ index }) => index === detail.index);
+    const targetIndex = $actions.findIndex(({ index }) => index === detail.index);
     let target = {
-        ...actions[targetIndex],
+        ...$actions[targetIndex],
         content: detail.content,
       };
 
-    actions[targetIndex] = target;
-    actions = [...actions];
+    $actions[targetIndex] = target;
+    $actions = [...$actions];
   };
 
   function updateOffsetTop () {
-    offsetTop = canvas.getBoundingClientRect().top;
+    offsetTop = $canvas.getBoundingClientRect().top;
   };
 
   onMount(() => {
@@ -565,8 +489,8 @@
 
   onDestroy(() => {
     document.body.removeEventListener(eventType.up, stopDrawing, false);
-    canvas.removeEventListener(eventType.down, onPointerDown, false);
-    canvas.removeEventListener(eventType.up, onPointerUp, false);
+    $canvas.removeEventListener(eventType.down, onPointerDown, false);
+    $canvas.removeEventListener(eventType.up, onPointerUp, false);
     paper.removeEventListener(eventType.move, onPointerMove, false);
   });
 </script>
@@ -584,14 +508,14 @@
   { /if }
 
   <canvas
-    bind:this={ canvas }
+    bind:this={ $canvas }
     style={ isPointerActive ? 'cursor: none;' : '' }
   ></canvas>
 
   <div
     class="typed-text"
   >
-    { #each typedTextEntries as entry (entry.index) }
+    { #each $typedTextEntries as entry (entry.index) }
       <TypedTextEntry
         { ...entry }
         on:close={ typedTexRemovetEntry }
@@ -610,66 +534,6 @@
     <LogOutButton />
   </div>
   <div>
-    <button
-      on:click={ eraseAll }
-    >
-      Erase all
-    </button>
-  </div>
-  <div>
-    <ToolButton
-      primaryValue={ selectedToolId }
-      toolName={ TOOL_PEN }
-      secondaryTools={ PEN_SIZES }
-      secondaryValue={ pen.lineWidth }
-      on:change-primary={ ({ detail }) => selectTool(detail) }
-      on:change-secondary={ ({ detail }) => changeLineThickness(detail, TOOL_PEN) }
-    >
-      <span>
-        P
-      </span>
-    </ToolButton>
-
-    <ToolButton
-      primaryValue={ selectedToolId }
-      toolName={ TOOL_ERASER }
-      secondaryTools={ ERASER_SIZES }
-      secondaryValue={ eraser.lineWidth }
-      on:change-primary={ ({ detail }) => selectTool(detail) }
-      on:change-secondary={ ({ detail }) => changeLineThickness(detail, TOOL_ERASER) }
-    >
-      <span>
-        E
-      </span>
-    </ToolButton>
-
-    <ToolButton
-      primaryValue={ selectedToolId }
-      toolName={ TOOL_SHAPE }
-      secondaryTools={ SHAPES }
-      secondaryValue={ shape.type }
-      on:change-primary={ ({detail}) => selectTool(detail) }
-      on:change-secondary={ ({ detail }) => changeShapeType(detail) }
-    >
-      S
-    </ToolButton>
-
-    <ToolButton
-      primaryValue={ selectedToolId }
-      toolName={ TOOL_TEXT }
-      on:change-primary={ ({detail}) => selectTool(detail) }
-    >
-      T
-    </ToolButton>
-
-    <ColorPalette
-      colors={ PEN_COLORS }
-      selected={ pen.color }
-      on:change={ ({ detail }) => changePenColor(detail) }
-    />
-  </div>
-  <div>
-    <p>Color</p>
     <ImageSelectorButton
       options={ gastroImages }
       on:update={ selectNewImage 
@@ -752,6 +616,7 @@
     top: 0;
   }
 
+  /* remove */
   .ui {
     position: absolute;
     width: 100%;
@@ -764,7 +629,7 @@
     flex-direction: column;
     align-items: flex-start;
   }
-
+  /* remove */
   :global(.ui button),
   :global(.ui label),
   :global(.ui select) {
