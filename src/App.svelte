@@ -7,9 +7,10 @@
   } from './stores.js';
   import { STORAGE_KEY } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
+  import ImageAnnotation from './screens/ImageAnnotation.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
   import LoginSignUp from './screens/LoginSignUp.svelte';
-  import ImageAnnotation from './screens/ImageAnnotation.svelte';
+  import PsHeader from './components/PsHeader.svelte';
 
   $: console.log('> session:', $session);
   $: console.log('> user:', $user);
@@ -76,6 +77,11 @@
 
   initAuthentication();
 </script>
+
+
+<PsHeader
+  loggedIn={ !!$user }
+/>
 
 { #if $user }
   <ImageAnnotation />

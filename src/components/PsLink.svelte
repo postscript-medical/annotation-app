@@ -5,7 +5,7 @@
 
 <a
   { href }
-  class={ onDark ? 'on-dark' : '' }
+  class:on-dark={ onDark }
 >
   <slot></slot>
 </a>

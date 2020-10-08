@@ -29,7 +29,9 @@
 
 </script>
 
-<div class="primary-tool">
+<div
+  class="primary-tool"
+>
   <ToolIcon
     on:click={ changePrimary }
     onDark={ isSelected }
@@ -50,9 +52,9 @@
         >
           <input
             name={ 'secondary-' + toolName }
-            on:change={ changeSecondary }
             type="radio"
             value={ tool.value }
+            on:change={ changeSecondary }
           />
           { tool.id }
         </label>

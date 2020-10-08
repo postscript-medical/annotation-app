@@ -41,7 +41,9 @@
   });
 </script>
 
-<div class="overlay">
+<div
+  class="overlay"
+>
   <article>
     <button
       class="close-button"

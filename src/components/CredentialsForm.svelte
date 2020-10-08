@@ -25,7 +25,9 @@
   }
 </script>
 
-<div class={ onDark ? 'on-dark' : ''}>
+<div
+  class:on-dark={ onDark }
+>
   <div
     class="cta"
   >
@@ -74,7 +76,9 @@
         required
       />
       { #if rememberMe }
-        <label class="remember-me">
+        <label
+          class="remember-me"
+        >
           <input
             type="checkbox"
             bind:checked={ stayLogged }
