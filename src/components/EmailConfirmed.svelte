@@ -8,8 +8,12 @@
   };
 </script>
 
-<div class="wrapper">
-  <div class="modal-box">
+<div
+  class="wrapper"
+>
+  <div
+    class="modal-box"
+  >
     <h2>
       Thank you
     </h2>

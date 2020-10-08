@@ -3,7 +3,8 @@
 </script>
 
 <button
-  class={ onDark ? 'on-dark' : '' }>
+  class:on-dark={ onDark }
+>
   <slot></slot>
 </button>
 

@@ -3,7 +3,6 @@
   import LogInForm from '../components/LogInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
   import SignUpConfirmed from '../components/SignUpConfirmed.svelte';
-  import PsHeader from '../components/PsHeader.svelte';
 
   export let showEmailConfirmed = false;
 
@@ -22,8 +21,6 @@
 </script>
 
 <main>
-  <PsHeader />
-
   { #if showSignUpForm }
     <SignUpForm
       on:user-created={ showThankYou }
@@ -59,7 +56,7 @@
     grid-template-columns: 45fr 57.5fr;
     grid-template-rows: min-content 1fr;
     grid-gap: 0 8rem;
-    padding: 4rem 8rem;
+    padding: 10rem 8rem 0;
     overflow-y: auto;
     overflow-x: hidden;
   }
