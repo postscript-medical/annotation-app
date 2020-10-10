@@ -12,7 +12,7 @@
   class="wrapper"
 >
   <div
-    class="modal-box"
+    class="modal-box shadow"
   >
     <h2>
       Thank you
@@ -47,7 +47,6 @@
   .modal-box {
     background-color: white;
     padding: 4rem 8rem;
-    box-shadow: 0px 0px .5rem 0px rgba(200,200,200,1);
     border-radius: 0.5rem;
   }
 

@@ -15,6 +15,12 @@
   $: showSecondaryTools = openDrawer && (secondaryTools.length > 0) && isSelected;
 
   function changePrimary ({ detail: newTool }) {
+    if (secondaryTools.length < 1) {
+      dispatch('change-primary', newTool);
+
+      return;
+    }
+
     if (isSelected) {
       openDrawer = !openDrawer;
     } else {
@@ -24,13 +30,14 @@
 
   function changeSecondary () {
     dispatch('change-secondary', this.value);
+
     openDrawer = false;
   }
 
 </script>
 
 <div
-  class="primary-tool"
+  class="primary-tool "
 >
   <ToolIcon
     on:click={ changePrimary }
@@ -38,12 +45,12 @@
     value={ toolName }
   >
     <slot>
-      G
+      !!
     </slot>
   </ToolIcon>
   { #if showSecondaryTools }
     <div
-      class="secondary-tools"
+      class="secondary-tools shadow"
     >
       { #each secondaryTools as tool }
         <label
@@ -87,7 +94,6 @@
   .secondary-tools {
     background-color: white;
     border-radius: 0.375rem;
-    box-shadow: 0px 0.075rem 0.25rem 0px rgba(42,41,41,0.15);
     display: flex;
     flex-direction: column;
     padding: 0.375rem;

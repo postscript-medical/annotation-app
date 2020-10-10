@@ -34,7 +34,6 @@
     TOOL_TEXT,
   } from '../../constants/sketch-pad.js';
   import ColorPalette from './ColorPalette.svelte';
-  import ImageSelectorButton from './ImageSelectorButton.svelte';
   import LogOutButton from '../LogOutButton.svelte';
   import ToolButton from './ToolButton.svelte';
   import SendEmailForm from '../SendEmailForm.svelte';
@@ -530,17 +529,6 @@
   class="ui"
 >
   <div>
-    <span>User is: { $user.email }</span>
-    <LogOutButton />
-  </div>
-  <div>
-    <ImageSelectorButton
-      options={ gastroImages }
-      on:update={ selectNewImage 
-      }
-    />
-  </div>
-  <div>
     <button
       on:click={ downloadImage }
       disabled={ !selectedImage }
@@ -628,11 +616,5 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-  }
-  /* remove */
-  :global(.ui button),
-  :global(.ui label),
-  :global(.ui select) {
-    pointer-events: auto;
   }
 </style>
