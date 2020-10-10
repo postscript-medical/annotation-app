@@ -13,6 +13,7 @@
 
 <button
   class:on-dark={ onDark }
+  class="shadow"
   on:click={ changeTool(value) }
 >
   <slot></slot>
@@ -23,7 +24,6 @@
     align-items: center;
     background-color: white;
     border-radius: 50%;
-    box-shadow: 0px 0.075rem 0.25rem 0px rgba(42,41,41,0.15);
     border: 0;
     display: flex;
     height: 2rem;

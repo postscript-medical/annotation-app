@@ -18,6 +18,6 @@
     top: 0;
     text-transform: uppercase;
     width: 100%;
-    z-index: 2;
+    z-index: 10;
   }
 </style>

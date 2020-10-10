@@ -12,12 +12,14 @@
     TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
+    TOOL_SEARCH,
     TOOL_SHAPE,
     TOOL_TEXT,
     SHAPES,
   } from '../../constants/sketch-pad.js';
-  import ToolButton from './ToolButton.svelte';
   import ColorPalette from './ColorPalette.svelte';
+  import ImageSelector from '../ImageSelector.svelte';
+  import ToolButton from './ToolButton.svelte';
 
   export let pen;
   export let eraser;
@@ -25,6 +27,8 @@
   export let shape;
 
   const dispatch = createEventDispatcher();
+
+  let showImageGallery = false;
 
   function changeLineThickness (thickness, toolId) {
     dispatch('change-thickness', { thickness, toolId });
@@ -43,6 +47,10 @@
     $actions = [];
   };
 
+  function toggleShowImageGallery () {
+    showImageGallery = !showImageGallery;
+  };
+
   function selectTool (toolId) {
     dispatch('select-tool', toolId);
   }
@@ -52,6 +60,23 @@
 <div
   class="ui"
 >
+  <ToolButton
+    className="search-icon"
+    primaryValue={ showImageGallery && TOOL_SEARCH }
+    toolName={ TOOL_SEARCH }
+    on:change-primary={ toggleShowImageGallery }
+  >
+    { #if showImageGallery }
+      <span>
+        X
+      </span>
+    { :else }
+      <span>
+        I
+      </span>
+    { /if }
+  </ToolButton>
+  
   <ToolButton
     primaryValue={ selectedToolId }
     toolName={ TOOL_PEN }
@@ -111,6 +136,10 @@
     selected={ pen.color }
     on:change={ ({ detail }) => changeColor(detail) }
   />
+
+  { #if showImageGallery }
+    <ImageSelector />
+  { /if }
 </div>
 
 
@@ -120,7 +149,6 @@
     width: 100%;
     height: 100%;
     left: 0;
-    left: 50%;
     top: 0;
     pointer-events: none;
     padding: 8rem 2rem 0;
@@ -129,10 +157,7 @@
     align-items: flex-start;
   }
 
-  /* look into removing, handle this at the individual component */
-  :global(.ui button),
-  :global(.ui label),
-  :global(.ui select) {
-    pointer-events: auto;
+  .ui > :global(:first-child) {
+    z-index: 10;
   }
 </style>

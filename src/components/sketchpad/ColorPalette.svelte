@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="color-palette"
+  class="color-palette shadow"
 >
   { #each colors as color }
     <label
@@ -52,7 +52,6 @@
 <style>
   .color-palette {
     background-color: white;
-    box-shadow: 0px 0.075rem 0.25rem 0px rgba(42,41,41,0.15);
     padding: 0.375rem;
     border-radius: 1.5rem;
   }

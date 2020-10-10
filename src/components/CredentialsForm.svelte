@@ -53,28 +53,26 @@
     <form
       on:submit|preventDefault={ submitForm }
     >
-      <label
-        for="put_a_dynamic_value_here"
-      >
-        Email
+      <label>
+        <span>
+          Email
+        </span>
+        <input
+          bind:this={ email }
+          type="email"
+          required
+        />
       </label>
-      <input
-        bind:this={ email }
-        id="put_a_dynamic_value_here"
-        type="email"
-        required
-      />
-      <label
-        for="put_a_dynamic_value_here_2"
-      >
-        Password
+      <label>
+        <span>
+          Password
+        </span>
+        <input
+          bind:this={ password }
+          type="password"
+          required
+        />
       </label>
-      <input
-        bind:this={ password }
-        id="put_a_dynamic_value_here_2"
-        type="password"
-        required
-      />
       { #if rememberMe }
         <label
           class="remember-me"
@@ -83,7 +81,9 @@
             type="checkbox"
             bind:checked={ stayLogged }
           />
-          Stay logged in
+          <span>
+            Stay logged in
+          </span>
         </label>
       { /if }
       <slot name="footer">
@@ -101,7 +101,7 @@
     margin-bottom: 2rem;
   }
 
-  label {
+  label > span {
     margin-bottom: 0.5rem;
   }
 
