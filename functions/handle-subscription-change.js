@@ -50,8 +50,6 @@ exports.handler = async ({ body, headers }, context) => {
     ];
     const newSubscription = subscriptions.find(({ product }) => product === plan);
 
-    console.log('>>>>>> newSubscription', newSubscription);
-
     // send a call to the Netlify Identity admin API to update the user role
     const { identity } = context.clientContext;
     await fetch(`${identity.url}/admin/users/${netlifyID}`, {

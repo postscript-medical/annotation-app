@@ -1,11 +1,16 @@
 <script>
+  import { user } from '../stores.js';
   import ManageSubscription from '../components/ManageSubscription.svelte';
 </script>
 
 <main>
   <span>
     Show me the money
-    <ManageSubscription />
+    { #if user }
+      <ManageSubscription
+        user={ $user }
+      />
+    { /if }
   </span>
 </main>
 
