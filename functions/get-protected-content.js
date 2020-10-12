@@ -1,4 +1,10 @@
+/**
+ * The content is to come from FaunaDB
+ */
 const content = {
+  free: {
+    copy: 'Free level',
+  },
   individual: {
     copy: 'Individual level',
   },
