@@ -1,7 +1,6 @@
 type User {
   netlifyID: ID!
   stripeID: ID!
-  subscriptionActive: Boolean
 }
 
 type Query {

@@ -3,7 +3,7 @@ import { protectedContent } from '../stores.js';
 export default async function (user) {
   const token = user ? await user.jwt(true) : false;
   // TODO: convert these into shared CONSTANT
-  const subscriptionLevels = ['individual', 'department', 'organization']
+  const subscriptionLevels = ['free', 'individual', 'department', 'organization']
   fetch('/.netlify/functions/get-protected-content', {
     method:'POST',
     headers: {
