@@ -8,8 +8,7 @@
 
   let userEmail;
   
-  // $: showSignUpForm = !showEmailConfirmed;
-  let showSignUpForm = false;
+  $: showSignUpForm = !showEmailConfirmed;
 
   function showThankYou ({ detail }) {
     userEmail = detail.email;
@@ -46,12 +45,17 @@
 
 <style>
   main {
-    background: linear-gradient(
-      to right,
-      white,
-      white 45%,
-      green 45%
-    );
+    background-position: bottom right;
+    background-size: contain;
+    background-repeat: no-repeat;
+    /* background-image: url('./../v1602510330/postscript-medical/annotation-app/bg_logo.svg'), */
+    background-image: url('/images/medical/v1602510330/postscript-medical/annotation-app/bg_logo.svg'),
+      linear-gradient(
+        to right,
+        white,
+        white 45%,
+        #389A2F 45%
+      );
     display: grid;
     grid-template-columns: 45fr 57.5fr;
     grid-template-rows: min-content 1fr;

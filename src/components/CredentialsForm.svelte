@@ -81,6 +81,7 @@
             type="checkbox"
             bind:checked={ stayLogged }
           />
+          &nbsp;
           <span>
             Stay logged in
           </span>
@@ -97,19 +98,31 @@
 
 <style>
   header,
-  .remember-me {
+  form > :global(*:not(:last-child)) {
     margin-bottom: 2rem;
   }
 
-  label > span {
-    margin-bottom: 0.5rem;
+  label {
+    display: flex;
+    flex-direction: column;
   }
 
-  div.on-dark {
-    color: white;
+  label > :global(span) {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1rem;
   }
 
   .cta {
     margin-bottom: 6rem;
+  }
+
+  .on-dark {
+    color: white;
+  }
+
+  .remember-me {
+    align-items: baseline;
+    flex-direction: row;
   }
 </style>
