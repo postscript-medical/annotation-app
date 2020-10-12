@@ -5,17 +5,20 @@
     user,
     isLoading,
   } from './stores.js';
-  import { STORAGE_KEY } from './constants/session.js'
+  import {
+    STORAGE_KEY,
+    SUBSCRIPTION_PLANS_PAID,
+  } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
   import ImageAnnotation from './screens/ImageAnnotation.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
   import LoginSignUp from './screens/LoginSignUp.svelte';
   import PsHeader from './components/PsHeader.svelte';
-
-  $: console.log('> session:', $session);
-  $: console.log('> user:', $user);
+  import FreeUserIndex from './screens/FreeUserIndex.svelte';
 
   let emailConfirmed = false;
+
+  $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
 
   async function getUserFromSessionStorage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
@@ -23,7 +26,6 @@
     if (!sessionStorage) return false;
 
     const { email, password } = JSON.parse(sessionStorage);
-
     const user = await $session.login(email, password);
 
     return user;
@@ -37,8 +39,6 @@
       setCookie: true,
     });
 
-    console.log('response:', response);
-
     $session = response;
     $user = await getUserFromSessionStorage() || $session.currentUser();
 
@@ -48,20 +48,15 @@
       const [hashId, token] = hash.split('=');
 
       if (hashId === '#confirmation_token') {
-        // Navigate to Stripe's payment provider
-        // wait for confirmation from Stripe before progressing
         $session
           .confirm(token)
           .then(response => {
-            console.log("Account confirmed! Welcome to the party!", JSON.stringify({ response }));
-
             window.location.hash = '';
 
             emailConfirmed = true;
 
             loadProtectedContent($user);
 
-            // TODO: wait a frame before toggling this
             $isLoading = false;
           })
           .catch(error => {
@@ -70,11 +65,12 @@
       };
     } else {
       loadProtectedContent($user);
-      // TODO: wait a frame before toggling this
+
       $isLoading = false;
     }
   };
 
+  // TODO: Put this in the onMount() and potentially create a skeleton page to show.
   initAuthentication();
 </script>
 
@@ -83,11 +79,14 @@
   loggedIn={ !!$user }
 />
 
-{ #if $user }
+{ #if hasPaymentDetails }
   <ImageAnnotation />
+{ :else if $user }
+  <FreeUserIndex />
 { :else }
   <LoginSignUp
     showEmailConfirmed={ emailConfirmed }
+    on:email-confirmed={ () => emailConfirmed = false }
   />
 { /if }
 

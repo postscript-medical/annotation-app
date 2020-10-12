@@ -67,7 +67,7 @@ export const PEN_COLORS = [
   },
   {
     id: 'green',
-    value: 'rgb(0,255,0)',
+    value: 'rgb(55, 154, 70)',
   },
 ];
 

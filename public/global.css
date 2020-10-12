@@ -143,7 +143,7 @@ select:hover {
 select:focus {
 	box-shadow: 0px 0px 10px 10px;
 	color: white;
-	outline: green;
+	outline: rgb(55, 154, 70);
 }
 
 select option {

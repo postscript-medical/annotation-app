@@ -19,7 +19,7 @@
   } from '../../constants/sketch-pad.js';
   import ColorPalette from './ColorPalette.svelte';
   import ImageSelector from '../ImageSelector.svelte';
-  import ToolButton from './ToolButton.svelte';
+  import ButtonTool from './ButtonTool.svelte';
 
   export let pen;
   export let eraser;
@@ -60,7 +60,7 @@
 <div
   class="ui"
 >
-  <ToolButton
+  <ButtonTool
     className="search-icon"
     primaryValue={ showImageGallery && TOOL_SEARCH }
     toolName={ TOOL_SEARCH }
@@ -75,9 +75,9 @@
         I
       </span>
     { /if }
-  </ToolButton>
+  </ButtonTool>
   
-  <ToolButton
+  <ButtonTool
     primaryValue={ selectedToolId }
     toolName={ TOOL_PEN }
     secondaryTools={ PEN_SIZES }
@@ -88,9 +88,9 @@
     <span>
       P
     </span>
-  </ToolButton>
+  </ButtonTool>
 
-  <ToolButton
+  <ButtonTool
     primaryValue={ selectedToolId }
     toolName={ TOOL_ERASER }
     secondaryTools={ ERASER_SIZES }
@@ -101,18 +101,18 @@
     <span>
       E
     </span>
-  </ToolButton>
+  </ButtonTool>
 
-  <ToolButton
+  <ButtonTool
     toolName={ TOOL_ERASE_ALL}
     on:change-primary={ eraseAll }
   >
     <span>
       A
     </span>
-  </ToolButton>
+  </ButtonTool>
 
-  <ToolButton
+  <ButtonTool
     primaryValue={ selectedToolId }
     toolName={ TOOL_SHAPE }
     secondaryTools={ SHAPES }
@@ -121,15 +121,15 @@
     on:change-secondary={ ({ detail: shape }) => changeShape(shape) }
   >
     S
-  </ToolButton>
+  </ButtonTool>
 
-  <ToolButton
+  <ButtonTool
     primaryValue={ selectedToolId }
     toolName={ TOOL_TEXT }
     on:change-primary={ ({detail}) => selectTool(detail) }
   >
     T
-  </ToolButton>
+  </ButtonTool>
 
   <ColorPalette
     colors={ PEN_COLORS }
