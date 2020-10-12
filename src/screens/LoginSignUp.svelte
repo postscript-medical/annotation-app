@@ -1,4 +1,5 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
   import EmailConfirmed from '../components/EmailConfirmed.svelte';
   import LogInForm from '../components/LogInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
@@ -6,8 +7,10 @@
 
   export let showEmailConfirmed = false;
 
+  const dispatch = createEventDispatcher();
+
   let userEmail;
-  
+
   $: showSignUpForm = !showEmailConfirmed;
 
   function showThankYou ({ detail }) {
@@ -15,7 +18,7 @@
   }
 
   function confirmationAcknoleged () {
-    showEmailConfirmed = false;
+    dispatch('email-confirmed');
   };
 </script>
 
@@ -48,13 +51,12 @@
     background-position: bottom right;
     background-size: contain;
     background-repeat: no-repeat;
-    /* background-image: url('./../v1602510330/postscript-medical/annotation-app/bg_logo.svg'), */
     background-image: url('/images/medical/v1602510330/postscript-medical/annotation-app/bg_logo.svg'),
       linear-gradient(
         to right,
         white,
         white 45%,
-        #389A2F 45%
+        rgb(55, 154, 70) 45%
       );
     display: grid;
     grid-template-columns: 45fr 57.5fr;

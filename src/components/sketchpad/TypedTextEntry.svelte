@@ -73,7 +73,7 @@
 
 <style>
   div {
-    border: 1px solid lightgreen;
+    border: 1px solid rgb(55, 154, 70);
     position: absolute;
     left: 0;
     top: 0;

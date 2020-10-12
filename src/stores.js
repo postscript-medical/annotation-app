@@ -1,9 +1,7 @@
-import { derived, readable, writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import { TOOL_TEXT } from './constants/sketch-pad';
 
 let _contentLevel = 'Not logged in';
-
-
 
 export const session = writable(false);
 

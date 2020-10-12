@@ -2,7 +2,7 @@
   <defs>
     <style>
       .cls-1{fill:#29292a;}
-      .cls-2{fill:#389a2f;}
+      .cls-2{fill:rgb(55, 154, 70);}
     </style>
   </defs>
   <title>PostScript Medical</title>

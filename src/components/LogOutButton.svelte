@@ -2,6 +2,7 @@
   import { user, isLoading } from '../stores.js';
   import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
+  import PsButton from './PsButton.svelte';
 
   function logout () {
     $isLoading = true;
@@ -18,9 +19,12 @@
       .catch(error => {
         console.error('Error:', error);
       });
-  }
+  };
 </script>
 
-<button on:click={ logout }>
+<PsButton
+  on:click={ logout }
+  type="secondary"
+>
   X
-</button>
+</PsButton>

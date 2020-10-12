@@ -1,28 +1,11 @@
 <script>
-  import { user } from '../stores.js';
-  import LogOutButton from './LogOutButton.svelte';
   import PsLogo from './PsLogo.svelte';
-  import ToolButton from './sketchpad/ToolButton.svelte';
-
-  export let loggedIn = false;
-
-  function clicked () {
-    console.log('clicked');
-  };
+  import ButtonUser from './ButtonUser.svelte';
 </script>
 
-<header
-  class:logged-in={ loggedIn }
->
+<header>
   <PsLogo />
-  { #if $user }
-    <LogOutButton />
-    <ToolButton
-      on:click={ clicked }
-    >
-      { $user.email[0].toUpperCase() }
-    </ToolButton>
-  { /if }
+  <ButtonUser />
 </header>
 
 <style>

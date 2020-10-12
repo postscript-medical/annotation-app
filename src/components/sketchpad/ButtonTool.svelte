@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import ToolIcon from './ToolIcon.svelte';
+  import ButtonIcon from './ButtonIcon.svelte';
 
   export let toolName;
   export let primaryValue;
@@ -39,7 +39,7 @@
 <div
   class="primary-tool "
 >
-  <ToolIcon
+  <ButtonIcon
     on:click={ changePrimary }
     onDark={ isSelected }
     value={ toolName }
@@ -47,7 +47,7 @@
     <slot>
       !!
     </slot>
-  </ToolIcon>
+  </ButtonIcon>
   { #if showSecondaryTools }
     <div
       class="secondary-tools shadow"

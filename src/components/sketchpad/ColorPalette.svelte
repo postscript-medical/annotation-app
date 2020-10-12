@@ -6,7 +6,6 @@
   const dispatch = createEventDispatcher();
 
   function changeColor () {
-    console.log('dispatch', this.value);
     dispatch('change', this.value )
   }
 </script>

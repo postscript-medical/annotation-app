@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import PsButton from './PsButton.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -21,13 +22,13 @@
       Your email is now confirmed. You can now log into your account.
     </p>
 
-    <!-- svelte-ignore a11y-autofocus -->
-    <button 
+    <PsButton 
       autofocus
       on:click={ confirm }
+      type="secondary"
     >
       Ok
-    </button>
+    </PsButton>
   </div>
 </div>
 
@@ -52,10 +53,5 @@
 
   p {
     margin-bottom: 2rem;
-  }
-
-  button {
-    border: 2px solid black;
-    background-color: white;
   }
 </style>
