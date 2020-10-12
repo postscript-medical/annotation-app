@@ -26,6 +26,12 @@ main {
 	height: 100%;
 }
 
+h2 {
+	font-weight: 400;
+	line-height: 1.5;
+	margin: 0;
+}
+
 a {
 	color: rgb(0,100,200);
 	text-decoration: none;
@@ -44,9 +50,9 @@ label {
 }
 
 input, button, select, textarea {
-	background-color: rgba(42,41,41,0.05);
-	border: 1px solid rgb(42,41,41);
-	border-radius: 0.5rem;
+	background-color: #F8F8F8;
+	border: 1px solid rgba(41,41,42,0.2);
+	border-radius: 0.25rem;
 	font-family: inherit;
 	font-size: inherit;
 	line-height: 2;

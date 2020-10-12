@@ -77,8 +77,10 @@
 
 <style>
   .log-in {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: calc(5ch + 3rem) 1fr;
+    align-items: center;
+    justify-content: end;
   }
 </style>

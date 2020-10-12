@@ -15,8 +15,8 @@
   class:logged-in={ loggedIn }
 >
   <PsLogo />
-  <LogOutButton />
   { #if $user }
+    <LogOutButton />
     <ToolButton
       on:click={ clicked }
     >
