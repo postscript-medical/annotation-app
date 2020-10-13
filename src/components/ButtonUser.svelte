@@ -1,15 +1,12 @@
 <script>
-  import { user } from '../stores.js';
+  import { user, openDrawer, customerPortalUrl } from '../stores.js';
   import LogOutButton from './LogOutButton.svelte';
   import ButtonIcon from './sketchpad/ButtonIcon.svelte';
   import ManageSubscription from './ManageSubscription.svelte';
 
-  let openDrawer = false;
-
   function clicked () {
-    openDrawer = !openDrawer;
+    $openDrawer = !$openDrawer;
   };
-
 </script>
 
 { #if $user }
@@ -22,12 +19,12 @@
       >
         { $user.email[0].toUpperCase() }
     </ButtonIcon>
-    { #if openDrawer }
+    { #if $openDrawer }
       <div
         class="drawer shadow"
       >
         <ManageSubscription
-          user={ $user }
+          href={ $customerPortalUrl }
         />
         <LogOutButton
           inline
