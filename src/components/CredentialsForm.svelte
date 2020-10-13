@@ -34,14 +34,14 @@
     <slot
       name="cta"
     >
-    <h2>
-      Get started today
-    </h2>
+      <h2>
+        Get started today
+      </h2>
     </slot>
   </div>
   <article>
     <header>
-      <slot name="header">
+      <slot>
         <h2>
           Sign up
         </h2>

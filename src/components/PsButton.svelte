@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
 
-  export let autofocus;
+  export let autofocus = false;
   export let onDark = false;
   export let type = 'primary';
 
