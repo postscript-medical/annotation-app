@@ -52,9 +52,7 @@
   >
     Already have an account?
   </h2>
-  <h2
-    slot="header"
-  >
+  <h2>
     Sign in
   </h2>
   <div

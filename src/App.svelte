@@ -86,9 +86,7 @@
 </script>
 
 
-<PsHeader
-  loggedIn={ !!$user }
-/>
+<PsHeader />
 
 { #if hasPaymentDetails }
   <ImageAnnotation />
