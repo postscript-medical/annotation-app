@@ -1,3 +1,7 @@
+const { CONTENT_INDIVIDUAL } = require('./content/individual_subscription');
+const { CONTENT_DEPARTMENT } = require('./content/department_subscription');
+const { CONTENT_ORGANIZATION } = require('./content/organization_subscription');
+
 const PLAN_0 = 'free';
 
 const PLAN_1 = 'individual';
@@ -27,9 +31,9 @@ const SUBSCRIPTIONS = [
 
 const PROTECTED_CONTENT = {
   free: {},
-  individual: {},
-  department: {},
-  organization: {},
+  individual: CONTENT_INDIVIDUAL,
+  department: CONTENT_DEPARTMENT,
+  organization: CONTENT_ORGANIZATION,
 }
 
 exports.PLAN_0 = PLAN_0;
