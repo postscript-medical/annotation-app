@@ -11,6 +11,25 @@ export const isLoading = writable(true);
 export const protectedContent = writable();
 
 /**
+ * Header-related stores
+ */
+export const openDrawer = writable(false);
+export const customerPortalUrl = derived(user, ($user, set) => {
+  if (!$user) return;
+
+  fetch('/.netlify/functions/create-manage-link', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${$user.token.access_token}`,
+    },
+  })
+  .then(response => response.json())
+  .then(link => {
+    set(link);
+  })
+}, '#');
+
+/**
  * Canvas-related stores
  */
 export const actions = writable([]);
