@@ -12,5 +12,5 @@ export default async function (user) {
     body: JSON.stringify({ SUBSCRIPTION_PLANS }),
   })
     .then(response => response.json())
-    .then(data => protectedContent.set(data.copy))
+    .then(data => protectedContent.set(data))
 };

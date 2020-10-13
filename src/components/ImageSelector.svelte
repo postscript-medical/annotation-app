@@ -1,65 +1,15 @@
 <script>
+  import { protectedContent } from '../stores.js';
   import ImagesGrid from './ImagesGrid.svelte';
   import PsDropdown from './PsDropdown.svelte';
 
-  const specialties = ['Gastroenterology'];
-  const subSpecialties = [
-    'Inflammatory Bowel Disease',
-    'Hepatology',
-    'Endoscopy',
-    'Functional GI Disorders',
-  ];
-  const images = [
-   {
-     src: '',
-     title: 'Lumen',
-     specialties: ['Gastroenterology'],
-     subSpecialties: [
-       'Inflammatory Bowel Disease',
-       'Hepatology',
-      ],
-   },
-   {
-     src: '',
-     title: 'Colonoscopy',
-     specialties: ['Gastroenterology'],
-     subSpecialties: [
-       'Inflammatory Bowel Disease',
-       'Hepatology',
-      ],
-   },
-   {
-     src: '',
-     title: 'Cross section',
-     specialties: ['Gastroenterology'],
-     subSpecialties: [
-       'Inflammatory Bowel Disease',
-       'Endoscopy',
-      ],
-   },
-   {
-     src: '',
-     title: 'Endoscopy',
-     specialties: ['Gastroenterology'],
-     subSpecialties: [
-       'Inflammatory Bowel Disease',
-       'Functional GI Disorders',
-      ],
-   },
-   {
-     src: '',
-     title: 'Stiches',
-     specialties: ['Gastroenterology'],
-     subSpecialties: [
-       'Inflammatory Bowel Disease',
-      ],
-   },
-  ];
-
   let searchQuery = '';
-  let selectedSpecialty = specialties[0];
-  let selectedSubSpecialty = subSpecialties[0];
+  let selectedSpecialty = $protectedContent.specialties[0];
+  let selectedSubSpecialty = $protectedContent.subSpecialties[0];
 
+  $: specialties = $protectedContent.specialties;
+  $: subSpecialties = $protectedContent.subSpecialties;
+  $: images = $protectedContent.images;
   $: preFilterImages = images
     .filter(({ specialties }) => specialties
       .find(specialty => specialty.toLowerCase() === selectedSpecialty.toLowerCase()))

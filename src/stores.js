@@ -1,16 +1,14 @@
 import { derived, writable } from 'svelte/store';
 import { TOOL_TEXT } from './constants/sketch-pad';
 
-let _contentLevel = 'Not logged in';
+export const session = writable();
 
-export const session = writable(false);
-
-// TODO: We want to reactively trigger a loadProtectedContent when the user is updated
-export const user = writable(false);
+// Investigate: We want to reactively trigger a loadProtectedContent when the user is updated
+export const user = writable();
 
 export const isLoading = writable(true);
 
-export const protectedContent = writable(_contentLevel);
+export const protectedContent = writable();
 
 /**
  * Canvas-related stores
