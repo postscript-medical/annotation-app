@@ -1,5 +1,8 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
+const { PLAN_0 } = require('./constants');
+
+// TODO: Remove unused environment keys from Netlify
 
 exports.handler = async event => {
   const { user } = JSON.parse(event.body);
@@ -37,7 +40,7 @@ exports.handler = async event => {
     statusCode: 200,
     body: JSON.stringify({
       app_metadata: {
-        roles: ['free']
+        roles: [PLAN_0]
       },
     }),
   };
