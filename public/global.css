@@ -32,16 +32,21 @@ h2 {
 	margin: 0;
 }
 
-a {
+a,
+.link-style {
 	color: rgb(0,100,200);
 	text-decoration: none;
+	line-height: 1.5;
 }
 
-a:hover {
+a:hover,
+.link-style:hover {
 	text-decoration: underline;
+	cursor: pointer;
 }
 
-a:visited {
+a:visited,
+.link-style:visited {
 	color: rgb(0,80,160);
 }
 
@@ -88,6 +93,7 @@ button {
 	padding: 0.25rem 1.5rem;
 	user-select: none;
 	width: auto;
+	cursor: pointer;
 }
 
 button:disabled {
@@ -111,6 +117,14 @@ label,
 select {
 	pointer-events: auto;
 }
+
+.link-style {
+	background: none;
+	padding: 0;
+	border: 0;
+	text-align: left;
+}
+
 
 
 
