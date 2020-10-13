@@ -60,7 +60,18 @@
             $isLoading = false;
           })
           .catch(error => {
-            console.error('Error:', error);
+            const code = error.json.code
+            if (code === 404) {
+              console.warn(error.json.msg);
+
+              window.location.hash = '';
+
+              loadProtectedContent();
+
+              $isLoading = false;
+            } else {
+              console.error('Error:', error);
+            }
           })
       };
     } else {
