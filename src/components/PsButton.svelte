@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
 
   export let autofocus = false;
+  export let disabled = false;
   export let onDark = false;
   export let type = 'primary';
 
@@ -19,6 +20,8 @@
   { autofocus }
   class:secondary={ isSecondary }
   class:on-dark={ onDark }
+  class:disabled={ disabled }
+  { disabled }
   on:click={ click }
 >
   <slot></slot>
@@ -29,6 +32,11 @@
     background-color: rgb(55, 154, 70);
     border: 0;
     color: white;
+  }
+
+  button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   button.on-dark {

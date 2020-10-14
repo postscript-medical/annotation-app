@@ -58,7 +58,6 @@
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
   let selectedImageId;
-  let showEmailForm = false;
 
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
@@ -238,12 +237,6 @@
     if (dragTypedText.active) {
       typedTextDragBox();
     };
-  };
-
-  function openEmailForm () {
-    const annotedImage = generateAnnotatedImage();
-    encodedImage = annotedImage.toDataURL()
-    showEmailForm = true;
   };
 
   function recordPoint (event) {
@@ -475,15 +468,7 @@
 <div
   class="ui"
 >
-  <div>
-    <button
-      on:click={ openEmailForm }
-      disabled={ !selectedImage }
-    >
-      Share via email
-    </button>
-  </div>
-
+  <!-- Move this to the UI component -->
   { #if isPointerActive && selectedTool }
     <StokeCursor
       position={ pointerLocation }

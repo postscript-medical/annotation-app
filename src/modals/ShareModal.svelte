@@ -1,16 +1,21 @@
 <script>
-  import { onMount } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { canvas } from '../stores.js';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
   import ButtonDownloadAnnotatedImage from '../components/ButtonDownloadAnnotatedImage.svelte';
 
+  const dispatch = createEventDispatcher();
   const dpr = window.devicePixelRatio || 1;
 
   let emailSent = false;
-  let encodedImage;
   let email;
   let generatedImage;
+  let sendingEmail = false;
+
+  function close () {
+    dispatch('close')
+  };
 
   function drawTypedText (context, parentBoundingRect) {
     const entries = Array.from(document.querySelectorAll('.typed-annotation'));
@@ -49,7 +54,8 @@
   };
 
   function sendEmail (event) {
-    console.log('sendEmail', this);
+    sendingEmail = true;
+    const encodedImage = generatedImage.toDataURL()
     emailjs
       .send('5609467','postscript_annotated_img', {
         image: encodedImage,
@@ -58,11 +64,13 @@
       .then(response => {
         console.log('Success', response);
         emailSent = true;
+        sendingEmail = false;
         // focus the close button
       })
       .catch(error => {
         console.error('Error:', error);
         emailSent = false;
+        sendingEmail = false;
         // show error message
       })
   };
@@ -75,28 +83,48 @@
 </script>
 
 <Modal
-  on:close
+  on:close={ close }
 >
+  { #if emailSent }
+    <h2>
+      Your email has been sent.
+    </h2>
+    <p>
+     You can now close this window.
+    </p>
+    <form
+      on:submit|preventDefault={ close }
+    >
+      <PsButton
+        type="secondary"
+      >
+        Close
+      </PsButton>
+    </form>
+  { :else }
+    <h2>
+      Email the image to someone
+    </h2>
+    <form
+      on:submit|preventDefault={ sendEmail }
+    >
+      <label>
+        <input
+          type="email"
+          bind:this={ email }
+          placeholder="Email address"
+          required
+        />
+      </label>
+        <PsButton
+          disabled={ sendingEmail }
+        >
+          Send
+        </PsButton>
+    </form>
+    { /if }
   <h2>
-    Email the image
-  </h2>
-  <form
-    on:submit|preventDefault={ sendEmail }
-  >
-    <label>
-      <input
-        type="email"
-        bind:this={ email }
-        placeholder="Email address"
-        required
-      />
-    </label>
-    <PsButton>
-      Send
-    </PsButton>
-  </form>
-  <h2>
-    Or save it to your machine
+    Save the image to your machine
   </h2>
   <ButtonDownloadAnnotatedImage
     { generatedImage }
@@ -105,7 +133,8 @@
 
 <style>
   h2,
-  label {
+  label,
+  p {
     margin-bottom: 2rem;
   }
 
