@@ -49,6 +49,7 @@
     background-color: white;
     padding: 4rem 8rem;
     border-radius: 0.5rem;
+    max-width: 100ch;
   }
 
   p {

@@ -4,38 +4,39 @@
  export let userEmail;
 </script>
 
-<article>
-  <PsHeader />
-  <h2>
-    Thank you for signing up
-  </h2>
-  <p>
-    We have just emailed <strong>{ userEmail }</strong>.
-  </p>
-  <p>
-    Please use the link in the email to confirm your details and complete your sign up.
-  </p>
-  <div>
-    <strong>
-      Didn&apos;t receive it?
-    </strong>
-    <button>
-      Resend
-    </button>
-  </div>
-</article>
+<div
+  class="wrapper"
+>
+  <article>
+    <h2>
+      Thank you for signing up
+    </h2>
+    <p>
+      We have just emailed <strong>{ userEmail }</strong>.
+    </p>
+    <p>
+      Please use the link in the email to confirm your details and complete your sign up.
+    </p>
+    <div>
+      <strong>
+        Didn&apos;t receive it?
+      </strong>
+      <button>
+        Resend
+      </button>
+    </div>
+  </article>
+</div>
 
 <style>
   article {
-    background-color: white;
     display: grid;
     grid-auto-rows: min-content;
-    height: 100%;
-    left: 0;
-    padding: 4rem 8rem;
-    position: fixed;
-    top: 0;
-    width: 100%;
+    max-width: 100ch;
+    padding: 14rem 3rem 0;
+    position: relative;
+    left: 45%;
+    transform: translateX(-45%);
   }
 
   article > * {
@@ -59,5 +60,14 @@
     margin-left: 2rem;
     border: 2px solid black;
     background-color: white;
+  }
+
+  .wrapper {
+    background-color: white;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
   }
 </style>
