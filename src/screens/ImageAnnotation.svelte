@@ -2,6 +2,7 @@
   import {
     onMount,
   } from 'svelte';
+  import { openShareModal } from '../stores.js';
   import {
     DEFAULT_COLOR_ID,
     DEFAULT_SHAPE_ID,
@@ -18,6 +19,7 @@
   } from '../constants/sketch-pad.js';
   import SketchPad from '../components/sketchpad/SketchPad.svelte';
   import SketchPadUi from '../components/sketchpad/SketchPadUi.svelte';
+  import ShareModal from '../modals/ShareModal.svelte';
 
   let eraser = {
     name: TOOL_ERASER,
@@ -114,6 +116,12 @@
       on:select-tool={ selectTool }
     />
 </main>
+
+{ #if $openShareModal }
+  <ShareModal
+    on:close={ () => $openShareModal = false }
+  />
+{ /if }
 
 <style>
   main {
