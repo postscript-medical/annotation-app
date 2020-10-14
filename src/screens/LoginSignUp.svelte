@@ -51,7 +51,7 @@
     background-position: bottom right;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url('/images/medical/v1602510330/postscript-medical/annotation-app/bg_logo.svg'),
+    background-image: url('/images/v1602510330/postscript-medical/annotation-app/bg_logo.svg'),
       linear-gradient(
         to right,
         white,
