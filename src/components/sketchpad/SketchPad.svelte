@@ -36,7 +36,6 @@
   import ColorPalette from './ColorPalette.svelte';
   import LogOutButton from '../LogOutButton.svelte';
   import ButtonTool from './ButtonTool.svelte';
-  import SendEmailForm from '../SendEmailForm.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';
 
@@ -48,7 +47,6 @@
     // TODO: change this from an SVG to a secondary canvas so we can control the color
   const arrowIcon = new Image();
   arrowIcon.src = SHAPE_ARROW.src;
-  const dpr = window.devicePixelRatio || 1;
   const hasPointer = window.PointerEvent;
 
   let actionsIndex = 0;
@@ -125,38 +123,6 @@
     $context.clearRect(0, 0, $canvas.width, $canvas.height);
   };
 
-  // TODO: This should be in the modal component
-  function closeModal () {
-    showEmailForm = false;
-  };
-
-  function downloadImage () {
-    const annotedImage = generateAnnotatedImage();
-    encodedImage = annotedImage.toDataURL('image/jpg', 0.7);
-    const hiddenLink = document.createElement('a');
-
-    hiddenLink.setAttribute('href', encodedImage);
-    hiddenLink.setAttribute('download', 'myImage.jpg');
-    hiddenLink.click();
-  };
-
-  function drawTypedText (_context, parentBoundingRect) {
-    const entries = Array.from(paper.querySelectorAll('.typed-annotation'));
-    const fontSize = `${16 * dpr}px`;
-    
-    _context.font = `${fontSize} 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
-    _context.textBaseline = 'middle';
-
-    entries.forEach(entry => {
-      const boundingRect = entry.getBoundingClientRect();
-      const x = (boundingRect.x - parentBoundingRect.x + 7) * dpr; /* 7 is the padding in the input */
-      const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * dpr;
-
-      _context.fillStyle = 'black';
-      _context.fillText(entry.value, x, y);
-    });
-  };
-
   function drawStroke (_context, { name, lineWidth, color, points }) {
       if (points.length < 3) return;
 
@@ -209,25 +175,6 @@
     };
 
     _context.restore();
-  };
-
-  function generateAnnotatedImage () {
-    const _canvas = document.createElement('canvas');
-    const _context = _canvas.getContext('2d');
-    const _srcImg = document.querySelector('#displayed-image');
-    const _boundingRect = $canvas.getBoundingClientRect();
-
-    _canvas.width = $canvas.width;
-    _canvas.height = $canvas.height;
-
-    _context.fillStyle = 'white';
-    _context.fillRect(0,0, _canvas.width, _canvas.height);
-    _context.drawImage(_srcImg, 0, 0, _canvas.width, _canvas.height);
-    _context.drawImage($canvas, 0, 0);
-
-    drawTypedText(_context, _boundingRect);
-
-    return _canvas;
   };
 
   function init() {
@@ -530,12 +477,6 @@
 >
   <div>
     <button
-      on:click={ downloadImage }
-      disabled={ !selectedImage }
-    >
-      Download
-    </button>
-    <button
       on:click={ openEmailForm }
       disabled={ !selectedImage }
     >
@@ -550,14 +491,6 @@
     />
   { /if }
 </div>
-
-{ #if showEmailForm }
-  <SendEmailForm
-    { encodedImage }
-    on:close={ closeModal }
-  />
-{ /if }
-
 
 <style>
   canvas {
