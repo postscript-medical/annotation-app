@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import EmailConfirmed from '../components/EmailConfirmed.svelte';
+  import EmailConfirmedModal from '../modals/EmailConfirmedModal.svelte';
   import LogInForm from '../components/LogInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
   import SignUpConfirmed from '../components/SignUpConfirmed.svelte';
@@ -43,7 +43,7 @@
 { /if }
 
 { #if showEmailConfirmed }
-  <EmailConfirmed
+  <EmailConfirmedModal
     on:confirm={ confirmationAcknoleged }
   />
 { /if }
