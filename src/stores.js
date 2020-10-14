@@ -14,6 +14,9 @@ export const protectedContent = writable();
  * Header-related stores
  */
 export const openDrawer = writable(false);
+
+export const openShareModal = writable(false);
+
 export const customerPortalUrl = derived(user, ($user, set) => {
   if (!$user) return;
 
@@ -33,7 +36,9 @@ export const customerPortalUrl = derived(user, ($user, set) => {
  * Canvas-related stores
  */
 export const actions = writable([]);
+
 export const canvas = writable();
+
 export const context = writable();
 
 export const typedTextEntries = derived(
