@@ -54,6 +54,7 @@
   let isPointerActive = false;
   let dragTypedText = { index: 0, active: false };
   let offsetTop = 0;
+  let offsetLeft = 0;
   let paper;
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
@@ -72,7 +73,7 @@
       index: actionsIndex,
       src: shape.src,
       type: shape.type,
-      x,
+      x: x - offsetLeft,
       y: y - offsetTop,
       dx: 0,
       dy: 0,
@@ -113,7 +114,7 @@
       content: '',
       eventType,
       index: actionsIndex,
-      x: pointerLocation.x,
+      x: pointerLocation.x - offsetLeft,
       y: pointerLocation.y - offsetTop,
     };
   };
@@ -256,7 +257,7 @@
         target.points = [
           ...target.points,
           {
-            x: pointerLocation.x,
+            x: pointerLocation.x - offsetLeft,
             y: pointerLocation.y - offsetTop,
           }
         ];
@@ -265,19 +266,19 @@
       if (selectedToolId === TOOL_SHAPE) {
         switch (target.type) {
           case TOOL_ARROW:
-          target.dx = pointerLocation.x - target.x;
+          target.dx = pointerLocation.x - target.x - offsetLeft;
           target.dy = pointerLocation.y - target.y - offsetTop;
           target.length = Math.sqrt(target.dx * target.dx + target.dy * target.dy);
           target.angle = Math.atan2(target.dy, target.dx);
           break;
 
         case TOOL_ELLIPSE:
-          target.dx = (pointerLocation.x - target.x) / 2;
+          target.dx = (pointerLocation.x - target.x - offsetLeft) / 2;
           target.dy = (pointerLocation.y - target.y - offsetTop) / 2;
           break;
 
         case TOOL_RECTANGLE:
-          target.dx = pointerLocation.x - target.x;
+          target.dx = pointerLocation.x - target.x - offsetLeft;
           target.dy = pointerLocation.y - target.y - offsetTop;
           break;
       
@@ -323,7 +324,7 @@
 
     $context = setupCanvas($canvas);
 
-    updateOffsetTop();
+    updateOffset();
 
     const scaleFactor = { width: $canvas.width / oldSize.width, height: $canvas.height / oldSize.height };
 
@@ -390,7 +391,7 @@
       // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
       let target = {
         ...$actions[targetIndex],
-        x: pointerLocation.x,
+        x: pointerLocation.x - offsetLeft,
         y: pointerLocation.y - offsetTop,
       };
 
@@ -418,8 +419,10 @@
     $actions = [...$actions];
   };
 
-  function updateOffsetTop () {
-    offsetTop = $canvas.getBoundingClientRect().top;
+  function updateOffset () {
+    const boundingRect = $canvas.getBoundingClientRect();
+    offsetTop = boundingRect.top;
+    offsetLeft = boundingRect.left;
   };
 
   onMount(() => {
@@ -463,12 +466,6 @@
       />
     { /each }
   </div>
-</div>
-
-<div
-  class="ui"
->
-  <!-- Move this to the UI component -->
   { #if isPointerActive && selectedTool }
     <StokeCursor
       position={ pointerLocation }
@@ -488,7 +485,7 @@
     height: 100%;
   }
 
-  img {
+  #displayed-image {
     display: block;
     width: 100%;
     height: auto;
@@ -498,19 +495,11 @@
     background: white;
     position: relative;
     flex: 1;
-  }
-  .paper::before {
-    content: '';
-    width: 1px;
-    margin-left: -1px;
-    height: 0;
-    padding-top: calc(768 / 1024 * 100%);
-    float: left;
-  }
-  .paper::after {
-    content: '';
-    display: table;
-    clear: both;
+    height: 75vw;
+    width: 100vw;
+    max-height: 100vh;
+    max-width: 133.33vh;
+    overflow: hidden;
   }
 
   .typed-text {
@@ -520,19 +509,5 @@
     pointer-events: none;
     left: 0;
     top: 0;
-  }
-
-  /* remove */
-  .ui {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    pointer-events: none;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
   }
 </style>
