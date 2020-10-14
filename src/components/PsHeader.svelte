@@ -4,7 +4,7 @@
 </script>
 
 <header>
-  <PsLogo />
+  <PsLogo showName />
   <ButtonUser />
 </header>
 
