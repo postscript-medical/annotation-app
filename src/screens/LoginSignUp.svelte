@@ -34,16 +34,16 @@
   { /if }
 
   <LogInForm />
-
-  { #if userEmail }
-    <SignUpConfirmed
-      { userEmail }
-    />
-  { /if }
-
-  { #if showEmailConfirmed }
-    <EmailConfirmed
-      on:confirm={ confirmationAcknoleged }
-    />
-  { /if }
 </main>
+
+{ #if userEmail }
+  <SignUpConfirmed
+    { userEmail }
+  />
+{ /if }
+
+{ #if showEmailConfirmed }
+  <EmailConfirmed
+    on:confirm={ confirmationAcknoleged }
+  />
+{ /if }

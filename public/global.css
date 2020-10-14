@@ -45,7 +45,7 @@ h2 {
 a,
 .link-style {
 	color: rgb(42,41,41);
-	text-decoration: none;
+	text-decoration: underline;
 	line-height: 1.5;
 }
 
@@ -119,6 +119,7 @@ button:focus {
 
 p {
 	user-select: none;
+	line-height: 1.5;
 }
 
 button,
@@ -133,7 +134,7 @@ select {
 	grid-template-columns: 45fr 57.5fr;
 	grid-template-rows: min-content 1fr;
 	grid-gap: 0 8rem;
-	padding: 14rem 3rem 0;
+	padding: 14rem 3rem 1rem;
 	overflow-y: auto;
 	overflow-x: hidden;
 	max-width: 100ch;
