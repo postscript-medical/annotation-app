@@ -1,12 +1,52 @@
 <script>
   import { onMount } from 'svelte';
+  import { canvas } from '../stores.js';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
+  import ButtonDownloadAnnotatedImage from '../components/ButtonDownloadAnnotatedImage.svelte';
 
-  export let encodedImage;
+  const dpr = window.devicePixelRatio || 1;
 
   let emailSent = false;
+  let encodedImage;
   let email;
+  let generatedImage;
+
+  function drawTypedText (context, parentBoundingRect) {
+    const entries = Array.from(document.querySelectorAll('.typed-annotation'));
+    const fontSize = `${16 * dpr}px`;
+    
+    context.font = `${fontSize} 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
+    context.textBaseline = 'middle';
+
+    entries.forEach(entry => {
+      const boundingRect = entry.getBoundingClientRect();
+      const x = (boundingRect.x - parentBoundingRect.x + 7) * dpr; /* 7 is the padding in the input */
+      const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * dpr;
+
+      context.fillStyle = 'black';
+      context.fillText(entry.value, x, y);
+    });
+  };
+
+  function generateAnnotatedImage () {
+    const annotatedImage = document.createElement('canvas');
+    const context = annotatedImage.getContext('2d');
+    const srcImg = document.querySelector('#displayed-image');
+    const boundingRect = $canvas.getBoundingClientRect();
+
+    annotatedImage.width = $canvas.width;
+    annotatedImage.height = $canvas.height;
+
+    context.fillStyle = 'white';
+    context.fillRect(0,0, annotatedImage.width, annotatedImage.height);
+    if (srcImg) context.drawImage(srcImg, 0, 0, annotatedImage.width, annotatedImage.height);
+    context.drawImage($canvas, 0, 0);
+
+    drawTypedText(context, boundingRect);
+
+    return annotatedImage;
+  };
 
   function sendEmail (event) {
     console.log('sendEmail', this);
@@ -25,10 +65,12 @@
         emailSent = false;
         // show error message
       })
-  }
+  };
 
   onMount(() => {
     emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
+
+    generatedImage = generateAnnotatedImage();
   });
 </script>
 
@@ -56,11 +98,9 @@
   <h2>
     Or save it to your machine
   </h2>
-  <PsButton
-    type="secondary"
-  >
-    Download image
-  </PsButton>
+  <ButtonDownloadAnnotatedImage
+    { generatedImage }
+  />
 </Modal>
 
 <style>
