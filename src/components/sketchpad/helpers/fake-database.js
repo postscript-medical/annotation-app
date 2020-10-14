@@ -2,7 +2,7 @@
 /*
 * Redirect via Netlify > https://markus.oberlehner.net/blog/using-netlify-redirects-to-proxy-images-hosted-on-a-third-party-image-provider-or-a-headless-cms
 */
-const redirectPath = '/images/medical/';
+const redirectPath = '/images/';
 export const gastroImages = [
   {
     id: 'one',
