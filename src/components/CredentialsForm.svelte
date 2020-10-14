@@ -73,20 +73,19 @@
           required
         />
       </label>
-      { #if rememberMe }
         <label
           class="remember-me"
+          class:disabled={ !rememberMe }
         >
           <input
             type="checkbox"
-            bind:checked={ stayLogged }
+            disabled={ !rememberMe }
           />
           &nbsp;
           <span>
             Stay logged in
           </span>
         </label>
-      { /if }
       <slot name="footer">
         <PsButton>
             Sign up
@@ -114,7 +113,7 @@
   }
 
   .cta {
-    margin-bottom: 6rem;
+    margin-bottom: 2rem;
   }
 
   .on-dark {
@@ -124,5 +123,10 @@
   .remember-me {
     align-items: baseline;
     flex-direction: row;
+  }
+
+  .remember-me.disabled {
+    opacity: 0;
+    visibility: hidden;
   }
 </style>

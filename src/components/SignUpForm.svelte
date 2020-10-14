@@ -2,6 +2,8 @@
   import { createEventDispatcher } from 'svelte';
   import { session, isLoading } from '../stores.js';
   import CredentialsForm from './CredentialsForm.svelte';
+  import PsButton from './PsButton.svelte';
+  import PsLink from './PsLink.svelte';
   
   const dispatch = createEventDispatcher();
  
@@ -35,4 +37,31 @@
 <CredentialsForm
   { errorMessage }
   on:submit={ submit }
-/>
+>
+  <div
+    slot="footer"
+    class="footer"
+  >
+    <PsButton>
+      Sign up
+    </PsButton>
+    <div class="terms">
+      <PsLink>
+        Terms
+      </PsLink>
+      <PsLink>
+        Privacy
+      </PsLink>
+    </div>
+  </div>
+</CredentialsForm>
+
+<style>
+  .footer > :global(*:not(:last-child)) {
+    margin-bottom: 4rem;
+  }
+
+  .terms > :global(*:not(:last-child)) {
+    margin-right: 2rem;
+  }
+</style>

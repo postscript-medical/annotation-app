@@ -57,7 +57,7 @@
   </h2>
   <div
     slot="footer"
-    class="log-in"
+    class="footer"
   >
     <PsButton
       onDark
@@ -74,11 +74,13 @@
 </CredentialsForm>
 
 <style>
-  .log-in {
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: calc(5ch + 3rem) 1fr;
+  .footer {
+    display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: space-between;
+  }
+
+  .footer > :global(:first-child) {
+    margin-right: 1rem;
   }
 </style>
