@@ -1,8 +1,8 @@
 export default function setupCanvas (canvas) {
-  const dpr = window.devicePixelRatio || 1;
-  const boundingRect = canvas.getBoundingClientRect();
+  const boundingRect = canvas.parentElement.getBoundingClientRect();
   const context = canvas.getContext('2d');
-  
+  const dpr = window.devicePixelRatio || 1;
+
   canvas.width = boundingRect.width * dpr;
   canvas.height = boundingRect.height * dpr;
   
