@@ -61,7 +61,6 @@
   class="ui"
 >
   <ButtonTool
-    className="search-icon"
     primaryValue={ showImageGallery && TOOL_SEARCH }
     toolName={ TOOL_SEARCH }
     on:change-primary={ toggleShowImageGallery }

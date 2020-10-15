@@ -3,8 +3,8 @@
 
   const dispatch = createEventDispatcher();
 
-  export let value;
-  export let onDark;
+  export let value = undefined;
+  export let onDark = false;
 
   function changeTool () {
     dispatch('click', value);

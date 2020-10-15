@@ -3,9 +3,9 @@
   import ButtonIcon from './ButtonIcon.svelte';
 
   export let toolName;
-  export let primaryValue;
+  export let primaryValue = undefined;
   export let secondaryTools = [];
-  export let secondaryValue;
+  export let secondaryValue = undefined;
 
   const dispatch = createEventDispatcher();
 
