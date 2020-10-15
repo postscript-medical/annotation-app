@@ -137,7 +137,9 @@
   />
 
   { #if showImageGallery }
-    <ImageSelector />
+    <ImageSelector
+      on:close={ toggleShowImageGallery }
+    />
   { /if }
 </div>
 

@@ -7,12 +7,12 @@
     actions,
     canvas,
     context,
+    illustrationsPath,
+    selectedIllustration,
     typedTextEntries,
   } from '../../stores.js';
   import getPointerLocation from './helpers/get-pointer-location.js';
   import setupCanvas from './helpers/setup-canvas.js';
-  import { gastroImages } from './helpers/fake-database.js';
-  import { user } from '../../stores.js';
   import {
     DEFAULT_COLOR_ID,
     DEFAULT_SHAPE_ID,
@@ -60,10 +60,11 @@
   let rafID;
   let selectedImageId;
 
-
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
-  $: selectedImage = gastroImages.find(({ id }) => id === selectedImageId);
-  $: src = selectedImage ? selectedImage.url : null;
+  $: src = $illustrationsPath + ($selectedIllustration && $selectedIllustration.src);
+
+  $: console.log('src', src);
+
 
   function addShape (shapeId, event) {
     const { x, y } = pointerLocation;
@@ -378,9 +379,6 @@
     isPointerActive = false;
   };
 
-  function selectNewImage ({ detail: id }) {
-    selectedImageId = id;
-  };
 
   function toggleTypedTextDrag ({ detail }) {
     dragTypedText = detail;
@@ -446,7 +444,11 @@
   class="paper"
 >
   { #if src }
-    <img id="displayed-image" { src } alt="" />
+    <img
+      id="displayed-image"
+      { src }
+      alt=""
+    />
   { /if }
 
   <canvas
@@ -500,6 +502,9 @@
     max-height: 100vh;
     max-width: 133.33vh;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .typed-text {

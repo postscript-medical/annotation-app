@@ -1,17 +1,39 @@
 <script>
-  import { user } from '../stores.js';
+  import { selectedImageTitle } from '../stores.js';
   import PsLogo from './PsLogo.svelte';
   import ButtonShare from './ButtonShare.svelte';
   import ButtonUser from './ButtonUser.svelte';
+
+  export let user;
+  export let loggedIn = false;
 </script>
 
 <header>
-  <PsLogo showName />
-  { #if $user }
-    <div class="options">
+  <div
+    class="options"
+  >
+    <PsLogo
+      showName={ !loggedIn }
+      size={ loggedIn ? 'small' : 'large' }
+    />
+    { #if loggedIn}
+      <span
+        class="sub-speciality">
+        |
+      </span>
+      <span
+        class="sub-speciality">
+        { $selectedImageTitle }
+      </span>
+    { /if }
+  </div>
+  { #if user }
+    <div
+      class="options"
+    >
       <ButtonShare />
       <ButtonUser
-        user={ $user }
+        { user }
       />
     </div>
   { /if }
@@ -39,5 +61,10 @@
 
   .options > :global(*:not(:last-child)) {
     margin-right: 1rem;
+  }
+
+  .sub-speciality {
+    line-height: 1.5;
+    padding-bottom: 0.25rem
   }
 </style>

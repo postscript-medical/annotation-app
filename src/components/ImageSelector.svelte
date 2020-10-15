@@ -1,26 +1,22 @@
 <script>
-  import { protectedContent } from '../stores.js';
+  import {
+    filteredIllustrations,
+    illustrationSearchQuery,
+    protectedContent,
+    selectedSpecialty,
+    selectedSubSpecialty,
+    specialties,
+    subSpecialties,
+  } from '../stores.js';
   import ImagesGrid from './ImagesGrid.svelte';
   import PsDropdown from './PsDropdown.svelte';
 
-  let searchQuery = '';
-  let selectedSpecialty = $protectedContent.specialties[0];
-  let selectedSubSpecialty = $protectedContent.subSpecialties[0];
-
-  $: specialties = $protectedContent.specialties;
-  $: subSpecialties = $protectedContent.subSpecialties;
-  $: images = $protectedContent.images;
-  $: preFilterImages = images
-    .filter(({ specialties }) => specialties
-      .find(specialty => specialty.toLowerCase() === selectedSpecialty.toLowerCase()))
-    .filter(({ subSpecialties }) => subSpecialties
-      .find(subSpecialty => subSpecialty.toLowerCase() === selectedSubSpecialty.toLowerCase()));
-  $: filteredImages = searchQuery ? preFilterImages
-    .filter(({ title }) => title.toLowerCase().includes(searchQuery.toLowerCase()))
-  : preFilterImages;
+  function selectSpecialty ({ detail: specialty }) {
+    $selectedSpecialty = specialty;
+  };
 
   function selectSubSpecialty ({ detail: subSpecialty }) {
-    selectedSubSpecialty = subSpecialty;
+    $selectedSubSpecialty = subSpecialty;
   };
 </script>
 
@@ -28,15 +24,16 @@
   <div class="left-column">
     <PsDropdown
       label="Specialty"
-      options={ specialties }
+      options={ $specialties }
       disabled
+      on:change={ selectSpecialty }
     />
   </div>
 
   <div class="left-column">
     <PsDropdown
       label="Sub-specialty"
-      options={ subSpecialties }
+      options={ $subSpecialties }
       on:change={ selectSubSpecialty }
     />
   </div>
@@ -45,11 +42,12 @@
     type="text"
     placeholder="What are you looking for?"
     class="image-search"
-    bind:value={ searchQuery }
+    bind:value={ $illustrationSearchQuery }
   />
 
   <ImagesGrid
-    images={ filteredImages }
+    images={ $filteredIllustrations }
+    on:close
   />
 </div>
 
