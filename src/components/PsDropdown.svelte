@@ -1,9 +1,9 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  export let label;
-  export let disabled;
+  export let label = '';
+  export let disabled = false;
   export let options = [];
-  export let selected;
+  export let selected = undefined;
 
   const dispatch = createEventDispatcher();
 
