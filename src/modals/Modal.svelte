@@ -1,6 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
 
+  export let hideCloseButton = false;
+
   const dispatch = createEventDispatcher();
 
   function close () {
@@ -20,12 +22,14 @@
       <div>
         <slot name="header"></slot>
       </div>
-      <button
-        class="close"
-        on:click={ close }
-      >
-        X
-      </button>
+      { #if !hideCloseButton }
+        <button
+          class="close"
+          on:click={ close }
+        >
+          X
+        </button>
+      { /if }
     </div>
     <slot></slot>
     <slot name="footer"></slot>
