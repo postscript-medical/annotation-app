@@ -15,6 +15,7 @@
   import Index from './screens/Index.svelte';
   import PsHeader from './components/PsHeader.svelte';
   import FreeUserIndex from './screens/FreeUserIndex.svelte';
+  import ResetPasswordModal from './modals/ResetPasswordModal.svelte';
 
   let emailConfirmed = false;
   let showResetPasswordModal = false;
