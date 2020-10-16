@@ -8,7 +8,11 @@
   export let loggedIn = false;
 </script>
 
-<header>
+<header
+  class="central-align"
+  class:centered={ loggedIn }
+  class:aspect-ratio-lock={ loggedIn }
+>
   <div
     class="options"
   >
@@ -42,16 +46,20 @@
 <style>
   header {
     position: fixed;
-    left: 45%;
     top: 0;
     z-index: 3;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    width: 100%;
-    padding: 3rem 3rem 0 3rem;
-    max-width: 100ch;
-    transform: translate(-45%, 0);
+    height: auto;
+    max-height: none;
+    padding: 2rem 2rem 0 2rem;
+    pointer-events: none;
+  }
+
+  .centered {
+    left: 50%;
+    transform: translate(-50%, 0);
   }
 
   .options {

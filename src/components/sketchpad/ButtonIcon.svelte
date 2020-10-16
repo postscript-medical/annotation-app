@@ -26,11 +26,9 @@
     border-radius: 50%;
     border: 0;
     display: flex;
-    height: 2rem;
     justify-content: center;
     margin: 0;
     padding: 0;
-    width: 2rem;
   }
 
   .on-dark {

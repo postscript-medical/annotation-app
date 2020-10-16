@@ -58,7 +58,7 @@
 
 
 <div
-  class="ui"
+  class="ui aspect-ratio-lock main-content"
 >
   <ButtonTool
     primaryValue={ showImageGallery && TOOL_SEARCH }
@@ -147,12 +147,7 @@
 <style>
   .ui {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
     pointer-events: none;
-    padding: 8rem 2rem 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

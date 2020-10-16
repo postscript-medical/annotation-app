@@ -23,7 +23,7 @@
 </script>
 
 <main
-  class="main-grid"
+  class="main-grid main-content central-align"
 >
   { #if showSignUpForm }
     <SignUpForm
