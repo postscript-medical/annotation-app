@@ -24,15 +24,16 @@
         on:change={ changeColor }
       />
       <svg
+        class="tool-icon"
         viewBox="0 0 100 100"
-        width="100"
-        height="100"
+        width="24px"
+        height="24px"
       >
         { #if selected === color.value }
           <circle
             cx="50"
             cy="50"
-            r="50"
+            r="60"
             stroke={ color.value }
             fill="none"
           />
@@ -40,7 +41,7 @@
         <circle
           cx="50"
           cy="50"
-          r="40"
+          r="50"
           fill={ color.value }
         />
       </svg>
@@ -51,12 +52,11 @@
 <style>
   .color-palette {
     background-color: white;
-    padding: 0.375rem;
     border-radius: 1.5rem;
   }
 
   .color-palette > * {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .color-palette > *:last-child {
@@ -65,12 +65,10 @@
 
   svg {
     display: block;
-    width: 1.25rem;
-    height: 1.25rem;
     overflow: visible;
   }
 
   circle {
-    stroke-width: 0.25rem;
+    stroke-width: 0.5rem;
   }
 </style>

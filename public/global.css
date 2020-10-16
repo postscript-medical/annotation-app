@@ -176,6 +176,17 @@ select {
 	max-width: 133.33vh;
 }
 
+.tool-icon {
+	margin: 0.75rem;
+	width: 1.5rem;
+	height: 1.5rem;
+	fill: rgb(42,41,41);
+}
+
+.tool-icon.on-dark {
+	fill: white;
+}
+
 
 
 /* Custom styling of the select tag */

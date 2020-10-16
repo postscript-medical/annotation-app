@@ -18,6 +18,13 @@
     SHAPES,
   } from '../../constants/sketch-pad.js';
   import ColorPalette from './ColorPalette.svelte';
+  import IconClose from '../icons/IconClose.svelte';
+  import IconEraser from '../icons/IconEraser.svelte';
+  import IconPen from '../icons/IconPen.svelte';
+  import IconTrashBin from '../icons/IconTrashBin.svelte';
+  import IconText from '../icons/IconText.svelte';
+  import IconSearch from '../icons/IconSearch.svelte';
+  import IconShapes from '../icons/IconShapes.svelte';
   import ImageSelector from '../ImageSelector.svelte';
   import ButtonTool from './ButtonTool.svelte';
 
@@ -66,13 +73,9 @@
     on:change-primary={ toggleShowImageGallery }
   >
     { #if showImageGallery }
-      <span>
-        X
-      </span>
+      <IconClose />
     { :else }
-      <span>
-        I
-      </span>
+      <IconSearch />
     { /if }
   </ButtonTool>
   
@@ -84,9 +87,7 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail: thickness }) => changeLineThickness(thickness, TOOL_PEN) }
   >
-    <span>
-      P
-    </span>
+    <IconPen />
   </ButtonTool>
 
   <ButtonTool
@@ -97,18 +98,14 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail: thickness }) => changeLineThickness(thickness, TOOL_ERASER) }
   >
-    <span>
-      E
-    </span>
+    <IconEraser />
   </ButtonTool>
 
   <ButtonTool
     toolName={ TOOL_ERASE_ALL}
     on:change-primary={ eraseAll }
   >
-    <span>
-      A
-    </span>
+    <IconTrashBin />
   </ButtonTool>
 
   <ButtonTool
@@ -119,7 +116,7 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail: shape }) => changeShape(shape) }
   >
-    S
+    <IconShapes />
   </ButtonTool>
 
   <ButtonTool
@@ -127,7 +124,7 @@
     toolName={ TOOL_TEXT }
     on:change-primary={ ({detail}) => selectTool(detail) }
   >
-    T
+    <IconText />
   </ButtonTool>
 
   <ColorPalette
