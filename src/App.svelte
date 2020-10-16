@@ -20,6 +20,39 @@
 
   $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
 
+  function confirmUserSignUp (token) {
+    $session
+      .confirm(token)
+      .then(response => {
+            emailConfirmed = true;
+
+            loadProtectedContent($user);
+
+            $isLoading = false;
+
+            navigateHome();
+          })
+          .catch(error => {
+            const code = error.json.code;
+
+            if (code === 404) {
+              console.warn(error.json.msg);
+
+              loadProtectedContent();
+
+              $isLoading = false;
+
+              navigateHome();
+            } else {
+              console.error('Error:', error);
+            }
+          })
+  };
+
+  function navigateHome() {
+    window.location.hash = '';
+  };
+
   async function getUserFromSessionStorage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
 
@@ -47,38 +80,36 @@
     if (hash) {
       const [hashId, token] = hash.split('=');
 
-      if (hashId === '#confirmation_token') {
-        $session
-          .confirm(token)
-          .then(response => {
-            window.location.hash = '';
+      console.log('hasId', hashId);
 
-            emailConfirmed = true;
+      switch (hashId) {
+        case '#confirmation_token':
+          confirmUserSignUp(token);
+          break;
 
-            loadProtectedContent($user);
+        case '#recovery_token':
+          recoverUserAccount(token);
+          break;
 
-            $isLoading = false;
-          })
-          .catch(error => {
-            const code = error.json.code
-            if (code === 404) {
-              console.warn(error.json.msg);
-
-              window.location.hash = '';
-
-              loadProtectedContent();
-
-              $isLoading = false;
-            } else {
-              console.error('Error:', error);
-            }
-          })
+        default:
+          break;
       };
     } else {
       loadProtectedContent($user);
 
       $isLoading = false;
     }
+  };
+
+  function recoverUserAccount (token) {
+    $session
+      .recover(token, true)
+      .then(response => {
+        console.log('Logged in as %s', JSON.stringify({ response }));
+      })
+      .catch(error => {
+        console.log('Failed to verify recover token: %o', error);
+      });
   };
 
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.

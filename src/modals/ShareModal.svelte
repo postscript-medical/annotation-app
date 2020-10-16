@@ -96,7 +96,7 @@
       on:submit|preventDefault={ close }
     >
       <PsButton
-        type="secondary"
+        style="secondary"
       >
         Close
       </PsButton>

@@ -45,7 +45,9 @@
     <PsButton>
       Sign up
     </PsButton>
-    <div class="terms">
+    <div
+      class="terms"
+    >
       <PsLink>
         Terms
       </PsLink>

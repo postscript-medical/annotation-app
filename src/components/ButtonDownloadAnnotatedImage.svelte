@@ -15,7 +15,7 @@
 </script>
 
 <PsButton
-    type="secondary"
+    style="secondary"
     on:click={ downloadImage }
   >
     Download image

@@ -1,4 +1,5 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
   import {
     session,
     user,
@@ -10,7 +11,13 @@
   import PsButton from './PsButton.svelte';
   import PsLink from './PsLink.svelte';
 
+  const dispatch = createEventDispatcher();
+
   let errorMessage;
+
+  function openForgotPasswordModal() {
+    dispatch('open-forgot-password-modal');
+  };
 
   function submit ({ detail }) {
     if (!$session) {
@@ -64,12 +71,14 @@
     >
       Login
     </PsButton>
-    <PsLink
-      href="toReplaceLater"
+    <PsButton
       onDark
+      asLink
+      type="button"
+      on:click={ openForgotPasswordModal }
     >
       Forgot your password?
-    </PsLink>
+    </PsButton>
   </div>
 </CredentialsForm>
 

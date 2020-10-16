@@ -3,10 +3,12 @@
 
   export let autofocus = false;
   export let disabled = false;
+  export let asLink = false; /* TODO: this should be part of the 'style' prop, to receive either a string with a single or multiple values or an array of strings */
   export let onDark = false;
-  export let type = 'primary';
+  export let style = 'primary';
+  export let type = 'submit';
 
-  $: isSecondary = type === 'secondary';
+  $: isSecondary = style === 'secondary';
 
   const dispatch = createEventDispatcher();
 
@@ -21,7 +23,9 @@
   class:secondary={ isSecondary }
   class:on-dark={ onDark }
   class:disabled={ disabled }
+  class:as-link={ asLink }
   { disabled }
+  { type }
   on:click={ click }
 >
   <slot></slot>
@@ -34,19 +38,31 @@
     color: white;
   }
 
-  button.disabled {
+  .disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  button.on-dark {
+  .on-dark {
     background-color: white;
     color: rgb(42,41,41);
   }
 
-  button.secondary {
+  .secondary {
     background-color: white;
     border: 2px solid rgb(42,41,41);
     color: rgb(42,41,41);
+  }
+
+  .as-link {
+    background: none;
+    padding: 0;
+    border: 0;
+    text-align: left;
+    text-decoration: underline;
+  }
+
+  .as-link.on-dark {
+    color: white;
   }
 </style>
