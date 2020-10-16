@@ -22,6 +22,10 @@
 
   $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
 
+  function closeResetPasswordModal () {
+    showResetPasswordModal = false;
+  }
+
   function confirmUserSignUp (token) {
     $session
       .confirm(token)
@@ -147,7 +151,9 @@
 { /if }
 
 { #if showResetPasswordModal }
-  <ResetPasswordModal />
+  <ResetPasswordModal
+    on:close={ closeResetPasswordModal }
+  />
 { /if }
 
 { #if $isLoading }

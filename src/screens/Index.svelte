@@ -11,7 +11,7 @@
   const dispatch = createEventDispatcher();
 
   let userEmail;
-  let showForgotPasswordModal = true;
+  let showForgotPasswordModal = false;
 
   $: showSignUpForm = !showEmailConfirmed;
 
