@@ -18,7 +18,11 @@
       onDark
       on:click={ clicked }
     >
-      { user.email[0].toUpperCase() }
+      <span
+        class="user-avatar"
+      >
+        { user.email[0].toUpperCase() }
+      </span>
   </ButtonIcon>
   { #if $openDrawer }
     <div
@@ -53,5 +57,13 @@
 
   .drawer > :global(*:not(:last-child)) {
     margin-bottom: 1rem;
+  }
+
+  .user-avatar {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
