@@ -108,6 +108,8 @@
       .recover(token, true)
       .then(response => {
         console.log('Logged in as %s', JSON.stringify({ response }));
+        $user = response;
+
         showResetPasswordModal = true;
 
         $isLoading = false;

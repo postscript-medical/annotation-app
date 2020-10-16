@@ -21,6 +21,7 @@
 
 <Modal
   on:close
+  hideCloseButton
 >
   <h2>
     Reset your current password
