@@ -17,6 +17,7 @@
   import FreeUserIndex from './screens/FreeUserIndex.svelte';
 
   let emailConfirmed = false;
+  let showResetPasswordModal = false;
 
   $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
 
@@ -106,9 +107,18 @@
       .recover(token, true)
       .then(response => {
         console.log('Logged in as %s', JSON.stringify({ response }));
+        showResetPasswordModal = true;
+
+        $isLoading = false;
+
+        navigateHome();
       })
       .catch(error => {
         console.log('Failed to verify recover token: %o', error);
+
+        $isLoading = false;
+
+        navigateHome();
       });
   };
 
@@ -131,6 +141,10 @@
     showEmailConfirmed={ emailConfirmed }
     on:email-confirmed={ () => emailConfirmed = false }
   />
+{ /if }
+
+{ #if showResetPasswordModal }
+  <ResetPasswordModal />
 { /if }
 
 { #if $isLoading }
