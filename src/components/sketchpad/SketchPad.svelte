@@ -441,7 +441,7 @@
 
 <div
   bind:this={ paper }
-  class="paper"
+  class="paper aspect-ratio-lock"
 >
   { #if src }
     <img
@@ -497,10 +497,6 @@
     background: white;
     position: relative;
     flex: 1;
-    height: 75vw;
-    width: 100vw;
-    max-height: 100vh;
-    max-width: 133.33vh;
     overflow: hidden;
     display: flex;
     align-items: center;

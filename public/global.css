@@ -134,14 +134,13 @@ select {
 	grid-template-columns: 45fr 57.5fr;
 	grid-template-rows: min-content 1fr;
 	grid-gap: 0 8rem;
-	padding: 14rem 3rem 1rem;
 	overflow-y: auto;
 	overflow-x: hidden;
-	max-width: 100ch;
 	margin: 0;
-	position: relative;
-	left: 45%;
-	transform: translate(-45%, 0);
+}
+
+.main-content {
+	padding: 14rem 2rem 1rem;
 }
 
 .link-style {
@@ -151,7 +150,20 @@ select {
 	text-align: left;
 }
 
+.central-align {
+	max-width: 100ch;
+	left: 45%;
+	transform: translate(-45%, 0);
+	position: relative;
+	width: 100%;
+}
 
+.aspect-ratio-lock {
+	height: 75vw;
+	width: 100vw;
+	max-height: 100vh;
+	max-width: 133.33vh;
+}
 
 
 
