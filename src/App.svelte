@@ -65,9 +65,20 @@
     if (!sessionStorage) return false;
 
     const { email, password } = JSON.parse(sessionStorage);
-    const user = await $session.login(email, password);
 
-    return user;
+    try {
+      const user = await $session.login(email, password);
+
+      return user;
+    } catch (error) {
+      console.error('Error:', error);
+
+      window.sessionStorage.removeItem(STORAGE_KEY);
+
+      $isLoading = false;
+
+      return false;
+    }
   }
 
   async function initAuthentication () {
@@ -85,8 +96,6 @@
 
     if (hash) {
       const [hashId, token] = hash.split('=');
-
-      console.log('hasId', hashId);
 
       switch (hashId) {
         case '#confirmation_token':

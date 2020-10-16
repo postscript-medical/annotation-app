@@ -33,4 +33,8 @@ export default async function (user) {
       }
       protectedContent.set(data)
     })
+    .catch(error => {
+      console.error('Error', error);
+      // TODO: needs handling
+    })
 };
