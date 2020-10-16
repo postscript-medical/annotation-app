@@ -14,7 +14,7 @@
   let sendingEmail = false;
 
   function close () {
-    dispatch('close')
+    dispatch('close');
   };
 
   function drawTypedText (context, parentBoundingRect) {
@@ -83,7 +83,7 @@
 </script>
 
 <Modal
-  on:close={ close }
+  on:close
 >
   { #if emailSent }
     <h2>
