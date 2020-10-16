@@ -96,11 +96,6 @@
 </div>
 
 <style>
-  header,
-  form > :global(*:not(:last-child)) {
-    margin-bottom: 2rem;
-  }
-
   label {
     display: flex;
     flex-direction: column;

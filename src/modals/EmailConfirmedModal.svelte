@@ -21,7 +21,7 @@
     <PsButton 
       autofocus
       on:click={ confirm }
-      type="secondary"
+      style="secondary"
     >
       Ok
     </PsButton>

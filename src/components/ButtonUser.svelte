@@ -28,7 +28,7 @@
         href={ $customerPortalUrl }
       />
       <SignOutButton
-        inline
+        asLink
       />
     </div>
   { /if }
