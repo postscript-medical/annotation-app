@@ -1,6 +1,6 @@
 <script>
   import { openDrawer, customerPortalUrl } from '../stores.js';
-  import LogOutButton from './LogOutButton.svelte';
+  import SignOutButton from './SignOutButton.svelte';
   import ButtonIcon from './sketchpad/ButtonIcon.svelte';
   import ManageSubscription from './ManageSubscription.svelte';
 
@@ -27,7 +27,7 @@
       <ManageSubscription
         href={ $customerPortalUrl }
       />
-      <LogOutButton
+      <SignOutButton
         inline
       />
     </div>

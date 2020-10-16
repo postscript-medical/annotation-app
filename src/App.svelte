@@ -12,7 +12,7 @@
   import loadProtectedContent from './methods/load-protected-content.js';
   import ImageAnnotation from './screens/ImageAnnotation.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
-  import LoginSignUp from './screens/LoginSignUp.svelte';
+  import Index from './screens/Index.svelte';
   import PsHeader from './components/PsHeader.svelte';
   import FreeUserIndex from './screens/FreeUserIndex.svelte';
 
@@ -96,7 +96,7 @@
 { :else if $user }
   <FreeUserIndex />
 { :else }
-  <LoginSignUp
+  <Index
     showEmailConfirmed={ emailConfirmed }
     on:email-confirmed={ () => emailConfirmed = false }
   />

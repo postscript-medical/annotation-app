@@ -34,7 +34,7 @@
     TOOL_TEXT,
   } from '../../constants/sketch-pad.js';
   import ColorPalette from './ColorPalette.svelte';
-  import LogOutButton from '../LogOutButton.svelte';
+  import SignOutButton from '../SignOutButton.svelte';
   import ButtonTool from './ButtonTool.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';

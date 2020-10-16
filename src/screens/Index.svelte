@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import EmailConfirmedModal from '../modals/EmailConfirmedModal.svelte';
-  import LogInForm from '../components/LogInForm.svelte';
+  import SignInForm from '../components/SignInForm.svelte';
   import SignUpForm from  '../components/SignUpForm.svelte';
   import SignUpConfirmed from '../components/SignUpConfirmed.svelte';
 
@@ -33,7 +33,7 @@
     <div></div>
   { /if }
 
-  <LogInForm />
+  <SignInForm />
 </main>
 
 { #if userEmail }
