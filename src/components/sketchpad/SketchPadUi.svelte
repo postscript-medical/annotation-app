@@ -54,6 +54,16 @@
     $actions = [];
   };
 
+  function handleEraserSecondaryTool (secondaryToolId, thickness, toolId) {
+    if (secondaryToolId === TOOL_ERASE_ALL) {
+      eraseAll();
+
+      return;
+    }
+
+    changeLineThickness(thickness, toolId);
+  };
+
   function toggleShowImageGallery () {
     showImageGallery = !showImageGallery;
   };
@@ -70,24 +80,44 @@
   <ButtonTool
     primaryValue={ showImageGallery && TOOL_SEARCH }
     toolName={ TOOL_SEARCH }
+    let:onDark
     on:change-primary={ toggleShowImageGallery }
   >
     { #if showImageGallery }
-      <IconClose />
+      <IconClose
+        { onDark }
+      />
     { :else }
-      <IconSearch />
+      <IconSearch
+        { onDark }
+      />
     { /if }
   </ButtonTool>
   
   <ButtonTool
     primaryValue={ selectedToolId }
-    toolName={ TOOL_PEN }
     secondaryTools={ PEN_SIZES }
     secondaryValue={ pen.lineWidth }
+    toolName={ TOOL_PEN }
+    let:onDark
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail: thickness }) => changeLineThickness(thickness, TOOL_PEN) }
+    on:change-secondary={ ({ detail }) => changeLineThickness(detail.value, TOOL_PEN) }
   >
-    <IconPen />
+    <IconPen
+      { onDark }
+    />
+    <div
+      slot="secondary-tool"
+      let:secondaryTool
+      let:onDark
+      class:on-dark={ onDark }
+    >
+      <svelte:component
+        this={ secondaryTool.component }
+        { onDark }
+        size={ secondaryTool.id }
+      />
+    </div>
   </ButtonTool>
 
   <ButtonTool
@@ -95,17 +125,25 @@
     toolName={ TOOL_ERASER }
     secondaryTools={ ERASER_SIZES }
     secondaryValue={ eraser.lineWidth }
+    let:onDark
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail: thickness }) => changeLineThickness(thickness, TOOL_ERASER) }
+    on:change-secondary={ ({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER) }
   >
-    <IconEraser />
-  </ButtonTool>
-
-  <ButtonTool
-    toolName={ TOOL_ERASE_ALL}
-    on:change-primary={ eraseAll }
-  >
-    <IconTrashBin />
+    <IconEraser
+      { onDark }
+    />
+    <div
+      slot="secondary-tool"
+      let:secondaryTool
+      let:onDark
+      class:on-dark={ onDark }
+    >
+      <svelte:component
+        this={ secondaryTool.component }
+        { onDark }
+        size={ secondaryTool.id }
+      />
+    </div>
   </ButtonTool>
 
   <ButtonTool
@@ -113,18 +151,35 @@
     toolName={ TOOL_SHAPE }
     secondaryTools={ SHAPES }
     secondaryValue={ shape.type }
+    let:onDark
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail: shape }) => changeShape(shape) }
+    on:change-secondary={ ({ detail }) => changeShape(detail.value) }
   >
-    <IconShapes />
+    <IconShapes
+      { onDark }
+    />
+    <div
+      slot="secondary-tool"
+      let:secondaryTool
+      let:onDark
+      class:on-dark={ onDark }
+    >
+      <svelte:component
+        this={ secondaryTool.component }
+        { onDark }
+      />
+    </div>
   </ButtonTool>
 
   <ButtonTool
     primaryValue={ selectedToolId }
     toolName={ TOOL_TEXT }
+    let:onDark
     on:change-primary={ ({detail}) => selectTool(detail) }
   >
-    <IconText />
+    <IconText
+      { onDark }
+    />
   </ButtonTool>
 
   <ColorPalette
@@ -151,6 +206,8 @@
     left: 0;
     top: 0;
     padding-top: 8rem;
+    height: 100%;
+    max-height: none;
   }
 
   .ui > :global(:first-child) {

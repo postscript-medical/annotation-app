@@ -1,11 +1,11 @@
-<svg
-  class="tool-icon"
-  width="24px"
-  height="24px"
-  viewBox="0 0 24 24"
-  version="1.1"
-  xmlns="http://www.w3.org/2000/svg"
-  xmlns:xlink="http://www.w3.org/1999/xlink"
+<script>
+  import Icon from './Icon.svelte';
+
+  export let onDark = false;
+</script>
+
+<Icon
+  { onDark }
 >
   <title>Icon: trash bin</title>
   <g fill-rule="evenodd">
@@ -14,4 +14,4 @@
       <polygon points="14.021416 19.1721942 15.8427598 19.1721942 15.8427598 7.01290245 14.021416 7.01290245" />
       <polygon points="10.9251314 19.1721942 12.7464753 19.1721942 12.7464753 7.01290245 10.9251314 7.01290245" />
   </g>
-</svg>
+</Icon>

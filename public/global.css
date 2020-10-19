@@ -139,6 +139,10 @@ select {
 	pointer-events: auto;
 }
 
+svg {
+	display: block;
+}
+
 
 .main-grid {
 	display: grid;
