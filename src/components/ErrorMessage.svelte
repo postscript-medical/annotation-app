@@ -18,6 +18,7 @@
       #df0303 2.5rem,
       white 2.5rem
     );
+    border: 1px solid #df0303;
     border-radius: 0.25rem;
     padding: 0.5rem;
     color: #df0303;

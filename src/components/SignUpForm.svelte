@@ -36,7 +36,9 @@
 
 <CredentialsForm
   { errorMessage }
+  showPasswordRequirements
   on:submit={ submit }
+  on:error={ ({ detail }) => errorMessage = detail }
 >
   <div
     slot="footer"

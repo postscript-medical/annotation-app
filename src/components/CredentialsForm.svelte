@@ -7,13 +7,33 @@
 
   export let errorMessage;
   export let onDark = false;
-  export let rememberMe = false;
+  export let showStayLogged = false;
+  export let showPasswordRequirements = false;
 
   let email;
   let password;
   let stayLogged = false;
 
+  function checkPasswordRequirements (password) {
+    const hasLength = password.length >= 8;
+    const hasCharacter = /[a-zA-Z]/.test(password)
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[^a-zA-Z0-9]/.test(password);
+
+    return hasLength && hasCharacter && hasNumber && hasSpecialChar;
+  };
+
   function submitForm () {
+    if (showPasswordRequirements) {
+      const isPasswordGood = checkPasswordRequirements(password.value);
+  
+      if (!isPasswordGood) {
+        dispatch('error', 'Password does not meet criteria');
+
+        return;
+      }
+    };
+
     dispatch(
       'submit',
       {
@@ -72,20 +92,27 @@
           type="password"
           required
         />
+        { #if showPasswordRequirements }
+          <span
+            class="password-requirements"
+          >
+            8 characters or more, at least one number and one special character
+          </span>
+        { /if }
       </label>
+      { #if showStayLogged }
         <label
-          class="remember-me"
-          class:disabled={ !rememberMe }
+          class="stay-logged"
         >
           <input
             type="checkbox"
-            disabled={ !rememberMe }
           />
           &nbsp;
           <span>
             Stay logged in
           </span>
         </label>
+      { /if }
       <slot name="footer">
         <PsButton>
             Sign up
@@ -102,9 +129,12 @@
   }
 
   label > :global(span) {
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
     line-height: 1rem;
+    font-size: 0.875rem;
+  }
+
+  label > :global(*:not(:last-child)) {
+    margin-bottom: 0.5rem;
   }
 
   .cta {
@@ -115,13 +145,13 @@
     color: white;
   }
 
-  .remember-me {
-    align-items: baseline;
-    flex-direction: row;
+  .password-requirements {
+    color: #a1a1a1;
+    font-size: 0.75rem;
   }
 
-  .remember-me.disabled {
-    opacity: 0;
-    visibility: hidden;
+  .stay-logged {
+    align-items: baseline;
+    flex-direction: row;
   }
 </style>
