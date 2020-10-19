@@ -51,8 +51,8 @@
 <CredentialsForm
   { errorMessage }
   onDark
+  showStayLogged
   on:submit={ submit }
-  rememberMe
 >
   <h2
     slot="cta"
