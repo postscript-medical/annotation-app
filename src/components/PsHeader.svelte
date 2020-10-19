@@ -11,7 +11,6 @@
 <header
   class="central-align"
   class:centered={ loggedIn }
-  class:aspect-ratio-lock={ loggedIn }
 >
   <div
     class="options"
@@ -60,6 +59,7 @@
   .centered {
     left: 50%;
     transform: translate(-50%, 0);
+    max-width: none;
   }
 
   .options {
