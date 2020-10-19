@@ -28,8 +28,8 @@
     }
   }
 
-  function changeSecondary () {
-    dispatch('change-secondary', this.value);
+  function changeSecondary (value, id) {
+    dispatch('change-secondary', { value, id });
 
     openDrawer = false;
   }
@@ -44,7 +44,9 @@
     onDark={ isSelected }
     value={ toolName }
   >
-    <slot>
+    <slot
+      onDark={ isSelected }
+    >
       !!
     </slot>
   </ButtonIcon>
@@ -52,18 +54,22 @@
     <div
       class="secondary-tools shadow"
     >
-      { #each secondaryTools as tool }
+      { #each secondaryTools as secondaryTool }
         <label
-          id={ tool.id }
-          class:on-dark={ tool.value === secondaryValue }
+          id={ secondaryTool.id }
+          class:on-dark={ secondaryTool.value === secondaryValue }
         >
           <input
             name={ 'secondary-' + toolName }
             type="radio"
-            value={ tool.value }
-            on:change={ changeSecondary }
+            value={ secondaryTool.value }
+            on:change={ changeSecondary(secondaryTool.value, secondaryTool.id) }
           />
-          { tool.id }
+          <slot
+            name="secondary-tool"
+            onDark={ secondaryTool.value === secondaryValue }
+            { secondaryTool }
+          ></slot>
         </label>
       { /each }
     </div>
@@ -71,17 +77,6 @@
 </div>
 
 <style>
-  label {
-    background-color: white;
-    border: 0;
-    border-radius: 0.25rem;
-    margin-bottom: 0.5rem;
-    padding: 0.25rem 0.5rem;
-  }
-  label:last-of-type {
-    margin-bottom: 0;
-  }
-
   .primary-tool {
     position: relative;
     margin-bottom: 1rem;
@@ -102,7 +97,17 @@
     top: 0;
   }
 
-  .on-dark {
+  .secondary-tools > :global(*) {
+    background-color: white;
+    border: 0;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .secondary-tools > :global(*:last-of-type) {
+    margin-bottom: 0;
+  }
+
+  .secondary-tools > :global(*.on-dark) {
     background-color: rgb(42,41,41);
     color: white;
   }

@@ -64,7 +64,6 @@
   }
 
   svg {
-    display: block;
     overflow: visible;
   }
 
