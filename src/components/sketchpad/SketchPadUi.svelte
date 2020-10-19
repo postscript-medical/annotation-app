@@ -148,6 +148,9 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    left: 0;
+    top: 0;
+    padding-top: 8rem;
   }
 
   .ui > :global(:first-child) {
