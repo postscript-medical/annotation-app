@@ -9,3 +9,9 @@
     Manage subscription
   </slot>
 </a>
+
+<style>
+  a {
+    color: white;
+  }
+</style>
