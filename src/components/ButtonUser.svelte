@@ -6,7 +6,7 @@
 
   export let user;
 
-  function clicked () {
+  function toggleDrawer () {
     $openDrawer = !$openDrawer;
   };
 </script>
@@ -16,7 +16,7 @@
 >
   <ButtonIcon
       onDark
-      on:click={ clicked }
+      on:click={ toggleDrawer }
     >
       <span
         class="user-avatar"
@@ -47,7 +47,7 @@
     position: absolute;
     right: 0;
     top: 115%;
-    background-color: white;
+    background-color: rgb(42,41,41);
     padding: 2rem;
     border-radius: 0.5rem;
     min-width: 30ch;
