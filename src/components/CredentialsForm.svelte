@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import checkPasswordRequirements from '../methods/check-password-requirements.js';
   import ErrorMessage from './ErrorMessage.svelte';
   import PsButton from './PsButton.svelte';
 
@@ -13,15 +14,6 @@
   let email;
   let password;
   let stayLogged = false;
-
-  function checkPasswordRequirements (password) {
-    const hasLength = password.length >= 8;
-    const hasCharacter = /[a-zA-Z]/.test(password)
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[^a-zA-Z0-9]/.test(password);
-
-    return hasLength && hasCharacter && hasNumber && hasSpecialChar;
-  };
 
   function submitForm () {
     if (showPasswordRequirements) {

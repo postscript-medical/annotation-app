@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import IconClose from '../components/icons/IconClose.svelte';
 
   export let hideCloseButton = false;
 
@@ -27,7 +28,7 @@
           class="close"
           on:click={ close }
         >
-          X
+          <IconClose />
         </button>
       { /if }
     </div>
@@ -54,7 +55,7 @@
     background-color: white;
     padding: 2rem 4rem;
     border-radius: 1rem;
-    max-width: 100ch;
+    max-width: 80%;
   }
 
   .modal-header {
@@ -66,5 +67,6 @@
     border: 0;
     background: transparent;
     transform: translate(3rem, -1rem);
+    padding: 0;
   }
 </style>

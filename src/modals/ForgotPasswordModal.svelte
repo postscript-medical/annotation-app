@@ -76,7 +76,6 @@
         />
       </label>
       <PsButton
-        style="secondary"
         disabled={ sendingEmail }
       >
           Send link
