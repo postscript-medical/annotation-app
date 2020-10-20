@@ -1,11 +1,14 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { session, user } from '../stores';
+  import checkPasswordRequirements from '../methods/check-password-requirements.js';
   import Modal from './Modal.svelte';
+  import ErrorMessage from '../components/ErrorMessage.svelte';
   import PsButton from '../components/PsButton.svelte';
 
   const dispatch = createEventDispatcher();
 
+  let errorMessage;
   let password;
   let resetComplete = false;
 
@@ -14,7 +17,14 @@
   }
 
   function submitForm () {
-    console.log('submit', password.value);
+    const isPasswordGood = checkPasswordRequirements(password.value);
+
+    if (!isPasswordGood) {
+      errorMessage = 'Password does not meet criteria';
+
+      return;
+    }
+
     $user.update({ password: password.value })
       .then(updatedUser => {
         console.log('Updated user %s', updatedUser)
@@ -54,6 +64,9 @@
     <p>
       Please enter a new password for your account.
     </p>
+    <ErrorMessage
+      message={ errorMessage }
+    />
     <form
       on:submit|preventDefault={ submitForm }
     >
@@ -66,10 +79,13 @@
           type="password"
           required
         />
+        <span
+          class="password-requirements"
+        >
+          8 characters or more, at least one number and one special character
+        </span>
       </label>
-      <PsButton
-        style="secondary"
-      >
+      <PsButton>
           Confirm
       </PsButton>
     </form>
@@ -83,8 +99,16 @@
   }
 
   label > :global(span) {
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
     line-height: 1rem;
+    font-size: 0.875rem;
+  }
+
+  label > :global(*:not(:last-child)) {
+    margin-bottom: 0.5rem;
+  }
+
+  .password-requirements {
+    color: #a1a1a1;
+    font-size: 0.75rem;
   }
 </style>
