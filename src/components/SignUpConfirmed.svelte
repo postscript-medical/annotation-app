@@ -17,14 +17,14 @@
     <p>
       Please use the link in the email to confirm your details and complete your sign up.
     </p>
-    <div>
+    <!-- <div>
       <strong>
         Didn&apos;t receive it?
       </strong>
       <button>
         Resend
       </button>
-    </div>
+    </div> -->
   </article>
 </div>
 
@@ -56,11 +56,11 @@
     margin-bottom: 4rem;
   }
 
-  button {
+  /* button {
     margin-left: 2rem;
     border: 2px solid black;
     background-color: white;
-  }
+  } */
 
   .wrapper {
     background-color: white;
