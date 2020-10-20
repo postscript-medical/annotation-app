@@ -125,7 +125,7 @@
 
 <style>
   main {
-    background: lightgrey;
+    background: rgb(250,250,250);
     display: flex;
     align-items: center;
     justify-content: center;
