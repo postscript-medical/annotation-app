@@ -19,8 +19,13 @@
 
   let emailConfirmed = false;
   let showResetPasswordModal = false;
+  let hasPaymentDetails = false;
 
-  $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
+  $: {
+    if ($user) {
+      console.log($user);
+      hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));}
+    }
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
