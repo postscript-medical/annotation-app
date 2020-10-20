@@ -438,7 +438,7 @@
 
 <div
   bind:this={ paper }
-  class="paper aspect-ratio-lock"
+  class="paper shadow aspect-ratio-lock"
 >
   { #if src }
     <img
