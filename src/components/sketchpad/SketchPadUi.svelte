@@ -4,6 +4,7 @@
     actions,
     canvas,
     context,
+    illustrationSearchQuery,
   } from '../../stores.js';
   import {
     ERASER_SIZES,
@@ -65,6 +66,8 @@
   };
 
   function toggleShowImageGallery () {
+    $illustrationSearchQuery = '';
+
     showImageGallery = !showImageGallery;
   };
 
@@ -75,7 +78,7 @@
 
 
 <div
-  class="ui aspect-ratio-lock main-content"
+  class="ui main-content"
 >
   <ButtonTool
     primaryValue={ showImageGallery && TOOL_SEARCH }
@@ -207,6 +210,7 @@
     top: 0;
     padding-top: 8rem;
     height: 100%;
+    width: 100%;
     max-height: none;
   }
 

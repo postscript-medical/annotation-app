@@ -118,11 +118,11 @@ export const filteredIllustrations = derived(
 
 export const selectedIllustration = derived(
   [
-    filteredIllustrations,
+    illustrations,
     selectedImageTitle
   ],
   ([
-    $filteredIllustrations,
+    $illustrations,
     $selectedImageTitle
-  ]) => $filteredIllustrations.find(({ title }) => title === $selectedImageTitle)
+  ]) => $illustrations.find(({ title }) => title === $selectedImageTitle)
 );

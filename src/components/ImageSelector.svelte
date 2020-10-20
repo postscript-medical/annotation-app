@@ -53,11 +53,12 @@
 
 <style>
   .modal {
+    background-color: white;
     display: grid;
     gap: 2rem 1rem;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: minmax(10ch, 40ch) minmax(10rem, 65rem);
     grid-template-rows: min-content;
-    background-color: white;
+    justify-content: center;
     padding: 12rem 2rem 0;
     position: absolute;
     left: 0;

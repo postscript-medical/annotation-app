@@ -15,6 +15,7 @@
 
   function selectIllustration (title) {
     $selectedImageTitle = title;
+
     dispatch('close');
   }
 </script>
@@ -48,7 +49,7 @@
     width: 100%;
     height: auto;
     margin-bottom: 1rem;
-    border: 2px solid rgba(42,41,41,0);
+    border: 4px solid rgba(42,41,41,0);
   }
 
   img.selected {
@@ -59,8 +60,8 @@
     align-items: start;
     overflow: auto;
     display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(110px, 100%), 1fr));
+    gap: 2rem 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
     margin-bottom: 1rem;
     padding: 0.25rem;
   }
@@ -71,5 +72,8 @@
     background-color: transparent;
     margin: 0;
     padding: 0;
+    overflow: visible;
+    padding: 0.5rem;
+    text-align: left;
   }
 </style>
