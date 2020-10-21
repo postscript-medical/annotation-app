@@ -2,7 +2,10 @@
   import {
     onMount,
   } from 'svelte';
-  import { openShareModal } from '../stores.js';
+  import {
+    openShareModal,
+    selectedIllustrationTitle
+  } from '../stores.js';
   import {
     DEFAULT_COLOR_ID,
     DEFAULT_SHAPE_ID,
@@ -20,6 +23,7 @@
   import SketchPad from '../components/sketchpad/SketchPad.svelte';
   import SketchPadUi from '../components/sketchpad/SketchPadUi.svelte';
   import ShareModal from '../modals/ShareModal.svelte';
+  import { tweenOut } from '../components/sketchpad/Illustration.svelte';
 
   let eraser = {
     name: TOOL_ERASER,
@@ -89,6 +93,10 @@
     };
   };
 
+  function selectIllustration ({ detail: illustrationTitle}) {
+    tweenOut(() => $selectedIllustrationTitle = illustrationTitle);
+  };
+
   function selectTool ({ detail: toolId }) {
     selectedToolId = toolId;
   };
@@ -113,6 +121,7 @@
       on:change-thickness={ changeLineThickness }
       on:change-color={ changePenColor }
       on:change-shape={ changeShapeType }
+      on:select-illustration={ selectIllustration }
       on:select-tool={ selectTool }
     />
 </main>

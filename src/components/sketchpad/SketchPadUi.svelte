@@ -191,11 +191,12 @@
     on:change={ ({ detail }) => changeColor(detail) }
   />
 
-  { #if showImageGallery }
-    <ImageSelector
-      on:close={ toggleShowImageGallery }
-    />
-  { /if }
+<ImageSelector
+  show={ showImageGallery }
+  on:select-illustration
+  on:close={ toggleShowImageGallery }
+/>
+
 </div>
 
 

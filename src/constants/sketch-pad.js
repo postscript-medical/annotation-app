@@ -53,6 +53,11 @@ export const EVENTS_POINTER = {
   up: 'pointerup',
 };
 
+/**
+ * Importing IconLineThickness is creating
+ * a circular dependency - move everything that uses
+ * it from this file into a separate one.
+ */
 export const ERASER_SIZES = [
   {
     id: DEFAULT_SIZE_ID,

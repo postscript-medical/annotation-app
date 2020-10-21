@@ -1,5 +1,5 @@
 <script>
-  import { selectedImageTitle } from '../stores.js';
+  import { selectedIllustrationTitle } from '../stores.js';
   import PsLogo from './PsLogo.svelte';
   import ButtonShare from './ButtonShare.svelte';
   import ButtonUser from './ButtonUser.svelte';
@@ -26,7 +26,7 @@
       </span>
       <span
         class="sub-speciality">
-        { $selectedImageTitle }
+        { $selectedIllustrationTitle }
       </span>
     { /if }
   </div>

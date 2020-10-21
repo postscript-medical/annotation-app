@@ -54,9 +54,11 @@ export const typedTextEntries = derived(
 /**
  * Illustrations-related stores
  */
-export const selectedImageTitle = writable();
+export const selectedIllustrationTitle = writable();
 
 export const illustrationSearchQuery = writable('');
+
+export const illustrationLoaded = writable(false);
 
 export const selectedSpecialty = writable();
 
@@ -64,12 +66,12 @@ export const selectedSubSpecialty = writable();
 
 export const specialties = derived(
   protectedContent,
-  $protectedContent => $protectedContent.specialties
+  $protectedContent => $protectedContent ? $protectedContent.specialties : ''
 );
 
 export const subSpecialties = derived(
   protectedContent,
-  $protectedContent => $protectedContent.subSpecialties
+  $protectedContent => $protectedContent ? $protectedContent.subSpecialties : ''
 );
 
 export const illustrations = derived(
@@ -119,10 +121,21 @@ export const filteredIllustrations = derived(
 export const selectedIllustration = derived(
   [
     illustrations,
-    selectedImageTitle
+    illustrationsPath,
+    selectedIllustrationTitle
   ],
   ([
     $illustrations,
-    $selectedImageTitle
-  ]) => $illustrations.find(({ title }) => title === $selectedImageTitle)
+    $illustrationsPath,
+    $selectedIllustrationTitle
+  ]) => {
+    const illustration = $illustrations.find(({ title }) => title === $selectedIllustrationTitle)
+
+    return illustration
+    ? {
+        ...illustration,
+        src: $illustrationsPath + illustration.src
+      }
+    : undefined
+  }
 );
