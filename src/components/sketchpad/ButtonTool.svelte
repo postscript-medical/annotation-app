@@ -10,6 +10,7 @@
   const dispatch = createEventDispatcher();
 
   let openDrawer = false;
+  let secondaryToolsContainer;
 
   $: isSelected = primaryValue === toolName;
   $: showSecondaryTools = openDrawer && (secondaryTools.length > 0) && isSelected;
@@ -34,6 +35,33 @@
     openDrawer = false;
   }
 
+   function tween (node) {
+    const tl = gsap.timeline({ paused: true });
+
+    tl
+      .from(secondaryToolsContainer, {
+        duration: 0.15,
+        scaleX: 0,
+        transformOrigin: '0% 0%',
+        ease: 'circ.inOut',
+      })
+      .from(secondaryToolsContainer.children, {
+        duration: 0.15,
+        opacity: 0,
+        xPercent: -50,
+        ease: 'circ.inOut',
+        stagger: 0.05,
+      })
+
+    const duration = tl.totalDuration();
+
+    return {
+      duration: duration * 1000,
+      tick: t => {
+        tl.progress(t);
+      }
+    }
+  };
 </script>
 
 <div
@@ -52,7 +80,9 @@
   </ButtonIcon>
   { #if showSecondaryTools }
     <div
+      bind:this={ secondaryToolsContainer }
       class="secondary-tools shadow"
+      transition:tween
     >
       { #each secondaryTools as secondaryTool }
         <label
@@ -95,6 +125,7 @@
     position: absolute;
     left: 115%;
     top: 0;
+    overflow: hidden;
   }
 
   .secondary-tools > :global(*) {

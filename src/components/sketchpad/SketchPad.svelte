@@ -33,6 +33,7 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from '../../constants/sketch-pad.js';
+  import Illustration from './Illustration.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';
 
@@ -58,9 +59,7 @@
   let selectedImageId;
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
-  $: src = $illustrationsPath + ($selectedIllustration && $selectedIllustration.src);
-
-  $: console.log('src', src);
+  $: src = $selectedIllustration ? $selectedIllustration.src : false;
 
 
   function addShape (shapeId, event) {
@@ -376,7 +375,6 @@
     isPointerActive = false;
   };
 
-
   function toggleTypedTextDrag ({ detail }) {
     dragTypedText = detail;
   }; 
@@ -441,10 +439,8 @@
   class="paper shadow aspect-ratio-lock"
 >
   { #if src }
-    <img
-      id="displayed-image"
+    <Illustration
       { src }
-      alt=""
     />
   { /if }
 
@@ -482,12 +478,6 @@
     cursor: crosshair;
     width: 100%;
     height: 100%;
-  }
-
-  #displayed-image {
-    display: block;
-    width: 100%;
-    height: auto;
   }
 
   .paper {

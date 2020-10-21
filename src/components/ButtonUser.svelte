@@ -9,6 +9,33 @@
   function toggleDrawer () {
     $openDrawer = !$openDrawer;
   };
+
+  function tween () {
+    const tl = gsap.timeline({ paused: true });
+
+    tl
+      .from('.drawer', {
+        duration: 0.15,
+        scale: 0,
+        transformOrigin: '100% 0%',
+        ease: 'circ.inOut',
+      })
+      .from('.drawer > *', {
+        duration: 0.15,
+        opacity: 0,
+        ease: 'none',
+        stagger: 0.05,
+      })
+
+    const duration = tl.totalDuration();
+
+    return {
+      duration: duration * 1000,
+      tick: t => {
+        tl.progress(t);
+      }
+    }
+  };
 </script>
 
 <div
@@ -27,6 +54,7 @@
   { #if $openDrawer }
     <div
       class="drawer shadow"
+      transition:tween
     >
       <ManageSubscription
         href={ $customerPortalUrl }

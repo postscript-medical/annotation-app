@@ -2,7 +2,7 @@ import {
   protectedContent,
   selectedSpecialty,
   selectedSubSpecialty,
-  selectedImageTitle,
+  selectedIllustrationTitle,
 } from '../stores.js';
 import { SUBSCRIPTION_PLANS } from '../constants/session.js';
 
@@ -27,7 +27,7 @@ export default async function (user) {
        */
       if (!data.copy) {
         const defaultImage = data.images.find(image => image.default);
-        selectedImageTitle.set((defaultImage || data.images[0]).title);
+        selectedIllustrationTitle.set((defaultImage || data.images[0]).title);
         selectedSpecialty.set(data.specialties[0]);
         selectedSubSpecialty.set(data.subSpecialties[0]);
       }

@@ -1,21 +1,49 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import IconClose from '../components/icons/IconClose.svelte';
 
   export let hideCloseButton = false;
 
+  let wrapper;
+  let modal
+
   const dispatch = createEventDispatcher();
 
   function close () {
-    dispatch('close')
+    gsap.to([wrapper, modal], {
+      duration: 0.15,
+      opacity: 0,
+      ease: 'none',
+      onComplete: () => {
+        dispatch('close')
+      }
+    })
   };
+
+  onMount(() => {
+    gsap
+      .timeline()
+      .from(wrapper, {
+        duration: 0.15,
+        ease: 'none',
+        opacity: 0
+      })
+      .from(modal, {
+        duration: 0.25,
+        ease: 'circ.Out',
+        y: 50,
+        opacity: 0,
+      }, '-=0.075')
+  });
 </script>
 
 <div
+  bind:this={ wrapper }
   class="wrapper"
 >
   <div
-    class="modal-box shadow"
+    bind:this={ modal }
+    class="modal shadow"
   >
     <div
       class="modal-header"
@@ -51,7 +79,7 @@
     z-index: 10;
   }
 
-  .modal-box {
+  .modal {
     background-color: white;
     padding: 2rem 4rem;
     border-radius: 1rem;

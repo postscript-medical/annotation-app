@@ -3,7 +3,7 @@
     createEventDispatcher,
     onMount
   } from 'svelte';
-  import { selectedImageTitle } from '../stores.js';
+  import { selectedIllustrationTitle } from '../stores.js';
 
   export let images = [];
 
@@ -14,8 +14,7 @@
   $: noImages = images.length === 0;
 
   function selectIllustration (title) {
-    $selectedImageTitle = title;
-
+    dispatch('select-illustration', title);
     dispatch('close');
   }
 </script>
@@ -35,7 +34,7 @@
         src={ URL_PATH + IMAGE_SIZE + image.src }
         alt={ image.title }
         class="shadow"
-        class:selected={ $selectedImageTitle === image.title }
+        class:selected={ $selectedIllustrationTitle === image.title }
       />
       { image.title }
     </button>

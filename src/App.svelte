@@ -21,11 +21,7 @@
   let showResetPasswordModal = false;
   let hasPaymentDetails = false;
 
-  $: {
-    if ($user) {
-      console.log($user);
-      hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));}
-    }
+  $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
@@ -170,6 +166,6 @@
   />
 { /if }
 
-{ #if $isLoading }
-  <LoadingOverlay />
-{ /if }
+<LoadingOverlay
+  loading={ $isLoading }
+/>
