@@ -7,19 +7,21 @@
     selectedIllustrationTitle
   } from '../stores.js';
   import {
-    DEFAULT_COLOR_ID,
-    DEFAULT_SHAPE_ID,
-    DEFAULT_SIZE_ID,
     ERASER_SIZES,
-    TOOL_ERASER,
-    TOOL_PEN,
-    TOOL_SHAPE,
-    TOOL_TEXT,
     PEN_COLORS,
     PEN_SIZES,
     SHAPE_ARROW,
     SHAPES,
   } from '../constants/sketch-pad.js';
+  import {
+    DEFAULT_COLOR,
+    DEFAULT_SHAPE,
+    DEFAULT_SIZE,
+    TOOL_ERASER,
+    TOOL_PEN,
+    TOOL_SHAPE,
+    TOOL_TEXT,
+  } from '../constants/defaults.js';
   import SketchPad from '../components/sketchpad/SketchPad.svelte';
   import SketchPadUi from '../components/sketchpad/SketchPadUi.svelte';
   import ShareModal from '../modals/ShareModal.svelte';
@@ -27,21 +29,21 @@
 
   let eraser = {
     name: TOOL_ERASER,
-    lineWidth: ERASER_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value,
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value,
+    lineWidth: ERASER_SIZES.find(({ id }) => id === DEFAULT_SIZE).value,
+    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value,
   };
   let pen = {
     name: TOOL_PEN,
-    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value, 
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value
+    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE).value, 
+    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value
   };
   let selectedTool;
   let selectedToolId
   let shape = {
     name: TOOL_SHAPE,
-    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE_ID).value,
-    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR_ID).value,
-    type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE_ID).id,
+    lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE).value,
+    color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value,
+    type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE).id,
   };
 
   $: {

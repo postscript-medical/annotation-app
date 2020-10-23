@@ -10,14 +10,16 @@
     ERASER_SIZES,
     PEN_COLORS,
     PEN_SIZES,
+    SHAPES,
+  } from '../../constants/sketch-pad.js';
+  import {
     TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
     TOOL_SEARCH,
     TOOL_SHAPE,
     TOOL_TEXT,
-    SHAPES,
-  } from '../../constants/sketch-pad.js';
+  } from '../../constants/defaults.js'
   import ColorPalette from './ColorPalette.svelte';
   import IconClose from '../icons/IconClose.svelte';
   import IconEraser from '../icons/IconEraser.svelte';
