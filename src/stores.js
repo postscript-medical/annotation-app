@@ -1,4 +1,4 @@
-import { derived, writable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 import { TOOL_TEXT } from './constants/sketch-pad';
 
 export const session = writable();
@@ -44,6 +44,13 @@ export const actions = writable([]);
 export const canvas = writable();
 
 export const context = writable();
+
+export const dpr = readable(0, set => {
+  let pixelRatio = window.devicePixelRatio || 1;
+  pixelRatio = pixelRatio < 1 ? 1 : pixelRatio;
+
+  set(pixelRatio);
+});
 
 export const typedTextEntries = derived(
   actions,
