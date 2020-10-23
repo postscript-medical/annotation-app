@@ -42,9 +42,6 @@
   export let selectedToolId;
   export let shape;
 
-    // TODO: change this from an SVG to a secondary canvas so we can control the color
-  const arrowIcon = new Image();
-  arrowIcon.src = SHAPE_ARROW.src;
   const hasPointer = window.PointerEvent;
 
   let actionsIndex = 0;
@@ -83,8 +80,7 @@
     isPointerActive = true;
 
     if (shape.type === TOOL_ARROW) {
-      newShape.src = arrowIcon;
-      newShape.lenght = SHAPE_ARROW.length;
+      newShape.length = SHAPE_ARROW.length;
     };
 
     return newShape;
@@ -151,9 +147,18 @@
 
     switch (shape.type) {
       case TOOL_ARROW:
+        let arrowHeadLength = shape.length < 100 ? shape.length / 5 : 20;
+
         _context.translate(shape.x, shape.y);
         _context.rotate(shape.angle);
-        _context.drawImage(shape.src, 0, -(shape.length / 2), shape.length, shape.length);
+        _context.beginPath();
+        _context.moveTo(0,0);
+        _context.lineTo(arrowHeadLength,arrowHeadLength);
+        _context.moveTo(0,0);
+        _context.lineTo(arrowHeadLength,-arrowHeadLength);
+        _context.moveTo(0,0);
+        _context.lineTo(shape.length, 0);
+        _context.stroke();
         break;
 
       case TOOL_ELLIPSE:
@@ -181,8 +186,6 @@
     paper.addEventListener(eventType.move, onPointerMove, false);
 
     $context = setupCanvas($canvas);
-    $context.lineCap = 'round';
-    $context.lineJoin = 'round';
 
     resizeCanvas();
   };
@@ -291,6 +294,9 @@
 
   function render () {
     clearCanvas();
+
+    $context.lineCap = 'round';
+    $context.lineJoin = 'round';
 
     $actions.forEach(action => {
       switch (action.name) {

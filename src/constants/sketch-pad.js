@@ -124,7 +124,6 @@ const SHAPE_DEFAULT = {
 export const SHAPE_ARROW = {
   ...SHAPE_DEFAULT,
   id: TOOL_ARROW,
-  src: redirectPath + 'postscript-medical/annotation-app/icons/left_arrow.svg',
   length: 0,
   value: TOOL_ARROW,
   component: IconArrow,
