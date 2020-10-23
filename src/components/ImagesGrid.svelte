@@ -4,8 +4,11 @@
     onMount
   } from 'svelte';
   import { selectedIllustrationTitle } from '../stores.js';
+  import IntersectionObserver from './IntersectionObserver.svelte';
+  import ImagesGridThumbnail from './ImagesGridThumbnail.svelte';
 
   export let images = [];
+  let nativeLoading = false;
 
   const URL_PATH = 'images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/gastroenterology/';
   const IMAGE_SIZE = '1920x1080/';
@@ -17,6 +20,13 @@
     dispatch('select-illustration', title);
     dispatch('close');
   }
+
+  onMount(() => {
+    // Determine whether to bypass the intersecting check
+    if ('loading' in HTMLImageElement.prototype) {
+      nativeLoading = true;
+    }
+  });
 </script>
 
 { #if noImages }
@@ -30,12 +40,18 @@
       class="card"
       on:click={ selectIllustration(image.title) }
     >
-      <img
-        src={ URL_PATH + IMAGE_SIZE + image.src }
-        alt={ image.title }
-        class="shadow"
-        class:selected={ $selectedIllustrationTitle === image.title }
-      />
+      <IntersectionObserver
+        once
+        let:intersecting={ intersecting }
+      >
+        {#if nativeLoading || intersecting}
+          <ImagesGridThumbnail
+            src={ URL_PATH + IMAGE_SIZE + image.src }
+            alt={ image.title }
+            selected={ $selectedIllustrationTitle === image.title }
+          />
+        { /if }
+      </IntersectionObserver>
       { image.title }
     </button>
   { /each }
@@ -43,18 +59,6 @@
 { /if }
 
 <style>
-  img {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-bottom: 1rem;
-    border: 4px solid rgba(42,41,41,0);
-  }
-
-  img.selected {
-    border-color: rgba(42,41,41,1)
-  }
-
   .images-grid {
     align-items: start;
     overflow: auto;
@@ -74,5 +78,9 @@
     overflow: visible;
     padding: 0.5rem;
     text-align: left;
+  }
+
+  .card > :global(:not(:last-child)) {
+    margin-bottom: 1rem;
   }
 </style>
