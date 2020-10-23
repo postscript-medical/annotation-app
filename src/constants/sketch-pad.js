@@ -61,17 +61,17 @@ export const EVENTS_POINTER = {
 export const ERASER_SIZES = [
   {
     id: DEFAULT_SIZE_ID,
-    value: 6,
+    value: 32,
     component: IconLineThickness,
   },
   {
     id: SIZE_MEDIUM_ID,
-    value: 12,
+    value: 64,
     component: IconLineThickness,
   },
   {
     id: SIZE_LARGE_ID,
-    value: 24,
+    value: 96,
     component: IconLineThickness,
   },
   {
