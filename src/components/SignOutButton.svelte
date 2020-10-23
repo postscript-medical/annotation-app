@@ -1,5 +1,6 @@
 <script>
   import {
+    actions,
     isLoading,
     user,
     openDrawer
@@ -19,6 +20,7 @@
         $user = null;
         loadProtectedContent($user);
         window.sessionStorage.removeItem(STORAGE_KEY);
+        $actions = [];
         $openDrawer = false;
         $isLoading = false;
       })
