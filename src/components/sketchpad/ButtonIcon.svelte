@@ -28,7 +28,7 @@
     display: flex;
     justify-content: center;
     margin: 0;
-    padding: 0;
+    padding: 0.75rem;
   }
 
   .on-dark {

@@ -87,13 +87,9 @@
     on:change-primary={ toggleShowImageGallery }
   >
     { #if showImageGallery }
-      <IconClose
-        { onDark }
-      />
+      <IconClose />
     { :else }
-      <IconSearch
-        { onDark }
-      />
+      <IconSearch />
     { /if }
   </ButtonTool>
   
@@ -106,18 +102,16 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail }) => changeLineThickness(detail.value, TOOL_PEN) }
   >
-    <IconPen
-      { onDark }
-    />
+    <IconPen />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
+      class="secondary-tool"
       class:on-dark={ onDark }
     >
       <svelte:component
         this={ secondaryTool.component }
-        { onDark }
         size={ secondaryTool.id }
       />
     </div>
@@ -132,18 +126,16 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER) }
   >
-    <IconEraser
-      { onDark }
-    />
+    <IconEraser />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
+      class="secondary-tool"
       class:on-dark={ onDark }
     >
       <svelte:component
         this={ secondaryTool.component }
-        { onDark }
         size={ secondaryTool.id }
       />
     </div>
@@ -158,18 +150,16 @@
     on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
     on:change-secondary={ ({ detail }) => changeShape(detail.value) }
   >
-    <IconShapes
-      { onDark }
-    />
+    <IconShapes />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
+      class="secondary-tool"
       class:on-dark={ onDark }
     >
       <svelte:component
         this={ secondaryTool.component }
-        { onDark }
       />
     </div>
   </ButtonTool>
@@ -180,9 +170,7 @@
     let:onDark
     on:change-primary={ ({detail}) => selectTool(detail) }
   >
-    <IconText
-      { onDark }
-    />
+    <IconText />
   </ButtonTool>
 
   <ColorPalette
@@ -217,5 +205,9 @@
 
   .ui > :global(:first-child) {
     z-index: 10;
+  }
+
+  .secondary-tool {
+    padding: 0.25rem;
   }
 </style>

@@ -2,7 +2,7 @@
   import { selectedIllustrationTitle } from '../stores.js';
   import PsLogo from './PsLogo.svelte';
   import ButtonShare from './ButtonShare.svelte';
-  import ButtonUser from './ButtonUser.svelte';
+  import UserSettingsDropdown from './UserSettingsDropdown.svelte';
 
   export let user;
   export let loggedIn = false;
@@ -35,7 +35,7 @@
       class="options"
     >
       <ButtonShare />
-      <ButtonUser
+      <UserSettingsDropdown
         { user }
       />
     </div>
