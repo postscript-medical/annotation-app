@@ -1,5 +1,5 @@
 import { derived, readable, writable } from 'svelte/store';
-import { TOOL_TEXT } from './constants/sketch-pad';
+import { TOOL_TEXT } from './constants/defaults.js';
 
 export const session = writable();
 

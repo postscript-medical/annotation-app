@@ -14,17 +14,19 @@
   import getPointerLocation from './helpers/get-pointer-location.js';
   import setupCanvas from './helpers/setup-canvas.js';
   import {
-    DEFAULT_COLOR_ID,
-    DEFAULT_SHAPE_ID,
-    DEFAULT_SIZE_ID,
-    EVENTS_POINTER,
-    EVENTS_TOUCH,
     ERASER_SIZES,
     PEN_COLORS,
     PEN_SIZES,
-    RADIAN,
     SHAPES,
     SHAPE_ARROW,
+  } from '../../constants/sketch-pad.js';
+  import {
+    DEFAULT_COLOR,
+    DEFAULT_SHAPE,
+    DEFAULT_SIZE,
+    EVENTS_POINTER,
+    EVENTS_TOUCH,
+    RADIAN,
     TOOL_ARROW,
     TOOL_ERASER,
     TOOL_ELLIPSE,
@@ -32,7 +34,7 @@
     TOOL_RECTANGLE,
     TOOL_SHAPE,
     TOOL_TEXT,
-  } from '../../constants/sketch-pad.js';
+  } from '../../constants/defaults.js';
   import Illustration from './Illustration.svelte';
   import StokeCursor from './StokeCursor.svelte';
   import TypedTextEntry from './TypedTextEntry.svelte';

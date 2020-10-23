@@ -3,74 +3,30 @@ import IconEllipse from '../components/icons/IconEllipse.svelte';
 import IconLineThickness from '../components/icons/IconLineThickness.svelte';
 import IconRectangle from '../components/icons/IconRectangle.svelte';
 import IconTrashBin from '../components/icons/IconTrashBin.svelte';
+import {
+  DEFAULT_COLOR,
+  DEFAULT_SIZE,
+  SIZE_MEDIUM,
+  SIZE_LARGE,
+  TOOL_ERASE_ALL,
+  TOOL_ARROW,
+  TOOL_ELLIPSE,
+  TOOL_RECTANGLE,
+} from './defaults.js';
 
-/*
-* Redirect via Netlify > https://markus.oberlehner.net/blog/using-netlify-redirects-to-proxy-images-hosted-on-a-third-party-image-provider-or-a-headless-cms
-*/
-const redirectPath = '/images/';
-
-export const SIZE_SMALL_ID = 'small';
-
-export const SIZE_MEDIUM_ID = 'medium';
-
-export const SIZE_LARGE_ID = 'large';
-
-export const DEFAULT_COLOR_ID = 'black';
-
-export const DEFAULT_SHAPE_ID = 'rectangle';
-
-export const DEFAULT_SIZE_ID = SIZE_SMALL_ID;
-
-export const RADIAN = 6.28318;
-
-export const TOOL_ARROW = 'arrow';
-
-export const TOOL_ELLIPSE =  'ellipse';
-
-export const TOOL_ERASE_ALL = 'erase_all';
-
-export const TOOL_ERASER = 'eraser';
-
-export const TOOL_PEN = 'pen';
-
-export const TOOL_RECTANGLE = DEFAULT_SHAPE_ID;
-
-export const TOOL_SEARCH = 'search';
-
-export const TOOL_SHAPE = 'shape';
-
-export const TOOL_TEXT = 'text';
-
-export const EVENTS_TOUCH = {
-  down: 'touchstart',
-  move: 'touchmove',
-  up: 'touchend',
-};
-
-export const EVENTS_POINTER = {
-  down: 'pointerdown',
-  move: 'pointermove',
-  up: 'pointerup',
-};
-
-/**
- * Importing IconLineThickness is creating
- * a circular dependency - move everything that uses
- * it from this file into a separate one.
- */
 export const ERASER_SIZES = [
   {
-    id: DEFAULT_SIZE_ID,
+    id: DEFAULT_SIZE,
     value: 32,
     component: IconLineThickness,
   },
   {
-    id: SIZE_MEDIUM_ID,
+    id: SIZE_MEDIUM,
     value: 64,
     component: IconLineThickness,
   },
   {
-    id: SIZE_LARGE_ID,
+    id: SIZE_LARGE,
     value: 96,
     component: IconLineThickness,
   },
@@ -83,7 +39,7 @@ export const ERASER_SIZES = [
 
 export const PEN_COLORS = [
   {
-    id: DEFAULT_COLOR_ID,
+    id: DEFAULT_COLOR,
     value: 'rgb(0,0,0)',
   },
   {
@@ -98,17 +54,17 @@ export const PEN_COLORS = [
 
 export const PEN_SIZES = [
   {
-    id: DEFAULT_SIZE_ID,
+    id: DEFAULT_SIZE,
     value: 2,
     component: IconLineThickness,
   },
   {
-    id: SIZE_MEDIUM_ID,
+    id: SIZE_MEDIUM,
     value: 4,
     component: IconLineThickness,
   },
   {
-    id: SIZE_LARGE_ID,
+    id: SIZE_LARGE,
     value: 6,
     component: IconLineThickness,
   },

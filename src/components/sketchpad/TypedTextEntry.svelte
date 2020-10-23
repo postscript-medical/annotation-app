@@ -4,7 +4,7 @@
     onDestroy,
     onMount,
   } from 'svelte';
-  import { EVENTS_TOUCH } from '../../constants/sketch-pad.js';
+  import { EVENTS_TOUCH } from '../../constants/defaults.js';
   import ButtonIcon from './ButtonIcon.svelte';
   import IconClose from '../icons/IconClose.svelte';
   import IconDrag from '../icons/IconDrag.svelte';
