@@ -14,13 +14,13 @@
     const tl = gsap.timeline({ paused: true });
 
     tl
-      .from('.drawer', {
+      .from('.dropdown', {
         duration: 0.15,
         scale: 0,
         transformOrigin: '100% 0%',
         ease: 'circ.inOut',
       })
-      .from('.drawer > *', {
+      .from('.dropdown > *', {
         duration: 0.15,
         opacity: 0,
         ease: 'none',
@@ -39,10 +39,10 @@
 </script>
 
 <div
-  class="wrapper"
+  class="user-settings-dropdown"
 >
-  <ButtonIcon
-      onDark
+  <button
+      class="dropdown-button"
       on:click={ toggleDrawer }
     >
       <span
@@ -50,10 +50,10 @@
       >
         { user.email[0].toUpperCase() }
       </span>
-  </ButtonIcon>
+  </button>
   { #if $openDrawer }
     <div
-      class="drawer shadow"
+      class="dropdown shadow"
       transition:tween
     >
       <ManageSubscription
@@ -67,11 +67,19 @@
 </div>
 
 <style>
-  .wrapper {
+  .user-settings-dropdown {
     position: relative;
   }
 
-  .drawer {
+  .dropdown-button {
+    border: 0;
+    background-color: rgb(42,41,41);
+    color: white;
+    border-radius: 50%;
+    padding: 0;
+  }
+
+  .dropdown {
     position: absolute;
     right: 0;
     top: 115%;
@@ -83,7 +91,7 @@
     flex-direction: column;
   }
 
-  .drawer > :global(*:not(:last-child)) {
+  .dropdown > :global(*:not(:last-child)) {
     margin-bottom: 1rem;
   }
 

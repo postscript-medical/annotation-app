@@ -1,12 +1,8 @@
 <script>
   import Icon from './Icon.svelte';
-
-  export let onDark = false;
 </script>
 
-<Icon
-  { onDark }
->
+<Icon>
   <title>Icon: close</title>
   <g transform="translate(12.000000, 12.000000) rotate(-315.000000) translate(-12.000000, -12.000000) translate(-2.000000, -2.000000)">
       <rect x="13" y="0" width="2" height="28" />

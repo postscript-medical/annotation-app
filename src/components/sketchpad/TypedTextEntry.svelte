@@ -4,7 +4,10 @@
     onDestroy,
     onMount,
   } from 'svelte';
-  import { EVENTS_TOUCH } from '../../constants/sketch-pad.js'
+  import { EVENTS_TOUCH } from '../../constants/sketch-pad.js';
+  import ButtonIcon from './ButtonIcon.svelte';
+  import IconClose from '../icons/IconClose.svelte';
+  import IconDrag from '../icons/IconDrag.svelte';
 
   export let content;
   export let eventType = EVENTS_TOUCH;
@@ -15,7 +18,6 @@
   const dispatch = createEventDispatcher();
 
   let dragHandler;
-  let closeButton;
 
   $: style = `transform: translate3d(${x}px,${y}px,0px)`;
 
@@ -38,29 +40,18 @@
   onMount(() => {
     dragHandler.addEventListener(eventType.down, startDrag, false);
     dragHandler.addEventListener(eventType.up, stopDrag, false);
-    closeButton.addEventListener(eventType.up, closeEntry, false);
   });
 
   onDestroy(() => {
     dragHandler.removeEventListener(eventType.down, startDrag, false);
     dragHandler.removeEventListener(eventType.up, stopDrag, false);
-    closeButton.removeEventListener(eventType.up, closeEntry, false);
-
   });
 </script>
 
 <div
-  class="container"
+  class="typed-text-entry"
   {style}
 >
-  <div
-    bind:this={ dragHandler }
-    class="drag-handle"
-  ></div>
-  <div
-    bind:this={ closeButton }
-    class="close-button"
-  >x</div>
   <!-- svelte-ignore a11y-autofocus -->
   <input
     autofocus
@@ -69,47 +60,49 @@
     type="text"
     class="typed-annotation"
   />
+  <div
+    bind:this={ dragHandler }
+    class="drag-handle shadow"
+  >
+    <IconDrag />
+  </div>
+  <ButtonIcon
+    on:click={ closeEntry }
+  >
+    <IconClose />
+  </ButtonIcon>
 </div>
 
 <style>
-  div {
-    border: 1px solid rgb(55, 154, 70);
+  .typed-text-entry {
     position: absolute;
     left: 0;
     top: 0;
   }
 
-  input {
-    pointer-events: auto;
+  .typed-text-entry > :global(:not(input)) {
+    position: absolute;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    top: -25%;
+    transition: opacity 100ms linear;
+  }
+
+  .typed-text-entry:hover > :global(:not(input)) {
+    opacity: 1;
+  }
+
+  .typed-text-entry > :global(:last-child) {
+    left: 100%;
   }
 
   .drag-handle {
     background: white;
     text-align: center;
     cursor: grab;
-    position: absolute;
     left: 0;
-    top: 0;
-    border: 1px solid black;
     border-radius: 50%;
-    width: 2rem;
-    height: 2rem;;
-    transform: translate(-50%, -50%);
     pointer-events: auto;
-  }
-
-  .close-button {
-    background: white;
-    text-align: center;
-    cursor: pointer;
-    position: absolute;
-    left: 100%;
-    top: 0;
-    border: 1px solid black;
-    border-radius: 50%;
-    width: 2rem;
-    height: 2rem;
-    transform: translate(-50%, -50%);
-    pointer-events: auto;
+    padding: 0.75rem;
   }
 </style>
