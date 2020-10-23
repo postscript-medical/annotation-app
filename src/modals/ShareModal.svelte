@@ -1,12 +1,11 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
-  import { canvas } from '../stores.js';
+  import { canvas, dpr } from '../stores.js';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
   import ButtonDownloadAnnotatedImage from '../components/ButtonDownloadAnnotatedImage.svelte';
 
   const dispatch = createEventDispatcher();
-  const dpr = window.devicePixelRatio || 1;
 
   let emailSent = false;
   let email;
@@ -19,15 +18,15 @@
 
   function drawTypedText (context, parentBoundingRect) {
     const entries = Array.from(document.querySelectorAll('.typed-annotation'));
-    const fontSize = `${16 * dpr}px`;
+    const fontSize = `${16 * $dpr}px`;
     
     context.font = `${fontSize} 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
     context.textBaseline = 'middle';
 
     entries.forEach(entry => {
       const boundingRect = entry.getBoundingClientRect();
-      const x = (boundingRect.x - parentBoundingRect.x + 7) * dpr; /* 7 is the padding in the input */
-      const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * dpr;
+      const x = (boundingRect.x - parentBoundingRect.x + 7) * $dpr; /* 7 is the padding in the input */
+      const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * $dpr;
 
       context.fillStyle = 'black';
       context.fillText(entry.value, x, y);
