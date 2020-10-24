@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
-  import { canvas, dpr } from '../stores.js';
+  import { canvas, dpr, illustrationDisplayed } from '../stores.js';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
   import ButtonDownloadAnnotatedImage from '../components/ButtonDownloadAnnotatedImage.svelte';
@@ -36,7 +36,6 @@
   function generateAnnotatedImage () {
     const annotatedImage = document.createElement('canvas');
     const context = annotatedImage.getContext('2d');
-    const srcImg = document.querySelector('#displayed-image');
     const boundingRect = $canvas.getBoundingClientRect();
 
     annotatedImage.width = $canvas.width;
@@ -44,7 +43,7 @@
 
     context.fillStyle = 'white';
     context.fillRect(0,0, annotatedImage.width, annotatedImage.height);
-    if (srcImg) context.drawImage(srcImg, 0, 0, annotatedImage.width, annotatedImage.height);
+    if ($illustrationDisplayed) context.drawImage($illustrationDisplayed, 0, 0, annotatedImage.width, annotatedImage.height);
     context.drawImage($canvas, 0, 0);
 
     drawTypedText(context, boundingRect);
@@ -61,7 +60,6 @@
         to_email: email.value,
       })
       .then(response => {
-        console.log('Success', response);
         emailSent = true;
         sendingEmail = false;
         // focus the close button

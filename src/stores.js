@@ -67,6 +67,8 @@ export const illustrationSearchQuery = writable('');
 
 export const illustrationLoaded = writable(false);
 
+export const illustrationDisplayed = writable();
+
 export const selectedSpecialty = writable();
 
 export const selectedSubSpecialty = writable();

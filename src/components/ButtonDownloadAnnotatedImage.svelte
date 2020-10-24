@@ -4,7 +4,6 @@
   export let generatedImage;
 
   function downloadImage () {
-    console.log('downloadImage');
     const encodedImage = generatedImage.toDataURL('image/jpg', 0.7);
     const hiddenLink = document.createElement('a');
 

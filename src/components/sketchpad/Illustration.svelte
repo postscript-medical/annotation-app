@@ -17,15 +17,15 @@
 
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { illustrationLoaded } from '../../stores.js';
+  import { illustrationLoaded, illustrationDisplayed } from '../../stores.js';
 
   export let src = '';
 
-  let illustration;
+  // let illustration;
 
   async function imageLoaded () {
     gsap
-      .to(illustration, 
+      .to($illustrationDisplayed, 
         {
           duration: 0.15,
           opacity: 1,
@@ -35,18 +35,18 @@
   }
 
   onMount(() => {
-    target = illustration;
+    target = $illustrationDisplayed;
 
-    illustration.addEventListener('load', imageLoaded);
+    $illustrationDisplayed.addEventListener('load', imageLoaded);
   });
 
   onDestroy(() => {
-    illustration.removeEventListener('load', imageLoaded);
+    $illustrationDisplayed.removeEventListener('load', imageLoaded);
   })
 </script>
 
 <img
-  bind:this={ illustration }
+  bind:this={ $illustrationDisplayed }
   { src }
   alt=""
 />
