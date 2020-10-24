@@ -107,6 +107,7 @@
     return {
       name: TOOL_TEXT,
       content: '',
+      color: pen.color,
       eventType,
       index: actionsIndex,
       x: pointerLocation.x - offsetLeft,
