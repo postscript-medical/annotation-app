@@ -10,6 +10,7 @@
   export let index = 1;
   export let x = 0;
   export let y = 0;
+  export let color;
 
   const dispatch = createEventDispatcher();
 
@@ -35,6 +36,7 @@
     on:input={ updateContent }
     type="text"
     class="typed-annotation"
+    style={ `color: ${color};` }
   />
   <DragHandle
     { eventType }
