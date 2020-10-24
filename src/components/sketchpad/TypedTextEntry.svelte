@@ -1,13 +1,9 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import {
-    onDestroy,
-    onMount,
-  } from 'svelte';
   import { EVENTS_TOUCH } from '../../constants/defaults.js';
   import ButtonIcon from './ButtonIcon.svelte';
   import IconClose from '../icons/IconClose.svelte';
-  import IconDrag from '../icons/IconDrag.svelte';
+  import DragHandle from './DragHandle.svelte';
 
   export let content;
   export let eventType = EVENTS_TOUCH;
@@ -17,35 +13,15 @@
 
   const dispatch = createEventDispatcher();
 
-  let dragHandler;
-
   $: style = `transform: translate3d(${x}px,${y}px,0px)`;
 
  function closeEntry () {
     dispatch('close', { index });
   };
 
-  function startDrag () {
-    dispatch('drag', { index, active: true });
-  };
-
-  function stopDrag () {
-    dispatch('drag', { index, active: false });
-  };
-
   function updateContent ({ target }) {
     dispatch('input', { index, content: target.value });
   }
-
-  onMount(() => {
-    dragHandler.addEventListener(eventType.down, startDrag, false);
-    dragHandler.addEventListener(eventType.up, stopDrag, false);
-  });
-
-  onDestroy(() => {
-    dragHandler.removeEventListener(eventType.down, startDrag, false);
-    dragHandler.removeEventListener(eventType.up, stopDrag, false);
-  });
 </script>
 
 <div
@@ -60,12 +36,11 @@
     type="text"
     class="typed-annotation"
   />
-  <div
-    bind:this={ dragHandler }
-    class="drag-handle shadow"
-  >
-    <IconDrag />
-  </div>
+  <DragHandle
+    { eventType }
+    { index }
+    on:drag
+  />
   <ButtonIcon
     on:click={ closeEntry }
   >
@@ -94,15 +69,5 @@
 
   .typed-text-entry > :global(:last-child) {
     left: 100%;
-  }
-
-  .drag-handle {
-    background: white;
-    text-align: center;
-    cursor: grab;
-    left: 0;
-    border-radius: 50%;
-    pointer-events: auto;
-    padding: 0.75rem;
   }
 </style>
