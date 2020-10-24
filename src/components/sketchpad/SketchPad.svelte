@@ -223,12 +223,13 @@
   };
 
   function onPointerUp(event) {
-    if (hasPointer && pointerLocation.id && pointerLocation.id === event.pointerId) {
+    if (hasPointer && !isNaN(pointerLocation.id) && pointerLocation.id === event.pointerId) {
       pointerLocation = {
         ...pointerLocation,
         id: undefined,
       };
     };
+
     stopDrawing();
   };
 
