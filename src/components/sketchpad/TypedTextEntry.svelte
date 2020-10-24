@@ -20,6 +20,12 @@
     dispatch('close', { index });
   };
 
+  function checkForEnter (event) {
+    if (event.keyCode === 13) {
+      document.activeElement.blur();
+    }
+  };
+
   function updateContent ({ target }) {
     dispatch('input', { index, content: target.value });
   }
@@ -33,10 +39,11 @@
   <input
     autofocus
     value={ content }
-    on:input={ updateContent }
     type="text"
     class="typed-annotation"
     style={ `color: ${color};` }
+    on:input={ updateContent }
+    on:keyup|preventDefault={ checkForEnter }
   />
   <DragHandle
     { eventType }
