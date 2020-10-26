@@ -75,17 +75,17 @@ export const selectedSubSpecialty = writable();
 
 export const specialties = derived(
   protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.specialties : ''
+  $protectedContent => $protectedContent ? $protectedContent.subscription.specialties : ''
 );
 
 export const subSpecialties = derived(
   protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.subSpecialties : ''
+  $protectedContent => $protectedContent ? $protectedContent.subscription.subSpecialties : ''
 );
 
 export const illustrations = derived(
   protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.images : [] /* probably rename the property to illustrations as well */
+  $protectedContent => $protectedContent ? $protectedContent.subscription.images : [] /* probably rename the property to illustrations as well */
 );
 
 const redirectPath = 'images';
