@@ -1,6 +1,10 @@
 type User {
   netlifyID: ID!
   stripeID: ID!
+  subscriptionActive: Boolean!
+  showTutorial: Boolean!
+  firstName: String
+  lastName: String
 }
 
 type Query {
