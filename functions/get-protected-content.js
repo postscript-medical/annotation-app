@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     const result = await faunaFetch({
       query: `
         query ($netlifyID: ID!) {
-          getUserByStripeID(netlifyID: $netlifyID) {
+          getUserBynetlifyID(netlifyID: $netlifyID) {
             firstName
             showTutorial
             subscriptionActive
