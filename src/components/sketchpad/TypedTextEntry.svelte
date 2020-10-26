@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { EVENTS_TOUCH } from '../../constants/defaults.js';
   import ButtonIcon from './ButtonIcon.svelte';
   import IconClose from '../icons/IconClose.svelte';
@@ -13,6 +13,8 @@
   export let color;
 
   const dispatch = createEventDispatcher();
+  let container;
+  let boundingRect;
 
   $: style = `transform: translate3d(${x}px,${y}px,0px)`;
 
@@ -29,11 +31,18 @@
   function updateContent ({ target }) {
     dispatch('input', { index, content: target.value });
   }
+
+  onMount(() => {
+    console.log('mount', container);
+    boundingRect = container.getBoundingClientRect();
+
+  });
 </script>
 
 <div
+  bind:this={ container }
   class="typed-text-entry"
-  {style}
+  { style }
 >
   <!-- svelte-ignore a11y-autofocus -->
   <input
@@ -46,6 +55,7 @@
     on:keyup|preventDefault={ checkForEnter }
   />
   <DragHandle
+    { boundingRect }
     { eventType }
     { index }
     on:drag

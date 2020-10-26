@@ -6,6 +6,7 @@
   import {
     actions,
     canvas,
+    dpr,
     context,
     illustrationsPath,
     selectedIllustration,
@@ -391,12 +392,31 @@
 
   function typedTextDragBox () {
       const targetIndex = $actions.findIndex(({ index }) => index === dragTypedText.index);
+      const scaledWidth = $canvas.width / $dpr;
+      const scaledHeight = $canvas.height / $dpr;
       // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
       let target = {
         ...$actions[targetIndex],
         x: pointerLocation.x - offsetLeft,
         y: pointerLocation.y - offsetTop,
       };
+
+      // work out if box is going to be outside the paper boundaries
+      if (target.x < offsetLeft) {
+        target.x = offsetLeft;
+      }
+
+      if (target.x + dragTypedText.width > scaledWidth) {
+        target.x = scaledWidth - dragTypedText.width;
+      }
+
+      if (target.y < offsetTop) {
+        target.y = offsetTop;
+      }
+
+      if (target.y + dragTypedText.height > scaledHeight) {
+        target.y = scaledHeight - dragTypedText.height;
+      }
 
       $actions[targetIndex] = target;
       $actions = [...$actions];
