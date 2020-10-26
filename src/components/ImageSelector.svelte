@@ -33,6 +33,7 @@
         y: 50,
         opacity: 0,
         ease: 'circ.out',
+        clearProps: 'transform',
       }, '-=0.075')
 
     const duration = tl.totalDuration();
