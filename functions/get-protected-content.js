@@ -9,6 +9,7 @@ exports.handler = async (event, context) => {
   const subscriptionContent = PROTECTED_CONTENT[subscription];
 
   try {
+    console.log('userId', user);
     const result = await faunaFetch({
       query: `
         query ($netlifyID: ID!) {
@@ -20,7 +21,7 @@ exports.handler = async (event, context) => {
         }
       `,
       variables: {
-        netlifyID: user.id
+        netlifyID: user.sub
       }
     });
 
