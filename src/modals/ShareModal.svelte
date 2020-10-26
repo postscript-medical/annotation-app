@@ -37,13 +37,14 @@
     const annotatedImage = document.createElement('canvas');
     const context = annotatedImage.getContext('2d');
     const boundingRect = $canvas.getBoundingClientRect();
+    const illustrationBoudingRect = $illustrationDisplayed.getBoundingClientRect();
 
     annotatedImage.width = $canvas.width;
     annotatedImage.height = $canvas.height;
 
     context.fillStyle = 'white';
-    context.fillRect(0,0, annotatedImage.width, annotatedImage.height);
-    if ($illustrationDisplayed) context.drawImage($illustrationDisplayed, 0, 0, annotatedImage.width, annotatedImage.height);
+    context.fillRect(0,0, boundingRect.width * $dpr, boundingRect.height * $dpr);
+    context.drawImage($illustrationDisplayed, (illustrationBoudingRect.left - boundingRect.left) * $dpr, (illustrationBoudingRect.top  - boundingRect.top)* $dpr, illustrationBoudingRect.width * $dpr, illustrationBoudingRect.height * $dpr);
     context.drawImage($canvas, 0, 0);
 
     drawTypedText(context, boundingRect);
