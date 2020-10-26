@@ -53,10 +53,10 @@ exports.handler = async ({ body, headers }, context) => {
       statusCode: 200,
       body: JSON.stringify({ received: true }),
     };
-  } catch (err) {
+  } catch (error) {
     return {
       statusCode: 400,
-      body: `Webhook Error: ${err.message}`,
+      body: `Webhook Error: ${error.message}`,
     };
   }
 };
