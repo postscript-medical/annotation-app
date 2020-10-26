@@ -3,7 +3,7 @@ import { TOOL_TEXT } from './constants/defaults.js';
 
 export const session = writable();
 
-// Investigate: We want to reactively trigger a loadProtectedContent when the user is updated
+// Investigate: We want to reactively trigger a loadProtectedContent when the user is updated > use derived stores
 export const user = writable();
 
 export const isLoading = writable(true);
