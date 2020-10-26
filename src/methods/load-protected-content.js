@@ -26,10 +26,10 @@ export default async function (user) {
        * whenever if the user requested does not exist.
        */
       if (!data.copy) {
-        const defaultImage = data.images.find(image => image.default);
-        selectedIllustrationTitle.set((defaultImage || data.images[0]).title);
-        selectedSpecialty.set(data.specialties[0]);
-        selectedSubSpecialty.set(data.subSpecialties[0]);
+        const defaultImage = data.subscription.images.find(image => image.default);
+        selectedIllustrationTitle.set((defaultImage || data.subscription.images[0]).title);
+        selectedSpecialty.set(data.subscription.specialties[0]);
+        selectedSubSpecialty.set(data.subscription.subSpecialties[0]);
       }
       protectedContent.set(data)
     })
