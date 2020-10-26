@@ -28,7 +28,7 @@
       const x = (boundingRect.x - parentBoundingRect.x + 7) * $dpr; /* 7 is the padding in the input */
       const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * $dpr;
 
-      context.fillStyle = 'black';
+      context.fillStyle = entry.style.color;
       context.fillText(entry.value, x, y);
     });
   };

@@ -33,7 +33,6 @@
   }
 
   onMount(() => {
-    console.log('mount', container);
     boundingRect = container.getBoundingClientRect();
 
   });
