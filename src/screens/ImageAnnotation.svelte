@@ -114,6 +114,7 @@
       { shape }
       { selectedTool }
       { selectedToolId }
+      on:select-tool={ selectTool }
     />
     <SketchPadUi
       { eraser }

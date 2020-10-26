@@ -1,5 +1,6 @@
 <script>
   import {
+    createEventDispatcher,
     onDestroy,
     onMount,
   } from 'svelte';
@@ -46,6 +47,7 @@
   export let shape;
 
   const hasPointer = window.PointerEvent;
+  const dispatch = createEventDispatcher();
 
   let actionsIndex = 0;
   let encodedImage = '';
@@ -205,6 +207,7 @@
       case TOOL_TEXT:
         newAction = addTypedText(event);
         ++actionsIndex;
+        dispatch('select-tool', TOOL_PEN);
         break;
 
       case TOOL_SHAPE:
