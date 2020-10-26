@@ -8,20 +8,24 @@
 
   export let index;
   export let eventType;
+  export let boundingRect = { width: 0, height: 0 };
 
   const dispatch = createEventDispatcher();
   let dragHandler;
 
-  function startDrag () {
-    dispatch('drag', { index, active: true });
+  $: width = boundingRect.width;
+  $: height = boundingRect.height;
 
-    dragHandler.addEventListener(eventType.up, stopDrag, false);
+  function startDrag () {
+    dispatch('drag', { index, active: true, width, height });
+
+    window.addEventListener(eventType.up, stopDrag, false);
   };
 
   function stopDrag () {
     dispatch('drag', { index, active: false });
 
-    dragHandler.removeEventListener(eventType.up, stopDrag, false);
+    window.removeEventListener(eventType.up, stopDrag, false);
   };
 
   onMount(() => {
