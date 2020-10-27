@@ -4,7 +4,8 @@
   } from 'svelte';
   import {
     openShareModal,
-    selectedIllustrationTitle
+    selectedIllustrationTitle,
+    user
   } from '../stores.js';
   import {
     ERASER_SIZES,
@@ -96,6 +97,24 @@
   };
 
   function selectIllustration ({ detail: illustrationTitle}) {
+    /*
+    * This is adding the illustrationTitle to Netlify's user.user_metadata.
+    * We need to be very careful here as currently there is no way to remove this data
+    * once it is stored there. At some point in the future we should store this somewhere else.
+    * Right now it does not seem like a great idea as we don't want to run a Lambda function
+    * every time the user changes an illustration, it would end up costing us a lot of money.
+    */
+    $user
+      .update({
+        data: {
+          illustrationTitle
+        }
+      })
+      .then(updatedUser => {
+        $user = updatedUser
+      })
+      .catch(error => console.error(error));
+
     tweenOut(() => $selectedIllustrationTitle = illustrationTitle);
   };
 
