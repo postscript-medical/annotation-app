@@ -36,6 +36,7 @@ export const customerPortalUrl = derived(
   '#'
 );
 
+
 /**
  * Canvas-related stores
  */

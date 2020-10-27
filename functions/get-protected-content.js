@@ -9,7 +9,6 @@ exports.handler = async (event, context) => {
   const subscriptionContent = PROTECTED_CONTENT[subscription];
 
   try {
-    console.log('userId', user);
     const result = await faunaFetch({
       query: `
         query ($netlifyID: ID!) {
@@ -25,8 +24,6 @@ exports.handler = async (event, context) => {
       }
     });
 
-    console.log('Result', result);
-    
     if (!subscription || !subscriptionContent) {
       return {
         statusCode: 402,

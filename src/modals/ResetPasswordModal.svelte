@@ -27,13 +27,12 @@
 
     $user.update({ password: password.value })
       .then(updatedUser => {
-        console.log('Updated user %s', updatedUser)
         $user = updatedUser
 
         resetComplete = true;
       })
       .catch((error) => {
-        console.log('Failed to update user: %o', error);
+        console.error('Failed to update user: %o', error);
         throw error;
       });
   };

@@ -23,7 +23,6 @@
 
     $session.requestPasswordRecovery(email.value)
       .then(response => {
-        console.log('Recovery email sent', { response } )
         emailSent = true;
         sendingEmail = false;
       })

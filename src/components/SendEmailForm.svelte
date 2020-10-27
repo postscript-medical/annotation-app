@@ -17,7 +17,6 @@
   };
 
   function sendEmail (event) {
-    console.log('sendEmail', this);
     emailjs
       .send('5609467','postscript_annotated_img', {
         image: encodedImage,
@@ -25,7 +24,6 @@
         to_name: toName,
       })
       .then(response => {
-        console.log('Success', response);
         emailSent = true;
         // focus the close button
       })
