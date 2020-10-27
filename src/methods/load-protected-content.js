@@ -26,8 +26,10 @@ export default async function (user) {
        * whenever if the user requested does not exist.
        */
       if (!data.copy) {
+        const userDefinedImage = data.subscription.images.find(({ title }) => title === user.user_metadata.illustrationTitle);
         const defaultImage = data.subscription.images.find(image => image.default);
-        selectedIllustrationTitle.set((defaultImage || data.subscription.images[0]).title);
+
+        selectedIllustrationTitle.set((userDefinedImage || defaultImage || data.subscription.images[0]).title);
         selectedSpecialty.set(data.subscription.specialties[0]);
         selectedSubSpecialty.set(data.subscription.subSpecialties[0]);
       }
