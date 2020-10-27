@@ -1,5 +1,8 @@
 <script>
-  import { openDrawer, customerPortalUrl } from '../stores.js';
+  import {
+    userSettingsDropdownDrawerOpen,
+    customerPortalUrl
+  } from '../stores.js';
   import SignOutButton from './SignOutButton.svelte';
   import ButtonIcon from './sketchpad/ButtonIcon.svelte';
   import ManageSubscription from './ManageSubscription.svelte';
@@ -7,7 +10,7 @@
   export let user;
 
   function toggleDrawer () {
-    $openDrawer = !$openDrawer;
+    $userSettingsDropdownDrawerOpen = !$userSettingsDropdownDrawerOpen;
   };
 
   function tween () {
@@ -51,7 +54,7 @@
         { user.email[0].toUpperCase() }
       </span>
   </button>
-  { #if $openDrawer }
+  { #if $userSettingsDropdownDrawerOpen }
     <div
       class="dropdown shadow"
       transition:tween

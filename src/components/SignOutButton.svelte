@@ -3,9 +3,9 @@
     actions,
     isLoading,
     user,
-    openDrawer
   } from '../stores.js';
   import { STORAGE_KEY } from '../constants/session.js'
+  import closeUserSettingsDropdown from '../methods/closeUserSettingsDropdown.js';
   import loadProtectedContent from '../methods/load-protected-content.js';
   import PsButton from './PsButton.svelte';
 
@@ -18,10 +18,15 @@
       .logout()
       .then(response => {
         $user = null;
+
         loadProtectedContent($user);
+
         window.sessionStorage.removeItem(STORAGE_KEY);
+
         $actions = [];
-        $openDrawer = false;
+
+        closeUserSettingsDropdown();
+
         $isLoading = false;
       })
       .catch(error => {

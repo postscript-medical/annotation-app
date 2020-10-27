@@ -7,12 +7,14 @@
   import {
     actions,
     canvas,
-    dpr,
     context,
+    dpr,
     illustrationsPath,
     selectedIllustration,
+    toolDrawerOpen,
     typedTextEntries,
   } from '../../stores.js';
+  import closeUserSettingsDropdown from '../../methods/closeUserSettingsDropdown.js';
   import getPointerLocation from './helpers/get-pointer-location.js';
   import setupCanvas from './helpers/setup-canvas.js';
   import {
@@ -198,6 +200,10 @@
 
   function onPointerDown(event) {
     event.preventDefault();
+
+    $toolDrawerOpen = '';
+
+    closeUserSettingsDropdown();
 
     recordPoint(event);
 

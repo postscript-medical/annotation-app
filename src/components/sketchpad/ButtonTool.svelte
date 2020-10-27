@@ -1,38 +1,45 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import {
+    toolDrawerOpen,
+    userSettingsDropdownDrawerOpen
+  } from '../../stores.js';
+  import closeUserSettingsDropdown from '../../methods/closeUserSettingsDropdown.js';
   import ButtonIcon from './ButtonIcon.svelte';
 
   export let toolName;
-  export let primaryValue = undefined;
+  export let primaryValue = '';
   export let secondaryTools = [];
-  export let secondaryValue = undefined;
+  export let secondaryValue = '';
 
   const dispatch = createEventDispatcher();
 
-  let openDrawer = false;
   let secondaryToolsContainer;
 
+  $: openDrawer = $toolDrawerOpen === toolName;
   $: isSelected = primaryValue === toolName;
   $: showSecondaryTools = openDrawer && (secondaryTools.length > 0) && isSelected;
 
   function changePrimary ({ detail: newTool }) {
+    $toolDrawerOpen = toolName
+
+    closeUserSettingsDropdown();
+
     if (secondaryTools.length < 1) {
       dispatch('change-primary', newTool);
 
       return;
     }
 
-    if (isSelected) {
-      openDrawer = !openDrawer;
-    } else {
+    if (!isSelected) {
       dispatch('change-primary', newTool);
     }
   }
 
   function changeSecondary (value, id) {
-    dispatch('change-secondary', { value, id });
+    closeUserSettingsDropdown();
 
-    openDrawer = false;
+    dispatch('change-secondary', { value, id });
   }
 
    function tween (node) {
