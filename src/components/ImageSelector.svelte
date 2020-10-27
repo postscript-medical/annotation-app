@@ -56,7 +56,6 @@
       <PsDropdown
         label="Specialty"
         options={ $specialties }
-        disabled
         on:change={ selectSpecialty }
       />
     </div>
