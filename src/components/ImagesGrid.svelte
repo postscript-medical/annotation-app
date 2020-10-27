@@ -18,6 +18,7 @@
 
   function selectIllustration (title) {
     dispatch('select-illustration', title);
+
     dispatch('close');
   }
 
