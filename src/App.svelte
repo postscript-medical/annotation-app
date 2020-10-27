@@ -123,7 +123,6 @@
     $session
       .recover(token, true)
       .then(response => {
-        console.log('Logged in as %s', JSON.stringify({ response }));
         $user = response;
 
         showResetPasswordModal = true;
@@ -133,7 +132,7 @@
         navigateHome();
       })
       .catch(error => {
-        console.log('Failed to verify recover token: %o', error);
+        console.error('Failed to verify recover token: %o', error);
 
         $isLoading = false;
 
