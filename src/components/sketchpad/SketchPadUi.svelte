@@ -67,15 +67,21 @@
     changeLineThickness(thickness, toolId);
   };
 
+  function selectIllustration ({ detail: title }) {
+    eraseAll();
+
+    dispatch('select-illustration', title);
+  };
+
+  function selectTool (toolId) {
+    dispatch('select-tool', toolId);
+  };
+
   function toggleShowImageGallery () {
     $illustrationSearchQuery = '';
 
     showImageGallery = !showImageGallery;
   };
-
-  function selectTool (toolId) {
-    dispatch('select-tool', toolId);
-  }
 </script>
 
 
@@ -183,7 +189,7 @@
 
 <ImageSelector
   show={ showImageGallery }
-  on:select-illustration
+  on:select-illustration={ selectIllustration }
   on:close={ toggleShowImageGallery }
 />
 
