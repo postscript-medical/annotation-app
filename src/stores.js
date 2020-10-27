@@ -13,7 +13,7 @@ export const protectedContent = writable();
 /**
  * Header-related stores
  */
-export const openDrawer = writable(false);
+export const userSettingsDropdownDrawerOpen = writable(false);
 
 export const openShareModal = writable(false);
 
@@ -51,6 +51,8 @@ export const dpr = readable(0, set => {
 
   set(pixelRatio);
 });
+
+export const toolDrawerOpen = writable('');
 
 export const typedTextEntries = derived(
   actions,
