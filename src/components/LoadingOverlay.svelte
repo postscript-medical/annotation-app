@@ -4,11 +4,12 @@
 
   export let loading = false;
 
-  let wrapper;
   let copy;
 
-  function tween () {
+  function tween (node) {
     const tl = gsap.timeline({ paused: true });
+    const wrapper = node;
+    const logo = node.querySelector('.main-logo')
 
     tl
       .from(wrapper, {
@@ -16,7 +17,7 @@
         opacity: 0,
         ease: 'none'
       })
-      .from(['img', copy], {
+      .from([logo, copy], {
         duration: 0.3,
         y: 5,
         opacity: 0,
@@ -38,7 +39,6 @@
 { #if loading }
   <div
     class="wrapper"
-    bind:this={ wrapper }
     transition:tween
   >
     <PsLogo
