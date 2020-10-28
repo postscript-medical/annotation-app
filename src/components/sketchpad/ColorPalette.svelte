@@ -53,14 +53,8 @@
   .color-palette {
     background-color: white;
     border-radius: 1.5rem;
-  }
-
-  .color-palette > * {
-    margin-bottom: 1rem;
-  }
-
-  .color-palette > *:last-child {
-    margin-bottom: 0;
+    display: flex;
+    align-items: center;
   }
 
   svg {
@@ -69,5 +63,12 @@
 
   circle {
     stroke-width: 0.5rem;
+  }
+
+  @media screen and (min-width: 900px) {
+    .color-palette {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

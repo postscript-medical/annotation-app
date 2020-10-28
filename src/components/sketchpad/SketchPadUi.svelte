@@ -187,12 +187,11 @@
     on:change={ ({ detail }) => changeColor(detail) }
   />
 
-<ImageSelector
-  show={ showImageGallery }
-  on:select-illustration={ selectIllustration }
-  on:close={ toggleShowImageGallery }
-/>
-
+  <ImageSelector
+    show={ showImageGallery }
+    on:select-illustration={ selectIllustration }
+    on:close={ toggleShowImageGallery }
+  />
 </div>
 
 
@@ -201,14 +200,24 @@
     position: absolute;
     pointer-events: none;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: flex-end;
+    align-content: flex-end;
     left: 0;
     top: 0;
-    padding-top: 8rem;
+    padding-top: 5rem;
     height: 100%;
     width: 100%;
-    max-height: none;
+    max-height: auto;
+  }
+
+  .ui > :global(*) {
+    margin-bottom: 1rem;
+  }
+
+  .ui > :global(:not(:last-child)) {
+    margin-right: 1rem;
   }
 
   .ui > :global(:first-child) {
@@ -217,5 +226,14 @@
 
   .secondary-tool {
     padding: 0.25rem;
+  }
+
+  @media screen and (min-width: 900px) {
+    .ui {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
   }
 </style>
