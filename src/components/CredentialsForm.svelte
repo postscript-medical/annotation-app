@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import checkPasswordRequirements from '../methods/check-password-requirements.js';
+  import CredentialsTerms from './CredentialsTerms.svelte';
   import ErrorMessage from './ErrorMessage.svelte';
   import PsButton from './PsButton.svelte';
 
@@ -10,6 +11,7 @@
   export let onDark = false;
   export let showStayLogged = false;
   export let showPasswordRequirements = false;
+  export let showTerms = false;
 
   let email;
   let password;
@@ -88,7 +90,9 @@
           <span
             class="password-requirements"
           >
-            8 characters or more, at least one number and one special character
+            8 characters or more.
+            <br/>
+            Including at least one number and one special character.
           </span>
         { /if }
       </label>
@@ -111,10 +115,18 @@
         </PsButton>
       </slot>
     </form>
+    { #if showTerms }
+      <CredentialsTerms
+       { onDark }
+      />
+    { /if }
   </article>
 </div>
 
 <style>
+  form:not(:last-child) {
+    margin-bottom: 2rem;
+  }
   label {
     display: flex;
     flex-direction: column;
@@ -127,10 +139,6 @@
 
   label > :global(*:not(:last-child)) {
     margin-bottom: 0.5rem;
-  }
-
-  .cta {
-    margin-bottom: 2rem;
   }
 
   .on-dark {

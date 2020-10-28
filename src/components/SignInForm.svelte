@@ -1,5 +1,9 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import {
+    createEventDispatcher,
+    onDestroy,
+    onMount
+  } from 'svelte';
   import {
     session,
     user,
@@ -12,8 +16,10 @@
   import PsLink from './PsLink.svelte';
 
   const dispatch = createEventDispatcher();
+  const mediaQueryList = window.matchMedia('(min-width: 600px)');
 
   let errorMessage;
+  let showTerms = true;
 
   function openForgotPasswordModal() {
     dispatch('open-forgot-password-modal');
@@ -45,13 +51,31 @@
         errorMessage = error.json.error_description;
         $isLoading = false;
       })
-  }
+  };
+
+  function toggleShowTerms (queryList) {
+    if (queryList.matches) {
+        showTerms = false;
+      } else {
+        showTerms = true;
+    };
+  };
+
+  onMount(() => {
+    toggleShowTerms(mediaQueryList);
+    mediaQueryList.addListener(toggleShowTerms);
+  });
+
+  onDestroy(() => {
+    mediaQueryList.removeListener(toggleShowTerms);
+  });
 </script>
 
 <CredentialsForm
   { errorMessage }
   onDark
   showStayLogged
+  { showTerms }
   on:submit={ submit }
 >
   <h2

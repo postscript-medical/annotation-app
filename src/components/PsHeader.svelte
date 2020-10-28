@@ -44,7 +44,7 @@
 
 <style>
   header {
-    position: fixed;
+    position: absolute;
     top: 0;
     z-index: 3;
     display: flex;
@@ -52,7 +52,7 @@
     align-items: flex-end;
     height: auto;
     max-height: none;
-    padding: 2rem 2rem 0 2rem;
+    padding: 1rem 1rem 0 1rem;
     pointer-events: none;
   }
 
