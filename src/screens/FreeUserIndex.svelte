@@ -15,8 +15,22 @@
         In order to access the services provided by us, you will have to setup a subscription.
       </p>
       <p>
-        To do so, just click <ManageSubscription user={ $user }> on this link to manage your subscription</ManageSubscription>.
+        To do so, click <ManageSubscription user={ $user }> on this link to manage your subscription</ManageSubscription>.
       </p>
     </article>
   { /if }
 </main>
+
+<style>
+    main {
+      height: 100vh;
+      background-color: white;
+    }
+
+  @media screen and (min-width: 600px) {
+    main {
+      height: auto;
+      background-color: transparent;
+    }
+  }
+</style>

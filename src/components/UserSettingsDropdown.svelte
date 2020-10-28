@@ -60,6 +60,7 @@
       transition:tween
     >
       <ManageSubscription
+        onDark
         href={ $customerPortalUrl }
       />
       <SignOutButton

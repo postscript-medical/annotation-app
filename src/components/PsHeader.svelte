@@ -6,6 +6,8 @@
 
   export let user;
   export let loggedIn = false;
+  // TODO: once the subscription level is inside the user object, remove the below.
+  export let hasPaymentDetails = false;
 </script>
 
 <header
@@ -19,7 +21,7 @@
       showName={ !loggedIn }
       size={ loggedIn ? 'small' : 'large' }
     />
-    { #if loggedIn}
+    { #if loggedIn && hasPaymentDetails }
       <span
         class="sub-speciality">
         |
@@ -34,7 +36,9 @@
     <div
       class="options"
     >
-      <ButtonShare />
+      { #if hasPaymentDetails }
+        <ButtonShare />
+      { /if }
       <UserSettingsDropdown
         { user }
       />
