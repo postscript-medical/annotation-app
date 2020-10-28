@@ -116,7 +116,6 @@
 <style>
   .primary-tool {
     position: relative;
-    margin-bottom: 1rem;
   }
 
   .primary-tool:last-child {

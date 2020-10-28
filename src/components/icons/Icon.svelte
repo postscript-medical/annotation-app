@@ -10,3 +10,10 @@
 >
   <slot></slot>
 </svg>
+
+<style>
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+</style>
