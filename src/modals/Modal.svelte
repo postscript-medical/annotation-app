@@ -81,9 +81,9 @@
 
   .modal {
     background-color: white;
-    padding: 2rem 4rem;
+    padding: 1rem;
     border-radius: 1rem;
-    max-width: 80%;
+    max-width: 95%;
   }
 
   .modal-header {
@@ -96,5 +96,12 @@
     background: transparent;
     transform: translate(3rem, -1rem);
     padding: 0;
+  }
+
+  @media screen and (min-width: 600px) {
+    .modal {
+      padding: 2rem 4rem;
+      max-width: 80%;
+    }
   }
 </style>
