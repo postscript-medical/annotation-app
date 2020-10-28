@@ -81,7 +81,9 @@
         <span
           class="password-requirements"
         >
-          8 characters or more, at least one number and one special character
+          8 characters or more.
+          <br/>
+          Including at least one number and one special character.
         </span>
       </label>
       <PsButton>

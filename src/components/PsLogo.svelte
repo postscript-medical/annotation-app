@@ -18,18 +18,33 @@
 />
 
 <style>
-  .small {
-    width: 3rem;
-    height: 3.125rem;
+
+  img {
+    /* Visually align with the copy */
+    margin-left: 0.15rem;
   }
 
-  .medium {
-    width: 5.4375rem;
-    height: 5.125rem;
-  }
-
+  .small,
+  .medium,
   .large {
-    width: 7.875rem;
-    height: 7.125rem;
+    width: 4.4375rem;
+    height: 4.125rem;
+  }
+
+@media screen and (min-width: 600px) {
+    .small {
+      width: 2rem;
+      height: 2.125rem;
+    }
+
+    .medium {
+      width: 4.4375rem;
+      height: 4.125rem;
+    }
+
+    .large {
+      width: 6.875rem;
+      height: 6.125rem;
+    }
   }
 </style>

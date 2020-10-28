@@ -1,13 +1,18 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import {
+    createEventDispatcher,
+    onDestroy,
+    onMount
+  } from 'svelte';
   import { session, isLoading } from '../stores.js';
   import CredentialsForm from './CredentialsForm.svelte';
   import PsButton from './PsButton.svelte';
-  import PsLink from './PsLink.svelte';
   
   const dispatch = createEventDispatcher();
+  const mediaQueryList = window.matchMedia('(min-width: 600px)');
  
   let errorMessage;
+  let showTerms = false;
 
   function submit ({ detail }) {
     if (!$session) {
@@ -32,40 +37,29 @@
         $isLoading = false;
       });
   };
+
+  function toggleShowTerms (queryList) {
+    if (queryList.matches) {
+      showTerms = true;
+    } else {
+      showTerms = false;
+    };
+  };
+
+  onMount(() => {
+    toggleShowTerms(mediaQueryList);
+    mediaQueryList.addListener(toggleShowTerms);
+  });
+
+  onDestroy(() => {
+    mediaQueryList.removeListener(toggleShowTerms);
+  });
 </script>
 
 <CredentialsForm
   { errorMessage }
   showPasswordRequirements
+  { showTerms }
   on:submit={ submit }
   on:error={ ({ detail }) => errorMessage = detail }
->
-  <div
-    slot="footer"
-    class="footer"
-  >
-    <PsButton>
-      Sign up
-    </PsButton>
-    <div
-      class="terms"
-    >
-      <PsLink>
-        Terms
-      </PsLink>
-      <PsLink>
-        Privacy
-      </PsLink>
-    </div>
-  </div>
-</CredentialsForm>
-
-<style>
-  .footer > :global(*:not(:last-child)) {
-    margin-bottom: 4rem;
-  }
-
-  .terms > :global(*:not(:last-child)) {
-    margin-right: 2rem;
-  }
-</style>
+/>
