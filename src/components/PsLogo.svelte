@@ -24,7 +24,11 @@
     margin-left: 0.15rem;
   }
 
-  .small,
+  .small {
+    width: 2rem;
+    height: 2.125rem;
+  }
+
   .medium,
   .large {
     width: 4.4375rem;

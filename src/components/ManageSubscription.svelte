@@ -1,8 +1,10 @@
 <script>
   export let href;
+  export let onDark = false;
 </script>
 
 <a
+  class:on-dark={ onDark }
   { href }
 >
   <slot>
@@ -11,7 +13,7 @@
 </a>
 
 <style>
-  a {
+  .on-dark {
     color: white;
   }
 </style>
