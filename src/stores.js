@@ -1,5 +1,11 @@
 import { derived, readable, writable } from 'svelte/store';
-import { TOOL_TEXT } from './constants/defaults.js';
+import {
+  TOOL_TEXT,
+  VIEWPORT_PHONE,
+  VIEWPORT_TABLET,
+  VIEWPORT_LAPTOP,
+  VIEWPORT_WIDESCREEN
+} from './constants/defaults.js';
 
 export const session = writable();
 
@@ -9,6 +15,45 @@ export const user = writable();
 export const isLoading = writable(true);
 
 export const protectedContent = writable();
+
+export const viewportType = readable(VIEWPORT_PHONE, set => {
+  const mediaQueryPhone = window.matchMedia('(max-width: 599px');
+  const mediaQueryTablet = window.matchMedia('(min-width: 600px) and (max-width: 899px)');
+  const mediaQueryLaptop = window.matchMedia('(min-width: 900px) and (max-width: 1199px)');
+  const mediaQueryWideScreen = window.matchMedia('(min-width: 1200px)');
+
+  function phoneQueryChange ({ matches }) {
+    if (matches) set(VIEWPORT_PHONE);
+  };
+
+  function tabletQueryChange ({ matches }) {
+    if (matches) set(VIEWPORT_TABLET);
+  };
+  
+  function laptopQueryChange ({ matches }) {
+    if (matches) set(VIEWPORT_LAPTOP);
+  };
+  
+  function widescreenQueryChange ({ matches }) {
+    if (matches) set(VIEWPORT_WIDESCREEN);
+  };
+  
+  mediaQueryPhone.addEventListener('change', phoneQueryChange);
+  mediaQueryTablet.addEventListener('change', tabletQueryChange);
+  mediaQueryLaptop.addEventListener('change', laptopQueryChange);
+  mediaQueryWideScreen.addEventListener('change', widescreenQueryChange);
+  
+  tabletQueryChange(mediaQueryTablet);
+  laptopQueryChange(mediaQueryLaptop);
+  widescreenQueryChange(mediaQueryWideScreen);
+  
+  return () => {
+    mediaQueryPhone.removeEventListener('change', phoneQueryChange);
+    mediaQueryTablet.removeEventListener('change', tabletQueryChange);
+    mediaQueryLaptop.removeEventListener('change', laptopQueryChange);
+    mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange);
+  }
+});
 
 /**
  * Header-related stores
@@ -46,11 +91,13 @@ export const canvas = writable();
 
 export const context = writable();
 
-export const dpr = readable(0, set => {
+export const dpr = readable(1, set => {
   let pixelRatio = window.devicePixelRatio || 1;
   pixelRatio = pixelRatio < 1 ? 1 : pixelRatio;
 
   set(pixelRatio);
+
+  return () => {};
 });
 
 export const toolDrawerOpen = writable('');

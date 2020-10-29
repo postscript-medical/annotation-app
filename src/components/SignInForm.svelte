@@ -1,14 +1,14 @@
 <script>
   import {
     createEventDispatcher,
-    onDestroy,
-    onMount
   } from 'svelte';
   import {
+    isLoading,
     session,
     user,
-    isLoading
+    viewportType
   } from '../stores.js';
+  import { VIEWPORT_PHONE } from '../constants/defaults.js';
   import { STORAGE_KEY } from '../constants/session.js'
   import loadProtectedContent from '../methods/load-protected-content.js';
   import CredentialsForm from './CredentialsForm.svelte';
@@ -16,10 +16,9 @@
   import PsLink from './PsLink.svelte';
 
   const dispatch = createEventDispatcher();
-  const mediaQueryList = window.matchMedia('(min-width: 600px)');
 
   let errorMessage;
-  let showTerms = true;
+  $: showTerms = $viewportType === VIEWPORT_PHONE;
 
   function openForgotPasswordModal() {
     dispatch('open-forgot-password-modal');
@@ -53,22 +52,6 @@
       })
   };
 
-  function toggleShowTerms (queryList) {
-    if (queryList.matches) {
-        showTerms = false;
-      } else {
-        showTerms = true;
-    };
-  };
-
-  onMount(() => {
-    toggleShowTerms(mediaQueryList);
-    mediaQueryList.addListener(toggleShowTerms);
-  });
-
-  onDestroy(() => {
-    mediaQueryList.removeListener(toggleShowTerms);
-  });
 </script>
 
 <CredentialsForm

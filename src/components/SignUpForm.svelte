@@ -1,18 +1,21 @@
 <script>
   import {
     createEventDispatcher,
-    onDestroy,
-    onMount
   } from 'svelte';
-  import { session, isLoading } from '../stores.js';
+  import {
+    isLoading,
+    session,
+    viewportType
+  } from '../stores.js';
+  import { VIEWPORT_PHONE } from '../constants/defaults.js';
   import CredentialsForm from './CredentialsForm.svelte';
   import PsButton from './PsButton.svelte';
   
   const dispatch = createEventDispatcher();
-  const mediaQueryList = window.matchMedia('(min-width: 600px)');
  
   let errorMessage;
-  let showTerms = false;
+
+  $: showTerms = $viewportType !== VIEWPORT_PHONE;
 
   function submit ({ detail }) {
     if (!$session) {
@@ -37,23 +40,6 @@
         $isLoading = false;
       });
   };
-
-  function toggleShowTerms (queryList) {
-    if (queryList.matches) {
-      showTerms = true;
-    } else {
-      showTerms = false;
-    };
-  };
-
-  onMount(() => {
-    toggleShowTerms(mediaQueryList);
-    mediaQueryList.addListener(toggleShowTerms);
-  });
-
-  onDestroy(() => {
-    mediaQueryList.removeListener(toggleShowTerms);
-  });
 </script>
 
 <CredentialsForm

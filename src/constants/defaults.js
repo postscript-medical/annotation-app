@@ -35,6 +35,15 @@ export const TOOL_SHAPE = 'shape';
 
 export const TOOL_TEXT = 'text';
 
+export const VIEWPORT_PHONE = 'phone';
+
+export const VIEWPORT_TABLET = 'tablet';
+
+export const VIEWPORT_LAPTOP = 'laptop';
+
+export const VIEWPORT_WIDESCREEN = 'wide';
+
+
 export const EVENTS_TOUCH = {
   down: 'touchstart',
   move: 'touchmove',
