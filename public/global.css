@@ -1,15 +1,16 @@
-html {
-  font-size: 16px;
-}
-html, body {
-  box-sizing: border-box;
-  position: relative;
-  width: 100%;
-  min-height: 100%;
-}
-
 *, *:before, *:after {
   box-sizing: inherit;
+}
+
+html, body {
+  position: relative;
+  height: 100%;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+  overflow: hidden;
 }
 
 body {
@@ -19,6 +20,7 @@ body {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   user-select: none;
   touch-action: none;
+  overflow-y: auto;
 }
 
 .ps-app {
@@ -33,6 +35,7 @@ body {
       white 52.5%,
       rgb(55, 154, 70) 52.5%
     );
+  min-height: 100%;
 }
 
 main {

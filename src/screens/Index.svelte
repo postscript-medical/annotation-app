@@ -32,36 +32,38 @@
   }
 </script>
 
-<main
-  class="main-grid main-content central-align"
->
-  { #if showSignUpForm }
-    <SignUpForm
-      on:user-created={ showThankYou }
+<div class="ps-app">
+  <main
+    class="main-grid main-content central-align"
+  >
+    { #if showSignUpForm }
+      <SignUpForm
+        on:user-created={ showThankYou }
+      />
+    { :else }
+      <div></div>
+    { /if }
+
+    <SignInForm
+      on:open-forgot-password-modal={ openForgotPasswordModal}
     />
-  { :else }
-    <div></div>
+  </main>
+
+  { #if userEmail }
+    <SignUpConfirmed
+      { userEmail }
+    />
   { /if }
 
-  <SignInForm
-    on:open-forgot-password-modal={ openForgotPasswordModal}
-  />
-</main>
+  { #if showEmailConfirmed }
+    <EmailConfirmedModal
+      on:confirm={ confirmationAcknoleged }
+    />
+  { /if }
 
-{ #if userEmail }
-  <SignUpConfirmed
-    { userEmail }
-  />
-{ /if }
-
-{ #if showEmailConfirmed }
-  <EmailConfirmedModal
-    on:confirm={ confirmationAcknoleged }
-  />
-{ /if }
-
-{ #if showForgotPasswordModal }
-  <ForgotPasswordModal
-    on:close={ closeForgottenPasswordModal }
-  />
-{ /if }
+  { #if showForgotPasswordModal }
+    <ForgotPasswordModal
+      on:close={ closeForgottenPasswordModal }
+    />
+  { /if }
+</div>

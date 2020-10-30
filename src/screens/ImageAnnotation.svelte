@@ -127,39 +127,45 @@
   });
 </script>
 
-<main>
-    <SketchPad
-      { pen }
-      { shape }
-      { selectedTool }
-      { selectedToolId }
-      on:select-tool={ selectTool }
-    />
-    <SketchPadUi
-      { eraser }
-      { pen }
-      { selectedToolId }
-      { shape }
-      on:change-thickness={ changeLineThickness }
-      on:change-color={ changePenColor }
-      on:change-shape={ changeShapeType }
-      on:select-illustration={ selectIllustration }
-      on:select-tool={ selectTool }
-    />
-</main>
+<div class="ps-app">
+  <main>
+      <SketchPad
+        { pen }
+        { shape }
+        { selectedTool }
+        { selectedToolId }
+        on:select-tool={ selectTool }
+      />
+      <SketchPadUi
+        { eraser }
+        { pen }
+        { selectedToolId }
+        { shape }
+        on:change-thickness={ changeLineThickness }
+        on:change-color={ changePenColor }
+        on:change-shape={ changeShapeType }
+        on:select-illustration={ selectIllustration }
+        on:select-tool={ selectTool }
+      />
+  </main>
 
-{ #if $openShareModal }
-  <ShareModal
-    on:close={ () => $openShareModal = false }
-  />
-{ /if }
+  { #if $openShareModal }
+    <ShareModal
+      on:close={ () => $openShareModal = false }
+    />
+  { /if }
+</div>
 
 <style>
+  .ps-app {
+    height: 100%;
+  }
+
   main {
     background: rgb(250,250,250);
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
   }
 </style>
