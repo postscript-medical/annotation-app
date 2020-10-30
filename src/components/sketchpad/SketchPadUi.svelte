@@ -187,12 +187,13 @@
     on:change={ ({ detail }) => changeColor(detail) }
   />
 
-  <ImageSelector
-    show={ showImageGallery }
-    on:select-illustration={ selectIllustration }
-    on:close={ toggleShowImageGallery }
-  />
 </div>
+
+<ImageSelector
+  show={ showImageGallery }
+  on:select-illustration={ selectIllustration }
+  on:close={ toggleShowImageGallery }
+/>
 
 
 <style>
@@ -206,22 +207,21 @@
     align-content: flex-end;
     left: 0;
     top: 0;
-    padding-top: 5rem;
     height: 100%;
     width: 100%;
     max-height: auto;
   }
 
-  .ui > :global(*) {
-    margin-top: 1rem;
-  }
-
   .ui > :global(:not(:first-child)) {
     margin-left: 1rem;
+    margin-top: 1rem;
   }
 
   .ui > :global(:first-child) {
     z-index: 10;
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 
   .secondary-tool {
@@ -236,13 +236,20 @@
       align-content: flex-start;
     }
 
-  .ui > :global(*) {
-    margin-bottom: 1rem;
-    margin-top: 0;
-  }
+    .ui > :global(*) {
+      margin-bottom: 1rem;
+      margin-top: 0;
+    }
 
-  .ui > :global(:not(:first-child)) {
-    margin-left: 0;
-  }
+    .ui > :global(:not(:first-child)) {
+      margin-left: 0;
+      margin-top: 0;
+    }
+
+    .ui > :global(:first-child) {
+      position: relative;
+      left: auto;
+      top: auto;
+    }
   }
 </style>
