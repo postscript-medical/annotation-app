@@ -39,6 +39,10 @@
     if (!isSelected) {
       dispatch('change-primary', newTool);
     }
+
+    if (showSecondaryTools) {
+      $toolDrawerOpen = '';
+    }
   }
 
   function changeSecondary (value, id) {
