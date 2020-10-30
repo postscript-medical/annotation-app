@@ -234,12 +234,7 @@
   };
 
   function onPointerUp(event) {
-    if (hasPointer && !isNaN(pointerLocation.id) && pointerLocation.id === event.pointerId) {
-      pointerLocation = {
-        ...pointerLocation,
-        id: undefined,
-      };
-    };
+    resetPointerLocationId();
 
     stopDrawing();
   };
@@ -335,6 +330,13 @@
     }
   };
 
+  function resetPointerLocationId () {
+    pointerLocation = {
+      ...pointerLocation,
+      id: undefined,
+    };
+  };
+
   function resizeCanvas () {
     // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
     const oldSize = { width: $canvas.width, height: $canvas.height };
@@ -397,6 +399,8 @@
 
   function toggleTypedTextDrag ({ detail }) {
     dragTypedText = detail;
+
+    resetPointerLocationId();
   }; 
 
   function typedTextDragBox () {

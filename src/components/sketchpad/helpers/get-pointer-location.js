@@ -1,6 +1,6 @@
 export default function getPointerLocation (event, location, hasPointer) {  
   if (hasPointer) {
-    if (location.id && location.id !== event.pointerId) return;
+    if (location.id && (location.id !== event.pointerId)) return;
 
     location.x = event.clientX;
     location.y = event.clientY;
