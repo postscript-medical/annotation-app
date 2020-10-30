@@ -213,11 +213,11 @@
   }
 
   .ui > :global(*) {
-    margin-bottom: 1rem;
+    margin-top: 1rem;
   }
 
-  .ui > :global(:not(:last-child)) {
-    margin-right: 1rem;
+  .ui > :global(:not(:first-child)) {
+    margin-left: 1rem;
   }
 
   .ui > :global(:first-child) {
@@ -225,7 +225,7 @@
   }
 
   .secondary-tool {
-    padding: 0.25rem;
+    padding: 0.5rem;
   }
 
   @media screen and (min-width: 900px) {
@@ -235,5 +235,14 @@
       align-items: flex-start;
       align-content: flex-start;
     }
+
+  .ui > :global(*) {
+    margin-bottom: 1rem;
+    margin-top: 0;
+  }
+
+  .ui > :global(:not(:first-child)) {
+    margin-left: 0;
+  }
   }
 </style>
