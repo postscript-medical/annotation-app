@@ -11,7 +11,7 @@
 </script>
 
 <div
-  class="color-palette shadow"
+  class="colors-palette shadow"
 >
   { #each colors as color }
     <label
@@ -50,7 +50,7 @@
 </div>
 
 <style>
-  .color-palette {
+  .colors-palette {
     background-color: white;
     border-radius: 1.5rem;
     display: flex;
@@ -66,7 +66,7 @@
   }
 
   @media screen and (min-width: 900px) {
-    .color-palette {
+    .colors-palette {
       flex-direction: column;
       align-items: flex-start;
     }

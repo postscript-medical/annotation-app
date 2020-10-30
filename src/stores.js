@@ -21,6 +21,7 @@ export const viewportType = readable(VIEWPORT_PHONE, set => {
   const mediaQueryTablet = window.matchMedia('(min-width: 600px) and (max-width: 899px)');
   const mediaQueryLaptop = window.matchMedia('(min-width: 900px) and (max-width: 1199px)');
   const mediaQueryWideScreen = window.matchMedia('(min-width: 1200px)');
+  const hasEventListenerType = mediaQueryPhone.addEventListener;
 
   function phoneQueryChange ({ matches }) {
     if (matches) set(VIEWPORT_PHONE);
@@ -37,21 +38,23 @@ export const viewportType = readable(VIEWPORT_PHONE, set => {
   function widescreenQueryChange ({ matches }) {
     if (matches) set(VIEWPORT_WIDESCREEN);
   };
-  
-  mediaQueryPhone.addEventListener('change', phoneQueryChange);
-  mediaQueryTablet.addEventListener('change', tabletQueryChange);
-  mediaQueryLaptop.addEventListener('change', laptopQueryChange);
-  mediaQueryWideScreen.addEventListener('change', widescreenQueryChange);
-  
+
+  /* iOS does not seem to currently support 'addEventListener' */
+  hasEventListenerType ? mediaQueryPhone.addEventListener('change', phoneQueryChange) : mediaQueryPhone.addListener(phoneQueryChange) ;
+  hasEventListenerType ? mediaQueryTablet.addEventListener('change', tabletQueryChange) : mediaQueryTablet.addListener(tabletQueryChange) ;
+  hasEventListenerType ? mediaQueryLaptop.addEventListener('change', laptopQueryChange) : mediaQueryLaptop.addListener(laptopQueryChange) ;
+  hasEventListenerType ? mediaQueryWideScreen.addEventListener('change', widescreenQueryChange) : mediaQueryWideScreen.addListener(widescreenQueryChange) ;
+
+  phoneQueryChange(mediaQueryPhone);
   tabletQueryChange(mediaQueryTablet);
   laptopQueryChange(mediaQueryLaptop);
   widescreenQueryChange(mediaQueryWideScreen);
-  
+
   return () => {
-    mediaQueryPhone.removeEventListener('change', phoneQueryChange);
-    mediaQueryTablet.removeEventListener('change', tabletQueryChange);
-    mediaQueryLaptop.removeEventListener('change', laptopQueryChange);
-    mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange);
+    hasEventListenerType ? mediaQueryPhone.removeEventListener('change', phoneQueryChange) : mediaQueryPhone.removeListener(phoneQueryChange);
+    hasEventListenerType ? mediaQueryTablet.removeEventListener('change', tabletQueryChange) : mediaQueryTablet.removeListener(tabletQueryChange);
+    hasEventListenerType ? mediaQueryLaptop.removeEventListener('change', laptopQueryChange) : mediaQueryLaptop.removeListener(laptopQueryChange);
+    hasEventListenerType ? mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange) : mediaQueryWideScreen.removeListener(widescreenQueryChange);
   }
 });
 
