@@ -164,7 +164,9 @@ svg {
 }
 
 .main-content {
-  padding: 8rem 1rem 1rem;
+  border-width: 5rem 1rem 0.5rem 1rem;
+  border-style: solid;
+  border-color: transparent;
 }
 
 .link-style {
@@ -284,10 +286,6 @@ select:disabled:hover, select[aria-disabled=true] {
   .main-grid {
     grid-template-columns: 45fr 57.5fr;
     grid-gap: 0 8rem;
-  }
-
-  .main-content {
-    padding-top: 10rem;
   }
 }
 

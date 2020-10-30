@@ -66,8 +66,6 @@
     display: grid;
     gap: 2rem 1rem;
     grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
-    margin-bottom: 1rem;
-    padding: 0.25rem;
   }
 
   .card {
@@ -83,5 +81,12 @@
 
   .card > :global(:not(:last-child)) {
     margin-bottom: 1rem;
+  }
+
+  @media screen and (min-width: 900px) {
+    .images-grid {
+      grid-row: 2 / span 3;
+      grid-column-start: 2;
+    }
   }
 </style>
