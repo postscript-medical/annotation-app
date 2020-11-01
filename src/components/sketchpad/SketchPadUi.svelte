@@ -210,6 +210,7 @@
     height: 100%;
     width: 100%;
     max-height: auto;
+    border-top-width: 5.5rem;
   }
 
   .ui > :global(:not(:first-child)) {
