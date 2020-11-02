@@ -146,7 +146,8 @@
 
 
 <PsHeader
-  loggedIn={ hasPaymentDetails }
+  loggedIn={ !!$user }
+  { hasPaymentDetails }
   user={ $user }
 />
 
