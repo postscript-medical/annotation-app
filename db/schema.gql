@@ -1,13 +1,30 @@
+type Organization {
+  email: String!
+  level: [String!]!
+  maxSpecialties: Int!
+  maxUsers: Int!
+  specialties: [String!]!
+  stripeId: ID!
+  teams: [Team!]! @relation
+}
+
+type Team {
+  members: [User!]! @relation
+  name: String!
+  organization: Organization!
+}
+
 type User {
-  netlifyID: ID!
-  stripeID: ID!
-  subscriptionActive: Boolean!
-  showTutorial: Boolean!
+  email: String!
   firstName: String
   lastName: String
+  netlifyId: ID!
+  role: String!
+  showTutorial: Boolean!
+  team: Team!
 }
 
 type Query {
-  getUserByNetlifyID(netlifyID: ID!): User!
-  getUserByStripeID(stripeID: ID!): User!
+  getSubscriptionById(stripeId: ID!): Organization!
+  getUserById(netlifyId: ID!): User!
 }
