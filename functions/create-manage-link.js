@@ -17,10 +17,10 @@ exports.handler = async (_, context) => {
     },
   });
 
-  const { stripeID } = result.data.getOrganizationByEmail;
+  const { stripeId } = result.data.getOrganizationByEmail;
 
   const link = await stripe.billingPortal.sessions.create({
-    customer: stripeID,
+    customer: stripeId,
     return_url: process.env.URL,
   });
 
