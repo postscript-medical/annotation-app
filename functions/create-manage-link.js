@@ -6,14 +6,14 @@ exports.handler = async (_, context) => {
 
   const result = await faunaFetch({
     query: `
-      query ($email: ID!) {
+      query ($email: String!) {
         getOrganizationByEmail(email: $email) {
           stripeId
         }
       }
     `,
     variables: {
-      netlifyID: user.email,
+      email: user.email,
     },
   });
 
