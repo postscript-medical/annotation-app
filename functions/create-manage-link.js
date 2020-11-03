@@ -6,18 +6,18 @@ exports.handler = async (_, context) => {
 
   const result = await faunaFetch({
     query: `
-      query ($netlifyID: ID!) {
-        getUserByNetlifyID(netlifyID: $netlifyID) {
-          stripeID
+      query ($email: ID!) {
+        getOrganizationByEmail(email: $email) {
+          stripeId
         }
       }
     `,
     variables: {
-      netlifyID: user.sub,
+      netlifyID: user.email,
     },
   });
 
-  const { stripeID } = result.data.getUserByNetlifyID;
+  const { stripeID } = result.data.getOrganizationByEmail;
 
   const link = await stripe.billingPortal.sessions.create({
     customer: stripeID,
