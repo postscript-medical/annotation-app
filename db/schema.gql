@@ -25,6 +25,7 @@ type User {
 }
 
 type Query {
-  getSubscriptionById(stripeId: ID!): Organization!
+  getOrganizationById(stripeId: ID!): Organization!
   getUserById(netlifyId: ID!): User!
+  getUserByEmail(email: String!): User!
 }
