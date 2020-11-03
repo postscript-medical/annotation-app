@@ -26,6 +26,7 @@ type User {
 
 type Query {
   getOrganizationById(stripeId: ID!): Organization!
+  getOrganizationByEmail(email: String!): Organization!
   getUserById(netlifyId: ID!): User!
   getUserByEmail(email: String!): User!
 }
