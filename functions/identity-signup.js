@@ -24,9 +24,9 @@ exports.handler = async event => {
           maxSpecialties: 1
           maxUsers: 1
           name: "My organization"
-          specialties:{ connect: "281261992610628101" }
+          specialties:{ connect: "281280811957748229" }
           stripeID: $stripeID
-          subscriptionType: "inactive"
+          subscriptionLevel: "inactive"
           teams: {
             create: [{
               name: "My team",
@@ -50,7 +50,7 @@ exports.handler = async event => {
       email: user.email,
       netlifyID: user.id,
       stripeID: customer.id,
-      role,
+      role
     },
   });
 
