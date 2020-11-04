@@ -1,7 +1,6 @@
 <script>
   import {
     userSettingsDropdownDrawerOpen,
-    customerPortalUrl
   } from '../stores.js';
   import SignOutButton from './SignOutButton.svelte';
   import ButtonIcon from './sketchpad/ButtonIcon.svelte';
@@ -61,7 +60,6 @@
     >
       <ManageSubscription
         onDark
-        href={ $customerPortalUrl }
       />
       <SignOutButton
         asLink

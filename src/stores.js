@@ -58,6 +58,7 @@ export const viewportType = readable(VIEWPORT_PHONE, set => {
   }
 });
 
+export const organization = writable();
 /**
  * Header-related stores
  */
@@ -66,15 +67,24 @@ export const userSettingsDropdownDrawerOpen = writable(false);
 export const openShareModal = writable(false);
 
 export const customerPortalUrl = derived(
-  user, 
-  ($user, set) => {
-    if (!$user) return;
+  [
+    user,
+    organization
+  ], 
+  ([
+    $user,
+    $organization
+  ], set) => {
+    if (!$user || !$organization) return;
 
     fetch('/.netlify/functions/create-manage-link', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${$user.token.access_token}`,
       },
+      body: JSON.stringify({
+        stripeID: $organization.stripeID
+      })
     })
     .then(response => response.json())
     .then(link => {

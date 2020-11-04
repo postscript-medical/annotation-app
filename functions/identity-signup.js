@@ -19,21 +19,21 @@ exports.handler = async event => {
   // Create a brand new organization in Fauna
   await faunaFetch({
     query: `
-      mutation CreateAnOrganization ($email: String! $netlifyId: ID! $stripeId: ID! $role: String!) {
+      mutation ($email: String! $netlifyID: ID! $stripeID: ID! $role: String!) {
         createOrganization(data: {
-          email: $email
-          level: "inactive"
           maxSpecialties: 1
           maxUsers: 1
-          specialties:["oncology"]
-          stripeId: $stripeId
+          name: "My organization"
+          specialties:{ connect: "281261992610628101" }
+          stripeID: $stripeID
+          subscriptionType: "inactive"
           teams: {
             create: [{
-              name: "Default team",
+              name: "My team",
               members: {
                 create: [{
                   email: $email
-                  netlifyId: $netlifyId
+                  netlifyID: $netlifyID
                   role: $role
                   showTutorial: true
                 }]
@@ -42,15 +42,15 @@ exports.handler = async event => {
           }
         }) {
           _id
-          email
+          name
         }
       }
     `,
     variables: {
       email: user.email,
-      netlifyId: user.id,
-      stripeId: customer.id,
-      role
+      netlifyID: user.id,
+      stripeID: customer.id,
+      role,
     },
   });
 

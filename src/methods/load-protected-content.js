@@ -1,4 +1,5 @@
 import {
+  organization,
   protectedContent,
   selectedSpecialty,
   selectedSubSpecialty,
@@ -25,15 +26,20 @@ export default async function (user) {
        * { copy: 'Not allowed' }
        * whenever if the user requested does not exist.
        */
-      if (!data.copy) {
-        const userDefinedImage = data.subscription.images.find(({ title }) => title === user.user_metadata.illustrationTitle);
-        const defaultImage = data.subscription.images.find(image => image.default);
-
-        selectedIllustrationTitle.set((userDefinedImage || defaultImage || data.subscription.images[0]).title);
-        selectedSpecialty.set(data.subscription.specialties[0]);
-        selectedSubSpecialty.set(data.subscription.subSpecialties[0]);
+      if (data.copy) {
+        // TODO: show error
+        return;
       }
-      protectedContent.set(data)
+      organization.set({ ...data.team.organization })
+      // if (!data.copy) {
+      //   const userDefinedImage = data.subscription.images.find(({ title }) => title === user.user_metadata.illustration && user.user_metadata.illustration.title);
+      //   const defaultImage = data.subscription.images.find(image => image.default);
+
+      //   selectedIllustrationTitle.set((userDefinedImage || defaultImage || data.subscription.images[0]).title);
+      //   selectedSpecialty.set(data.subscription.specialties[0]);
+      //   selectedSubSpecialty.set(data.subscription.subSpecialties[0]);
+      // }
+      // protectedContent.set(data)
     })
     .catch(error => {
       console.error('Error', error);

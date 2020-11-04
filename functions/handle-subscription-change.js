@@ -16,14 +16,11 @@ exports.handler = async ({ body, headers }, context) => {
     if (stripeEvent.type !== 'customer.subscription.updated') return;
 
     const subscription = stripeEvent.data.object;
-
-    console.log('subscription', subscription)
-
     const result = await faunaFetch({
       query: `
           query ($email: String!) {
-            getUserByEmail (email: $email) {
-              netlifyId
+            findUserByEmail (email: $email) {
+              netlifyID
             }
           }
         `,
@@ -31,8 +28,7 @@ exports.handler = async ({ body, headers }, context) => {
         email: subscription.customer,
       },
     });
-
-    const { netlifyID } = result.data.getOrganizationById;
+    const { netlifyID } = result.data.findOrganizationBystripeID;
     const productID = subscription.items.data[0].plan.product;
     const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 

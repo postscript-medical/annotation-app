@@ -4,6 +4,7 @@
     session,
     user,
     isLoading,
+    organization,
     protectedContent,
   } from './stores.js';
   import {
@@ -22,7 +23,7 @@
   let showResetPasswordModal = false;
   let hasPaymentDetails = false;
 
-  $: hasPaymentDetails = $user && !!($user.app_metadata.roles.find(role => SUBSCRIPTION_PLANS_PAID.includes(role)));
+  $: hasPaymentDetails = $organization && !!($organization.subscriptionLevel !== 'inactive');
   $: showTutorial = $protectedContent && $protectedContent.user.showTutorial;
 
   function closeResetPasswordModal () {
