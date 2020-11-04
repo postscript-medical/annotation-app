@@ -16,7 +16,7 @@
           In order to access the services provided by us, you will have to setup a subscription.
         </p>
         <p>
-          To do so, click <ManageSubscription user={ $user }> on this link to manage your subscription</ManageSubscription>.
+          To do so, click <ManageSubscription> on this link to manage your subscription</ManageSubscription>.
         </p>
       </article>
     { /if }

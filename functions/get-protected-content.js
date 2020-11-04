@@ -1,21 +1,33 @@
 
 const { faunaFetch } = require('./utils/fauna');
-const { PROTECTED_CONTENT } = require('./constants');
+// const { PROTECTED_CONTENT } = require('./constants');
 
-exports.handler = async (event, context) => {
-  const { subscriptionLevels } = JSON.parse(event.body);
+exports.handler = async (_, context) => {
+  // const { subscriptionLevels } = JSON.parse(event.body);
   const { user } = context.clientContext;
-  const subscription = user ? user.app_metadata.roles[0] : false; /* the assumption for now is that a user will only have a single role associated with it */
-  const subscriptionContent = PROTECTED_CONTENT[subscription];
+  // const subscription = user ? user.app_metadata.roles[0] : false; /* the assumption for now is that a user will only have a single role associated with it */
+  // const subscriptionContent = PROTECTED_CONTENT[subscription];
+
+  console.log('user', user);
 
   try {
     const result = await faunaFetch({
       query: `
         query ($netlifyID: ID!) {
-          getUserByNetlifyID(netlifyID: $netlifyID) {
-            firstName
+          findUserByNetlifyID(netlifyID: $netlifyID) {
             showTutorial
-            subscriptionActive
+            role
+            team {
+              organization {
+                maxSpecialties
+                specialties {
+                  data {
+                    name
+                  }
+                }
+                stripeID
+              }
+            }
           }
         }
       `,
@@ -24,20 +36,19 @@ exports.handler = async (event, context) => {
       }
     });
 
-    if (!subscription || !subscriptionContent) {
-      return {
-        statusCode: 402,
-        body: JSON.stringify({
-          copy: 'Not allowed.'
-        })
-      }
-    }
+    // if (!subscription || !subscriptionContent) {
+    //   return {
+    //     statusCode: 402,
+    //     body: JSON.stringify({
+    //       copy: 'Not allowed.'
+    //     })
+    //   }
+    // }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        user: result.data.getUserByNetlifyID,
-        subscription: subscriptionContent
+        ...result.data.findUserByNetlifyID,
       }),
     };
   } catch (error) {

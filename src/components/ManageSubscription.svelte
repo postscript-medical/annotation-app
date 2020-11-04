@@ -1,11 +1,12 @@
 <script>
-  export let href;
+  import { customerPortalUrl } from '../stores.js';
+
   export let onDark = false;
 </script>
 
 <a
   class:on-dark={ onDark }
-  { href }
+  href={ $customerPortalUrl }
 >
   <slot>
     Manage subscription
