@@ -5,6 +5,8 @@
   import {
     openShareModal,
     selectedIllustrationTitle,
+    selectedSpecialty,
+    selectedSubSpecialty,
     user
   } from '../stores.js';
   import {
@@ -97,8 +99,18 @@
   };
 
   function selectIllustration ({ detail: illustrationTitle}) {
+    updateUserAppMetadata(illustrationTitle);
+
+    tweenOut(() => $selectedIllustrationTitle = illustrationTitle);
+  };
+
+  function selectTool ({ detail: toolId }) {
+    selectedToolId = toolId;
+  };
+
+  function updateUserAppMetadata (illustrationTitle) {
     /*
-    * This is adding the illustrationTitle to Netlify's user.user_metadata.
+    * This is adding information to Netlify's user.user_metadata.
     * We need to be very careful here as currently there is no way to remove this data
     * once it is stored there. At some point in the future we should store this somewhere else.
     * Right now it does not seem like a great idea as we don't want to run a Lambda function
@@ -107,20 +119,18 @@
     $user
       .update({
         data: {
-          illustrationTitle
+          illustration: {
+            name: illustrationTitle,
+            specialty: $selectedSpecialty,
+            subSpecialty:$selectedSubSpecialty
+          }
         }
       })
       .then(updatedUser => {
         $user = updatedUser
       })
       .catch(error => console.error(error));
-
-    tweenOut(() => $selectedIllustrationTitle = illustrationTitle);
-  };
-
-  function selectTool ({ detail: toolId }) {
-    selectedToolId = toolId;
-  };
+  }
 
   onMount(() => {
     selectTool({ detail: TOOL_PEN });
