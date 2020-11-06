@@ -27,12 +27,20 @@ type User {
 type Specialty {
     name: String!
     organization: [Organization] @relation
-    subSpecialties: [SubSpecialty] @relation
+    subSpecialties: [SubSpecialty] @relation(name: "sub_specialty")
 }
 
 type SubSpecialty {
   name: String!
-  specialty: Specialty
+  specialties: [Specialty!]! @relation(name: "sub_specialty")
+  illustrations: [Illustration] @relation
+}
+
+type Illustration {
+  name: String!
+  src: String!
+  default: Boolean
+  subSpecialties: [SubSpecialty] @relation
 }
 
 type Query {

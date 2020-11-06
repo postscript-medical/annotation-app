@@ -24,7 +24,7 @@
   let hasPaymentDetails = false;
 
   $: hasPaymentDetails = $organization && !!($organization.subscriptionLevel !== 'inactive');
-  $: showTutorial = $protectedContent && $protectedContent.user.showTutorial;
+  $: showTutorial = $protectedContent && $protectedContent.showTutorial;
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;

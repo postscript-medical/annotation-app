@@ -1,5 +1,7 @@
 import { derived, readable, writable } from 'svelte/store';
 import {
+  DEFAULT_SELECTED_SPECIALTY,
+  DEFAULT_SELECTED_SUB_SPECIALTY,
   TOOL_TEXT,
   VIEWPORT_PHONE,
   VIEWPORT_TABLET,
@@ -10,6 +12,7 @@ import {
 export const session = writable();
 
 // Investigate: We want to reactively trigger a loadProtectedContent when the user is updated > use derived stores
+// no we might not want as we update the user every time they select an image/specialty/subSpecialty
 export const user = writable();
 
 export const isLoading = writable(true);
@@ -58,7 +61,11 @@ export const viewportType = readable(VIEWPORT_PHONE, set => {
   }
 });
 
-export const organization = writable();
+export const organization = derived(
+  protectedContent,
+  $protectedContent => $protectedContent && $protectedContent.team.organization
+);
+
 /**
  * Header-related stores
  */
@@ -132,62 +139,62 @@ export const illustrationLoaded = writable(false);
 
 export const illustrationDisplayed = writable();
 
-export const selectedSpecialty = writable();
+export const selectedSpecialty = writable(DEFAULT_SELECTED_SPECIALTY);
 
-export const selectedSubSpecialty = writable();
+export const selectedSubSpecialty = writable(DEFAULT_SELECTED_SUB_SPECIALTY);
 
 export const specialties = derived(
   protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.subscription.specialties : ''
+  $protectedContent => {
+    return $protectedContent ? $protectedContent.team.organization.specialties : false
+  }
 );
 
 export const subSpecialties = derived(
-  protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.subscription.subSpecialties : ''
+  [
+    selectedSpecialty,
+    specialties
+  ],
+  ([
+    $selectedSpecialty,
+    $specialties
+  ]) => {
+    return $specialties && $specialties.find(({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()).subSpecialties
+  }
 );
 
 export const illustrations = derived(
-  protectedContent,
-  $protectedContent => $protectedContent ? $protectedContent.subscription.images : [] /* probably rename the property to illustrations as well */
+  [
+    selectedSubSpecialty,
+    subSpecialties
+  ],
+  ([
+    $selectedSubSpecialty,
+    $subSpecialties
+  ]) => {
+    return $subSpecialties && $subSpecialties.find(({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()).illustrations
+  }
 );
 
 const redirectPath = 'images';
 const imageSize = '1920x1080'
 export const illustrationsPath = derived(
   selectedSpecialty,
-  $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/${$selectedSpecialty.toLowerCase()}/${imageSize}/` : ''
+  $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/${imageSize}/` : ''
 );
 
-export const preFilteredIllustrations = derived(
-  [
-    illustrations,
-    selectedSpecialty,
-    selectedSubSpecialty
-  ],
-  ([
-    $illustrations,
-    $selectedSpecialty,
-    $selectedSubSpecialty
-  ]) => $illustrations
-    .filter(({ specialties }) => specialties
-      .filter(specialty => specialty.toLowerCase() === $selectedSpecialty.toLowerCase())
-    )
-    .filter(({ subSpecialties }) => subSpecialties
-      .filter(subSpecialty => subSpecialty.toLowerCase() === $selectedSubSpecialty.toLowerCase())
-    )
-);
 
 export const filteredIllustrations = derived(
   [
-    preFilteredIllustrations,
+    illustrations,
     illustrationSearchQuery
   ],
   ([
-    $preFilteredIllustrations,
+    $illustrations,
     $illustrationSearchQuery
   ]) => $illustrationSearchQuery
-    ? $preFilteredIllustrations.filter(({ title }) => title.toLowerCase().includes($illustrationSearchQuery.toLowerCase()))
-    : $preFilteredIllustrations
+    ? $illustrations.filter(({ name }) => name.toLowerCase().includes($illustrationSearchQuery.toLowerCase()))
+    : $illustrations
 );
 
 export const selectedIllustration = derived(
@@ -201,7 +208,7 @@ export const selectedIllustration = derived(
     $illustrationsPath,
     $selectedIllustrationTitle
   ]) => {
-    const illustration = $illustrations.find(({ title }) => title === $selectedIllustrationTitle)
+    const illustration = $illustrations && $illustrations.find(({ name }) => name.toLowerCase() === $selectedIllustrationTitle.toLowerCase());
 
     return illustration
     ? {

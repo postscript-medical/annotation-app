@@ -1,7 +1,17 @@
 <script>
   import {
+    DEFAULT_SELECTED_SPECIALTY,
+    DEFAULT_SELECTED_SUB_SPECIALTY,
+  } from '../constants/defaults.js';
+  import {
     actions,
     isLoading,
+    illustrationSearchQuery,
+    illustrationLoaded,
+    protectedContent,
+    selectedIllustrationTitle,
+    selectedSpecialty,
+    selectedSubSpecialty,
     user,
   } from '../stores.js';
   import { STORAGE_KEY } from '../constants/session.js'
@@ -17,15 +27,8 @@
     $user
       .logout()
       .then(response => {
-        $user = null;
 
-        loadProtectedContent($user);
-
-        window.sessionStorage.removeItem(STORAGE_KEY);
-
-        $actions = [];
-
-        closeUserSettingsDropdown();
+        clearLocalApplicationData();
 
         $isLoading = false;
       })
@@ -33,6 +36,21 @@
         console.error('Error:', error);
       });
   };
+
+  function clearLocalApplicationData () {
+    $actions = [];
+    $protectedContent = null;
+    $illustrationSearchQuery = '';
+    $illustrationLoaded = false;
+    $selectedIllustrationTitle = null;
+    $selectedSpecialty = DEFAULT_SELECTED_SPECIALTY;
+    $selectedSubSpecialty = DEFAULT_SELECTED_SUB_SPECIALTY;
+    $user = null;
+
+    closeUserSettingsDropdown();
+
+    window.sessionStorage.removeItem(STORAGE_KEY);
+  }
 </script>
 
 <PsButton

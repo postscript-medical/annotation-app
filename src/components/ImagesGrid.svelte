@@ -10,7 +10,7 @@
   export let images = [];
   let nativeLoading = false;
 
-  const URL_PATH = 'images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/gastroenterology/';
+  const URL_PATH = 'images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/';
   const IMAGE_SIZE = '1920x1080/';
   const dispatch = createEventDispatcher();
 
@@ -36,10 +36,10 @@
   </div>
 { :else }
 <div class="images-grid">
-  { #each images as image (image.title) }
+  { #each images as image (image.name) }
     <button
       class="card"
-      on:click={ selectIllustration(image.title) }
+      on:click={ selectIllustration(image.name) }
     >
       <IntersectionObserver
         once
@@ -48,12 +48,12 @@
         {#if nativeLoading || intersecting}
           <ImagesGridThumbnail
             src={ URL_PATH + IMAGE_SIZE + image.src }
-            alt={ image.title }
-            selected={ $selectedIllustrationTitle === image.title }
+            alt={ image.name }
+            selected={ $selectedIllustrationTitle === image.name }
           />
         { /if }
       </IntersectionObserver>
-      { image.title }
+      { image.name }
     </button>
   { /each }
 </div>

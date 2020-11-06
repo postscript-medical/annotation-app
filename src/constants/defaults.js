@@ -11,6 +11,10 @@ export const SIZE_LARGE = 'large';
 
 export const DEFAULT_COLOR = 'black';
 
+export const DEFAULT_SELECTED_SPECIALTY = 'All';
+
+export const DEFAULT_SELECTED_SUB_SPECIALTY = 'All';
+
 export const DEFAULT_SHAPE = 'rectangle';
 
 export const DEFAULT_SIZE = SIZE_SMALL_ID;
