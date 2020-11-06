@@ -1,11 +1,13 @@
 import {
-  organization,
   protectedContent,
   selectedSpecialty,
   selectedSubSpecialty,
   selectedIllustrationTitle,
 } from '../stores.js';
-import { SUBSCRIPTION_PLANS } from '../constants/session.js';
+import {
+  DEFAULT_SELECTED_SPECIALTY,
+  DEFAULT_SELECTED_SUB_SPECIALTY
+} from '../constants/defaults';
 
 export default async function (user) {
   const token = user ? await user.jwt(true) : false;
@@ -17,7 +19,6 @@ export default async function (user) {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ SUBSCRIPTION_PLANS }),
   })
     .then(response => response.json())
     .then(data => {
@@ -30,16 +31,37 @@ export default async function (user) {
         // TODO: show error
         return;
       }
-      organization.set({ ...data.team.organization })
-      // if (!data.copy) {
-      //   const userDefinedImage = data.subscription.images.find(({ title }) => title === user.user_metadata.illustration && user.user_metadata.illustration.title);
-      //   const defaultImage = data.subscription.images.find(image => image.default);
+      const mappedData = {
+        ...data,
+        team: {
+          ...data.team,
+          organization: {
+            ...data.team.organization,
+            specialties: data.team.organization.specialties.data.map(specialty => {
+              return {
+                ...specialty,
+                subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
+                  return {
+                    ...subSpecialty,
+                    illustrations: subSpecialty.illustrations.data
+                  }
+                })
+              }
+            })
+          }
+        }
+      };
 
-      //   selectedIllustrationTitle.set((userDefinedImage || defaultImage || data.subscription.images[0]).title);
-      //   selectedSpecialty.set(data.subscription.specialties[0]);
-      //   selectedSubSpecialty.set(data.subscription.subSpecialties[0]);
-      // }
-      // protectedContent.set(data)
+      const userDefaults = user.user_metadata.illustration || {
+        name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
+        specialty: DEFAULT_SELECTED_SPECIALTY,
+        subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
+      };
+
+      selectedIllustrationTitle.set(userDefaults.name);
+      selectedSpecialty.set(userDefaults.specialty);
+      selectedSubSpecialty.set(userDefaults.subSpecialty);
+      protectedContent.set(mappedData)
     })
     .catch(error => {
       console.error('Error', error);

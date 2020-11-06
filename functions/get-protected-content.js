@@ -23,6 +23,17 @@ exports.handler = async (_, context) => {
                 specialties {
                   data {
                     name
+                    subSpecialties {
+                      data {
+                        name
+                        illustrations {
+                          data {
+                            name
+                            src
+                          }
+                        }
+                      }
+                    }
                   }
                 }
                 stripeID
@@ -57,7 +68,4 @@ exports.handler = async (_, context) => {
       body: `Webhook Error: ${error.message}`
     }
   };
-
-
-
 };
