@@ -2,10 +2,12 @@
   import {
     filteredIllustrations,
     illustrationSearchQuery,
+    selectedIllustrationTitle,
     selectedSpecialty,
     selectedSubSpecialty,
     specialties,
     subSpecialties,
+    user,
   } from '../stores.js';
   import ImagesGrid from './ImagesGrid.svelte';
   import PsDropdown from './PsDropdown.svelte';
@@ -14,10 +16,14 @@
 
   function selectSpecialty ({ detail: specialty }) {
     $selectedSpecialty = specialty;
+
+    updateUserAppMetadata();
   };
 
   function selectSubSpecialty ({ detail: subSpecialty }) {
     $selectedSubSpecialty = subSpecialty;
+
+    updateUserAppMetadata();
   };
 
   function tween () {
@@ -45,6 +51,30 @@
       }
     }
   }
+
+  function updateUserAppMetadata () {
+    /*
+    * This is adding information to Netlify's user.user_metadata.
+    * We need to be very careful here as currently there is no way to remove this data
+    * once it is stored there. At some point in the future we should store this somewhere else.
+    * Right now it does not seem like a great idea as we don't want to run a Lambda function
+    * every time the user changes an illustration, it would end up costing us a lot of money.
+    */
+    $user
+      .update({
+        data: {
+          illustration: {
+            name: $selectedIllustrationTitle,
+            specialty: $selectedSpecialty,
+            subSpecialty:$selectedSubSpecialty
+          }
+        }
+      })
+      .then(updatedUser => {
+        $user = updatedUser
+      })
+      .catch(error => console.error(error));
+  }
 </script>
 
 { #if show }
@@ -58,6 +88,7 @@
         label="Specialty"
         options={ $specialties }
         optionKey="name"
+        selected={ $selectedSpecialty }
         on:change={ selectSpecialty }
       />
     </div>
@@ -67,6 +98,7 @@
         label="Sub-specialty"
         options={ $subSpecialties }
         optionKey="name"
+        selected={ $selectedSubSpecialty }
         on:change={ selectSubSpecialty }
       />
     </div>
