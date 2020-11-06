@@ -3,6 +3,7 @@
   export let label = '';
   export let disabled = false;
   export let options = [];
+  export let optionKey = undefined;
   export let selected = undefined;
 
   const dispatch = createEventDispatcher();
@@ -26,9 +27,9 @@
     >
       { #each options as option }
         <option
-          value={ option }
+          value={ optionKey ? option[optionKey] : option }
         >
-          { option }
+          { optionKey ? option[optionKey] : option }
         </option>
       { /each }
   </select>

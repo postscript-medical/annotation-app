@@ -57,6 +57,7 @@
       <PsDropdown
         label="Specialty"
         options={ $specialties }
+        optionKey="name"
         on:change={ selectSpecialty }
       />
     </div>
@@ -65,6 +66,7 @@
       <PsDropdown
         label="Sub-specialty"
         options={ $subSpecialties }
+        optionKey="name"
         on:change={ selectSubSpecialty }
       />
     </div>
