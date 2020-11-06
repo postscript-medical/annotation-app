@@ -1,14 +1,8 @@
 
 const { faunaFetch } = require('./utils/fauna');
-// const { PROTECTED_CONTENT } = require('./constants');
 
 exports.handler = async (_, context) => {
-  // const { subscriptionLevels } = JSON.parse(event.body);
   const { user } = context.clientContext;
-  // const subscription = user ? user.app_metadata.roles[0] : false; /* the assumption for now is that a user will only have a single role associated with it */
-  // const subscriptionContent = PROTECTED_CONTENT[subscription];
-
-  console.log('user', user);
 
   try {
     const result = await faunaFetch({
