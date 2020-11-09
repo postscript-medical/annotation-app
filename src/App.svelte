@@ -12,6 +12,7 @@
     SUBSCRIPTION_PLANS_PAID,
   } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
+  import ErrorModal from './modals/ErrorModal.svelte';
   import ImageAnnotation from './screens/ImageAnnotation.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
   import Index from './screens/Index.svelte';
@@ -20,67 +21,38 @@
   import ResetPasswordModal from './modals/ResetPasswordModal.svelte';
 
   let emailConfirmed = false;
+  let error;
   let showResetPasswordModal = false;
   let hasPaymentDetails = false;
 
   $: hasPaymentDetails = $organization && !!($organization.subscriptionLevel !== 'inactive');
   $: showTutorial = $protectedContent && $protectedContent.showTutorial;
 
+  function clearErrors () {
+    error = undefined;
+
+    navigateHome();
+  }
+
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
   }
 
   async function confirmUserSignUp (token) {
-    const userToLoadProtectedContent = $user;
-
     const response = await $session
       .confirm(token)
-      .catch(error => {
-        console.log('opsie error', error);
-        const code = error.json.code;
-
-        if (code === 404) {
-          // Load the log-in view
-          userToLoadProtectedContent = undefined;
-        } else {
-          console.log('Error', error);
-          throw new Error(`Error confirming user sign up: ${error}`)
-        }
+      .catch(err => {
+        error = err.json
       });
 
-    await loadProtectedContent(userToLoadProtectedContent);
+    if (!response) return;
 
-    // emailConfirmed = true;
-    // $isLoading = false;
+    await loadProtectedContent($user);
+
+    emailConfirmed = true;
 
     navigateHome();
 
-    // $session
-    //   .confirm(token)
-    //   .then(response => {
-    //         emailConfirmed = true;
-
-    //         loadProtectedContent($user);
-
-    //         $isLoading = false;
-
-    //         navigateHome();
-    //       })
-    //       .catch(error => {
-    //         const code = error.json.code;
-
-    //         if (code === 404) {
-    //           console.warn(error.json.msg);
-
-    //           loadProtectedContent();
-
-    //           $isLoading = false;
-
-    //           navigateHome();
-    //         } else {
-    //           console.error('Error:', error);
-    //         }
-    //       })
   };
 
   function navigateHome() {
@@ -114,13 +86,15 @@
   async function initAuthentication () {
     $isLoading = true;
 
-    let response = await new GoTrue.default({
+    const response = await new GoTrue.default({
       APIUrl: 'https://boring-wozniak-bbc476.netlify.app/.netlify/identity',
       setCookie: true,
     });
 
+    if (!response) return;
+
     $session = response;
-    $user = await getUserFromSessionStorage() || $session.currentUser();
+    $user = await (getUserFromSessionStorage() || $session.currentUser());
 
     const hash = window.location.hash;
 
@@ -140,7 +114,7 @@
           break;
       };
     } else {
-      loadProtectedContent($user);
+      await loadProtectedContent($user);
 
       $isLoading = false;
     }
@@ -149,36 +123,15 @@
   async function recoverUserAccount (token) {
     const response = await $session
       .recover(token, true)
-      .catch(error => {
-        console.log('Failed to verify recover token: %o', error);
-
-        // show warning modal with error
+      .catch(err => {
+        error = err.json
       })
 
-    $user = response;
-
-    showResetPasswordModal = true;
-
-    navigateHome();
-
-    // $session
-    //   .recover(token, true)
-    //   .then(response => {
-    //     $user = response;
-
-    //     showResetPasswordModal = true;
-
-    //     $isLoading = false;
-
-    //     navigateHome();
-    //   })
-    //   .catch(error => {
-    //     console.error('Failed to verify recover token: %o', error);
-
-    //     $isLoading = false;
-
-    //     navigateHome();
-    //   });
+    if (response) {
+      $user = response;
+  
+      showResetPasswordModal = true;
+    }
   };
 
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.
@@ -207,8 +160,16 @@
   <ResetPasswordModal
     on:close={ closeResetPasswordModal }
   />
+{ :else if error }
+  <ErrorModal
+    on:close={ clearErrors }
+  >
+    <p>
+      { error && error.msg }
+    </p>
+  </ErrorModal>
+{ :else }
+  <LoadingOverlay
+    loading={ $isLoading }
+  />
 { /if }
-
-<LoadingOverlay
-  loading={ $isLoading }
-/>
