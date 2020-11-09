@@ -146,7 +146,7 @@ export const selectedSubSpecialty = writable(DEFAULT_SELECTED_SUB_SPECIALTY);
 export const specialties = derived(
   protectedContent,
   $protectedContent => {
-    return $protectedContent ? $protectedContent.team.organization.specialties : false
+    return $protectedContent ? $protectedContent.organization.specialties : false
   }
 );
 

@@ -14,57 +14,100 @@ export default async function (user) {
 
   if (!token) return;
 
-  fetch('/.netlify/functions/get-protected-content', {
+  const response = await fetch('/.netlify/functions/get-protected-content', {
     method:'POST',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   })
-    .then(response => response.json())
-    .then(data => {
-      /**
-       * Netlify identity will return:
-       * { copy: 'Not allowed' }
-       * whenever if the user requested does not exist.
-       */
-      if (data.copy) {
-        // TODO: show error
-        return;
-      }
-      const mappedData = {
-        ...data,
-        team: {
-          ...data.team,
-          organization: {
-            ...data.team.organization,
-            specialties: data.team.organization.specialties.data.map(specialty => {
-              return {
-                ...specialty,
-                subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
-                  return {
-                    ...subSpecialty,
-                    illustrations: subSpecialty.illustrations.data
-                  }
-                })
-              }
-            })
-          }
+
+  if (!response.ok) {
+    throw new Error (`An error when fetching protected content:\n${reponse.status}`)
+  };
+
+  const data = await response.json();
+
+  if(data.copy) {
+    // TODO: show error that no user could be found
+    return;
+  }
+
+  const mappedData = {
+    ...data,
+    ...data.team,
+    organization: {
+      ...data.team.organization,
+      specialties: data.team.organization.specialties.data.map(specialty => {
+        return {
+          ...specialty,
+          subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
+            return {
+              ...subSpecialty,
+              illustrations: subSpecialty.illustrations.data
+            }
+          })
         }
-      };
+      })
+    }
+  }
 
-      const userDefaults = user.user_metadata.illustration || {
-        name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
-        specialty: DEFAULT_SELECTED_SPECIALTY,
-        subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
-      };
+  const userDefaults = user.user_metadata.illustration || {
+    name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
+    specialty: DEFAULT_SELECTED_SPECIALTY,
+    subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
+  };
 
-      selectedIllustrationTitle.set(userDefaults.name);
-      selectedSpecialty.set(userDefaults.specialty);
-      selectedSubSpecialty.set(userDefaults.subSpecialty);
-      protectedContent.set(mappedData)
-    })
-    .catch(error => {
-      console.error('Error', error);
-      // TODO: needs handling
-    })
+  selectedIllustrationTitle.set(userDefaults.name);
+  selectedSpecialty.set(userDefaults.specialty);
+  selectedSubSpecialty.set(userDefaults.subSpecialty);
+  protectedContent.set(mappedData)
+
+
+    // .then(response => response.json())
+    // .then(data => {
+    //   /**
+    //    * Netlify identity will return:
+    //    * { copy: 'Not allowed' }
+    //    * whenever if the user requested does not exist.
+    //    */
+    //   if (data.copy) {
+    //     // TODO: show error
+    //     return;
+    //   }
+    //   const mappedData = {
+    //     ...data,
+    //     team: {
+    //       ...data.team,
+    //       organization: {
+    //         ...data.team.organization,
+    //         specialties: data.team.organization.specialties.data.map(specialty => {
+    //           return {
+    //             ...specialty,
+    //             subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
+    //               return {
+    //                 ...subSpecialty,
+    //                 illustrations: subSpecialty.illustrations.data
+    //               }
+    //             })
+    //           }
+    //         })
+    //       }
+    //     }
+    //   };
+
+    //   const userDefaults = user.user_metadata.illustration || {
+    //     name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
+    //     specialty: DEFAULT_SELECTED_SPECIALTY,
+    //     subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
+    //   };
+
+    //   selectedIllustrationTitle.set(userDefaults.name);
+    //   selectedSpecialty.set(userDefaults.specialty);
+    //   selectedSubSpecialty.set(userDefaults.subSpecialty);
+    //   protectedContent.set(mappedData)
+    // })
+    // .catch(error => {
+    //   console.error('Error', error);
+    //   // TODO: needs handling
+    // })
 };

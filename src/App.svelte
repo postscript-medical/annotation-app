@@ -30,37 +30,63 @@
     showResetPasswordModal = false;
   }
 
-  function confirmUserSignUp (token) {
-    $session
+  async function confirmUserSignUp (token) {
+    const userToLoadProtectedContent = $user;
+
+    const response = await $session
       .confirm(token)
-      .then(response => {
-            emailConfirmed = true;
+      .catch(error => {
+        console.log('opsie error', error);
+        const code = error.json.code;
 
-            loadProtectedContent($user);
+        if (code === 404) {
+          // Load the log-in view
+          userToLoadProtectedContent = undefined;
+        } else {
+          console.log('Error', error);
+          throw new Error(`Error confirming user sign up: ${error}`)
+        }
+      });
 
-            $isLoading = false;
+    await loadProtectedContent(userToLoadProtectedContent);
 
-            navigateHome();
-          })
-          .catch(error => {
-            const code = error.json.code;
+    // emailConfirmed = true;
+    // $isLoading = false;
 
-            if (code === 404) {
-              console.warn(error.json.msg);
+    navigateHome();
 
-              loadProtectedContent();
+    // $session
+    //   .confirm(token)
+    //   .then(response => {
+    //         emailConfirmed = true;
 
-              $isLoading = false;
+    //         loadProtectedContent($user);
 
-              navigateHome();
-            } else {
-              console.error('Error:', error);
-            }
-          })
+    //         $isLoading = false;
+
+    //         navigateHome();
+    //       })
+    //       .catch(error => {
+    //         const code = error.json.code;
+
+    //         if (code === 404) {
+    //           console.warn(error.json.msg);
+
+    //           loadProtectedContent();
+
+    //           $isLoading = false;
+
+    //           navigateHome();
+    //         } else {
+    //           console.error('Error:', error);
+    //         }
+    //       })
   };
 
   function navigateHome() {
     window.location.hash = '';
+
+    $isLoading = false;
   };
 
   async function getUserFromSessionStorage () {
@@ -120,25 +146,39 @@
     }
   };
 
-  function recoverUserAccount (token) {
-    $session
+  async function recoverUserAccount (token) {
+    const response = await $session
       .recover(token, true)
-      .then(response => {
-        $user = response;
-
-        showResetPasswordModal = true;
-
-        $isLoading = false;
-
-        navigateHome();
-      })
       .catch(error => {
-        console.error('Failed to verify recover token: %o', error);
+        console.log('Failed to verify recover token: %o', error);
 
-        $isLoading = false;
+        // show warning modal with error
+      })
 
-        navigateHome();
-      });
+    $user = response;
+
+    showResetPasswordModal = true;
+
+    navigateHome();
+
+    // $session
+    //   .recover(token, true)
+    //   .then(response => {
+    //     $user = response;
+
+    //     showResetPasswordModal = true;
+
+    //     $isLoading = false;
+
+    //     navigateHome();
+    //   })
+    //   .catch(error => {
+    //     console.error('Failed to verify recover token: %o', error);
+
+    //     $isLoading = false;
+
+    //     navigateHome();
+    //   });
   };
 
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.
