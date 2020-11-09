@@ -24,7 +24,7 @@
     dispatch('open-forgot-password-modal');
   };
 
-  function submit ({ detail }) {
+  async function submit ({ detail }) {
     if (!$session) {
       console.warn('No $session object!');
       return;
@@ -33,23 +33,28 @@
     const { email, password, stayLogged } = detail;
 
     errorMessage = undefined;
+
     $isLoading = true;
 
-    $session
+    const response = await $session
       .login(email, password, stayLogged)
-      .then(response => {
-        $user = response;
-        loadProtectedContent($user);
-        $isLoading = false;
-
-        if (!stayLogged) {
-          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
-        }
-      })
-      .catch(error => {
+      .catch(err => {
         errorMessage = error.json.error_description;
+
         $isLoading = false;
-      })
+      });
+
+      if (!response) return;
+
+      if (!stayLogged) {
+        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
+      }
+
+      $user = response;
+
+      await loadProtectedContent($user);
+
+      $isLoading = false;
   };
 
 </script>
