@@ -1,9 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-// const fetch = require('node-fetch');
 const { faunaFetch } = require('./utils/fauna');
-const { SUBSCRIPTIONS } = require('./constants');
-
 const faunadb = require('faunadb');
+const { SUBSCRIPTIONS } = require('./constants');
 const q = faunadb.query;
 const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
@@ -33,7 +31,6 @@ exports.handler = async ({ body, headers }, context) => {
         id: subscription.customer,
       },
     });
-    // const { netlifyID } = result.data.findOrganizationBystripeID;
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
