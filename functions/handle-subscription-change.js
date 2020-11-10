@@ -24,19 +24,14 @@ exports.handler = async ({ body, headers }, context) => {
     const subscription = stripeEvent.data.object;
     const result = await faunaFetch({
       query: `
-          query ($email: String!) {
-            findUserByEmail (email: $email) {
-              netlifyID,
-              team {
-                organization {
-                  _id
-                }
-              }
+          query ($id: ID!) {
+            findOrganizationBystripeID (id: $id) {
+              _id
             }
           }
         `,
       variables: {
-        email: subscription.customer,
+        id: subscription.customer,
       },
     });
     // const { netlifyID } = result.data.findOrganizationBystripeID;
