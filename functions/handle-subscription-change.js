@@ -16,16 +16,16 @@ exports.handler = async ({ body, headers }, context) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
 
-    console.log('stripeEvent', stripeEvent);
-
+    
     // bail if this is not a subscription update event
     if (stripeEvent.type !== 'customer.subscription.updated') return;
-
+    
     const subscription = stripeEvent.data.object;
+    console.log('stripeEvent', subscription.customer);
     const result = await faunaFetch({
       query: `
           query ($id: ID!) {
-            findOrganizationBystripeID (id: $id) {
+            findOrganizationBystripeID (stripeID: $id) {
               _id
             }
           }
