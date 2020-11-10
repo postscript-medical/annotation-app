@@ -16,6 +16,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "faunadb": "^3.0.1",
     "gotrue-js": "^0.9.27",
     "node-fetch": "^2.6.1",
     "sirv-cli": "^1.0.0",
