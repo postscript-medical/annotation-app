@@ -3,8 +3,8 @@ type Organization {
   maxUsers: Int!
   name: String
   specialties: [Specialty] @relation
-  stripeID: ID!
-  subscriptionLevel: [String!]!
+  stripeID: ID! @unique
+  subscriptionLevel: String!
   teams: [Team!]! @relation
 }
 
@@ -15,10 +15,10 @@ type Team {
 }
 
 type User {
-  email: String!
+  email: String! @unique
   firstName: String
   lastName: String
-  netlifyID: ID!
+  netlifyID: ID! @unique
   role: String!
   showTutorial: Boolean!
   team: Team!
@@ -46,4 +46,5 @@ type Illustration {
 type Query {
   findOrganizationBystripeID(stripeID: ID!): Organization!
   findUserByNetlifyID(netlifyID: ID!): User!
+  findUserByEmail(email: String!): User!
 }

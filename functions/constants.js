@@ -2,7 +2,7 @@ const { CONTENT_INDIVIDUAL } = require('./content/individual_subscription');
 const { CONTENT_DEPARTMENT } = require('./content/department_subscription');
 const { CONTENT_ORGANIZATION } = require('./content/organization_subscription');
 
-const PLAN_0 = 'free';
+const PLAN_0 = 'inactive';
 
 const PLAN_1 = 'individual';
 

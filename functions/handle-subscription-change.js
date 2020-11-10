@@ -3,6 +3,10 @@ const fetch = require('node-fetch');
 const { faunaFetch } = require('./utils/fauna');
 const { SUBSCRIPTIONS } = require('./constants');
 
+const faunadb = require('faunadb');
+const q = faunadb.query;
+const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
+
 exports.handler = async ({ body, headers }, context) => {
   try {
     // make sure this event was sent legitimately.
@@ -20,7 +24,12 @@ exports.handler = async ({ body, headers }, context) => {
       query: `
           query ($email: String!) {
             findUserByEmail (email: $email) {
-              netlifyID
+              netlifyID,
+              team {
+                organization {
+                  _id
+                }
+              }
             }
           }
         `,
@@ -28,24 +37,43 @@ exports.handler = async ({ body, headers }, context) => {
         email: subscription.customer,
       },
     });
-    const { netlifyID } = result.data.findOrganizationBystripeID;
+    // const { netlifyID } = result.data.findOrganizationBystripeID;
+    const organizationID = result.data.findUserByEmail.team.organization._id;
     const productID = subscription.items.data[0].plan.product;
     const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
+    console.log('organizationID', organizationID);
+    console.log('productID', productID);
+    console.log('newSubscription', newSubscription);
+
+    // update the subscription record in FaunaDB
+    const updatedOrganization = await client.query(
+      q.Update(
+        q.Ref(
+          q.Collection('Organization'),
+            organizationID),
+            { data: { subscriptionLevel: newSubscription } },
+      )
+    );
+
+    console.log('updatedOrganization:', updatedOrganization);
+  
+
+
     // send a call to the Netlify Identity admin API to update the user role
-    const { identity } = context.clientContext;
-    await fetch(`${identity.url}/admin/users/${netlifyID}`, {
-      method: 'PUT',
-      headers: {
-        // note that this is a special admin token for the Identity API
-        Authorization: `Bearer ${identity.token}`,
-      },
-      body: JSON.stringify({
-        app_metadata: {
-          roles: [newSubscription.role],
-        },
-      }),
-    });
+    // const { identity } = context.clientContext;
+    // await fetch(`${identity.url}/admin/users/${netlifyID}`, {
+    //   method: 'PUT',
+    //   headers: {
+    //     // note that this is a special admin token for the Identity API
+    //     Authorization: `Bearer ${identity.token}`,
+    //   },
+    //   body: JSON.stringify({
+    //     app_metadata: {
+    //       roles: [newSubscription.role],
+    //     },
+    //   }),
+    // });
 
     return {
       statusCode: 200,

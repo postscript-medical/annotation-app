@@ -27,6 +27,11 @@ export default async function (user) {
 
   const data = await response.json();
 
+  /**
+   * Netlify identity will return:
+   * { copy: 'Not allowed' }
+   * whenever if the user requested does not exist.
+   */
   if(data.copy) {
     // TODO: show error that no user could be found
     return;
@@ -34,24 +39,27 @@ export default async function (user) {
 
   const mappedData = {
     ...data,
-    ...data.team,
-    organization: {
-      ...data.team.organization,
-      specialties: data.team.organization.specialties.data.map(specialty => {
-        return {
-          ...specialty,
-          subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
-            return {
-              ...subSpecialty,
-              illustrations: subSpecialty.illustrations.data
-            }
-          })
-        }
-      })
+    team: {
+      ...data.team,
+      organization: {
+        ...data.team.organization,
+        specialties: data.team.organization.specialties.data.map(specialty => {
+          return {
+            ...specialty,
+            subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
+              return {
+                ...subSpecialty,
+                illustrations: subSpecialty.illustrations.data
+              }
+            })
+          }
+        })
+      }
     }
   }
 
   const userDefaults = user.user_metadata.illustration || {
+    /* TODO: look for an illustration with a .default key set to true */
     name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
     specialty: DEFAULT_SELECTED_SPECIALTY,
     subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
@@ -61,53 +69,4 @@ export default async function (user) {
   selectedSpecialty.set(userDefaults.specialty);
   selectedSubSpecialty.set(userDefaults.subSpecialty);
   protectedContent.set(mappedData)
-
-
-    // .then(response => response.json())
-    // .then(data => {
-    //   /**
-    //    * Netlify identity will return:
-    //    * { copy: 'Not allowed' }
-    //    * whenever if the user requested does not exist.
-    //    */
-    //   if (data.copy) {
-    //     // TODO: show error
-    //     return;
-    //   }
-    //   const mappedData = {
-    //     ...data,
-    //     team: {
-    //       ...data.team,
-    //       organization: {
-    //         ...data.team.organization,
-    //         specialties: data.team.organization.specialties.data.map(specialty => {
-    //           return {
-    //             ...specialty,
-    //             subSpecialties: specialty.subSpecialties.data.map(subSpecialty => {
-    //               return {
-    //                 ...subSpecialty,
-    //                 illustrations: subSpecialty.illustrations.data
-    //               }
-    //             })
-    //           }
-    //         })
-    //       }
-    //     }
-    //   };
-
-    //   const userDefaults = user.user_metadata.illustration || {
-    //     name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
-    //     specialty: DEFAULT_SELECTED_SPECIALTY,
-    //     subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
-    //   };
-
-    //   selectedIllustrationTitle.set(userDefaults.name);
-    //   selectedSpecialty.set(userDefaults.specialty);
-    //   selectedSubSpecialty.set(userDefaults.subSpecialty);
-    //   protectedContent.set(mappedData)
-    // })
-    // .catch(error => {
-    //   console.error('Error', error);
-    //   // TODO: needs handling
-    // })
 };
