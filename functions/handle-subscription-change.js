@@ -41,7 +41,12 @@ exports.handler = async ({ body, headers }, context) => {
         q.Ref(
           q.Collection('Organization'),
             organizationID),
-            { data: { subscriptionLevel: newSubscription.level } },
+            { 
+              data: {
+                subscriptionLevel: newSubscription.level,
+                maxUsers: newSubscription.maxUsers,
+              }
+            },
       )
     );
 
