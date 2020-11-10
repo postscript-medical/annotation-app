@@ -12,8 +12,18 @@ exports.handler = async (_, context) => {
             showTutorial
             role
             team {
+              name
+              members {
+                data {
+                  email
+                  firstName
+                  lastName
+                }
+              }
               organization {
                 maxSpecialties
+                maxUsers
+                name
                 specialties {
                   data {
                     name
@@ -31,6 +41,7 @@ exports.handler = async (_, context) => {
                   }
                 }
                 stripeID
+                subscriptionLevel
               }
             }
           }
