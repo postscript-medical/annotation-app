@@ -35,7 +35,8 @@ exports.handler = async ({ body, headers }, context) => {
       },
     });
     // const { netlifyID } = result.data.findOrganizationBystripeID;
-    const organizationID = result.data.findOrganizationBystripeID.team.organization._id;
+    console.log('result', result);
+    const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
