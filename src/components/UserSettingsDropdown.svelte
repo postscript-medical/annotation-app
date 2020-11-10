@@ -17,16 +17,16 @@
 
     tl
       .from('.dropdown', {
-        duration: 0.15,
+        duration: 0.05,
         scale: 0,
         transformOrigin: '100% 0%',
         ease: 'circ.inOut',
       })
       .from('.dropdown > *', {
-        duration: 0.15,
+        duration: 0.05,
         opacity: 0,
         ease: 'none',
-        stagger: 0.05,
+        stagger: 0.025,
       })
 
     const duration = tl.totalDuration();
