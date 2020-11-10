@@ -1,5 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 const { faunaFetch } = require('./utils/fauna');
 const { SUBSCRIPTIONS } = require('./constants');
 
@@ -21,7 +21,6 @@ exports.handler = async ({ body, headers }, context) => {
     if (stripeEvent.type !== 'customer.subscription.updated') return;
     
     const subscription = stripeEvent.data.object;
-    console.log('stripeEvent', subscription.customer);
     const result = await faunaFetch({
       query: `
           query ($id: ID!) {
@@ -35,28 +34,19 @@ exports.handler = async ({ body, headers }, context) => {
       },
     });
     // const { netlifyID } = result.data.findOrganizationBystripeID;
-    console.log('result', result);
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
-    console.log('organizationID', organizationID);
-    console.log('productID', productID);
-    console.log('newSubscription', newSubscription);
-
     // update the subscription record in FaunaDB
-    const updatedOrganization = await client.query(
+    await client.query(
       q.Update(
         q.Ref(
           q.Collection('Organization'),
             organizationID),
-            { data: { subscriptionLevel: newSubscription } },
+            { data: { subscriptionLevel: newSubscription.level } },
       )
     );
-
-    console.log('updatedOrganization:', updatedOrganization);
-  
-
 
     // send a call to the Netlify Identity admin API to update the user role
     // const { identity } = context.clientContext;
