@@ -1,12 +1,20 @@
 <script>
   import {
+    showManageTeamModal,
+    protectedContent,
     userSettingsDropdownDrawerOpen,
   } from '../stores.js';
   import SignOutButton from './SignOutButton.svelte';
   import ButtonIcon from './sketchpad/ButtonIcon.svelte';
   import ManageSubscription from './ManageSubscription.svelte';
+  import PsButton from './PsButton.svelte';
 
   export let user;
+
+  function manageTeam () {
+    $showManageTeamModal = true;
+    toggleDrawer();
+  };
 
   function toggleDrawer () {
     $userSettingsDropdownDrawerOpen = !$userSettingsDropdownDrawerOpen;
@@ -64,6 +72,14 @@
       <SignOutButton
         asLink
       />
+      { #if $protectedContent.role === 'owner' }
+        <PsButton
+          asLink
+          on:click={ manageTeam }
+        >
+          Manage team members
+        </PsButton>
+      { /if }
     </div>
   { /if }
 </div>

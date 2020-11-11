@@ -86,6 +86,8 @@
     padding: 2rem 2.5rem;
     border-radius: 1rem;
     max-width: 95%;
+    max-height: 90%;
+    overflow-y: auto;
   }
 
   .modal-header {

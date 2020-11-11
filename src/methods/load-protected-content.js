@@ -41,6 +41,7 @@ export default async function (user) {
     ...data,
     team: {
       ...data.team,
+      members: data.team.members.data,
       organization: {
         ...data.team.organization,
         specialties: data.team.organization.specialties.data.map(specialty => {
