@@ -1,8 +1,8 @@
 <script>
-  import { openShareModal } from '../stores.js';
+  import { showShareModal } from '../stores.js';
 
   function click () {
-    $openShareModal = !$openShareModal;
+    $showShareModal = !$showShareModal;
   }
 </script>
 

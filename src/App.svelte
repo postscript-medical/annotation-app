@@ -6,6 +6,7 @@
     isLoading,
     organization,
     protectedContent,
+    showManageTeamModal,
   } from './stores.js';
   import {
     STORAGE_KEY,
@@ -19,6 +20,7 @@
   import PsHeader from './components/PsHeader.svelte';
   import FreeUserIndex from './screens/FreeUserIndex.svelte';
   import ResetPasswordModal from './modals/ResetPasswordModal.svelte';
+  import ManageTeamModal from './modals/ManageTeamModal.svelte';
 
   let emailConfirmed = false;
   let error;
@@ -159,6 +161,12 @@
 { #if showResetPasswordModal }
   <ResetPasswordModal
     on:close={ closeResetPasswordModal }
+  />
+{ :else if $showManageTeamModal }
+  <ManageTeamModal
+    team={ $protectedContent.team }
+    user={ $user }
+    on:close={ () => $showManageTeamModal = false }
   />
 { :else if error }
   <ErrorModal

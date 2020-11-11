@@ -3,7 +3,7 @@
     onMount,
   } from 'svelte';
   import {
-    openShareModal,
+    showShareModal,
     selectedIllustrationTitle,
     selectedSpecialty,
     selectedSubSpecialty,
@@ -159,9 +159,9 @@
       />
   </main>
 
-  { #if $openShareModal }
+  { #if $showShareModal }
     <ShareModal
-      on:close={ () => $openShareModal = false }
+      on:close={ () => $showShareModal = false }
     />
   { /if }
 </div>

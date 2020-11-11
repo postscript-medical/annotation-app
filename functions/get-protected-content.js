@@ -18,6 +18,7 @@ exports.handler = async (_, context) => {
                   email
                   firstName
                   lastName
+                  role
                 }
               }
               organization {
