@@ -2,12 +2,12 @@
   import { View } from 'svench';
   import PsButton from './PsButton.svelte';
 
-  const buttonCopy = 'Button';
+  const BUTTON_COPY = 'Button';
 </script>
 
 <View name="Primary button">
   <PsButton>
-   { buttonCopy }
+   { BUTTON_COPY }
   </PsButton>
 </View>
 
@@ -15,7 +15,7 @@
   <PsButton
     disabled
   >
-   { buttonCopy }
+   { BUTTON_COPY }
   </PsButton>
 </View>
 
@@ -23,7 +23,7 @@
   <PsButton
     style="secondary"
   >
-   { buttonCopy }
+   { BUTTON_COPY }
   </PsButton>
 </View>
 
@@ -32,6 +32,6 @@
     disabled
     style="secondary"
   >
-   { buttonCopy }
+   { BUTTON_COPY }
   </PsButton>
 </View>

@@ -110,7 +110,9 @@
         </label>
       { /if }
       <slot name="footer">
-        <PsButton>
+        <PsButton
+          type="submit"
+        >
             Sign up
         </PsButton>
       </slot>

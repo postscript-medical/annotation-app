@@ -80,13 +80,13 @@
   >
     <PsButton
       onDark
+      type="submit"
     >
       Login
     </PsButton>
     <PsButton
       onDark
       asLink
-      type="button"
       on:click={ openForgotPasswordModal }
     >
       Forgot your password?

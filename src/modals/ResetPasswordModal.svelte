@@ -51,7 +51,6 @@
     </p>
     <PsButton
       style="secondary"
-      type="button"
       on:click={ closeModal }
     >
       Close
@@ -86,7 +85,9 @@
           Including at least one number and one special character.
         </span>
       </label>
-      <PsButton>
+      <PsButton
+        type="submit"
+      >
           Confirm
       </PsButton>
     </form>
