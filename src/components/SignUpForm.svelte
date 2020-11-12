@@ -9,7 +9,6 @@
   } from '../stores.js';
   import { VIEWPORT_PHONE } from '../constants/defaults.js';
   import CredentialsForm from './CredentialsForm.svelte';
-  import PsButton from './PsButton.svelte';
   
   const dispatch = createEventDispatcher();
  

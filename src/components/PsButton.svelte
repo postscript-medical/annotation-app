@@ -1,12 +1,11 @@
 <script>
   import { createEventDispatcher } from 'svelte';
 
-  export let autofocus = false;
   export let disabled = false;
   export let asLink = false; /* TODO: this should be part of the 'style' prop, to receive either a string with a single or multiple values or an array of strings */
   export let onDark = false;
   export let style = 'primary';
-  export let type = 'submit';
+  export let type = 'button';
 
   $: isSecondary = style === 'secondary';
 
@@ -19,7 +18,6 @@
 
 <!-- svelte-ignore a11y-autofocus -->
 <button
-  { autofocus }
   class:secondary={ isSecondary }
   class:on-dark={ onDark }
   class:disabled={ disabled }
@@ -36,6 +34,7 @@
     background-color: rgb(55, 154, 70);
     border: 0;
     color: white;
+    white-space: nowrap;
   }
 
   .disabled {

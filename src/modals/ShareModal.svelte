@@ -95,6 +95,7 @@
     >
       <PsButton
         style="secondary"
+        type="submit"
       >
         Close
       </PsButton>
@@ -116,6 +117,7 @@
       </label>
         <PsButton
           disabled={ sendingEmail }
+          type="submit"
         >
           Send
         </PsButton>
