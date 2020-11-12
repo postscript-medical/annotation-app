@@ -9,6 +9,8 @@ export const SIZE_MEDIUM = 'medium';
 
 export const SIZE_LARGE = 'large';
 
+export const DEFAULT_AXIS_DIRECTION = 'horizontal';
+
 export const DEFAULT_COLOR = 'black';
 
 export const DEFAULT_SELECTED_SPECIALTY = 'All';

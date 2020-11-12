@@ -85,22 +85,24 @@
     <div class="left-column"></div>
     <div class="left-column">
       <PsDropdown
-        label="Specialty"
         options={ $specialties }
         optionKey="name"
         selected={ $selectedSpecialty }
         on:change={ selectSpecialty }
-      />
+      >
+        Specialty
+      </PsDropdown>
     </div>
 
     <div class="left-column">
       <PsDropdown
-        label="Sub-specialty"
         options={ $subSpecialties }
         optionKey="name"
         selected={ $selectedSubSpecialty }
         on:change={ selectSubSpecialty }
-      />
+      >
+        Sub-specialty
+      </PsDropdown>
     </div>
 
     <input
