@@ -4,18 +4,17 @@
 to allow for grid layouts to be implemented -->
 <script>
   import { createEventDispatcher } from 'svelte';
+  import { DEFAULT_AXIS_DIRECTION } from '../constants/defaults.js';
 
-  const DEFAULT_DIRECTION = 'horizontal';
-
-  export let value = '';
-  export let placeholder = '';
+  export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
-  export let direction = DEFAULT_DIRECTION;
+  export let placeholder = '';
+  export let value = '';
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
-    ${direction === DEFAULT_DIRECTION ? DEFAULT_DIRECTION : 'vertical'}
+    ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
 
@@ -65,6 +64,5 @@ to allow for grid layouts to be implemented -->
   }
   .vertical > :not(:last-child):not(:empty) {
     margin-bottom: 0.25rem;
-    margin-left: calc(0.6rem + 1px);
   }
 </style>

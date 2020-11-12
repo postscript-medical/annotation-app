@@ -1,6 +1,10 @@
+<!-- TODO: join shared parts of this component with PsTextInput into a
+shared wrapper component -->
 <script>
   import { createEventDispatcher } from 'svelte';
-  export let label = '';
+  import { DEFAULT_AXIS_DIRECTION } from '../constants/defaults.js';
+
+  export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
   export let options = [];
   export let optionKey = undefined;
@@ -8,17 +12,22 @@
 
   const dispatch = createEventDispatcher();
 
+  $: labelClass = `
+    ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
+    ${disabled ? 'disabled' : ''}
+  `;
+
   function onChange (e) {
     dispatch('change', this.value);
   };
 </script>
 
-<label>
-  { #if label }
+<label
+  class={ labelClass }
+>
     <span>
-      { label }
+      <slot></slot>
     </span>
-  {   /if }
   <!-- svelte-ignore a11y-no-onchange -->
   <select
       { disabled }
@@ -39,10 +48,28 @@
 <style>
   label {
     display: flex;
-    flex-direction: column;
   }
 
-  label > span {
-    margin-bottom: 0.5rem;
+  span {
+    flex-shrink: 0;
+  }
+
+  .disabled {
+    opacity: 0.5;
+  }
+
+  .horizontal {
+    flex-direction: row;
+    align-items: baseline;
+  }
+  .horizontal > :not(:last-child):not(:empty) {
+    margin-right: 0.5rem;
+  }
+
+  .vertical {
+    flex-direction: column;
+  }
+  .vertical > :not(:last-child):not(:empty) {
+    margin-bottom: 0.25rem;
   }
 </style>
