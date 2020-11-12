@@ -69,10 +69,6 @@ a:visited,
   color: rgb(42,41,41);
 }
 
-label {
-  display: block;
-}
-
 form > *:not(:last-child) {
   margin-bottom: 2rem;
 }
