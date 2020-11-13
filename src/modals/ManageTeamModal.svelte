@@ -79,7 +79,7 @@
     // TODO show some error
     if (!response) return;
 
-    updateUserProperty('toInvite', false, userEmail);
+    updateUserProperty('toInvite', false, email);
   };
 
   function removeUser (userEmail) {
