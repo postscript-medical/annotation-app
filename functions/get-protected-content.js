@@ -12,6 +12,7 @@ exports.handler = async (_, context) => {
             showTutorial
             role
             team {
+              _id
               name
               members {
                 data {

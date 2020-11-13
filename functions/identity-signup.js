@@ -24,7 +24,7 @@ exports.handler = async event => {
           maxSpecialties: 1
           maxUsers: 1
           name: "My organization"
-          specialties:{ connect: "281280811957748229" }
+          specialties: { connect: "281280811957748229" }
           stripeID: $stripeID
           subscriptionLevel: "inactive"
           teams: {

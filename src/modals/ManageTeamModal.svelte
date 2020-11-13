@@ -4,6 +4,7 @@
     onMount,
   } from 'svelte';
   import {
+    protectedContent,
     session,
   } from '../stores.js';
   import ErrorMessage from '../components/ErrorMessage.svelte';
@@ -73,6 +74,7 @@
         lastName,
         password: '123',
         role,
+        teamID: $protectedContent.team._id,
       }),
     });
 
