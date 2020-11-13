@@ -191,12 +191,10 @@
           <PsButton
             on:click={ () => saveNewUser(member) }
           >
-            Invite user
+            Save user
           </PsButton>
         { :else }
-          <span>
-            Invite sent
-          </span>
+          <span></span>
         { /if }
       { /each }
       <!-- TODO limite the addition of user to one at a time -->
