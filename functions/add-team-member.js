@@ -36,7 +36,7 @@ exports.handler = async (event, context) => {
     // create a new user in the selected team
     await faunaFetch({
       query: `
-        mutation ($email: String! $role: String! $netlifyID: ID! $lastName: String firstName: String $teamID: ID!) {
+        mutation ($email: String! $role: String! $netlifyID: ID! $lastName: String $firstName: String $teamID: ID!) {
           createUser(data: {
             email: $email
             role: $role
@@ -45,7 +45,9 @@ exports.handler = async (event, context) => {
             firstName: $firstName
             team: { connect: teamID }
             showTutorial: true
-          })
+          }) {
+            _id
+          }
         }
       `,
       variables: {
