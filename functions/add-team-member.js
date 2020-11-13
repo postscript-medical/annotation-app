@@ -8,7 +8,14 @@ exports.handler = async (event, context) => {
     const response = await fetch(`${identity.url}/admin/users`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${identity.token}` },
-      body: JSON.stringify({ email, password, confirm: true, roles: [role] }),
+      body: JSON.stringify({
+        email,
+        password,
+        confirm: true,
+        app_metadata: {
+          roles: [role],
+        },
+      }),
     })
     .catch(error => {
       return {
