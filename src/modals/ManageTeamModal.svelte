@@ -85,9 +85,38 @@
     updateUserProperty('toInvite', false, email);
   };
 
-  function removeUser (userEmail) {
+  async function removeUser ({ netlifyID, userID}) {
     // TODO: first delete user from Netlify, on success remove it from local list
-    // members = [...members.filter(({ email }) => email !== userEmail)]
+    errorMessage = '';
+
+    const token = user ? await user.jwt(true) : false;
+
+    if (!token) {
+      errorMessage = 'Could not validate your token. Please contact support.';
+
+      return;
+    };
+
+    if (!userID) {
+      errorMessage = 'Not a valid user.';
+
+      return;
+    }
+
+    const response = await fetch('/.netlify/functions/remove-team-member', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      body: JSON.stringify({
+        userID,
+        netlifyID,
+      }),
+    });
+
+    // TODO show some error
+    if (!response) return;
+
+    members = [...members.filter(({ _id }) => _id !== userID)];
   };
 
   async function submit(event) {
@@ -182,7 +211,7 @@
         <!-- TODO: Create a warning style -->
         <PsButton
           style="secondary"
-          on:click={ () => removeUser(member.email) }
+          on:click={ () => removeUser(member) }
           disabled={ member.email === user.email }
         >
           Remove user
