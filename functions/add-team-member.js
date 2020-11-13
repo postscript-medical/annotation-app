@@ -33,6 +33,10 @@ exports.handler = async (event, context) => {
 
     // Create entry in FaunaDB
 
+    console.log('------------');
+    console.log('FaunaFetch');
+    console.log(email, role, createdUser.id, lastName, firstName, teamID);
+
     // create a new user in the selected team
     await faunaFetch({
       query: `
@@ -59,6 +63,8 @@ exports.handler = async (event, context) => {
         teamID,
       }
     });
+
+    // send a reset password link to the user
 
 
     return {
