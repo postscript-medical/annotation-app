@@ -69,9 +69,6 @@
       <ManageSubscription
         onDark
       />
-      <SignOutButton
-        asLink
-      />
       { #if $protectedContent.role === 'owner' }
         <PsButton
           asLink
@@ -80,6 +77,9 @@
           Manage team members
         </PsButton>
       { /if }
+      <SignOutButton
+        asLink
+      />
     </div>
   { /if }
 </div>
