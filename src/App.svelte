@@ -166,6 +166,7 @@
   <ManageTeamModal
     team={ $protectedContent.team }
     user={ $user }
+    maxUsers={ $organization.maxUsers }
     on:close={ () => $showManageTeamModal = false }
   />
 { :else if error }

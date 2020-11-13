@@ -23,10 +23,24 @@ exports.handler = async (event, context) => {
     //   };
     // });
 
-    const response = await fetch(`${identity.url}/admin/users/{${userID}}`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${identity.token}` },
-    })
+    // const response = await fetch(`${identity.url}/admin/users/{${userID}}`, {
+    //   method: 'GET',
+    //   headers: { Authorization: `Bearer ${identity.token}` },
+    // })
+
+    const { identity } = context.clientContext;
+    const response = await fetch(`${identity.url}/admin/users/${user.sub}`, {
+      method: 'PUT',
+      headers: {
+        // note that this is a special admin token for the Identity API
+        Authorization: `Bearer ${identity.token}`,
+      },
+      body: JSON.stringify({
+        app_metadata: {
+          roles: ['owner', 'magician'],
+        },
+      }),
+    });
 
     if (!response) return {
       statusCode: 400,
