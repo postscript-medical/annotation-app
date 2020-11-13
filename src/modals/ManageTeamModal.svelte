@@ -85,7 +85,7 @@
     updateUserProperty('toInvite', false, email);
   };
 
-  async function removeUser ({ netlifyID, userID}) {
+  async function removeUser ({ netlifyID, _id: userID}) {
     // TODO: first delete user from Netlify, on success remove it from local list
     errorMessage = '';
 
