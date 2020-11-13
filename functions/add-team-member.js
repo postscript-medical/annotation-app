@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
             netlifyID: $netlifyID
             lastName: $lastName
             firstName: $firstName
-            team: { connect: teamID }
+            team: { connect: $teamID }
             showTutorial: true
           }) {
             _id
