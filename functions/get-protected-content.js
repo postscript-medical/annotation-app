@@ -16,6 +16,8 @@ exports.handler = async (_, context) => {
               name
               members {
                 data {
+                  _id
+                  netlifyID
                   email
                   firstName
                   lastName

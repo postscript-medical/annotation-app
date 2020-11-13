@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
 const { faunaFetch } = require('./utils/fauna');
 
-exports.handler = async (event, context) => {
+exports.handler = async ({ body }, context) => {
   const { identity } = context.clientContext;
-  const { email, firstName, lastName, password, role, teamID } = JSON.parse(event.body)
+  const { email, firstName, lastName, password, role, teamID } = JSON.parse(body)
 
   try {
     const response = await fetch(`${identity.url}/admin/users`, {
@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
     .catch(error => {
       return {
         statusCode: 400,
-        body: `Error creating user: ${error}`
+        body: `Error creating user: ${error}`,
       };
     });
 
