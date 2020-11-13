@@ -21,7 +21,8 @@ export default async function (user) {
     },
   })
 
-  if (!response.ok) {
+  if (!response || !response.ok) {
+    // TODO: clear session storage whenever we hit this error
     throw new Error (`An error when fetching protected content:\n${reponse.status}`)
   };
 
