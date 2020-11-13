@@ -1,7 +1,7 @@
+const { SUBSCRIPTIONS } = require('./constants');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
 const faunadb = require('faunadb');
-const { SUBSCRIPTIONS } = require('./constants');
 const q = faunadb.query;
 const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
