@@ -15,20 +15,22 @@ exports.handler = async ({ body }, context) => {
         statusCode: 400,
         body: `Error deleting user: ${error}`,
       };
-    })
+    });
 
     if (!response) return {
       statusCode: 400,
       body: 'No user deleted'
     };
 
-    // TODO: delete the entry from FaunaDB
+    // Remove the user from the database
     await faunaFetch({
-      query: `mutation ($userID:ID!) {
-        deleteUser(id: $userID) {
-          _id
+      query: `
+        mutation ($userID: ID!) {
+          deleteUser(id: $userID) {
+            _id
+          }
         }
-      }`,
+      `,
       variables: {
         userID
       }
@@ -42,5 +44,5 @@ exports.handler = async ({ body }, context) => {
       statusCode: 400,
       body: `Webhook Error: ${error.message}`,
     };
-  }
-}
+  };
+};

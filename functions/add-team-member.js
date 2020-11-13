@@ -25,10 +25,17 @@ exports.handler = async ({ body }, context) => {
 
     const createdUser = await response.json();
 
-    // create a new user in the selected team
+    // Add the user to the database
     await faunaFetch({
       query: `
-        mutation ($email: String! $role: String! $netlifyID: ID! $lastName: String $firstName: String $teamID: ID!) {
+        mutation (
+            $email: String!
+            $role: String!
+            $netlifyID: ID!
+            $lastName: String
+            $firstName: String
+            $teamID: ID!
+          ) {
           createUser(data: {
             email: $email
             role: $role
