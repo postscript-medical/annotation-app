@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
   const { identity, user } = context.clientContext;
-  const userID = user.sub;
+  // const userID = user.sub;
   // const usersUrl = `${identity.url}/admin/users`;
   // const adminAuthHeader = `Bearer ${identity.token}`;
   const { email, password } = JSON.parse(event.body)
@@ -11,35 +11,16 @@ exports.handler = async (event, context) => {
   console.log('IDENTITY:', identity);
 
   try {
-    // const response = await fetch(`${identity.url}/admin/users`, {
-    //   method: 'POST',
-    //   headers: { Authorization: `Bearer ${identity.token}` },
-    //   body: JSON.stringify({ email, password, confirm: true }),
-    // })
-    // .catch(error => {
-    //   return {
-    //     statusCode: 400,
-    //     body: `Error creating user: ${error}`
-    //   };
-    // });
-
-    // const response = await fetch(`${identity.url}/admin/users/{${userID}}`, {
-    //   method: 'GET',
-    //   headers: { Authorization: `Bearer ${identity.token}` },
-    // })
-
-    const { identity } = context.clientContext;
-    const response = await fetch(`${identity.url}/admin/users/${user.sub}`, {
-      method: 'PUT',
-      headers: {
-        // note that this is a special admin token for the Identity API
-        Authorization: `Bearer ${identity.token}`,
-      },
-      body: JSON.stringify({
-        app_metadata: {
-          roles: ['owner', 'magician'],
-        },
-      }),
+    const response = await fetch(`${identity.url}/admin/users`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${identity.token}` },
+      body: JSON.stringify({ email, password, confirm: true }),
+    })
+    .catch(error => {
+      return {
+        statusCode: 400,
+        body: `Error creating user: ${error}`
+      };
     });
 
     if (!response) return {
