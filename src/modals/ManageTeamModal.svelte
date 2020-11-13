@@ -7,6 +7,7 @@
     protectedContent,
     session,
   } from '../stores.js';
+  import loadProtectedContent from '../methods/load-protected-content.js';
   import ErrorMessage from '../components/ErrorMessage.svelte';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
@@ -91,8 +92,11 @@
 
   async function submit(event) {
     // TODO: reload the data from the server before closing the modal
+    await loadProtectedContent(user);
 
-    // dispatch('close');
+    // TODO: loading spinner or the sort
+
+    dispatch('close');
   };
 
   function updateUserProperty(key, value, userEmail) {
