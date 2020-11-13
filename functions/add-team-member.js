@@ -1,8 +1,5 @@
 const fetch = require('node-fetch');
 const { faunaFetch } = require('./utils/fauna');
-// const faunadb = require('faunadb');
-// const q = faunadb.query;
-// const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
@@ -27,15 +24,6 @@ exports.handler = async (event, context) => {
     };
 
     const createdUser = await response.json();
-
-    console.log('Created user:');
-    console.log(JSON.stringify({ createdUser }));
-
-    // Create entry in FaunaDB
-
-    console.log('------------');
-    console.log('FaunaFetch');
-    console.log(email, role, createdUser.id, lastName, firstName, teamID);
 
     // create a new user in the selected team
     await faunaFetch({
@@ -64,8 +52,7 @@ exports.handler = async (event, context) => {
       }
     });
 
-    // send a reset password link to the user
-
+    // TODO: send a reset password link to the user
 
     return {
       statusCode: 204,
