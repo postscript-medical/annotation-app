@@ -56,7 +56,7 @@
       return;
     };
 
-    if (!newUser.email) {
+    if (!email) {
       // TODO: when error occurs, it should highlight the missing fields
       errorMessage = 'Please provide an email address';
 
