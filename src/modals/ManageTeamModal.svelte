@@ -45,54 +45,8 @@
     ]
   };
 
-  async function inviteUser (userEmail) {
-    console.log('inviteUser:\n>', userEmail);
+  async function saveNewUser ({ email, firstName, lastName, role }) {
     errorMessage = '';
-
-    const token = user ? await user.jwt(true) : false;
-    console.log('token', token);
-
-    if (!token) {
-      errorMessage = 'Inalid user token.'
-
-      return;
-    };
-
-    if (!userEmail) {
-      // TODO: when error occurs, it should highlight the missing fields
-      errorMessage = 'Please provide an email address';
-
-      return;
-    }
-    // generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
-    // get shared sign up function
-
-    const response = await fetch('/.netlify/functions/update-team-members', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      // headers: { Authorization: `Bearer ${user.token.access_token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        email: userEmail,
-        password: '123'
-      }),
-    });
-
-    if (!response) return;
-
-    console.log('response', response);
-
-    updateUser('toInvite', false, userEmail);
-  };
-
-  function removeUser (userEmail) {
-    members = [...members.filter(({ email }) => email !== userEmail)]
-  };
-
-  async function submit(event) {
-    console.log('Submit', event);
-    console.log('Team name', teamName);
-    console.log('members', members);
 
     const token = user ? await user.jwt(true) : false;
 
@@ -102,23 +56,45 @@
       return;
     };
 
-    // reach out to a Netlify function to update fauna
-    const response = await fetch('/.netlify/functions/update-team-members', {
-      method:'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    if (!newUser.email) {
+      // TODO: when error occurs, it should highlight the missing fields
+      errorMessage = 'Please provide an email address';
+
+      return;
+    }
+    // TODO: generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
+    const response = await fetch('/.netlify/functions/add-team-member', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
       body: JSON.stringify({
-        teamName,
-        team: members,
-        organizationID: 'TBC'
-      })
-    })
+        email,
+        firstName,
+        lastName,
+        password: '123',
+        role,
+      }),
+    });
+
+    // TODO show some error
+    if (!response) return;
+
+    updateUserProperty('toInvite', false, userEmail);
+  };
+
+  function removeUser (userEmail) {
+    // TODO: first delete user from Netlify, on success remove it from local list
+    // members = [...members.filter(({ email }) => email !== userEmail)]
+  };
+
+  async function submit(event) {
+    // TODO: reload the data from the server before closing the modal
 
     // dispatch('close');
   };
 
-  function updateUser(key, value, userEmail) {
+  function updateUserProperty(key, value, userEmail) {
+    // TODO: first update user in FaunaDB via Netlify functions before updating the local copy
     members = members.map(member => {
       if (member.email === userEmail) {
         return {
@@ -179,23 +155,23 @@
         <PsTextInput
           value={ member.firstName }
           disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUser('firstName', value, member.email) }
+          on:input={ ({ detail: value }) => updateUserProperty('firstName', value, member.email) }
         />
         <PsTextInput
           value={ member.lastName }
           disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUser('lastName', value, member.email) }
+          on:input={ ({ detail: value }) => updateUserProperty('lastName', value, member.email) }
         />
         <PsTextInput
           value={ member.email }
           disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUser('email', value, member.email) }
+          on:input={ ({ detail: value }) => updateUserProperty('email', value, member.email) }
         />
         <PsDropdown
           options={ roles }
           selected={ member.role }
           disabled={ index > maxUserIndex }
-          on:change={ ({ detail: value }) => updateUser('role', value, member.email) }
+          on:change={ ({ detail: value }) => updateUserProperty('role', value, member.email) }
         />
         <!-- TODO: Create a warning style -->
         <PsButton
@@ -207,7 +183,7 @@
         </PsButton>
         { #if member.toInvite }
           <PsButton
-            on:click={ () => inviteUser(member.email) }
+            on:click={ () => saveNewUser(member) }
           >
             Invite user
           </PsButton>
