@@ -47,44 +47,6 @@
     ]
   };
 
-  async function saveNewUser ({ email, firstName, lastName, role }) {
-    errorMessage = '';
-
-    const token = user ? await user.jwt(true) : false;
-
-    if (!token) {
-      errorMessage = 'Could not validate your token. Please contact support.';
-
-      return;
-    };
-
-    if (!email) {
-      // TODO: when error occurs, it should highlight the missing fields
-      errorMessage = 'Please provide an email address';
-
-      return;
-    }
-    // TODO: generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
-    const response = await fetch('/.netlify/functions/add-team-member', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        email,
-        firstName,
-        lastName,
-        password: '123',
-        role,
-        teamID: $protectedContent.team._id,
-      }),
-    });
-
-    // TODO show some error
-    if (!response) return;
-
-    updateUserProperty('toInvite', false, email);
-  };
-
   async function removeUser ({ netlifyID, _id: userID}) {
     // TODO: first delete user from Netlify, on success remove it from local list
     errorMessage = '';
@@ -117,6 +79,79 @@
     if (!response) return;
 
     members = [...members.filter(({ _id }) => _id !== userID)];
+  };
+
+   async function saveNewUser ({ email, firstName, lastName, role }) {
+    errorMessage = '';
+
+    const token = user ? await user.jwt(true) : false;
+
+    if (!token) {
+      errorMessage = 'Could not validate your token. Please contact support.';
+
+      return;
+    };
+
+    if (!email) {
+      // TODO: when error occurs, it should highlight the missing fields
+      errorMessage = 'Please provide an email address';
+
+      return;
+    };
+
+    // TODO: generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
+    const response = await fetch('/.netlify/functions/add-team-member', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        firstName,
+        lastName,
+        password: '123',
+        role,
+        teamID: $protectedContent.team._id,
+      }),
+    });
+
+    // TODO show some error
+    if (!response) return;
+
+    updateUserProperty('toInvite', false, email);
+  };
+
+  async function saveUpdatedUser ({ email, firstName, lastName, role, netlifyID, _id: userID }) {
+    errorMessage = '';
+
+    const token = user ? await user.jwt(true) : false;
+
+    if (!token) {
+      errorMessage = 'Could not validate your token. Please contact support.';
+
+      return;
+    };
+
+    if (!email) {
+      // TODO: when error occurs, it should highlight the missing fields
+      errorMessage = 'Please provide an email address';
+
+      return;
+    };
+
+    const response = await fetch('/.netlify/functions/update-team-member', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        firstName,
+        lastName,
+        role,
+        netlifyID,
+        userID,
+        teamID: $protectedContent.team._id,
+      }),
+    });
   };
 
   async function submit(event) {
@@ -220,10 +255,14 @@
           <PsButton
             on:click={ () => saveNewUser(member) }
           >
-            Save user
+            Create user
           </PsButton>
         { :else }
-          <span></span>
+          <PsButton
+            on:click={ () => saveUpdatedUser(member) }
+          >
+            Save user
+          </PsButton>
         { /if }
       { /each }
       <!-- TODO limite the addition of user to one at a time -->
