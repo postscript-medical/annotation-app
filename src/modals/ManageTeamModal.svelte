@@ -4,6 +4,7 @@
     onMount,
   } from 'svelte';
   import {
+    organization,
     protectedContent,
     session,
   } from '../stores.js';
@@ -81,7 +82,7 @@
     members = [...members.filter(({ _id }) => _id !== userID)];
   };
 
-   async function saveNewUser ({ email, firstName, lastName, role }) {
+  async function saveNewUser ({ email, firstName, lastName, role }) {
     errorMessage = '';
 
     const token = user ? await user.jwt(true) : false;
@@ -100,6 +101,9 @@
     };
 
     // TODO: generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
+    /**
+     * NOTE: This call ALWAYS fails when in localhost!
+    */
     const response = await fetch('/.netlify/functions/add-team-member', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -118,6 +122,9 @@
     if (!response) return;
 
     updateUserProperty('toInvite', false, email);
+
+    // send welcome email with a reset password link to the newly created user.
+    sendEmail(email, firstName);
   };
 
   async function saveUpdatedUser ({ email, firstName, lastName, role, netlifyID, _id: userID }) {
@@ -154,6 +161,26 @@
     });
   };
 
+  async function sendEmail(email, firstName) {
+    await emailjs.send('5609467','ps_team_member_welcome', {
+      from_email: user.email,
+      from_name: user.full_name || 'admininstrator',
+      org_name: $organization.name,
+      team_name: teamName,
+      to_email: email,
+      to_name: firstName || 'there',
+    });
+
+    await $session
+      .requestPasswordRecovery(email)
+      .then(response => {
+        console.log('Recovery sent', { reponse });
+      })
+      .catch(error => {
+        console.log('Error sending email:', error);
+      });
+  }
+
   async function submit(event) {
     // TODO: reload the data from the server before closing the modal
     await loadProtectedContent(user);
@@ -182,6 +209,8 @@
   };
 
   onMount(() => {
+    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
+
     teamName = team.name;
     members = [...team.members];
   });
