@@ -66,10 +66,10 @@
       class="dropdown shadow"
       transition:tween
     >
-      <ManageSubscription
-        onDark
-      />
       { #if $protectedContent.role === 'owner' }
+        <ManageSubscription
+          onDark
+        />
         <PsButton
           asLink
           on:click={ manageTeam }
