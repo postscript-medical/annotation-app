@@ -38,7 +38,7 @@
 
     const response = await $session
       .login(email, password, stayLogged)
-      .catch(err => {
+      .catch(error => {
         errorMessage = error.json.error_description;
 
         $isLoading = false;

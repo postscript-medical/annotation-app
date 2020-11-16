@@ -22,6 +22,15 @@ exports.handler = async ({ body }, context) => {
       body: 'No user deleted'
     };
 
+    const data = await response.json();
+
+    if (`${data.code}`[0] === '4' ) {
+      return {
+        statusCode: 400,
+        body: 'No user deleted'
+      }
+    };
+
     // Remove the user from the database
     await faunaFetch({
       query: `

@@ -23,6 +23,15 @@ exports.handler = async ({ body }, context) => {
       body: 'No user updated'
     };
 
+    const data = await response.json();
+
+    if (`${data.code}`[0] === '4' ) {
+      return {
+        statusCode: 400,
+        body: 'No user updated'
+      }
+    };
+
     // Update the user in the database
     await faunaFetch({
       query: `

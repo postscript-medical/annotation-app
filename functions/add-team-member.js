@@ -18,14 +18,14 @@ exports.handler = async ({ body }, context) => {
       };
     });
 
-    if (!response) return {
-      statusCode: 400,
-      body: 'No user created'
-    };
-
     const createdUser = await response.json();
 
-    console.log('RESPONSE', createdUser);
+    if (`${createdUser.code}`[0] === '4' ) {
+      return {
+        statusCode: 400,
+        body: 'No user created'
+      }
+    };
 
     // Add the user to the database
     await faunaFetch({
