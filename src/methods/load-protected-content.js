@@ -62,7 +62,7 @@ export default async function (user) {
 
   const userDefaults = user.user_metadata.illustration || {
     /* TODO: look for an illustration with a .default key set to true */
-    name: mappedData.specialties[0].subSpecialties[0].illustrations[0].name,
+    name: mappedData.team.organization.specialties[0].subSpecialties[0].illustrations[0].name,
     specialty: DEFAULT_SELECTED_SPECIALTY,
     subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
   };
