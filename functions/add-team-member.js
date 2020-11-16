@@ -25,6 +25,8 @@ exports.handler = async ({ body }, context) => {
 
     const createdUser = await response.json();
 
+    console.log('RESPONSE', createdUser);
+
     // Add the user to the database
     await faunaFetch({
       query: `
@@ -58,8 +60,6 @@ exports.handler = async ({ body }, context) => {
         teamID,
       }
     });
-
-    // TODO: send a reset password link to the user
 
     return {
       statusCode: 204,
