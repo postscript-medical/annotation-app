@@ -66,6 +66,9 @@
       return;
     }
 
+    /**
+     * NOTE: This call ALWAYS fails when in localhost!
+    */
     const response = await fetch('/.netlify/functions/remove-team-member', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -76,8 +79,10 @@
       }),
     });
 
-    // TODO show some error
-    if (!response) return;
+    if (!response || !response.ok) {
+      errorMessage = 'No user deleted. Check the details or contact support.'
+      return;
+    };
 
     members = [...members.filter(({ _id }) => _id !== userID)];
   };
@@ -118,8 +123,10 @@
       }),
     });
 
-    // TODO show some error
-    if (!response) return;
+    if (!response || !response.ok) {
+      errorMessage = 'No user created. Check the details or contact support.'
+      return;
+    };
 
     updateUserProperty('toInvite', false, email);
 
@@ -159,6 +166,11 @@
         teamID: $protectedContent.team._id,
       }),
     });
+
+    if (!response || !response.ok) {
+      errorMessage = 'No user updated. Check the details or contact support.'
+      return;
+    };
   };
 
   async function sendEmail(email, firstName) {
@@ -174,7 +186,7 @@
     await $session
       .requestPasswordRecovery(email)
       .then(response => {
-        console.log('Recovery sent', { reponse });
+        console.log('Recovery sent', { response });
       })
       .catch(error => {
         console.log('Error sending email:', error);
