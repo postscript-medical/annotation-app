@@ -32,7 +32,7 @@
 <style>
   button {
     background-color: rgb(55, 154, 70);
-    border: 0;
+    border: 2px solid rgb(55,154,70);
     color: white;
     white-space: nowrap;
   }
@@ -49,7 +49,7 @@
 
   .secondary {
     background-color: white;
-    border: 2px solid rgb(42,41,41);
+    border-color: rgb(42,41,41);
     color: rgb(42,41,41);
   }
 
