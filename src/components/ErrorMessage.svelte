@@ -23,7 +23,6 @@
     padding: 0.5rem;
     color: #df0303;
     padding-left: 3rem;
-    margin-bottom: 2rem;
     font-size: 0.875rem;
     line-height: 1rem;
   }
