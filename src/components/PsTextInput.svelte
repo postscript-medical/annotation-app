@@ -8,12 +8,14 @@ to allow for grid layouts to be implemented -->
 
   export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
+  export let editable = true;
   export let placeholder = '';
   export let value = '';
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
+    container
     ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
@@ -23,28 +25,46 @@ to allow for grid layouts to be implemented -->
   }
 </script>
 
-<label
-  class={ labelClass }
->
-  <span>
-    <slot></slot>
-  </span>
-  <input
-    type="text"
-    { value }
-    { placeholder }
-    { disabled }
-    on:input={ onInput }
+{ #if editable }
+  <label
+    class={ labelClass }
   >
-</label>
+    <span>
+      <slot></slot>
+    </span>
+    <input
+      type="text"
+      { value }
+      { placeholder }
+      { disabled }
+      on:input={ onInput }
+    >
+  </label>
+{ :else }
+  <div
+    class={ labelClass }
+  >
+    <span>
+      <slot></slot>
+    </span>
+    <span>
+      { value }
+    </span>
+  </div>
+{ /if }
+
 
 <style>
-  label {
-    display: flex;
+  input[type="text"] {
+    padding: 0.25rem;
   }
 
   span {
     flex-shrink: 0;
+  }
+
+  .container {
+    display: flex;
   }
 
   .disabled {
