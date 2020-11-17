@@ -23,11 +23,12 @@
   export let maxUsers = 1;
 
   const dispatch = createEventDispatcher();
-  const roles = [ROLE_USER, ROLE_ADMIN];
+  const roles = [ROLE_USER];
 
   let errorMessage;
   let members = [];
   let teamName;
+  let editingUserIndex;
 
   $: totalUsersAssigned = members.length;
   $: totalUsersLeft = maxUsers - totalUsersAssigned;
@@ -45,11 +46,13 @@
         role: ROLE_USER,
         toInvite: true,
       }
-    ]
+    ];
+
+    editingUserIndex = totalUsersAssigned;
   };
 
   async function removeUser ({ netlifyID, _id: userID}) {
-    // TODO: first delete user from Netlify, on success remove it from local list
+    // TODO: Move this logic to the parent component
     errorMessage = '';
 
     const token = user ? await user.jwt(true) : false;
@@ -229,109 +232,161 @@
 </script>
 
 <Modal
+  confirmBtCopy="Save changes"
+  on:confirm={ submit }
   on:close
 >
-  <h2
+  <span
     slot="header"
   >
     Team management
-  </h2>
-
+  </span>
   <ErrorMessage
     message={ errorMessage }
   />
-
-  <form
-    on:submit|preventDefault={ submit }
+  <PsTextInput
+    editable={ false }
+    value={ teamName }
+    on:input={ updateTeamName }
   >
-    <PsTextInput
-      value={ teamName }
-      on:input={ updateTeamName }
-    >
-      Team name
-    </PsTextInput>
-    <div>
-      { totalUsersLeft } of { maxUsers } user slots left
-    </div>
-    <div
-      class="team-grid"
-    >
-      <span>First name</span>
-      <span>Last name</span>
-      <span>Email</span>
-      <span>Role</span>
-      <span>Action</span>
-      <span>Status</span>
+    Team name
+  </PsTextInput>
+  <div
+    class="usage-container"
+  >
+    { totalUsersLeft } of { maxUsers } user slots left
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>
+          First name
+        </th>
+        <th>
+          Last name
+        </th>
+        <th>
+          Email
+        </th>
+        <th>
+          Role
+        </th>
+        <th>
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody>
       { #each members as member, index }
-        <PsTextInput
-          value={ member.firstName }
-          disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUserProperty('firstName', value, member.email) }
-        />
-        <PsTextInput
-          value={ member.lastName }
-          disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUserProperty('lastName', value, member.email) }
-        />
-        <PsTextInput
-          value={ member.email }
-          disabled={ index > maxUserIndex }
-          on:input={ ({ detail: value }) => updateUserProperty('email', value, member.email) }
-        />
-        <PsDropdown
-          options={ roles }
-          selected={ member.role }
-          disabled={ index > maxUserIndex }
-          on:change={ ({ detail: value }) => updateUserProperty('role', value, member.email) }
-        />
-        <!-- TODO: Create a warning style -->
-        <PsButton
-          style="secondary"
-          on:click={ () => removeUser(member) }
-          disabled={ member.email === user.email }
-        >
-          Remove user
-        </PsButton>
-        { #if member.toInvite }
-          <PsButton
-            on:click={ () => saveNewUser(member) }
-          >
-            Create user
-          </PsButton>
-        { :else }
-          <PsButton
-            on:click={ () => saveUpdatedUser(member) }
-          >
-            Save user
-          </PsButton>
-        { /if }
+        <tr>
+          <td>
+            <PsTextInput
+              editable={ editingUserIndex === index }
+              value={ member.firstName }
+              disabled={ index > maxUserIndex }
+              on:input={ ({ detail: value }) => updateUserProperty('firstName', value, member.email) }
+            />
+          </td>
+          <td>
+            <PsTextInput
+              editable={ editingUserIndex === index }
+              value={ member.lastName }
+              disabled={ index > maxUserIndex }
+              on:input={ ({ detail: value }) => updateUserProperty('lastName', value, member.email) }
+            />
+          </td>
+          <td>
+            <PsTextInput
+              editable={ editingUserIndex === index }
+              value={ member.email }
+              disabled={ index > maxUserIndex }
+              on:input={ ({ detail: value }) => updateUserProperty('email', value, member.email) }
+            />
+          </td>
+          <td>
+            <PsDropdown
+              editable={ editingUserIndex === index && member.email !== user.email}
+              options={ roles }
+              selected={ member.role }
+              disabled={ index > maxUserIndex }
+              on:change={ ({ detail: value }) => updateUserProperty('role', value, member.email) }
+            />
+          </td>
+          <td>
+            <PsButton
+              asLink
+              style="secondary"
+              on:click={ () => removeUser(member) }
+              disabled={ member.email === user.email }
+            >
+              Remove
+            </PsButton>
+            /
+            { #if editingUserIndex !== index }
+              <PsButton
+                asLink
+                style="secondary"
+                on:click={ () => editingUserIndex = index }
+              >
+                Edit
+              </PsButton>
+            { :else }
+              { #if member.toInvite }
+                <PsButton
+                  asLink
+                  style="secondary"
+                  on:click={ () => saveNewUser(member) }
+                >
+                  Create
+                </PsButton>
+              { :else }
+                <PsButton
+                  asLink
+                  style="secondary"
+                  on:click={ () => saveUpdatedUser(member) }
+                >
+                  Save
+                </PsButton>
+              { /if }
+              /
+              <PsButton
+                asLink
+                style="secondary"
+                on:click={ () => editingUserIndex = undefined }
+              >
+                Cancel
+              </PsButton>
+            { /if }
+          </td>
+        </tr>
       { /each }
-      <!-- TODO limite the addition of user to one at a time -->
-      <PsButton
-        style='secondary'
-        on:click={ addUser }
-        { disabled }
-      >
-        Add user
-      </PsButton>
-    </div>
-
-    <PsButton 
-      type="submit"
-      disabled={ hasUninvitedUser }
+    </tbody>
+  </table>
+  <div>
+    <PsButton
+      style='secondary'
+      on:click={ addUser }
+      { disabled }
     >
-      Save
+      Add user
     </PsButton>
-  </form>
+  </div>
 </Modal>
 
 <style>
-  .team-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-gap: 1rem 0.5rem;
+  table {
+    border-collapse: collapse;
   }
-  .team-grid > :global(:last-child) {
-    grid-column-end: -1;
+  table :global(*) {
+    white-space: nowrap;
+  }
+  td, th {
+    /* border: 1px solid #999; */
+    padding: 0.5rem;
+  }
+
+  .usage-container {
+    display: flex;
+    justify-content: flex-end;
   }
 </style>

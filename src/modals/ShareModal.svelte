@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
+  // TODO: The below should be a given prop. Not a direct link to the store.
   import { canvas, dpr, illustrationDisplayed } from '../stores.js';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
@@ -11,10 +12,6 @@
   let email;
   let generatedImage;
   let sendingEmail = false;
-
-  function close () {
-    dispatch('close');
-  };
 
   function drawTypedText (context, parentBoundingRect) {
     const entries = Array.from(document.querySelectorAll('.typed-annotation'));
@@ -34,6 +31,7 @@
   };
 
   function generateAnnotatedImage () {
+    // TODO: Move this to the parent component
     const annotatedImage = document.createElement('canvas');
     const context = annotatedImage.getContext('2d');
     const boundingRect = $canvas.getBoundingClientRect();
@@ -53,6 +51,7 @@
   };
 
   function sendEmail (event) {
+    // TODO: Move this to the parent component
     sendingEmail = true;
     const encodedImage = generatedImage.toDataURL()
     emailjs
@@ -81,64 +80,66 @@
 </script>
 
 <Modal
+  hideCancelButton
+  hideConfirmButton
   on:close
 >
-  { #if emailSent }
-    <h2>
-      Your email has been sent.
-    </h2>
-    <p>
-     You can now close this window.
-    </p>
-    <form
-      on:submit|preventDefault={ close }
-    >
-      <PsButton
-        style="secondary"
-        type="submit"
-      >
-        Close
-      </PsButton>
-    </form>
-  { :else }
-    <h2>
-      Email the image to someone
-    </h2>
-    <form
-      on:submit|preventDefault={ sendEmail }
-    >
-      <label>
-        <input
-          type="email"
-          bind:this={ email }
-          placeholder="Email address"
-          required
-        />
-      </label>
-        <PsButton
-          disabled={ sendingEmail }
-          type="submit"
-        >
-          Send
-        </PsButton>
-    </form>
+  <span
+    slot="header"
+  >
+    { #if emailSent }
+        Your email has been sent
+    { :else }
+        Email the image to someone
     { /if }
-  <h2>
-    Save the image to your machine
-  </h2>
-  <ButtonDownloadAnnotatedImage
-    { generatedImage }
-  />
+  </span>
+
+  <div
+    class="modal-body"
+  >
+    { #if emailSent }
+      <p>
+      You can now close this window.
+      </p>
+    { :else }
+      <input
+        type="email"
+        bind:this={ email }
+        placeholder="Email address"
+        required
+      />
+      <PsButton
+        disabled={ sendingEmail }
+        type="submit"
+        on:click={ sendEmail }
+      >
+        Send
+      </PsButton>
+    { /if }
+    <h3>
+      Or save the image to your machine
+    </h3>
+    <ButtonDownloadAnnotatedImage
+      { generatedImage }
+    />
+  </div>
 </Modal>
 
 <style>
-  h2,
-  label,
-  p {
-    margin-bottom: 2rem;
+  input {
+    margin-bottom: 1rem;
   }
 
-  form {
-    margin-bottom: 4rem;
+  h3 {
+    margin-top: 2rem;
+  }
+
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-body :global(:not(input)) {
+    align-self: flex-start;
   }
 </style>

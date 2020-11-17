@@ -3,9 +3,9 @@
   import ManageTeamModal from './ManageTeamModal.svelte';
   import PsButton from '../components/PsButton.svelte';
 
-  const MANAGE_TEAM = 'manageTeam';
-  const MAX_USERS = 10;
   const BUTTON_COPY = 'Open modal';
+  const DEFAULT = 'default';
+  const MAX_USERS = 10;
   const team = {
     name: 'My team',
     members: [
@@ -35,13 +35,13 @@
   }
 </script>
 
-<View name="Manage Team">
+<View name="Default">
   <PsButton
-    on:click={ openModal(MANAGE_TEAM) }
+    on:click={ openModal(DEFAULT) }
   >
     { BUTTON_COPY }
   </PsButton>
-  { #if modalToOpen === MANAGE_TEAM }
+  { #if modalToOpen === DEFAULT }
     <ManageTeamModal
       { team }
       { user }
