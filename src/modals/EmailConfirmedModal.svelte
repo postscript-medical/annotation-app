@@ -1,29 +1,22 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
   import PsButton from '../components/PsButton.svelte';
 
-  const dispatch = createEventDispatcher();
-
-  function confirm () {
-    dispatch('confirm');
-  };
 </script>
 
-<Modal>
-    <h2>
+<Modal
+  confirmBtCopy="Ok"
+  on:close
+  on:confirm
+>
+    <span
+      slot="header"
+    >
       Thank you
-    </h2>
+    </span>
     <p>
       Your email is now confirmed. You can now log into your account.
     </p>
-
-    <PsButton 
-      autofocus
-      on:click={ confirm }
-    >
-      Ok
-    </PsButton>
 </Modal>
 
 <style>

@@ -19,8 +19,29 @@
   }
 
   function submitForm () {
+    error = undefined;
     sendingEmail = true;
 
+    if (!email.value) {
+      error = {
+        json: {
+          msg: 'Please enter a valid email address.'
+        }
+      }
+      return;
+    };
+
+    if (!$session) {
+      error = {
+        json: {
+          msg: 'User session not authenticated. Please log out and log back in.'
+        }
+      };
+
+      return;
+    };
+
+    // TODO: Move this logic to the parent component
     $session.requestPasswordRecovery(email.value)
       .then(response => {
         emailSent = true;
@@ -35,31 +56,33 @@
 </script>
 
 <Modal
+  cancelBtCopy="Close"
+  confirmBtCopy="Send link"
+  hideCancelButton={ !emailSent }
+  hideConfirmButton={ emailSent }
   on:close
+  on:confirm={ submitForm }
 >
   <ErrorMessage
     message={ errorMessage }
   />
+    <span
+      slot="header"
+    >
+      { #if emailSent }
+        Request sent successfully
+      { :else }
+        Request a recovery password email
+      { /if }
+    </span>
 
   { #if emailSent }
-    <h2>
-      Request sent successfully
-    </h2>
     <p>
       Please await a few moments before checking your email for a recovery link.
     </p>
-    <PsButton
-      style="secondary"
-      on:click={ close }
-    >
-      Close
-    </PsButton>
   { :else }
-    <h2>
-      Request a recovery password email
-    </h2>
     <p>
-      Just enter the email address you registered with below and we will email you a link to reset your password.
+      Please enter the email address you registered with and we will email you a link to reset your password.
     </p>
     <form
       on:submit|preventDefault={ submitForm }
@@ -74,11 +97,6 @@
           required
         />
       </label>
-      <PsButton
-        disabled={ sendingEmail }
-      >
-          Send link
-      </PsButton>
     </form>
   { /if }
 </Modal>

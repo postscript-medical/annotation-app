@@ -14,11 +14,11 @@
 <Modal
   on:close
 >
-  <h2
+  <span
     slot="header"
   >
     Attention
-  </h2>
+  </span>
 
   <slot></slot>
 

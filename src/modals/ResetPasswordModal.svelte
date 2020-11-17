@@ -19,12 +19,15 @@
   function submitForm () {
     const isPasswordGood = checkPasswordRequirements(password.value);
 
+    errorMessage = undefined;
+
     if (!isPasswordGood) {
-      errorMessage = 'Password does not meet criteria';
+      errorMessage = 'Password does not meet criteria.';
 
       return;
     }
 
+    // TODO: Move this logic to the parent component
     $user.update({ password: password.value })
       .then(updatedUser => {
         $user = updatedUser
@@ -39,35 +42,32 @@
 </script>
 
 <Modal
-  on:close
+  cancelBtCopy="Close"
+  confirmBtCopy="Reset password"
   hideCloseButton
+  hideCancelButton={ !resetComplete }
+  hideConfirmButton={ resetComplete }
+  on:confirm={ submitForm }
+  on:close
 >
-  { #if resetComplete }
-    <h2>
+  <span
+    slot="header"
+  >
+    { #if resetComplete }
       Reset complete
-    </h2>
+    { :else }
+      Reset your password
+    { /if }
+  </span>
+  { #if resetComplete }
     <p>
-      Your password has been reset.
+      Your password has been successfully reset.
     </p>
-    <PsButton
-      style="secondary"
-      on:click={ closeModal }
-    >
-      Close
-    </PsButton>
   { :else }
-    <h2>
-      Reset your current password
-    </h2>
-    <p>
-      Please enter a new password for your account.
-    </p>
     <ErrorMessage
       message={ errorMessage }
     />
-    <form
-      on:submit|preventDefault={ submitForm }
-    >
+    <div>
       <label>
         <span>
           New password
@@ -85,12 +85,7 @@
           Including at least one number and one special character.
         </span>
       </label>
-      <PsButton
-        type="submit"
-      >
-          Confirm
-      </PsButton>
-    </form>
+    </div>
   { /if }
 </Modal>
 
