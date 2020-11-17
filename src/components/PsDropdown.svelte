@@ -6,8 +6,10 @@ shared wrapper component -->
 
   export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
+  export let editable = true;
   export let options = [];
   export let optionKey = undefined;
+  // TODO: change the below to 'value'
   export let selected = undefined;
 
   const dispatch = createEventDispatcher();
@@ -22,28 +24,40 @@ shared wrapper component -->
   };
 </script>
 
-<label
-  class={ labelClass }
->
+{ #if editable }
+  <label
+    class={ labelClass }
+  >
+      <span>
+        <slot></slot>
+      </span>
+    <!-- svelte-ignore a11y-no-onchange -->
+    <select
+        { disabled }
+        bind:value={ selected }
+        on:change={ onChange }
+      >
+        { #each options as option }
+          <option
+            value={ optionKey ? option[optionKey] : option }
+          >
+            { optionKey ? option[optionKey] : option }
+          </option>
+        { /each }
+    </select>
+  </label>
+{ :else }
+  <span
+    class={ labelClass }
+  >
     <span>
       <slot></slot>
     </span>
-  <!-- svelte-ignore a11y-no-onchange -->
-  <select
-      { disabled }
-      bind:value={ selected }
-      on:change={ onChange }
-    >
-      { #each options as option }
-        <option
-          value={ optionKey ? option[optionKey] : option }
-        >
-          { optionKey ? option[optionKey] : option }
-        </option>
-      { /each }
-  </select>
-</label>
-
+    <span>
+      { selected }
+    </span>
+  </span>
+{ /if }
 
 <style>
   label {
