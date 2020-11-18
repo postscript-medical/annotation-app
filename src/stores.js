@@ -179,10 +179,9 @@ export const illustrations = derived(
 );
 
 const redirectPath = 'images';
-const imageSize = '1920x1080'
 export const illustrationsPath = derived(
   selectedSpecialty,
-  $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/${imageSize}/` : ''
+  $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/` : ''
 );
 
 

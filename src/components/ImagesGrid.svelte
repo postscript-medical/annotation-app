@@ -11,7 +11,6 @@
   let nativeLoading = false;
 
   const URL_PATH = 'images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/';
-  const IMAGE_SIZE = '1920x1080/';
   const dispatch = createEventDispatcher();
 
   $: noImages = images.length === 0;
@@ -47,7 +46,7 @@
       >
         {#if nativeLoading || intersecting}
           <ImagesGridThumbnail
-            src={ URL_PATH + IMAGE_SIZE + image.src }
+            src={ URL_PATH + image.src }
             alt={ image.name }
             selected={ $selectedIllustrationTitle === image.name }
           />
