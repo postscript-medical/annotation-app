@@ -12,10 +12,6 @@
   let password;
   let resetComplete = false;
 
-  function closeModal () {
-    dispatch('close');
-  }
-
   function submitForm () {
     const isPasswordGood = checkPasswordRequirements(password.value);
 
