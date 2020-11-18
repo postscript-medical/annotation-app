@@ -40,6 +40,8 @@
     showResetPasswordModal = false;
 
     navigateHome();
+
+    window.location.reload()
   }
 
   async function confirmUserSignUp (token) {
