@@ -21,16 +21,6 @@
       showName={ !loggedIn }
       size={ loggedIn ? 'small' : 'large' }
     />
-    { #if loggedIn && hasPaymentDetails }
-      <span
-        class="sub-speciality">
-        |
-      </span>
-      <span
-        class="sub-speciality">
-        { $selectedIllustrationTitle }
-      </span>
-    { /if }
   </div>
   { #if user }
     <div
@@ -73,10 +63,5 @@
 
   .options > :global(*:not(:last-child)) {
     margin-right: 1rem;
-  }
-
-  .sub-speciality {
-    line-height: 1.5;
-    padding-bottom: 0.25rem
   }
 </style>
