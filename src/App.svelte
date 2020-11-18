@@ -38,6 +38,8 @@
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
+
+    navigateHome();
   }
 
   async function confirmUserSignUp (token) {
