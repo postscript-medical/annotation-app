@@ -66,14 +66,14 @@
   { showTerms }
   on:submit={ submit }
 >
-  <h2
+  <span
     slot="cta"
   >
     Already have an account?
-  </h2>
-  <h2>
+  </span>
+  <span>
     Sign in
-  </h2>
+  </span>
   <div
     slot="footer"
     class="footer"
