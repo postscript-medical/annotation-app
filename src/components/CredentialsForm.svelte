@@ -45,21 +45,21 @@
   <div
     class="cta"
   >
-    <slot
-      name="cta"
-    >
-      <h2>
+    <h2>
+      <slot
+        name="cta"
+      >
         Get started today
-      </h2>
-    </slot>
+      </slot>
+    </h2>
   </div>
   <article>
     <header>
-      <slot>
-        <h2>
+      <h2>
+        <slot>
           Sign up
-        </h2>
-      </slot>
+        </slot>
+      </h2>
     </header>
     <ErrorMessage
       message={ errorMessage }
@@ -126,6 +126,9 @@
 </div>
 
 <style>
+  h2 {
+    margin-bottom: 2rem;
+  }
   form:not(:last-child) {
     margin-bottom: 2rem;
   }
