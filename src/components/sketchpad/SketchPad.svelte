@@ -30,6 +30,7 @@
     DEFAULT_SIZE,
     EVENTS_POINTER,
     EVENTS_TOUCH,
+    LINE_THICKNESS_2,
     RADIAN,
     TOOL_ARROW,
     TOOL_ERASER,
@@ -78,7 +79,7 @@
       y: y - offsetTop,
       dx: 0,
       dy: 0,
-      lineWidth: pen.lineWidth,
+      lineWidth: LINE_THICKNESS_2,
       color: pen.color,
     };
 

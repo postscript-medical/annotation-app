@@ -6,6 +6,13 @@ import IconTrashBin from '../components/icons/IconTrashBin.svelte';
 import {
   DEFAULT_COLOR,
   DEFAULT_SIZE,
+  LINE_THICKNESS_0,
+  LINE_THICKNESS_1,
+  LINE_THICKNESS_2,
+  LINE_THICKNESS_3,
+  LINE_THICKNESS_4,
+  LINE_THICKNESS_5,
+  LINE_THICKNESS_6,
   SIZE_MEDIUM,
   SIZE_LARGE,
   TOOL_ERASE_ALL,
@@ -17,22 +24,22 @@ import {
 export const ERASER_SIZES = [
   {
     id: DEFAULT_SIZE,
-    value: 32,
+    value: LINE_THICKNESS_4,
     component: IconLineThickness,
   },
   {
     id: SIZE_MEDIUM,
-    value: 64,
+    value: LINE_THICKNESS_5,
     component: IconLineThickness,
   },
   {
     id: SIZE_LARGE,
-    value: 96,
+    value: LINE_THICKNESS_6,
     component: IconLineThickness,
   },
   {
     id: TOOL_ERASE_ALL,
-    value: 0,
+    value: LINE_THICKNESS_0,
     component: IconTrashBin,
   }
 ];
@@ -55,17 +62,17 @@ export const PEN_COLORS = [
 export const PEN_SIZES = [
   {
     id: DEFAULT_SIZE,
-    value: 2,
+    value: LINE_THICKNESS_1,
     component: IconLineThickness,
   },
   {
     id: SIZE_MEDIUM,
-    value: 4,
+    value: LINE_THICKNESS_2,
     component: IconLineThickness,
   },
   {
     id: SIZE_LARGE,
-    value: 6,
+    value: LINE_THICKNESS_3,
     component: IconLineThickness,
   },
 ];

@@ -21,6 +21,14 @@ export const DEFAULT_SHAPE = 'rectangle';
 
 export const DEFAULT_SIZE = SIZE_SMALL_ID;
 
+export const LINE_THICKNESS_0 = 0;
+export const LINE_THICKNESS_1 = 2;
+export const LINE_THICKNESS_2 = 4;
+export const LINE_THICKNESS_3 = 6;
+export const LINE_THICKNESS_4 = 32;
+export const LINE_THICKNESS_5 = 64;
+export const LINE_THICKNESS_6 = 96;
+
 export const RADIAN = 6.28318;
 
 export const TOOL_ARROW = 'arrow';
