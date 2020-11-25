@@ -1,39 +1,33 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { session, user } from '../stores';
-  import checkPasswordRequirements from '../methods/check-password-requirements.js';
   import Modal from './Modal.svelte';
   import ErrorMessage from '../components/ErrorMessage.svelte';
   import PsButton from '../components/PsButton.svelte';
 
+  export let loading = false;
+  export let errorMessage = '';
+
   const dispatch = createEventDispatcher();
 
-  let errorMessage;
-  let password;
   let resetComplete = false;
+  let password;
+  let submitAttempted = false;
+
+  $: lockInput = !errorMessage && submitAttempted;
+
+  function clearErrors() {
+    submitAttempted = false;
+    dispatch('clear-errors')
+  };
 
   function submitForm () {
-    const isPasswordGood = checkPasswordRequirements(password.value);
+    submitAttempted = true;
+    dispatch('reset-password', password.value);
+  };
 
-    errorMessage = undefined;
-
-    if (!isPasswordGood) {
-      errorMessage = 'Password does not meet criteria.';
-
-      return;
-    }
-
-    // TODO: Move this logic to the parent component
-    $user.update({ password: password.value })
-      .then(updatedUser => {
-        $user = updatedUser
-
-        resetComplete = true;
-      })
-      .catch((error) => {
-        console.error('Failed to update user: %o', error);
-        throw error;
-      });
+  function tweenOutComplete () {
+    submitAttempted = false;
+    resetComplete = true;
   };
 </script>
 
@@ -43,8 +37,10 @@
   hideCloseButton
   hideCancelButton={ !resetComplete }
   hideConfirmButton={ resetComplete }
-  on:confirm={ submitForm }
+  { loading }
   on:close
+  on:confirm={ submitForm }
+  on:tweenOutComplete={ tweenOutComplete }
 >
   <span
     slot="header"
@@ -55,14 +51,16 @@
       Reset your password
     { /if }
   </span>
+
+  <ErrorMessage
+    message={ errorMessage }
+  />
+
   { #if resetComplete }
     <p>
       Your password has been successfully reset.
     </p>
   { :else }
-    <ErrorMessage
-      message={ errorMessage }
-    />
     <div>
       <label>
         <span>
@@ -70,8 +68,10 @@
         </span>
         <input
           bind:this={ password }
+          disabled={ lockInput }
           type="password"
           required
+          on:input={ clearErrors }
         />
         <span
           class="password-requirements"
