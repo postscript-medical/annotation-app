@@ -5,7 +5,8 @@
 </script>
 
 <Modal
-  confirmBtCopy="Ok"
+  cancelBtCopy="Close"
+  hideConfirmButton
   on:close
   on:confirm
 >

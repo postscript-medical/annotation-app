@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import { session } from '../stores';
   import EmailConfirmedModal from '../modals/EmailConfirmedModal.svelte';
   import ForgotPasswordModal from '../modals/ForgotPasswordModal.svelte';
   import SignInForm from '../components/SignInForm.svelte';
@@ -10,6 +11,9 @@
 
   const dispatch = createEventDispatcher();
 
+  let emailSent = false;
+  let errorMessage = '';
+  let loading = false;
   let userEmail;
   let showForgotPasswordModal = false;
 
@@ -24,12 +28,39 @@
   };
 
   function openForgotPasswordModal () {
+    emailSent = false;
     showForgotPasswordModal = true;
   }
 
+  async function requestResetPassword ({ detail: email }) {
+    if (!$session) {
+      error = {
+        json: {
+          msg: 'User session not authenticated. Please log out and log back in.'
+        }
+      };
+
+      return;
+    };
+
+    loading = true;
+
+    // this does not seem to be generating the emails...
+    await $session
+      .requestPasswordRecovery(email)
+      .catch(error => {
+        console.error('Error', error)
+        errorMessage = error.json.msg;
+      });
+
+      if (!errorMessage) emailSent = true;
+
+      loading = false;
+  };
+
   function showThankYou ({ detail }) {
     userEmail = detail.email;
-  }
+  };
 </script>
 
 <div class="ps-app">
@@ -63,7 +94,11 @@
 
   { #if showForgotPasswordModal }
     <ForgotPasswordModal
+      { errorMessage }
+      { emailSent }
+      { loading }
       on:close={ closeForgottenPasswordModal }
+      on:request-reset-password={ requestResetPassword }
     />
   { /if }
 </div>
