@@ -155,17 +155,17 @@
 
     switch (shape.type) {
       case TOOL_ARROW:
-        let arrowHeadLength = shape.length < 100 ? shape.length / 5 : 20;
+        const arrowHeadYLength = shape.length < 100 ? shape.length / 5 : 20;
+        const arrowHeadXLength = shape.length - arrowHeadYLength;
 
         _context.translate(shape.x, shape.y);
         _context.rotate(shape.angle);
         _context.beginPath();
         _context.moveTo(0,0);
-        _context.lineTo(arrowHeadLength,arrowHeadLength);
-        _context.moveTo(0,0);
-        _context.lineTo(arrowHeadLength,-arrowHeadLength);
-        _context.moveTo(0,0);
         _context.lineTo(shape.length, 0);
+        _context.lineTo(arrowHeadXLength,arrowHeadYLength);
+        _context.moveTo(shape.length,0);
+        _context.lineTo(arrowHeadXLength,-arrowHeadYLength);
         _context.stroke();
         break;
 
