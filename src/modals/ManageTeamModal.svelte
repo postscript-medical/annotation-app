@@ -314,7 +314,7 @@
           </td>
           <td>
             <PsButton
-              asLink
+              inline
               style="secondary"
               on:click={ () => removeUser(member) }
               disabled={ member.email === user.email }
@@ -324,7 +324,7 @@
             /
             { #if editingUserIndex !== index }
               <PsButton
-                asLink
+                inline
                 style="secondary"
                 on:click={ () => editingUserIndex = index }
               >
@@ -333,7 +333,7 @@
             { :else }
               { #if member.toInvite }
                 <PsButton
-                  asLink
+                  inline
                   style="secondary"
                   on:click={ () => saveNewUser(member) }
                 >
@@ -341,7 +341,7 @@
                 </PsButton>
               { :else }
                 <PsButton
-                  asLink
+                  inline
                   style="secondary"
                   on:click={ () => saveUpdatedUser(member) }
                 >
@@ -350,7 +350,7 @@
               { /if }
               /
               <PsButton
-                asLink
+                inline
                 style="secondary"
                 on:click={ () => editingUserIndex = undefined }
               >

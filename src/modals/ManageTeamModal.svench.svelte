@@ -37,7 +37,7 @@
 
 <View name="Default">
   <PsButton
-    on:click={ openModal(DEFAULT) }
+    on:click={ () => openModal(DEFAULT) }
   >
     { BUTTON_COPY }
   </PsButton>
