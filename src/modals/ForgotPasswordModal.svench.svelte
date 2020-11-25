@@ -11,6 +11,15 @@
   let loading = false;
   let emailSent = false;
 
+  function openModal (modalName) {
+    emailSent = false;
+    modalToOpen = modalName;
+  };
+
+  function closeModal () {
+    modalToOpen = '';
+  };
+
   function requestResetPassword ({ detail: email }) {
     loading = true;
 
@@ -19,15 +28,6 @@
       emailSent = true;
     }, 1666);
   };
-
-  function openModal (modalName) {
-    emailSent = false;
-    modalToOpen = modalName;
-  }
-
-  function closeModal () {
-    modalToOpen = '';
-  }
 
 </script>
 
@@ -45,7 +45,6 @@
         { loading }
         { emailSent }
         on:close={ closeModal }
-        on:confirm={ closeModal }
         on:request-reset-password={ requestResetPassword }
       />
     { /if }

@@ -13,6 +13,7 @@
     SUBSCRIPTION_PLANS_PAID,
   } from './constants/session.js'
   import loadProtectedContent from './methods/load-protected-content.js';
+  import checkPasswordRequirements from './methods/check-password-requirements.js';
   import ErrorModal from './modals/ErrorModal.svelte';
   import ImageAnnotation from './screens/ImageAnnotation.svelte';
   import LoadingOverlay from './components/LoadingOverlay.svelte';
@@ -24,6 +25,8 @@
 
   let emailConfirmed = false;
   let error;
+  let errorMessage = '';
+  let loading = false;
   let showResetPasswordModal = false;
   let hasPaymentDetails = false;
 
@@ -32,8 +35,7 @@
 
   function clearErrors () {
     error = undefined;
-
-    navigateHome();
+    errorMessage = '';
   }
 
   function closeResetPasswordModal () {
@@ -61,6 +63,12 @@
 
   };
 
+  function handleErrorModalClosed () {
+    clearErrors();
+
+    navigateHome();
+  };
+
   function navigateHome() {
     window.location.hash = '';
 
@@ -78,8 +86,8 @@
       const user = await $session.login(email, password);
 
       return user;
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error('Error:', err);
 
       window.sessionStorage.removeItem(STORAGE_KEY);
 
@@ -87,7 +95,7 @@
 
       return false;
     }
-  }
+  };
 
   async function initAuthentication () {
     $isLoading = true;
@@ -140,6 +148,32 @@
     }
   };
 
+  async function resetUserPassword ({ detail: password }) {
+    const isPasswordGood = checkPasswordRequirements(password);
+
+    errorMessage = '';
+
+    if (!isPasswordGood) {
+      errorMessage = 'Password does not meet criteria.';
+
+      return;
+    }
+
+    loading = true;
+
+    $user.update({ password })
+      .then(updatedUser => {
+        $user = updatedUser
+
+        loading = false;
+      })
+      .catch((err) => {
+        console.error('Failed to update user: %o', err);
+        throw err;
+      });
+
+  };
+
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.
   initAuthentication();
 </script>
@@ -164,7 +198,11 @@
 
 { #if showResetPasswordModal }
   <ResetPasswordModal
+    { errorMessage }
+    { loading }
+    on:clear-errors={ clearErrors }
     on:close={ closeResetPasswordModal }
+    on:reset-password{ resetUserPassword }
   />
 { :else if $showManageTeamModal }
   <ManageTeamModal
@@ -175,7 +213,7 @@
   />
 { :else if error }
   <ErrorModal
-    on:close={ clearErrors }
+    on:close={ handleErrorModalClosed }
   >
     <p>
       { error && error.msg }

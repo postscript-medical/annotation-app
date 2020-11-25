@@ -21,29 +21,45 @@
 
   // TODO: Different animation for confirm/cancel
   function close (isConfirm) {
-    gsap
+    const tl = gsap
       .timeline({
         onComplete: () => {
-          dispatch('close')
+          if (isConfirm) dispatch('confirm');
+          else dispatch('close');
         }
       })
-      .to(
-        modal,
+
+      if (isConfirm) {
+        tl.to(
+          modal,
+          {
+            duration: 0.15,
+            scale: 0.9,
+            opacity: 0,
+            ease: 'circ.in',
+          }
+        );
+
+      } else {
+        tl.to(
+          modal,
+          {
+            duration: 0.5,
+            ease: 'circ.in',
+            y: 50,
+            opacity: 0,
+          }
+        );
+      }
+
+      tl.to(
+        wrapper,
         {
           duration: 0.15,
-          scale: 0.9,
           opacity: 0,
-          ease: 'circ.in'
+          ease: 'none',
         }
-      )
-    .to(
-      wrapper,
-      {
-        duration: 0.15,
-        opacity: 0,
-        ease: 'none',
-      }
-    )
+      );
   };
 
   onMount(() => {
@@ -52,7 +68,7 @@
       .from(wrapper, {
         duration: 0.075,
         ease: 'none',
-        opacity: 0
+        opacity: 0,
       })
       .from(modal, {
         duration: 0.5,
@@ -84,7 +100,7 @@
           <button
             class="close"
             type="button"
-            on:click={ close }
+            on:click={ () => close() }
           >
             <IconClose />
           </button>
@@ -97,7 +113,7 @@
           <PsButton
             disabled={ loading }
             style="secondary"
-            on:click={ close }
+            on:click={ () => close() }
           >
             { cancelBtCopy }
           </PsButton>
@@ -106,6 +122,7 @@
           <PsButton
             { loading }
             on:tweenOutComplete
+            on:click={ confirm }
             type="submit"
           >
             { confirmBtCopy }

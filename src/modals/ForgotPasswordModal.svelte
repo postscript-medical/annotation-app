@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
-  import PsButton from '../components/PsButton.svelte';
   import ErrorMessage from '../components/ErrorMessage.svelte';
+  import PsButton from '../components/PsButton.svelte';
 
   export let loading = false;
   export let emailSent = false;
@@ -12,7 +12,6 @@
 
   let email;
   let showThankYou = false;
-
 
   function submitForm () {
     dispatch('request-reset-password', email.value);
@@ -33,9 +32,6 @@
   on:confirm={ submitForm }
   on:tweenOutComplete={ tweenOutComplete }
 >
-  <ErrorMessage
-    message={ errorMessage }
-  />
   <span
     slot="header"
   >
@@ -45,6 +41,10 @@
       Request a recovery password email
     { /if }
   </span>
+
+  <ErrorMessage
+    message={ errorMessage }
+  />
 
   { #if emailSent && showThankYou }
     <p>
