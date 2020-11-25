@@ -1,5 +1,6 @@
 import IconArrow from '../components/icons/IconArrow.svelte';
 import IconEllipse from '../components/icons/IconEllipse.svelte';
+import IconEraserSize from '../components/icons/IconEraserSize.svelte';
 import IconLineThickness from '../components/icons/IconLineThickness.svelte';
 import IconRectangle from '../components/icons/IconRectangle.svelte';
 import IconTrashBin from '../components/icons/IconTrashBin.svelte';
@@ -25,17 +26,17 @@ export const ERASER_SIZES = [
   {
     id: DEFAULT_SIZE,
     value: LINE_THICKNESS_4,
-    component: IconLineThickness,
+    component: IconEraserSize,
   },
   {
     id: SIZE_MEDIUM,
     value: LINE_THICKNESS_5,
-    component: IconLineThickness,
+    component: IconEraserSize,
   },
   {
     id: SIZE_LARGE,
     value: LINE_THICKNESS_6,
-    component: IconLineThickness,
+    component: IconEraserSize,
   },
   {
     id: TOOL_ERASE_ALL,
