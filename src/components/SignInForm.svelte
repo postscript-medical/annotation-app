@@ -86,7 +86,7 @@
     </PsButton>
     <PsButton
       onDark
-      asLink
+      inline
       on:click={ openForgotPasswordModal }
     >
       Forgot your password?
