@@ -8,6 +8,7 @@
   export let hideCloseButton = false;
   export let hideCancelButton = false;
   export let hideConfirmButton = false;
+  export let loading = false;
 
   let wrapper;
   let modal
@@ -70,37 +71,48 @@
     bind:this={ modal }
     class="modal shadow"
   >
-    <!-- TODO: have only the body of the modal scroll -->
-    <h2>
-      <slot name="header"></slot>
-    </h2>
-    { #if !hideCloseButton }
-      <button
-        class="close"
-        on:click={ close }
+    <!-- TODO: Create a separate FormModal that extends Modal to contain the form element -->
+    <form
+      on:submit|preventDefault={ confirm }
+    >
+      <!-- TODO: have only the body of the modal scroll -->
+      <h2
+        class="modal-header"
       >
-        <IconClose />
-      </button>
-    { /if }
-    <slot></slot>
-    <footer>
-      <slot name="footer"></slot>
-      { #if !hideCancelButton }
-        <PsButton
-          style="secondary"
-          on:click={ close }
-        >
-          { cancelBtCopy }
-        </PsButton>
-      { /if }
-      { #if !hideConfirmButton }
-        <PsButton
-          on:click={ confirm }
-        >
-          { confirmBtCopy }
-        </PsButton>
-      { /if }
-    </footer>
+        <slot name="header"></slot>
+        { #if !hideCloseButton }
+          <button
+            class="close"
+            type="button"
+            on:click={ close }
+          >
+            <IconClose />
+          </button>
+        { /if }
+      </h2>
+      <slot></slot>
+      <footer>
+        <slot name="footer"></slot>
+        { #if !hideCancelButton }
+          <PsButton
+            disabled={ loading }
+            style="secondary"
+            on:click={ close }
+          >
+            { cancelBtCopy }
+          </PsButton>
+        { /if }
+        { #if !hideConfirmButton }
+          <PsButton
+            { loading }
+            on:tweenOutComplete
+            type="submit"
+          >
+            { confirmBtCopy }
+          </PsButton>
+        { /if }
+      </footer>
+    </form>
   </article>
 </div>
 
@@ -127,30 +139,35 @@
     max-height: 90%;
     overflow-y: auto;
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 2rem;
+    grid-template-columns: 1rem repeat(6, 1fr) 1rem;
+    gap: 2rem 1rem;
     align-content: start;
   }
 
   .modal > :global(*) {
-    grid-column: 2 / -2;
+    grid-column: 1 / -1;
   }
 
+  .modal-header {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .modal-header :global(:not(:last-child)) {
+    margin-top: 0.5rem;
+  }
   .close {
-    grid-column-start: -2;
-    grid-row-start: 1;
+    align-self: flex-end;
     border: 0;
     background: transparent;
     padding: 0;
-    align-self: baseline;
-    height: 1.75rem; /* To match the h2 height */
   }
 
   @media screen and (min-width: 600px) {
     .modal {
       min-width: 30rem;
       min-height: 20rem;
-      max-width: 80%;
+      max-width: 50ch;
     }
   }
 </style>
