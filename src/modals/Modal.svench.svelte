@@ -6,15 +6,21 @@
   const BUTTON_COPY = 'Open modal';
   const DEFAULT = 'Default';
   const LONG_HEADER_TITLE = 'Long header title';
+
   let modalToOpen = '';
 
+  function confirmAction (modalName) {
+    console.log('Confirmed:', modalName);
+    closeModal();
+  };
+
   function openModal (modalName) {
-    modalToOpen = modalName
-  }
+    modalToOpen = modalName;
+  };
 
   function closeModal () {
-    modalToOpen = ''
-  }
+    modalToOpen = '';
+  };
 </script>
 
 <View name={ DEFAULT + '- with content'}>
@@ -29,7 +35,7 @@
     { #if modalToOpen === DEFAULT }
       <Modal
         on:close={ closeModal }
-        on:confirm={ closeModal }
+        on:confirm={ () => confirmAction(DEFAULT) }
       >
         <span
           slot="header"
