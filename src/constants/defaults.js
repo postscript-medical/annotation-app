@@ -3,7 +3,7 @@
 */
 export const redirectPath = '/images/';
 
-export const SIZE_SMALL_ID = 'small';
+export const SIZE_SMALL = 'small';
 
 export const SIZE_MEDIUM = 'medium';
 
@@ -19,7 +19,7 @@ export const DEFAULT_SELECTED_SUB_SPECIALTY = 'All';
 
 export const DEFAULT_SHAPE = 'rectangle';
 
-export const DEFAULT_SIZE = SIZE_SMALL_ID;
+export const DEFAULT_SIZE = SIZE_SMALL;
 
 export const LINE_THICKNESS_0 = 0;
 export const LINE_THICKNESS_1 = 2;
