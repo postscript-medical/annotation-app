@@ -9,7 +9,6 @@
     canvas,
     context,
     dpr,
-    illustrationsPath,
     selectedIllustration,
     toolDrawerOpen,
     typedTextEntries,
@@ -18,16 +17,9 @@
   import getPointerLocation from './helpers/get-pointer-location.js';
   import setupCanvas from './helpers/setup-canvas.js';
   import {
-    ERASER_SIZES,
-    PEN_COLORS,
-    PEN_SIZES,
-    SHAPES,
     SHAPE_ARROW,
   } from '../../constants/sketch-pad.js';
   import {
-    DEFAULT_COLOR,
-    DEFAULT_SHAPE,
-    DEFAULT_SIZE,
     EVENTS_POINTER,
     EVENTS_TOUCH,
     LINE_THICKNESS_2,
