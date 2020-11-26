@@ -133,13 +133,15 @@ export const typedTextEntries = derived(
 /**
  * Illustrations-related stores
  */
-export const selectedIllustrationTitle = writable();
+export const annotatedImage = writable();
 
 export const illustrationSearchQuery = writable('');
 
 export const illustrationLoaded = writable(false);
 
 export const illustrationDisplayed = writable();
+
+export const selectedIllustrationTitle = writable('');
 
 export const selectedSpecialty = writable(DEFAULT_SELECTED_SPECIALTY);
 
@@ -183,7 +185,6 @@ export const illustrationsPath = derived(
   selectedSpecialty,
   $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/` : ''
 );
-
 
 export const filteredIllustrations = derived(
   [
