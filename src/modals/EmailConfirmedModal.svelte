@@ -1,7 +1,5 @@
 <script>
   import Modal from './Modal.svelte';
-  import PsButton from '../components/PsButton.svelte';
-
 </script>
 
 <Modal
