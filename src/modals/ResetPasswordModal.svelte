@@ -69,8 +69,8 @@
         <input
           bind:this={ password }
           disabled={ lockInput }
-          type="password"
           required
+          type="password"
           on:input={ clearErrors }
         />
         <span
