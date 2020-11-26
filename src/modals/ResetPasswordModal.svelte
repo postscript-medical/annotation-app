@@ -2,7 +2,6 @@
   import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
   import ErrorMessage from '../components/ErrorMessage.svelte';
-  import PsButton from '../components/PsButton.svelte';
 
   export let loading = false;
   export let errorMessage = '';
