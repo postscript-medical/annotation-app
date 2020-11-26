@@ -8,8 +8,11 @@
   const DEFAULT = 'Default';
 
   let modalToOpen = '';
+  let loading = false;
+  let emailSent = false;
 
   function openModal (modalName) {
+    emailSent = false;
     modalToOpen = modalName
   }
 
@@ -17,6 +20,18 @@
     modalToOpen = ''
   }
 
+  function downloadImage () {
+    console.log('Download image triggered');
+  }
+
+  function sendImageViaEmail () {
+    loading = true;
+
+    setTimeout(() => {
+      loading = false;
+      emailSent = true;
+    }, 1666);
+  }
 </script>
 
 <View name={ DEFAULT }>
@@ -30,8 +45,11 @@
     </PsButton>
     { #if modalToOpen === DEFAULT }
       <ShareModal
+        { loading }
+        { emailSent }
         on:close={ closeModal }
-        on:confirm={ closeModal }
+        on:send-email={ sendImageViaEmail }
+        on:download-image={ downloadImage }
       />
     { /if }
   </div>

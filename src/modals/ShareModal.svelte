@@ -1,117 +1,83 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte';
-  // TODO: The below should be a given prop. Not a direct link to the store.
-  import { canvas, dpr, illustrationDisplayed } from '../stores.js';
+  import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
+  import ErrorMessage from '../components/ErrorMessage.svelte';
   import PsButton from '../components/PsButton.svelte';
-  import ButtonDownloadAnnotatedImage from '../components/ButtonDownloadAnnotatedImage.svelte';
+
+  export let loading = false;
+  export let emailSent = false;
+  export let errorMessage = '';
 
   const dispatch = createEventDispatcher();
 
-  let emailSent = false;
   let email;
-  let generatedImage;
-  let sendingEmail = false;
+  let showThankYou = false;
+  let submitAttempted = false;
 
-  function drawTypedText (context, parentBoundingRect) {
-    const entries = Array.from(document.querySelectorAll('.typed-annotation'));
-    const fontSize = `${16 * $dpr}px`;
-    
-    context.font = `${fontSize} 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
-    context.textBaseline = 'middle';
+  $: lockInput = !errorMessage && submitAttempted;
 
-    entries.forEach(entry => {
-      const boundingRect = entry.getBoundingClientRect();
-      const x = (boundingRect.x - parentBoundingRect.x + 7) * $dpr; /* 7 is the padding in the input */
-      const y = (boundingRect.y - parentBoundingRect.y + (boundingRect.height / 2)) * $dpr;
+  function clearErrors() {
+    submitAttempted = false;
 
-      context.fillStyle = entry.style.color;
-      context.fillText(entry.value, x, y);
-    });
+    dispatch('clear-errors')
   };
 
-  function generateAnnotatedImage () {
-    // TODO: Move this to the parent component
-    const annotatedImage = document.createElement('canvas');
-    const context = annotatedImage.getContext('2d');
-    const boundingRect = $canvas.getBoundingClientRect();
-    const illustrationBoudingRect = $illustrationDisplayed.getBoundingClientRect();
-
-    annotatedImage.width = $canvas.width;
-    annotatedImage.height = $canvas.height;
-
-    context.fillStyle = 'white';
-    context.fillRect(0,0, boundingRect.width * $dpr, boundingRect.height * $dpr);
-    context.drawImage($illustrationDisplayed, (illustrationBoudingRect.left - boundingRect.left) * $dpr, (illustrationBoudingRect.top  - boundingRect.top)* $dpr, illustrationBoudingRect.width * $dpr, illustrationBoudingRect.height * $dpr);
-    context.drawImage($canvas, 0, 0);
-
-    drawTypedText(context, boundingRect);
-
-    return annotatedImage;
+  function downloadImage () {
+    dispatch('download-image')
   };
 
-  function sendEmail (event) {
-    // TODO: Move this to the parent component
-    sendingEmail = true;
-    const encodedImage = generatedImage.toDataURL()
-    emailjs
-      .send('5609467','postscript_annotated_img', {
-        image: encodedImage,
-        to_email: email.value,
-      })
-      .then(response => {
-        emailSent = true;
-        sendingEmail = false;
-        // focus the close button
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        emailSent = false;
-        sendingEmail = false;
-        // show error message
-      })
+  function submitForm () {
+    submitAttempted = true;
+
+    dispatch('send-email', email.value);
   };
 
-  onMount(() => {
-    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
-
-    generatedImage = generateAnnotatedImage();
-  });
+  function tweenOutComplete () {
+    submitAttempted = false;
+    showThankYou = !errorMessage;
+  };
 </script>
 
 <Modal
   hideCancelButton
   hideConfirmButton
   on:close
+  on:confirm={ submitForm }
 >
   <span
     slot="header"
   >
-    { #if emailSent }
+    { #if emailSent && showThankYou }
         Your email has been sent
     { :else }
         Email the image to someone
     { /if }
   </span>
 
+  <ErrorMessage
+    message={ errorMessage }
+  />
+
   <div
     class="modal-body"
   >
-    { #if emailSent }
+    { #if emailSent && showThankYou }
       <p>
       You can now close this window.
       </p>
     { :else }
       <input
-        type="email"
         bind:this={ email }
+        disabled={ lockInput }
         placeholder="Email address"
         required
+        type="email"
+        on:input={ clearErrors }
       />
       <PsButton
-        disabled={ sendingEmail }
+        { loading }
         type="submit"
-        on:click={ sendEmail }
+        on:tweenOutComplete={ tweenOutComplete }
       >
         Send
       </PsButton>
@@ -119,9 +85,12 @@
     <h3>
       Or save the image to your machine
     </h3>
-    <ButtonDownloadAnnotatedImage
-      { generatedImage }
-    />
+    <PsButton
+      style="secondary"
+      on:click={ downloadImage }
+    >
+      Download image
+    </PsButton>
   </div>
 </Modal>
 
