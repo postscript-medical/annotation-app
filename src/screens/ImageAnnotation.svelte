@@ -3,6 +3,7 @@
     onMount,
   } from 'svelte';
   import {
+    annotatedImage,
     showShareModal,
     selectedIllustrationTitle,
     selectedSpecialty,
@@ -30,18 +31,21 @@
   import ShareModal from '../modals/ShareModal.svelte';
   import { tweenOut } from '../components/sketchpad/Illustration.svelte';
 
+  let emailSent = false;
   let eraser = {
     name: TOOL_ERASER,
     lineWidth: ERASER_SIZES.find(({ id }) => id === DEFAULT_SIZE).value,
     color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value,
   };
+  let errorMessage = '';
+  let loading = false;
   let pen = {
     name: TOOL_PEN,
     lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE).value, 
     color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value
   };
   let selectedTool;
-  let selectedToolId
+  let selectedToolId;
   let shape = {
     name: TOOL_SHAPE,
     lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE).value,
@@ -66,7 +70,7 @@
       default:
         selectedTool = pen;
         break;
-    }
+    };
   };
 
   function changeLineThickness ({ detail }) {
@@ -98,6 +102,23 @@
     };
   };
 
+  function clearErrors () {
+    errorMessage = '';
+  };
+
+  function closeShareModal () {
+    $showShareModal = false;
+  };
+
+  function downloadImage () {
+    const encodedImage = $annotatedImage.toDataURL('image/jpg', 0.7);
+    const hiddenLink = document.createElement('a');
+
+    hiddenLink.setAttribute('href', encodedImage);
+    hiddenLink.setAttribute('download', 'myImage.jpg');
+    hiddenLink.click();
+  };
+
   function selectIllustration ({ detail: illustrationTitle}) {
     updateUserAppMetadata(illustrationTitle);
 
@@ -106,6 +127,26 @@
 
   function selectTool ({ detail: toolId }) {
     selectedToolId = toolId;
+  };
+
+  async function sendImageViaEmail ({ detail: email }) {
+    loading = true;
+
+    const encodedImage = $annotatedImage.toDataURL();
+    const response = await emailjs
+      .send('5609467','postscript_annotated_img', {
+        image: encodedImage,
+        to_email: email,
+      })
+      .catch(err => {
+        errorMessage = err.text;
+      });
+
+      if (response && response.status === 200) {
+        emailSent = true;
+      };
+
+      loading = false;
   };
 
   function updateUserAppMetadata (illustrationTitle) {
@@ -133,6 +174,8 @@
   }
 
   onMount(() => {
+    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
+
     selectTool({ detail: TOOL_PEN });
   });
 </script>
@@ -161,7 +204,13 @@
 
   { #if $showShareModal }
     <ShareModal
-      on:close={ () => $showShareModal = false }
+      { loading }
+      { emailSent }
+      { errorMessage }
+      on:clear-errors={ clearErrors }
+      on:close={ closeShareModal }
+      on:send-email={ sendImageViaEmail }
+      on:download-image={ downloadImage }
     />
   { /if }
 </div>
