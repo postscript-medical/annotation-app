@@ -79,14 +79,13 @@
     class="footer"
   >
     <PsButton
-      onDark
+      style="on-dark"
       type="submit"
     >
       Login
     </PsButton>
     <PsButton
-      onDark
-      inline
+      style="on-dark inline"
       on:click={ openForgotPasswordModal }
     >
       Forgot your password?

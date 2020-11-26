@@ -71,7 +71,7 @@
           onDark
         />
         <PsButton
-          inline
+          style="inline"
           on:click={ manageTeam }
         >
           Manage team members
