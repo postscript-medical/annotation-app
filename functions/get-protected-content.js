@@ -34,7 +34,7 @@ exports.handler = async (_, context) => {
                     subSpecialties {
                       data {
                         name
-                        illustrations {
+                        illustrations(_size: 500) {
                           data {
                             name
                             src
