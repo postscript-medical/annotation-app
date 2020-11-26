@@ -1,11 +1,9 @@
 <script>
   import { createEventDispatcher, onMount, onDestroy } from 'Svelte';
 
-  export let inline = false; /* TODO: this should be part of the 'style' prop, to receive either a string with a single or multiple values or an array of strings */
   export let disabled = false;
   export let loading = false;
-  export let onDark = false;
-  export let style = 'primary';
+  export let style = 'primary'; /* options: '[primary|secondary|tertiary], inline, on-dark' */
   export let type = 'button';
 
   const PATH_LENGTH = 125.7;
@@ -16,7 +14,6 @@
   let tl;
   let disableButton;
 
-  $: isSecondary = style === 'secondary';
   $: isDisabled = disabled || disableButton;
   $: toggleLoadingAnimation(loading);
 
@@ -101,9 +98,7 @@
 </script>
 
 <button
-  class:secondary={ isSecondary }
-  class:on-dark={ onDark }
-  class:as-link={ inline }
+  class={ style }
   disabled={ isDisabled }
   { type }
   on:click
@@ -162,6 +157,7 @@
 
   .on-dark {
     background-color: white;
+    border-color: white;
     color: rgb(42,41,41);
   }
 
@@ -171,7 +167,13 @@
     color: rgb(42,41,41);
   }
 
-  .as-link {
+  .tertiary {
+    border-radius: 1.5rem;
+    color: white;
+    line-height: 1.5;
+  }
+
+  .inline {
     background: none;
     padding: 0;
     border: 0;
@@ -179,7 +181,7 @@
     text-decoration: underline;
   }
 
-  .as-link.on-dark {
+  .inline.on-dark {
     color: white;
   }
 

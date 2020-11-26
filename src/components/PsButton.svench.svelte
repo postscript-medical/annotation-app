@@ -21,6 +21,8 @@
 
 </script>
 
+
+<!-- PRIMARY -->
 <View name="Primary button">
   <PsButton>
    { BUTTON_COPY }
@@ -46,24 +48,51 @@
 
 <View name="Primary button - inline">
   <PsButton
-    inline
+    style="inline"
   >
    { BUTTON_COPY }
   </PsButton>
 </View>
 
-<View name="Primary button - inline disabled">
+<View name="Primary button - inline, disabled">
   <PsButton
     disabled
-    inline
+    style="inline"
   >
    { BUTTON_COPY }
   </PsButton>
 </View>
 
-<View name="Primary button - inline loading">
+<View name="Primary button - inline, loading">
   <PsButton
-    inline
+    style="inline"
+    loading={ loading === LOADING_2 }
+    on:click={ () => fakeLoading(LOADING_2) }
+  >
+   { CLICK_TO_SIMULATE }
+  </PsButton>
+</View>
+
+<View name="Primary button - on dark">
+  <PsButton
+    style="on-dark"
+  >
+   { BUTTON_COPY }
+  </PsButton>
+</View>
+
+<View name="Primary button - on dark, disabled">
+  <PsButton
+    disabled
+    style="on-dark"
+  >
+   { BUTTON_COPY }
+  </PsButton>
+</View>
+
+<View name="Primary button - on dark, loading">
+  <PsButton
+    style="on-dark"
     loading={ loading === LOADING_2 }
     on:click={ () => fakeLoading(LOADING_2) }
   >
@@ -72,9 +101,18 @@
 </View>
 
 
+<!-- SECONDARY -->
 <View name="Secondary button">
   <PsButton
     style="secondary"
+  >
+   { BUTTON_COPY }
+  </PsButton>
+</View>
+
+<View name="Secondary button - on dark">
+  <PsButton
+    style="secondary on-dark"
   >
    { BUTTON_COPY }
   </PsButton>
@@ -101,28 +139,53 @@
 
 <View name="Secondary button - inline">
   <PsButton
-    inline
-    style="secondary"
+    style="secondary inline"
   >
    { BUTTON_COPY }
   </PsButton>
 </View>
 
 
-<View name="Secondary button - inline disabled">
+<View name="Secondary button - inline, disabled">
   <PsButton
     disabled
-    inline
-    style="secondary"
+    style="secondary inline"
   >
    { BUTTON_COPY }
   </PsButton>
 </View>
 
-<View name="Secondary button - inline loading">
+<View name="Secondary button - inline, loading">
   <PsButton
-    inline
-    style="secondary"
+    style="secondary inline"
+    loading={ loading === LOADING_4 }
+    on:click={ () => fakeLoading(LOADING_4) }
+  >
+   { CLICK_TO_SIMULATE }
+  </PsButton>
+</View>
+
+<!-- TERTIARY -->
+<View name="Tertiary button">
+  <PsButton
+    style="tertiary"
+  >
+   { BUTTON_COPY }
+  </PsButton>
+</View>
+
+<View name="Tertiary button - disabled">
+  <PsButton
+    disabled
+    style="tertiary"
+  >
+   { BUTTON_COPY }
+  </PsButton>
+</View>
+
+<View name="Tertiary button - loading">
+  <PsButton
+    style="tertiary"
     loading={ loading === LOADING_4 }
     on:click={ () => fakeLoading(LOADING_4) }
   >
