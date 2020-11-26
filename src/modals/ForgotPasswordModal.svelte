@@ -18,7 +18,7 @@
   };
 
   function tweenOutComplete () {
-    showThankYou = true;
+    showThankYou = !errorMessage;
   }
 </script>
 
