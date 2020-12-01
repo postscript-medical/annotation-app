@@ -11,10 +11,12 @@ shared wrapper component -->
   export let optionKey = undefined;
   // TODO: change the below to 'value'
   export let selected = undefined;
+  export let style = ''; /* options: 'inline' */
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
+    ${style}
     ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
@@ -66,6 +68,17 @@ shared wrapper component -->
 
   span {
     flex-shrink: 0;
+  }
+
+  .inline :global(select) {
+    padding-left: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    line-height: 1;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    color: rgb(42, 41, 41)
   }
 
   .disabled {
