@@ -11,14 +11,17 @@ to allow for grid layouts to be implemented -->
   export let editable = true;
   export let placeholder = '';
   export let value = '';
+  export let style = ''; /* options: 'inline' */
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
     container
+    ${style}
     ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
+  $: size = style.includes('inline') ? value.length : 20;
 
   function onInput ({ target }) {
     dispatch('input', target.value)
@@ -37,6 +40,7 @@ to allow for grid layouts to be implemented -->
       { value }
       { placeholder }
       { disabled }
+      { size }
       on:input={ onInput }
     >
   </label>
@@ -65,6 +69,16 @@ to allow for grid layouts to be implemented -->
 
   .container {
     display: flex;
+  }
+
+  .inline :global(input) {
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-radius: 0;
+    line-height: 1;
+    padding: 0;
+    flex: 0;
   }
 
   .disabled {
