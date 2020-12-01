@@ -24,8 +24,12 @@ to allow for grid layouts to be implemented -->
   $: size = style.includes('inline') ? value.length : 20;
 
   function onInput ({ target }) {
-    dispatch('input', target.value)
-  }
+    dispatch('input', target.value);
+  };
+
+  function onBlur (event) {
+    dispatch('blur', event);
+  };
 </script>
 
 { #if editable }
@@ -42,6 +46,7 @@ to allow for grid layouts to be implemented -->
       { disabled }
       { size }
       on:input={ onInput }
+      on:blur={ onBlur }
     >
   </label>
 { :else }
