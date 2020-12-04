@@ -10,7 +10,7 @@ import {
 } from '../constants/defaults';
 
 export default async function (user) {
-  const token = user ? await user.jwt() : false;
+  const token = user ? await user.jwt(true) : false;
 
   if (!token) return;
 
