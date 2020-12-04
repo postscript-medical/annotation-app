@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'Svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 
   export let disabled = false;
   export let loading = false;
