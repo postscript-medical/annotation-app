@@ -34,7 +34,7 @@
   $: showTutorial = $protectedContent && $protectedContent.showTutorial;
 
   function clearErrors () {
-    error = undefined;
+    error = null;
     errorMessage = '';
   }
 

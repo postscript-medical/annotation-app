@@ -24,7 +24,7 @@
 
     const { email, password } = detail;
 
-    errorMessage = undefined;
+    errorMessage = null;
     $isLoading = true;
 
     $session

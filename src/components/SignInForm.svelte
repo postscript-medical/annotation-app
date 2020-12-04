@@ -32,7 +32,7 @@
 
     const { email, password, stayLogged } = detail;
 
-    errorMessage = undefined;
+    errorMessage = null;
 
     $isLoading = true;
 

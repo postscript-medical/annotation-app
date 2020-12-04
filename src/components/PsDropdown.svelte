@@ -8,9 +8,9 @@ shared wrapper component -->
   export let disabled = false;
   export let editable = true;
   export let options = [];
-  export let optionKey = undefined;
+  export let optionKey = null;
   // TODO: change the below to 'value'
-  export let selected = undefined;
+  export let selected = null;
   export let style = ''; /* options: 'inline' */
 
   const dispatch = createEventDispatcher();
