@@ -1,6 +1,13 @@
 <script>
   import { View } from 'svench';
   import PsTextInput from './PsTextInput.svelte';
+
+  let someValue = 'Some value';
+
+  function updateInput ({ detail }) {
+    console.log('Update', detail);
+    someValue = detail;
+  }
 </script>
 
 <View name="Default">
@@ -31,4 +38,44 @@
   >
     Label
   </PsTextInput>
+</View>
+
+<View name="Read only">
+  <PsTextInput
+    placeholder="Placeholder text"
+    readonly
+  >
+    Label
+  </PsTextInput>
+</View>
+
+<View name="Inline">
+  <PsTextInput
+    placeholder="Placeholder text"
+    style="inline"
+    direction="vertical"
+    value={ someValue }
+    on:input={ updateInput }
+  >
+    Label
+  </PsTextInput>
+</View>
+
+<View name="Inline - disabled">
+  <PsTextInput
+    placeholder="Placeholder text"
+    style="inline"
+    disabled
+    value={ someValue }
+  >
+    Label
+  </PsTextInput>
+</View>
+
+<View name="Inline - read only">
+  <PsTextInput
+    placeholder="Placeholder text"
+    style="inline"
+    readonly
+  />
 </View>

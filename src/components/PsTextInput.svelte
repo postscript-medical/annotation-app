@@ -8,10 +8,11 @@ to allow for grid layouts to be implemented -->
 
   export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
-  export let editable = true;
+  export let readonly = false;
   export let placeholder = '';
   export let value = '';
   export let style = ''; /* options: 'inline' */
+  export let size = 20;
 
   const dispatch = createEventDispatcher();
 
@@ -21,7 +22,6 @@ to allow for grid layouts to be implemented -->
     ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
-  $: size = style.includes('inline') ? value.length : 20;
 
   function onInput ({ target }) {
     dispatch('input', target.value);
@@ -32,10 +32,9 @@ to allow for grid layouts to be implemented -->
   };
 </script>
 
-{ #if editable }
-  <label
-    class={ labelClass }
-  >
+<label
+  class={ labelClass }
+>
     <span>
       <slot></slot>
     </span>
@@ -45,27 +44,20 @@ to allow for grid layouts to be implemented -->
       { placeholder }
       { disabled }
       { size }
+      { readonly }
       on:input={ onInput }
       on:blur={ onBlur }
     >
-  </label>
-{ :else }
-  <div
-    class={ labelClass }
-  >
-    <span>
-      <slot></slot>
-    </span>
-    <span>
-      { value }
-    </span>
-  </div>
-{ /if }
+</label>
 
 
 <style>
   input[type="text"] {
     padding: 0.25rem;
+  }
+  input:read-only {
+    /* border-color: transparent; */
+    background-color: transparent;
   }
 
   span {
@@ -74,6 +66,7 @@ to allow for grid layouts to be implemented -->
 
   .container {
     display: flex;
+    align-items: flex-start;
   }
 
   .inline :global(input) {
