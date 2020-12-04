@@ -122,9 +122,6 @@
       case 'save-updated-team-member':
         saveUpdatedTeamMember(teamMember);
         break;
-
-      default:
-        break;
     }
   };
 
@@ -139,6 +136,7 @@
     if (!response) return;
 
     $session = response;
+
     $user = await (getUserFromSessionStorage() || $session.currentUser());
 
     const hash = window.location.hash;
@@ -186,6 +184,8 @@
   };
 
   async function removeTeamMember (teamMember) {
+    loading = true;
+
     clearErrors();
 
     if (teamMember.toInvite) {
@@ -216,6 +216,8 @@
         netlifyID,
       }),
     });
+
+    loading = false;
 
     if (!response || !response.ok) {
       errorMessage = 'No user deleted. Check the details or contact support.'
@@ -291,14 +293,6 @@
       return;
     };
 
-    // const updatedMembers = [...teamMembers];
-
-    // updatedMembers.forEach(member => {
-    //   delete member.toInvite;
-    // });
-
-    // $protectedContent.team.members = updatedMembers;
-
     // send welcome email with a reset password link to the newly created user.
     sendEmail(email, firstName);
 
@@ -344,9 +338,7 @@
     };
 
     // Reload the data from the server
-    const _user = $session.currentUser();
-    console.log('user', _user);
-    await loadProtectedContent(_user);
+    await loadProtectedContent($user);
   };
 
   async function sendEmail(email, firstName) {
