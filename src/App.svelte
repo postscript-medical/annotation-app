@@ -32,6 +32,7 @@
 
   $: hasPaymentDetails = $organization && !!($organization.subscriptionLevel !== 'inactive');
   $: showTutorial = $protectedContent && $protectedContent.showTutorial;
+  // Filter out the owner and place it on its own object
   $: teamMembers = ($protectedContent && $protectedContent.team.members) || [];
   $: teamName = ($protectedContent && $protectedContent.team.name) || '';
 
@@ -54,6 +55,12 @@
 
     window.location.reload()
   }
+
+  function closeManageTeamModal () {
+    $protectedContent.team.members = $protectedContent.team.members.filter(({ toInvite }) => !toInvite);
+
+    $showManageTeamModal = false;
+  };
 
   async function confirmUserSignUp (token) {
     const response = await $session
@@ -184,8 +191,6 @@
   };
 
   async function removeTeamMember (teamMember) {
-    loading = true;
-
     clearErrors();
 
     if (teamMember.toInvite) {
@@ -193,6 +198,8 @@
 
       return;
     };
+
+    loading = true;
 
     const token = $user ? await $user.jwt() : false;
 
@@ -411,7 +418,7 @@
     { teamName }
     members={ teamMembers }
     maxTeamMembers={ $organization.maxUsers }
-    on:close={ () => $showManageTeamModal = false }
+    on:close={ closeManageTeamModal }
     on:update={ handleTeamUpdate }
     on:update-team-name={ updateTeamName }
   />
