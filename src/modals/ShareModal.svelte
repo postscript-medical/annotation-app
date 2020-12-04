@@ -77,7 +77,7 @@
       <PsButton
         { loading }
         type="submit"
-        on:tweenOutComplete={ tweenOutComplete }
+        on:tween-out-complete={ tweenOutComplete }
       >
         Send
       </PsButton>

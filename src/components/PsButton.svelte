@@ -39,7 +39,7 @@
     gsap
       .timeline({
         onComplete: () => {
-          dispatch('tweenOutComplete')
+          dispatch('tween-out-complete')
           toggleDisable();
         },
       })
