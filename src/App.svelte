@@ -69,7 +69,6 @@
     emailConfirmed = true;
 
     navigateHome();
-
   };
 
   async function getUserFromSessionStorage () {
@@ -195,7 +194,7 @@
       return;
     };
 
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       errorMessage = 'Could not validate your token. Please contact support.';
@@ -257,7 +256,7 @@
 
     clearErrors();
 
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       errorMessage = 'Could not validate your token. Please contact support.';
@@ -312,7 +311,7 @@
 
     clearErrors();
     // We will trust the API to check for the bulk of validation
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       errorMessage = 'Could not validate your token. Please contact support.';
