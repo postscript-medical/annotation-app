@@ -304,7 +304,7 @@
     sendEmail(email, firstName);
 
     // Reload the data from the server
-    await loadProtectedContent(user);
+    await loadProtectedContent($user);
   };
 
   async function saveUpdatedTeamMember ({ email, firstName, lastName, role, netlifyID, _id: userID }) {
@@ -345,7 +345,7 @@
     };
 
     // Reload the data from the server
-    await loadProtectedContent(user);
+    await loadProtectedContent($user);
   };
 
   async function sendEmail(email, firstName) {
