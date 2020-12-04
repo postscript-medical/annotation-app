@@ -344,7 +344,7 @@
     };
 
     // Reload the data from the server
-    await loadProtectedContent($user);
+    await loadProtectedContent($session.currentUser());
   };
 
   async function sendEmail(email, firstName) {
