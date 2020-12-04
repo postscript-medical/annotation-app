@@ -29,7 +29,7 @@
   { loading }
   on:close
   on:confirm={ submitForm }
-  on:tweenOutComplete={ tweenOutComplete }
+  on:tween-out-complete={ tweenOutComplete }
 >
   <span
     slot="header"
