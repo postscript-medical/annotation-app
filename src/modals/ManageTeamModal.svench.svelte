@@ -116,6 +116,10 @@
     });
   };
 
+  function saveUpdatedTeamName (name) {
+    fakeRequest();
+  };
+
   function updateTeamMember (teamMember, index) {
     const updatedMembers = [ ...members ];
 
@@ -125,8 +129,6 @@
   };
 
   function updateTeamName ({ detail: name }) {
-    fakeRequest();
-
     teamName = name;
   };
 
@@ -152,6 +154,10 @@
 
       case 'save-updated-team-member':
         saveUpdatedTeamMember(teamMember, index);
+        break;
+
+      case 'save-updated-team-name':
+        saveUpdatedTeamName(teamName);
         break;
     }
   };

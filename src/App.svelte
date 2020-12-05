@@ -107,7 +107,7 @@
   };
 
   function handleTeamUpdate ({ detail }) {
-    const { teamMember, action, index } = detail;
+    const { teamMember, teamName, action, index } = detail;
 
     switch (action) {
       case 'add-new-team-member':
@@ -128,6 +128,10 @@
 
       case 'save-updated-team-member':
         saveUpdatedTeamMember(teamMember);
+        break;
+
+      case 'save-updated-team-name':
+        saveUpdatedTeamName(teamName);
         break;
     }
   };
@@ -293,8 +297,6 @@
 
     loading = false;
 
-    console.log('saveNewTeamMember', response);
-
     if (!response || !response.ok) {
       errorMessage = 'No user created. Check the details or contact support.'
       return;
@@ -337,8 +339,6 @@
 
     loading = false;
 
-    console.log('saveUpdatedTeamMember', response);
-
     if (!response || !response.ok) {
       errorMessage = 'No user updated. Check the details or contact support.'
       return;
@@ -368,8 +368,7 @@
       });
   }
 
-  async function saveUpdatedTeamName ({ detail: name }) {
-    console.log('saveUpdatedTeamName');
+  async function saveUpdatedTeamName (name) {
     loading = true;
 
     clearErrors();
@@ -394,8 +393,6 @@
 
     loading = false;
 
-    console.log('saveUpdatedTeamName', response);
-
     if (!response || !response.ok) {
       errorMessage = 'No update completed. Check the details or contact support.'
       return;
@@ -411,6 +408,10 @@
     updatedMembers.splice(index, 1, teamMember);
 
     $protectedContent.team.members = updatedMembers;
+  };
+
+  function updateTeamName ({ detail: name }) {
+    $protectedContent.team.name = name;
   };
 
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.
@@ -452,7 +453,7 @@
     maxTeamMembers={ $organization.maxUsers }
     on:close={ closeManageTeamModal }
     on:update={ handleTeamUpdate }
-    on:update-team-name={ saveUpdatedTeamName }
+    on:update-team-name={ updateTeamName }
   />
 { :else if error }
   <ErrorModal
