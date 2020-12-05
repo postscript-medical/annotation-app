@@ -92,7 +92,6 @@
     dispatch('update', { action: 'update-team-member', teamMember, index });
   };
 
-  // TODO: Move this to the parent
   async function removeTeamMember (teamMember) {
     // const { netlifyID, _id: userID} = user;
     dispatch('update', { action: 'remove-team-member', teamMember });
@@ -270,6 +269,8 @@
     if (teamName) {
       editedTeamNameSrc = teamName;
     } else {
+      updateTeamName(editedTeamNameSrc);
+
       editedTeamNameSrc = null;
     }
   };
@@ -288,12 +289,16 @@
 
     //   return member;
     // })
-  }
+  };
 
-  function updateTeamName (newName) {
+  function updateTeamName(name) {
+    dispatch('update-team-name', name);
+  };
+
+  function saveUpdatedTeamName (teamName) {
     updatingTeamName = true;
 
-    dispatch('update-team-name', newName);
+    dispatch('update', { action: 'save-updated-team-name', teamName });
   };
 
   function teamMemberUpdateComplete () {
@@ -330,6 +335,7 @@
           readonly={ !editedTeamNameSrc }
           value={ teamName }
           style="inline"
+          on:input={ ({ detail: value }) => updateTeamName(value) }
         >
           Team name:
         </PsTextInput>
@@ -337,7 +343,7 @@
           <PsButton
             { loading }
             style="secondary inline"
-            on:click={ () => updateTeamName(teamName) }
+            on:click={ () => saveUpdatedTeamName(teamName) }
             on:tween-out-complete={ teamNameUpdateComplete }
           >
             Save
