@@ -9,6 +9,9 @@
     showManageTeamModal,
   } from './stores.js';
   import {
+    ROLE_OWNER,
+  } from './constants/defaults.js';
+  import {
     STORAGE_KEY,
     SUBSCRIPTION_PLANS_PAID,
   } from './constants/session.js'
@@ -28,12 +31,10 @@
   let errorMessage = '';
   let loading = false;
   let showResetPasswordModal = false;
-  let hasPaymentDetails = false;
 
   $: hasPaymentDetails = $organization && !!($organization.subscriptionLevel !== 'inactive');
   $: showTutorial = $protectedContent && $protectedContent.showTutorial;
-  // Filter out the owner and place it on its own object
-  $: teamMembers = ($protectedContent && $protectedContent.team.members) || [];
+  $: teamMembers = ($protectedContent && $protectedContent.team.members.filter(({ role })  => role !== ROLE_OWNER)) || [];
   $: teamName = ($protectedContent && $protectedContent.team.name) || '';
 
   function addNewTeamMember (teamMember) {
@@ -45,16 +46,17 @@
 
   function clearErrors () {
     error = null;
+
     errorMessage = '';
-  }
+  };
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
 
     navigateHome();
 
-    window.location.reload()
-  }
+    window.location.reload();
+  };
 
   function closeManageTeamModal () {
     $protectedContent.team.members = $protectedContent.team.members.filter(({ toInvite }) => !toInvite);
@@ -144,7 +146,11 @@
       setCookie: true,
     });
 
-    if (!response) return;
+    if (!response) {
+      $isLoading = false;
+
+      return;
+    };
 
     $session = response;
 
@@ -253,15 +259,15 @@
 
     $user.update({ password })
       .then(updatedUser => {
-        $user = updatedUser
+        $user = updatedUser;
 
         loading = false;
       })
       .catch((err) => {
         console.error('Failed to update user: %o', err);
+
         throw err;
       });
-
   };
 
   async function saveNewTeamMember ({ email, firstName, lastName, role }) {
@@ -298,7 +304,8 @@
     loading = false;
 
     if (!response || !response.ok) {
-      errorMessage = 'No user created. Check the details or contact support.'
+      errorMessage = 'No user created. Check the details or contact support.';
+
       return;
     };
 
@@ -313,6 +320,7 @@
     loading = true;
 
     clearErrors();
+
     // We will trust the API to check for the bulk of validation
     const token = $user ? await $user.jwt() : false;
 
@@ -349,6 +357,7 @@
   };
 
   async function sendEmail(email, firstName) {
+    // TODO: Consider moving this call to Netlify functions
     await emailjs.send('5609467','ps_team_member_welcome', {
       from_email: $user.email,
       from_name: $user.user_metadata.full_name || 'Admininstrator',
@@ -366,12 +375,13 @@
       .catch(error => {
         console.log('Error sending email:', error);
       });
-  }
+  };
 
   async function saveUpdatedTeamName (name) {
     loading = true;
 
     clearErrors();
+
     // We will trust the API to check for the bulk of validation
     const token = $user ? await $user.jwt() : false;
 
@@ -403,7 +413,7 @@
   };
 
   function updateTeamMember (teamMember, index) {
-    const updatedMembers = [...teamMembers];
+    const updatedMembers = [...$protectedContent.team.members];
 
     updatedMembers.splice(index, 1, teamMember);
 
