@@ -110,27 +110,25 @@
     </div>
 
     <footer>
-      <footer>
-        <slot name="footer"></slot>
-        { #if !hideCancelButton }
-          <PsButton
-            disabled={ loading }
-            style="secondary"
-            on:click={ () => close() }
-          >
-            { cancelBtCopy }
-          </PsButton>
-        { /if }
-        { #if !hideConfirmButton }
-          <PsButton
-            { loading }
-            on:tween-out-complete
-            on:click={ confirm }
-          >
-            { confirmBtCopy }
-          </PsButton>
-        { /if }
-      </footer>
+      <slot name="footer"></slot>
+      { #if !hideCancelButton }
+        <PsButton
+          disabled={ loading }
+          style="secondary"
+          on:click={ () => close() }
+        >
+          { cancelBtCopy }
+        </PsButton>
+      { /if }
+      { #if !hideConfirmButton }
+        <PsButton
+          { loading }
+          on:tween-out-complete
+          on:click={ confirm }
+        >
+          { confirmBtCopy }
+        </PsButton>
+      { /if }
     </footer>
   </aside>
 </div>
@@ -162,12 +160,9 @@
     transform: translate(-50%, -50%);
   }
 
-  .modal > :global(*) {
-    grid-column: 1 / -1;
-  }
-
   header {
     display: flex;
+    margin-bottom: 2rem;
   }
 
   .close {
@@ -184,7 +179,15 @@
     width: 100%;
   }
   .content > :global(:not(:last-child)) {
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  footer {
+    background-color: red;
+  }
+
+  footer:empty {
+    display: none;
   }
 
   @media screen and (min-width: 600px) {

@@ -315,12 +315,11 @@
   hideConfirmButton
   on:close
 >
-      <h2
-        slot="title"
-      >
-        Team management
-      </h2>
-
+    <h2
+      slot="title"
+    >
+      Edit team
+    </h2>
     <ErrorMessage
       message={ errorMessage }
     />
@@ -328,6 +327,9 @@
     <section
       class="entry"
     >
+      <h3>
+        Team details
+      </h3>
       <div
         class="team-name"
       >
@@ -575,8 +577,8 @@
     margin-bottom: 0.5rem;
   }
 
-  .entry {
+  /* .entry {
     border-bottom: 1px solid rgba(42,41,41, 0.15);
     padding-bottom: 1rem;
-  }
+  } */
 </style>
