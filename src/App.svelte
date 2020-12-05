@@ -368,9 +368,41 @@
       });
   }
 
-  function updateTeamName ({ detail: name }) {
-    console.log('updateTeamName');
-    // TODO
+  async function saveUpdatedTeamName ({ detail: name }) {
+    console.log('saveUpdatedTeamName');
+    loading = true;
+
+    clearErrors();
+    // We will trust the API to check for the bulk of validation
+    const token = $user ? await $user.jwt() : false;
+
+    if (!token) {
+      errorMessage = 'Could not validate your token. Please contact support.';
+
+      return;
+    };
+
+    const response = await fetch('/.netlify/functions/update-team-properties', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      body: JSON.stringify({
+        name,
+        teamID: $protectedContent.team._id,
+      }),
+    });
+
+    loading = false;
+
+    console.log('saveUpdatedTeamName', response);
+
+    if (!response || !response.ok) {
+      errorMessage = 'No update completed. Check the details or contact support.'
+      return;
+    };
+
+    // Reload the data from the server
+    await loadProtectedContent($user);
   };
 
   function updateTeamMember (teamMember, index) {
@@ -420,7 +452,7 @@
     maxTeamMembers={ $organization.maxUsers }
     on:close={ closeManageTeamModal }
     on:update={ handleTeamUpdate }
-    on:update-team-name={ updateTeamName }
+    on:update-team-name={ saveUpdatedTeamName }
   />
 { :else if error }
   <ErrorModal
