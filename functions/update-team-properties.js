@@ -36,11 +36,11 @@ exports.handler = async ({ body }) => {
 
     return {
       statusCode: 204,
-    }
+    };
   } catch (error) {
     return {
       statusCode: 400,
-      body: `Webhook Error: ${error.message}`;
+      body: `Webhook Error: ${error.message}`,
     };
   };
 };
