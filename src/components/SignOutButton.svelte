@@ -54,9 +54,7 @@
 </script>
 
 <PsButton
-  { inline }
-  style="secondary"
-  onDark
+  style={ `secondary on-dark ${(inline ? 'inline' : '')}` }
   on:click={ logout }
 >
   Log out

@@ -121,7 +121,7 @@
         { #if !hideConfirmButton }
           <PsButton
             { loading }
-            on:tweenOutComplete
+            on:tween-out-complete
             on:click={ confirm }
             type="submit"
           >
