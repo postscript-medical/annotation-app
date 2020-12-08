@@ -5,7 +5,7 @@ const faunadb = require('faunadb');
 const q = faunadb.query;
 const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
-exports.handler = async ({ body, headers }, context) => {
+exports.handler = async ({ body, headers }) => {
   try {
     // make sure this event was sent legitimately.
     const stripeEvent = stripe.webhooks.constructEvent(
@@ -33,7 +33,14 @@ exports.handler = async ({ body, headers }, context) => {
     });
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
-    const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
+    const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
+
+    // find the matching specialties and add them to the 'Organization' collection
+    // Gastro specialty ID: 281450746883342853
+    // All specialty ID: 281450725888754183
+
+    // if new_subscription !inactive
+    console.log('local subscription change', new_subscription);
 
     // update the subscription record in FaunaDB
     await client.query(
@@ -43,8 +50,9 @@ exports.handler = async ({ body, headers }, context) => {
             organizationID),
             { 
               data: {
-                subscriptionLevel: newSubscription.level,
-                maxUsers: newSubscription.maxUsers,
+                subscriptionLevel: new_subscription.level,
+                maxUsers: new_subscription.maxUsers,
+                specialties: q.Ref(Collection('Specialty'), '281450725888754183'),
               }
             },
       )
