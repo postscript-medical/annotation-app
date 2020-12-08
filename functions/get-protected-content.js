@@ -38,6 +38,7 @@ exports.handler = async (_, context) => {
                           data {
                             name
                             src
+                            default_illustration
                           }
                         }
                       }
