@@ -59,7 +59,7 @@ exports.handler = async ({ body }, context) => {
     variables: {
       email,
       role,
-      netlifyID: createdUser.id,
+      netlifyID: data.id,
       lastName,
       firstName,
       teamID,
