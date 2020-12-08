@@ -9,6 +9,25 @@ import {
   DEFAULT_SELECTED_SUB_SPECIALTY
 } from '../constants/defaults';
 
+
+function find_default_illustration (source) {
+  const ALL = 'all';
+
+  const all_specialties = source.find(({ name }) => name.toLowerCase() === ALL);
+
+  if (!all_specialties) return '';
+
+  const all_sub_specialties = all_specialties.subSpecialties.find(({ name }) => name.toLowerCase() === ALL);
+
+  if (!all_sub_specialties) return '';
+  
+  const illustration = all_sub_specialties.illustrations.find(({ default_illustration }) => default_illustration);
+
+  if (!illustration) return '';
+
+  return illustration.name;
+};
+
 export default async function (user) {
   const token = user ? await user.jwt(true) : false;
 
@@ -61,8 +80,7 @@ export default async function (user) {
   };
 
   const userDefaults = user.user_metadata.illustration || {
-    /* TODO: look for an illustration with a .default key set to true */
-    name: mappedData.team.organization.specialties[0].subSpecialties[0].illustrations[0].name,
+    name: find_default_illustration(mappedData.team.organization.specialties),
     specialty: DEFAULT_SELECTED_SPECIALTY,
     subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
   };
