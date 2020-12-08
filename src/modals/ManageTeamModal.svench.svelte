@@ -29,7 +29,7 @@
   };
   let modalToOpen = DEFAULT;
   let loading = false;
-  let errorMessage;
+  let error_message;
 
   function openModal (modalName) {
     modalToOpen = modalName;
@@ -49,7 +49,7 @@
   };
 
   function clearErrorMessage () {
-    errorMessage = '';
+    error_message = '';
   };
 
   function fakeRequest (callback) {
@@ -82,7 +82,7 @@
 
     fakeRequest(() => {
       if (!teamMember.email) {
-        errorMessage = 'You must provide a valid email address.';
+        error_message = 'You must provide a valid email address.';
   
         return;
       };
@@ -90,7 +90,7 @@
       const currentMembers = members.slice(0, -1);
   
       if (!!currentMembers.find( ({ email }) => email.toLowerCase() === teamMember.email.toLowerCase())) {
-        errorMessage = 'You must use an unique email address.';
+        error_message = 'You must use an unique email address.';
   
         return;
       };
@@ -174,7 +174,7 @@
     </PsButton>
     { #if modalToOpen === DEFAULT }
       <ManageTeamModal
-        { errorMessage }
+        { error_message }
         { loading }
         { members }
         { teamName }
