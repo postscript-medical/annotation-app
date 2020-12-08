@@ -58,7 +58,7 @@ export default async function (user) {
         })
       }
     }
-  }
+  };
 
   const userDefaults = user.user_metadata.illustration || {
     /* TODO: look for an illustration with a .default key set to true */
@@ -70,5 +70,5 @@ export default async function (user) {
   selectedIllustrationTitle.set(userDefaults.name);
   selectedSpecialty.set(userDefaults.specialty);
   selectedSubSpecialty.set(userDefaults.subSpecialty);
-  protectedContent.set(mappedData)
+  protectedContent.set(mappedData);
 };

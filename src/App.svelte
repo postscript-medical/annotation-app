@@ -28,7 +28,7 @@
 
   let emailConfirmed = false;
   let error;
-  let errorMessage = '';
+  let error_message = '';
   let loading = false;
   let showResetPasswordModal = false;
 
@@ -44,16 +44,16 @@
     ];
   };
 
-  function clearErrors () {
+  function clear_errors () {
     error = null;
 
-    errorMessage = '';
+    error_message = '';
   };
 
   function closeResetPasswordModal () {
     showResetPasswordModal = false;
 
-    navigateHome();
+    navigate_home();
 
     window.location.reload();
   };
@@ -77,7 +77,7 @@
 
     emailConfirmed = true;
 
-    navigateHome();
+    navigate_home();
   };
 
   async function getUserFromSessionStorage () {
@@ -102,13 +102,13 @@
     }
   };
 
-  function handleErrorModalClosed () {
-    clearErrors();
+  function handle_error_modal_closed () {
+    clear_errors();
 
-    navigateHome();
+    navigate_home();
   };
 
-  function handleTeamUpdate ({ detail }) {
+  function handle_team_update ({ detail }) {
     const { teamMember, teamName, action, index } = detail;
 
     switch (action) {
@@ -117,28 +117,28 @@
         break;
 
       case 'update-team-member':
-        updateTeamMember(teamMember, index);
+        update_team_member(teamMember, index);
         break;
 
       case 'remove-team-member':
-        removeTeamMember(teamMember);
+        remove_team_member(teamMember);
         break;
 
       case 'save-new-team-member':
-        saveNewTeamMember(teamMember);
+        save_new_team_member(teamMember);
         break;
 
       case 'save-updated-team-member':
-        saveUpdatedTeamMember(teamMember);
+        save_updated_team_member(teamMember);
         break;
 
       case 'save-updated-team-name':
-        saveUpdatedTeamName(teamName);
+        save_updated_team_name(teamName);
         break;
     }
   };
 
-  async function initAuthentication () {
+  async function init_authentication () {
     $isLoading = true;
 
     const response = await new GoTrue.default({
@@ -167,7 +167,7 @@
           break;
 
         case '#recovery_token':
-          recoverUserAccount(token);
+          recover_user_account(token);
           break;
 
         default:
@@ -180,13 +180,37 @@
     }
   };
 
-  function navigateHome() {
+  function navigate_home() {
     window.location.hash = '';
 
     $isLoading = false;
   };
 
-  async function recoverUserAccount (token) {
+  async function netlify_function (url, user, params) {
+    const token = user ? await user.jwt() : false;
+
+    if (!token) {
+      return Promise.reject(new Error('Could not validate your token. Please contact support.'));
+    }
+
+    const response = await fetch(url, {
+      method: params.method || 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+      body: JSON.stringify(params.body || {}),
+    })
+    .catch(err => Promise.reject(new Error(`Error ${err.message}`)));
+
+    if (!response.ok) {
+      const err = await response.json();
+
+      return Promise.reject(new Error(err.message));
+    };
+
+    return response;
+  };
+
+  async function recover_user_account (token) {
     const response = await $session
       .recover(token, true)
       .catch(err => {
@@ -200,57 +224,36 @@
     }
   };
 
-  async function removeTeamMember (teamMember) {
-    clearErrors();
+  async function remove_team_member (team_member) {
+    const { netlifyID, _id: userID} = team_member;
 
-    if (teamMember.toInvite) {
-      $protectedContent.team.members = $protectedContent.team.members.filter(({ toInvite }) => !toInvite);
+    if (netlifyID && userID) {
+      /**
+       * NOTE: This call ALWAYS fails when in localhost!
+      */
+      const response = await save_team_change(
+        '/.netlify/functions/remove-team-member',
+        {
+          body: {
+            userID,
+            netlifyID,
+          },
+        }
+      ).catch(err => error_message = err.message);
 
-      return;
-    };
-
-    loading = true;
-
-    const token = $user ? await $user.jwt() : false;
-
-    if (!token) {
-      errorMessage = 'Could not validate your token. Please contact support.';
-
-      return;
-    };
-
-    const { netlifyID, _id: userID} = teamMember;
-
-    /**
-     * NOTE: This call ALWAYS fails when in localhost!
-    */
-    const response = await fetch('/.netlify/functions/remove-team-member', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        userID,
-        netlifyID,
-      }),
-    });
-
-    loading = false;
-
-    if (!response || !response.ok) {
-      errorMessage = 'No user deleted. Check the details or contact support.'
-      return;
-    };
+      if (!response) return;
+    }
 
     $protectedContent.team.members = [...$protectedContent.team.members.filter(({ _id }) => _id !== userID)];
   };
 
-  async function resetUserPassword ({ detail: password }) {
-    const isPasswordGood = checkPasswordRequirements(password);
+  async function reset_user_password ({ detail: password }) {
+    const is_passwordGood = checkPasswordRequirements(password);
 
-    errorMessage = '';
+    clear_errors();
 
-    if (!isPasswordGood) {
-      errorMessage = 'Password does not meet criteria.';
+    if (!is_passwordGood) {
+      error_message = 'Password does not meet criteria.';
 
       return;
     }
@@ -258,105 +261,113 @@
     loading = true;
 
     $user.update({ password })
-      .then(updatedUser => {
-        $user = updatedUser;
+      .then(updated_user => {
+        $user = updated_user;
 
         loading = false;
       })
       .catch((err) => {
-        console.error('Failed to update user: %o', err);
-
-        throw err;
+        error_message = `Failed to update user: ${err.message}`;
       });
   };
 
-  async function saveNewTeamMember ({ email, firstName, lastName, role }) {
-    loading = true;
-
-    clearErrors();
-
-    const token = $user ? await $user.jwt() : false;
-
-    if (!token) {
-      errorMessage = 'Could not validate your token. Please contact support.';
-
-      return;
-    };
-
-    // TODO: generate a random password that needs to be sent to the user / or a reset password must be triggered when the user confirms their email
+  async function save_new_team_member ({ email, firstName, lastName, role }) {
     /**
      * NOTE: This call ALWAYS fails when in localhost!
     */
-    const response = await fetch('/.netlify/functions/add-team-member', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        email,
-        firstName,
-        lastName,
-        password: '123',
-        role,
-        teamID: $protectedContent.team._id,
-      }),
-    });
+    
+    const response = await save_team_change(
+      '/.netlify/functions/add-team-member',
+      {
+        body: {
+          email,
+          firstName,
+          lastName,
+          password: '123', /* TODO: generate a random password */
+          role,
+          teamID: $protectedContent.team._id,
+        },
+      }
+    ).catch(err => {
+      console.log('save_new_team_member error:', err.message);
 
-    loading = false;
-
-    if (!response || !response.ok) {
-      errorMessage = 'No user created. Check the details or contact support.';
+      error_message = err.message;
 
       return;
-    };
+    });
+
+    if (!response) return;
 
     // send welcome email with a reset password link to the newly created user.
-    sendEmail(email, firstName);
+    send_email(email, firstName);
 
     // Reload the data from the server
-    await loadProtectedContent($user);
+    loadProtectedContent($user);
   };
 
-  async function saveUpdatedTeamMember ({ email, firstName, lastName, role, netlifyID, _id: userID }) {
+  async function save_team_change (url, params) {
     loading = true;
 
-    clearErrors();
+    clear_errors();
 
-    // We will trust the API to check for the bulk of validation
-    const token = $user ? await $user.jwt() : false;
+    const response = await netlify_function(url, $user, params)
+      .catch(err => {
+        console.log('save_team_change error:', err.message);
 
-    if (!token) {
-      errorMessage = 'Could not validate your token. Please contact support.';
+        loading = false;
 
-      return;
-    };
+        return Promise.reject(new Error(err.message));
+      });
 
-    const response = await fetch('/.netlify/functions/update-team-member', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        email,
-        firstName,
-        lastName,
-        role,
-        netlifyID,
-        userID,
-        teamID: $protectedContent.team._id,
-      }),
-    });
+    console.log('save_team_change', response);
 
     loading = false;
 
-    if (!response || !response.ok) {
-      errorMessage = 'No user updated. Check the details or contact support.'
-      return;
-    };
-
-    // Reload the data from the server
-    await loadProtectedContent($user);
+    return response;
   };
 
-  async function sendEmail(email, firstName) {
+  async function save_updated_team_member ({ email, firstName, lastName, role, netlifyID, _id: userID }) {
+    const response = await save_team_change(
+      '/.netlify/functions/update-team-member',
+      {
+        body: {
+          email,
+          firstName,
+          lastName,
+          role,
+          netlifyID,
+          userID,
+          teamID: $protectedContent.team._id,
+        },
+      }
+    ).catch(err => error_message = err.message);
+
+    if (!response) return;
+
+    // Reload the data from the server
+    loadProtectedContent($user);
+  };
+
+  async function save_updated_team_name (name) {
+    const response = await save_team_change(
+      '/.netlify/functions/update-team-properties',
+      {
+        body: {
+          name,
+          teamID: $protectedContent.team._id,
+        },
+      }
+    ).catch(err => {
+      error_message = err.message;
+    });
+
+    if (!response) return;
+
+    // Reload the data from the server
+    loadProtectedContent($user);
+  };
+
+  async function send_email(email, firstName) {
     // TODO: Consider moving this call to Netlify functions
     await emailjs.send('5609467','ps_team_member_welcome', {
       from_email: $user.email,
@@ -372,60 +383,32 @@
       .then(response => {
         console.log('Recovery sent', { response });
       })
-      .catch(error => {
-        console.log('Error sending email:', error);
+      .catch(err => {
+        console.log('Error sending email:', err);
+        error_message = `Error sending invitation email ${err.message}`
       });
   };
 
-  async function saveUpdatedTeamName (name) {
-    loading = true;
+  function update_team_member (team_member) {
+    const updated_members = [...$protectedContent.team.members];
+    /*
+      This works even when _id is undefined because the only way it is so
+      is when we add a new, unsaved, member to the list.
+      When that happens, both _id and team_member._id are undefined thus, returning the correct index.
+    */
+    const index = updated_members.findIndex(({ _id }) => _id === team_member._id)
 
-    clearErrors();
+    updated_members.splice(index, 1, team_member);
 
-    // We will trust the API to check for the bulk of validation
-    const token = $user ? await $user.jwt() : false;
-
-    if (!token) {
-      errorMessage = 'Could not validate your token. Please contact support.';
-
-      return;
-    };
-
-    const response = await fetch('/.netlify/functions/update-team-properties', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-      body: JSON.stringify({
-        name,
-        teamID: $protectedContent.team._id,
-      }),
-    });
-
-    loading = false;
-
-    if (!response || !response.ok) {
-      errorMessage = 'No update completed. Check the details or contact support.'
-      return;
-    };
-
-    // Reload the data from the server
-    await loadProtectedContent($user);
+    $protectedContent.team.members = updated_members;
   };
 
-  function updateTeamMember (teamMember, index) {
-    const updatedMembers = [...$protectedContent.team.members];
-
-    updatedMembers.splice(index, 1, teamMember);
-
-    $protectedContent.team.members = updatedMembers;
-  };
-
-  function updateTeamName ({ detail: name }) {
+  function update_team_name ({ detail: name }) {
     $protectedContent.team.name = name;
   };
 
   // TODO: Put this in the onMount() and potentially create a skeleton page to show.
-  initAuthentication();
+  init_authentication();
 </script>
 
 
@@ -448,26 +431,26 @@
 
 { #if showResetPasswordModal }
   <ResetPasswordModal
-    { errorMessage }
+    { error_message }
     { loading }
-    on:clear-errors={ clearErrors }
+    on:clear-errors={ clear_errors }
     on:close={ closeResetPasswordModal }
-    on:reset-password{ resetUserPassword }
+    on:reset-password{ reset_user_password }
   />
 { :else if $showManageTeamModal }
   <ManageTeamModal
-    { errorMessage }
+    { error_message }
     { loading }
     { teamName }
     members={ teamMembers }
     maxTeamMembers={ $organization.maxUsers }
     on:close={ closeManageTeamModal }
-    on:update={ handleTeamUpdate }
-    on:update-team-name={ updateTeamName }
+    on:update={ handle_team_update }
+    on:update-team-name={ update_team_name }
   />
 { :else if error }
   <ErrorModal
-    on:close={ handleErrorModalClosed }
+    on:close={ handle_error_modal_closed }
   >
     <p>
       { error && error.msg }

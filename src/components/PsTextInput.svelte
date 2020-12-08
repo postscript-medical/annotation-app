@@ -56,7 +56,7 @@ to allow for grid layouts to be implemented -->
     padding: 0.25rem;
   }
   input:read-only {
-    /* border-color: transparent; */
+    border-color: transparent;
     background-color: transparent;
   }
 
