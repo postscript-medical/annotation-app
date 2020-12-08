@@ -1,11 +1,11 @@
 type Organization {
-  maxSpecialties: Int!
-  maxUsers: Int!
+  maxSpecialties: Int
+  maxUsers: Int
   name: String
   specialties: [Specialty] @relation
-  stripeID: ID! @unique
-  subscriptionLevel: String!
-  teams: [Team!]! @relation
+  stripeID: ID @unique
+  subscriptionLevel: String
+  teams: [Team] @relation
 }
 
 type Team {

@@ -19,19 +19,19 @@ exports.handler = async ({ body, headers }) => {
     if (stripeEvent.type !== 'customer.subscription.updated') return;
     
     const subscription = stripeEvent.data.object;
-    const result = await faunaFetch({
-      query: `
-          query ($id: ID!) {
-            findOrganizationBystripeID (stripeID: $id) {
-              _id
-            }
-          }
-        `,
-      variables: {
-        id: subscription.customer,
-      },
-    });
-    const organizationID = result.data.findOrganizationBystripeID._id;
+    // const result = await faunaFetch({
+    //   query: `
+    //       query ($id: ID!) {
+    //         findOrganizationBystripeID (stripeID: $id) {
+    //           _id
+    //         }
+    //       }
+    //     `,
+    //   variables: {
+    //     id: subscription.customer,
+    //   },
+    // });
+    // const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
@@ -42,36 +42,41 @@ exports.handler = async ({ body, headers }) => {
     // if new_subscription !inactive
     console.log('local subscription change', new_subscription);
 
-    // update the subscription record in FaunaDB
-    await client.query(
-      q.Update(
-        q.Ref(
-          q.Collection('Organization'),
-            organizationID),
-            { 
-              data: {
-                subscriptionLevel: new_subscription.level,
-                maxUsers: new_subscription.maxUsers,
-                specialties: q.Ref(Collection('Specialty'), '281450725888754183'),
-              }
-            },
-      )
-    );
+    const result = await faunaFetch({
+      query: `
+        mutation ($id: ID! $specialty: ID $maxUsers: Int! $subscriptionLevel: String) {
+          updateOrganization (id: $id, data: {
+            maxUsers: $maxUsers
+            specialties: { connect: $specialty }
+            subscriptionLevel: $subscriptionLevel
+          })
+        }
+      `,
+      variables: {
+        id: subscription.customer,
+        maxUsers: new_subscription.maxUsers,
+        specialty: 281450725888754183,
+        subscriptionLevel: new_subscription.level,
+      }
+    })
 
-    // send a call to the Netlify Identity admin API to update the user role
-    // const { identity } = context.clientContext;
-    // await fetch(`${identity.url}/admin/users/${netlifyID}`, {
-    //   method: 'PUT',
-    //   headers: {
-    //     // note that this is a special admin token for the Identity API
-    //     Authorization: `Bearer ${identity.token}`,
-    //   },
-    //   body: JSON.stringify({
-    //     app_metadata: {
-    //       roles: [newSubscription.role],
-    //     },
-    //   }),
-    // });
+    // try the below as GraphQL
+
+    // update the subscription record in FaunaDB
+    // await client.query(
+    //   q.Update(
+    //     q.Ref(
+    //       q.Collection('Organization'),
+    //         organizationID),
+    //         { 
+    //           data: {
+    //             subscriptionLevel: new_subscription.level,
+    //             maxUsers: new_subscription.maxUsers,
+    //             specialties: q.Ref(Collection('Specialty'), '281450725888754183'),
+    //           }
+    //         },
+    //   )
+    // );
 
     return {
       statusCode: 200,
