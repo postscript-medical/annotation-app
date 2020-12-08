@@ -92,8 +92,6 @@
 
       return user;
     } catch (err) {
-      console.error('Error:', err);
-
       window.sessionStorage.removeItem(STORAGE_KEY);
 
       $isLoading = false;
@@ -289,8 +287,6 @@
         },
       }
     ).catch(err => {
-      console.log('save_new_team_member error:', err.message);
-
       error_message = err.message;
 
       return;
@@ -312,14 +308,10 @@
 
     const response = await netlify_function(url, $user, params)
       .catch(err => {
-        console.log('save_team_change error:', err.message);
-
         loading = false;
 
         return Promise.reject(new Error(err.message));
       });
-
-    console.log('save_team_change', response);
 
     loading = false;
 
@@ -381,10 +373,11 @@
     await $session
       .requestPasswordRecovery(email)
       .then(response => {
-        console.log('Recovery sent', { response });
+        console.log('Recovery email sent.');
       })
       .catch(err => {
         console.log('Error sending email:', err);
+
         error_message = `Error sending invitation email ${err.message}`
       });
   };
