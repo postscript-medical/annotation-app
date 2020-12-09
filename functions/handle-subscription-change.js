@@ -44,21 +44,32 @@ exports.handler = async ({ body, headers }) => {
 
     const result = await faunaFetch({
       query: `
-        mutation ($id: ID! $specialty: ID $maxUsers: Int! $subscriptionLevel: String) {
+        mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
           updateOrganization (id: $id, data: {
             maxUsers: $maxUsers
-            specialties: { connect: $specialty }
+            specialties: { connect: $specialties }
             subscriptionLevel: $subscriptionLevel
-          })
+          }) {
+            name
+            specialties {
+              data {
+                name
+              }
+            }
+          }
         }
       `,
       variables: {
         id: subscription.customer,
         maxUsers: new_subscription.maxUsers,
-        specialty: 281450725888754183,
+        specialties: [281450725888754183, 281450746883342853],
         subscriptionLevel: new_subscription.level,
       }
+    }).catch(err => {
+      console.log('handle fetch error', err.message)
     })
+
+    console.log('handle response', result);
 
     // try the below as GraphQL
 
