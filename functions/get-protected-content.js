@@ -25,7 +25,6 @@ exports.handler = async (_, context) => {
                 }
               }
               organization {
-                _id
                 maxSpecialties
                 maxUsers
                 name

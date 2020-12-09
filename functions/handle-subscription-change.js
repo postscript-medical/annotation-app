@@ -51,6 +51,8 @@ exports.handler = async ({ body, headers }) => {
             subscriptionLevel: $subscriptionLevel
           }) {
             name
+            maxUsers
+            subscriptionLevels
             specialties {
               data {
                 name
@@ -60,9 +62,9 @@ exports.handler = async ({ body, headers }) => {
         }
       `,
       variables: {
-        id: organizationID,
+        id: `${organizationID}`,
         maxUsers: new_subscription.maxUsers,
-        specialties: [281450725888754183, 281450746883342853],
+        specialties: ['281450725888754183', '281450746883342853'],
         subscriptionLevel: new_subscription.level,
       }
     }).catch(err => {
