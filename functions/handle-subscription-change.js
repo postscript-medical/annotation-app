@@ -1,9 +1,9 @@
 const { SUBSCRIPTIONS } = require('./constants');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
-const faunadb = require('faunadb');
-const q = faunadb.query;
-const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
+// const faunadb = require('faunadb');
+// const q = faunadb.query;
+// const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -19,19 +19,19 @@ exports.handler = async ({ body, headers }) => {
     if (stripeEvent.type !== 'customer.subscription.updated') return;
     
     const subscription = stripeEvent.data.object;
-    // const result = await faunaFetch({
-    //   query: `
-    //       query ($id: ID!) {
-    //         findOrganizationBystripeID (stripeID: $id) {
-    //           _id
-    //         }
-    //       }
-    //     `,
-    //   variables: {
-    //     id: subscription.customer,
-    //   },
-    // });
-    // const organizationID = result.data.findOrganizationBystripeID._id;
+    const result = await faunaFetch({
+      query: `
+          query ($id: ID!) {
+            findOrganizationBystripeID (stripeID: $id) {
+              _id
+            }
+          }
+        `,
+      variables: {
+        id: subscription.customer,
+      },
+    });
+    const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
@@ -42,7 +42,7 @@ exports.handler = async ({ body, headers }) => {
     // if new_subscription !inactive
     console.log('local subscription change', new_subscription);
 
-    const result = await faunaFetch({
+    const updated_organization = await faunaFetch({
       query: `
         mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
           updateOrganization (id: $id, data: {
@@ -60,7 +60,7 @@ exports.handler = async ({ body, headers }) => {
         }
       `,
       variables: {
-        id: subscription.customer,
+        id: organizationID,
         maxUsers: new_subscription.maxUsers,
         specialties: [281450725888754183, 281450746883342853],
         subscriptionLevel: new_subscription.level,
@@ -69,7 +69,7 @@ exports.handler = async ({ body, headers }) => {
       console.log('handle fetch error', err.message)
     })
 
-    console.log('handle response', result);
+    console.log('handle response', updated_organization);
 
     // try the below as GraphQL
 
