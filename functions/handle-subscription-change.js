@@ -1,4 +1,7 @@
-const { SUBSCRIPTIONS } = require('./constants');
+const {
+  PLAN_0,
+  SUBSCRIPTIONS
+} = require('./constants');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
 // const faunadb = require('faunadb');
@@ -42,34 +45,69 @@ exports.handler = async ({ body, headers }) => {
     // if new_subscription !inactive
     console.log('local subscription change', new_subscription);
 
-    const updated_organization = await faunaFetch({
-      query: `
-        mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
-          updateOrganization (id: $id, data: {
-            maxUsers: $maxUsers
-            specialties: { connect: $specialties }
-            subscriptionLevel: $subscriptionLevel
-          }) {
-            name
-            maxUsers
-            subscriptionLevel
-            specialties {
-              data {
-                name
+    const TEMP_SPECIALTIES = ['281450725888754183', '281450746883342853'];
+    let updated_organization;
+
+    if (new_subscription.level === PLAN_0) {
+      updated_organization = await faunaFetch({
+        query: `
+          mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+            updateOrganization (id: $id, data: {
+              maxUsers: $maxUsers
+              specialties: { disconnect: $specialties }
+              subscriptionLevel: $subscriptionLevel
+            }) {
+              name
+              maxUsers
+              subscriptionLevel
+              specialties {
+                data {
+                  name
+                }
               }
             }
           }
+        `,
+        variables: {
+          id: `${organizationID}`,
+          maxUsers: new_subscription.maxUsers,
+          specialties: TEMP_SPECIALTIES,
+          subscriptionLevel: new_subscription.level,
         }
-      `,
-      variables: {
-        id: `${organizationID}`,
-        maxUsers: new_subscription.maxUsers,
-        specialties: ['281450725888754183', '281450746883342853'],
-        subscriptionLevel: new_subscription.level,
-      }
-    }).catch(err => {
-      console.log('handle fetch error', err.message)
-    })
+      }).catch(err => {
+        console.log('handle fetch error', err.message)
+      });
+    } else {
+      updated_organization = await faunaFetch({
+        query: `
+          mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+            updateOrganization (id: $id, data: {
+              maxUsers: $maxUsers
+              specialties: { connect: $specialties }
+              subscriptionLevel: $subscriptionLevel
+            }) {
+              name
+              maxUsers
+              subscriptionLevel
+              specialties {
+                data {
+                  name
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          id: `${organizationID}`,
+          maxUsers: new_subscription.maxUsers,
+          specialties: TEMP_SPECIALTIES,
+          subscriptionLevel: new_subscription.level,
+        }
+      }).catch(err => {
+        console.log('handle fetch error', err.message)
+      });
+    }
+
 
     console.log('handle response', updated_organization);
 
