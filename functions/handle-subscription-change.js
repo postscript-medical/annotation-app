@@ -49,6 +49,7 @@ exports.handler = async ({ body, headers }) => {
     let updated_organization;
 
     if (new_subscription.level === PLAN_0) {
+      console.log('disconnect');
       updated_organization = await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
@@ -78,6 +79,7 @@ exports.handler = async ({ body, headers }) => {
         console.log('handle fetch error', err.message)
       });
     } else {
+      console.log('connect');
       updated_organization = await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
@@ -108,8 +110,8 @@ exports.handler = async ({ body, headers }) => {
       });
     }
 
+    console.log('handle response', JSON.stringify(updated_organization));
 
-    console.log('handle response', updated_organization);
 
     // try the below as GraphQL
 
