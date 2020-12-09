@@ -52,7 +52,7 @@ exports.handler = async ({ body, headers }) => {
           }) {
             name
             maxUsers
-            subscriptionLevels
+            subscriptionLevel
             specialties {
               data {
                 name
