@@ -19,20 +19,20 @@
 
   $: showSignUpForm = !showEmailConfirmed;
 
-  function confirmationAcknoleged () {
+  function confirmation_acknoleged () {
     dispatch('email-confirmed');
   };
 
-  function closeForgottenPasswordModal () {
+  function close_forgotten_password_modal () {
     showForgotPasswordModal = false;
   };
 
-  function openForgotPasswordModal () {
+  function open_forgot_password_modal () {
     emailSent = false;
     showForgotPasswordModal = true;
   }
 
-  async function requestResetPassword ({ detail: email }) {
+  async function request_reset_password ({ detail: email }) {
     if (!$session) {
       error = {
         json: {
@@ -72,7 +72,7 @@
     />
 
     <SignInForm
-      on:open-forgot-password-modal={ openForgotPasswordModal}
+      on:open-forgot-password-modal={ open_forgot_password_modal}
     />
   </main>
 
@@ -84,7 +84,7 @@
 
   { #if showEmailConfirmed }
     <EmailConfirmedModal
-      on:close={ confirmationAcknoleged }
+      on:close={ confirmation_acknoleged }
     />
   { /if }
 
@@ -93,8 +93,8 @@
       { errorMessage }
       { emailSent }
       { loading }
-      on:close={ closeForgottenPasswordModal }
-      on:request-reset-password={ requestResetPassword }
+      on:close={ close_forgotten_password_modal }
+      on:request-reset-password={ request_reset_password }
     />
   { /if }
 </div>
