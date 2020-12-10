@@ -37,7 +37,7 @@
   $: teamMembers = ($protectedContent && $protectedContent.team.members.filter(({ role })  => role !== ROLE_OWNER)) || [];
   $: teamName = ($protectedContent && $protectedContent.team.name) || '';
 
-  function addNewTeamMember (teamMember) {
+  function add_new_team_member (teamMember) {
     $protectedContent.team.members = [
       ...$protectedContent.team.members,
       teamMember,
@@ -50,7 +50,11 @@
     error_message = '';
   };
 
-  function closeResetPasswordModal () {
+  function close_email_confirmed_modal () {
+    emailConfirmed = false;
+  };
+
+  function close_reset_password_modal () {
     showResetPasswordModal = false;
 
     navigate_home();
@@ -58,13 +62,13 @@
     window.location.reload();
   };
 
-  function closeManageTeamModal () {
+  function close_manage_team_modal () {
     $protectedContent.team.members = $protectedContent.team.members.filter(({ toInvite }) => !toInvite);
 
     $showManageTeamModal = false;
   };
 
-  async function confirmUserSignUp (token) {
+  async function confirm_user_sign_up (token) {
     const response = await $session
       .confirm(token)
       .catch(err => {
@@ -80,7 +84,7 @@
     navigate_home();
   };
 
-  async function getUserFromSessionStorage () {
+  async function get_user_from_session_storage () {
     const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
 
     if (!sessionStorage) return false;
@@ -111,7 +115,7 @@
 
     switch (action) {
       case 'add-new-team-member':
-        addNewTeamMember(teamMember);
+        add_new_team_member(teamMember);
         break;
 
       case 'update-team-member':
@@ -152,7 +156,7 @@
 
     $session = response;
 
-    $user = await (getUserFromSessionStorage() || $session.currentUser());
+    $user = await (get_user_from_session_storage() || $session.currentUser());
 
     const hash = window.location.hash;
 
@@ -161,7 +165,7 @@
 
       switch (hashId) {
         case '#confirmation_token':
-          confirmUserSignUp(token);
+          confirm_user_sign_up(token);
           break;
 
         case '#recovery_token':
@@ -418,7 +422,7 @@
 { :else }
   <Index
     showEmailConfirmed={ emailConfirmed }
-    on:email-confirmed={ () => emailConfirmed = false }
+    on:email-confirmed={ close_email_confirmed_modal }
   />
 { /if }
 
@@ -427,7 +431,7 @@
     { error_message }
     { loading }
     on:clear-errors={ clear_errors }
-    on:close={ closeResetPasswordModal }
+    on:close={ close_reset_password_modal }
     on:reset-password{ reset_user_password }
   />
 { :else if $showManageTeamModal }
@@ -437,7 +441,7 @@
     { teamName }
     members={ teamMembers }
     maxTeamMembers={ $organization.maxUsers }
-    on:close={ closeManageTeamModal }
+    on:close={ close_manage_team_modal }
     on:update={ handle_team_update }
     on:update-team-name={ update_team_name }
   />
