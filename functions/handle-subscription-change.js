@@ -1,11 +1,11 @@
-const { SUBSCRIPTIONS } = require('./constants');
+const {
+  PLAN_0,
+  SUBSCRIPTIONS
+} = require('./constants');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
-const faunadb = require('faunadb');
-const q = faunadb.query;
-const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
-exports.handler = async ({ body, headers }, context) => {
+exports.handler = async ({ body, headers }) => {
   try {
     // make sure this event was sent legitimately.
     const stripeEvent = stripe.webhooks.constructEvent(
@@ -33,37 +33,71 @@ exports.handler = async ({ body, headers }, context) => {
     });
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
-    const newSubscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
+    const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
-    // update the subscription record in FaunaDB
-    await client.query(
-      q.Update(
-        q.Ref(
-          q.Collection('Organization'),
-            organizationID),
-            { 
-              data: {
-                subscriptionLevel: newSubscription.level,
-                maxUsers: newSubscription.maxUsers,
+
+    const TEMP_SPECIALTIES = ['281450725888754183', '281450746883342853'];
+    let updated_organization;
+
+    if (new_subscription.level === PLAN_0) {
+      updated_organization = await faunaFetch({
+        query: `
+          mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+            updateOrganization (id: $id, data: {
+              maxUsers: $maxUsers
+              specialties: { disconnect: $specialties }
+              subscriptionLevel: $subscriptionLevel
+            }) {
+              name
+              maxUsers
+              subscriptionLevel
+              specialties {
+                data {
+                  name
+                }
               }
-            },
-      )
-    );
-
-    // send a call to the Netlify Identity admin API to update the user role
-    // const { identity } = context.clientContext;
-    // await fetch(`${identity.url}/admin/users/${netlifyID}`, {
-    //   method: 'PUT',
-    //   headers: {
-    //     // note that this is a special admin token for the Identity API
-    //     Authorization: `Bearer ${identity.token}`,
-    //   },
-    //   body: JSON.stringify({
-    //     app_metadata: {
-    //       roles: [newSubscription.role],
-    //     },
-    //   }),
-    // });
+            }
+          }
+        `,
+        variables: {
+          id: `${organizationID}`,
+          maxUsers: new_subscription.maxUsers,
+          specialties: TEMP_SPECIALTIES,
+          subscriptionLevel: new_subscription.level,
+        }
+      }).catch(err => {
+        console.log('handle fetch error', err.message)
+      });
+    } else {
+      updated_organization = await faunaFetch({
+        query: `
+          mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+            updateOrganization (id: $id, data: {
+              maxUsers: $maxUsers
+              specialties: { connect: $specialties }
+              subscriptionLevel: $subscriptionLevel
+            }) {
+              name
+              maxUsers
+              subscriptionLevel
+              specialties {
+                data {
+                  name
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          id: `${organizationID}`,
+          maxUsers: new_subscription.maxUsers,
+          specialties: TEMP_SPECIALTIES,
+          subscriptionLevel: new_subscription.level,
+        }
+      }).catch(err => {
+        console.log('handle fetch error', err.message)
+      });
+    }
 
     return {
       statusCode: 200,

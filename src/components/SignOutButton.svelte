@@ -19,7 +19,7 @@
   import loadProtectedContent from '../methods/load-protected-content.js';
   import PsButton from './PsButton.svelte';
 
-  export let asLink = false;
+  export let inline = false;
 
   function logout () {
     $isLoading = true;
@@ -54,9 +54,7 @@
 </script>
 
 <PsButton
-  { asLink }
-  style="secondary"
-  onDark
+  style={ `secondary on-dark ${(inline ? 'inline' : '')}` }
   on:click={ logout }
 >
   Log out

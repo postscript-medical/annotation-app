@@ -1,11 +1,10 @@
 <script>
   import Modal from './Modal.svelte';
-  import PsButton from '../components/PsButton.svelte';
-
 </script>
 
 <Modal
-  confirmBtCopy="Ok"
+  cancelBtCopy="Close"
+  hideConfirmButton
   on:close
   on:confirm
 >

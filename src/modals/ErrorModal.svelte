@@ -23,7 +23,6 @@
   <slot></slot>
 
   <PsButton 
-    autofocus
     on:click={ confirm }
   >
     Ok
