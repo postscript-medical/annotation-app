@@ -9,13 +9,13 @@
   class:on-dark={ onDark }
 >
   <PsLink
-    href="/docs/terms_and_conditions_yqye6f.pdf"
+    href="/terms_and_conditions.pdf"
     target="_blank"
   >
     Terms
   </PsLink>
   <PsLink
-    href="/docs/privacy_policy_mp5yuz.pdf"
+    href="/privacy_policy.pdf"
     target="_blank"
   >
     Privacy
