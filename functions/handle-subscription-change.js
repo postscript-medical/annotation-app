@@ -4,9 +4,6 @@ const {
 } = require('./constants');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require('./utils/fauna');
-// const faunadb = require('faunadb');
-// const q = faunadb.query;
-// const client = new faunadb.Client({ secret: process.env.FAUNA_SERVER_KEY })
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -38,18 +35,11 @@ exports.handler = async ({ body, headers }) => {
     const productID = subscription.items.data[0].plan.product;
     const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
 
-    // find the matching specialties and add them to the 'Organization' collection
-    // Gastro specialty ID: 281450746883342853
-    // All specialty ID: 281450725888754183
-
-    // if new_subscription !inactive
-    console.log('local subscription change', new_subscription);
 
     const TEMP_SPECIALTIES = ['281450725888754183', '281450746883342853'];
     let updated_organization;
 
     if (new_subscription.level === PLAN_0) {
-      console.log('disconnect');
       updated_organization = await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
@@ -79,7 +69,6 @@ exports.handler = async ({ body, headers }) => {
         console.log('handle fetch error', err.message)
       });
     } else {
-      console.log('connect');
       updated_organization = await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
@@ -109,27 +98,6 @@ exports.handler = async ({ body, headers }) => {
         console.log('handle fetch error', err.message)
       });
     }
-
-    console.log('handle response', JSON.stringify(updated_organization));
-
-
-    // try the below as GraphQL
-
-    // update the subscription record in FaunaDB
-    // await client.query(
-    //   q.Update(
-    //     q.Ref(
-    //       q.Collection('Organization'),
-    //         organizationID),
-    //         { 
-    //           data: {
-    //             subscriptionLevel: new_subscription.level,
-    //             maxUsers: new_subscription.maxUsers,
-    //             specialties: q.Ref(Collection('Specialty'), '281450725888754183'),
-    //           }
-    //         },
-    //   )
-    // );
 
     return {
       statusCode: 200,
