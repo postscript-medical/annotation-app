@@ -82,6 +82,7 @@
         Send
       </PsButton>
     { /if }
+    <hr />
     <h3>
       Or save the image to your machine
     </h3>
@@ -95,17 +96,18 @@
 </Modal>
 
 <style>
-  input {
-    margin-bottom: 1rem;
-  }
-
-  h3 {
-    margin-top: 2rem;
+  hr {
+    width: 90%;
+    opacity: 20%;
   }
 
   .modal-body {
     display: flex;
     flex-direction: column;
+  }
+
+  .modal-body > :global(*) {
+    margin-bottom: 1rem;
   }
 
   .modal-body :global(:not(input)) {
