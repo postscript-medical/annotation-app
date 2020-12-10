@@ -57,15 +57,6 @@ exports.handler = async (_, context) => {
       }
     });
 
-    // if (!subscription || !subscriptionContent) {
-    //   return {
-    //     statusCode: 402,
-    //     body: JSON.stringify({
-    //       copy: 'Not allowed.'
-    //     })
-    //   }
-    // }
-
     return {
       statusCode: 200,
       body: JSON.stringify({
