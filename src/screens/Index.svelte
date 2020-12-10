@@ -88,7 +88,7 @@
 
   { #if showEmailConfirmed }
     <EmailConfirmedModal
-      on:confirm={ confirmationAcknoleged }
+      on:close={ confirmationAcknoleged }
     />
   { /if }
 
