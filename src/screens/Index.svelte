@@ -67,13 +67,9 @@
   <main
     class="main-grid main-content central-align"
   >
-    { #if showSignUpForm }
-      <SignUpForm
-        on:user-created={ showThankYou }
-      />
-    { :else }
-      <div></div>
-    { /if }
+    <SignUpForm
+      on:user-created={ showThankYou }
+    />
 
     <SignInForm
       on:open-forgot-password-modal={ openForgotPasswordModal}
