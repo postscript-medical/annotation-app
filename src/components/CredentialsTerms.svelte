@@ -8,10 +8,16 @@
   class="terms"
   class:on-dark={ onDark }
 >
-  <PsLink>
+  <PsLink
+    href="/docs/terms_and_conditions_yqye6f.pdf"
+    target="_blank"
+  >
     Terms
   </PsLink>
-  <PsLink>
+  <PsLink
+    href="/docs/privacy_policy_mp5yuz.pdf"
+    target="_blank"
+  >
     Privacy
   </PsLink>
 </div>
