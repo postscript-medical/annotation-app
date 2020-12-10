@@ -1,11 +1,13 @@
 <script>
   export let href = '';
-  export let onDark = false;
+  export let style = ''; /* options: 'on-dark'*/
+  export let target = '_self';
 </script>
 
 <a
+  class={ style }
   { href }
-  class:on-dark={ onDark }
+  { target }
 >
   <slot></slot>
 </a>
