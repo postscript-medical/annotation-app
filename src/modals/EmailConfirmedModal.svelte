@@ -3,7 +3,7 @@
 </script>
 
 <Modal
-  cancelBtCopy="Close"
+  cancelBtCopy="Sign in"
   hideConfirmButton
   on:close
   on:confirm
