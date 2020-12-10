@@ -21,8 +21,6 @@
 
   export let src = '';
 
-  // let illustration;
-
   async function imageLoaded () {
     gsap
       .to($illustrationDisplayed, 
