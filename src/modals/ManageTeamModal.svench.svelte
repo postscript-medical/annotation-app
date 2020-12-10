@@ -27,7 +27,7 @@
     lastName: 'LastName',
     role: 'owner',
   };
-  let modalToOpen = DEFAULT;
+  let modalToOpen = '';
   let loading = false;
   let error_message;
 
