@@ -10,3 +10,8 @@
   from = 'images/*'
   to = 'https://res.cloudinary.com/obscura-limited/image/upload/q_auto:eco/:splat'
   status = 200
+
+[[redirects]]
+  from = 'docs/*'
+  to = 'https://res.cloudinary.com/obscura-limited/image/upload/v1607600184/postscript-medical/annotation-app/documents'
+  status = 200
