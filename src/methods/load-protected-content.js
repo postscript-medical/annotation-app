@@ -38,7 +38,7 @@ export default async function (user) {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
   if (!response || !response.ok) {
     // TODO: clear session storage whenever we hit this error
