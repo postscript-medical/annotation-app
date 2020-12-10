@@ -201,21 +201,22 @@ export const filteredIllustrations = derived(
 
 export const selectedIllustration = derived(
   [
-    illustrations,
     illustrationsPath,
+    organization,
     selectedIllustrationTitle
   ],
   ([
-    $illustrations,
     $illustrationsPath,
+    $organization,
     $selectedIllustrationTitle
   ]) => {
-    const illustration = $illustrations && $illustrations.find(({ name }) => name.toLowerCase() === $selectedIllustrationTitle.toLowerCase());
+    const _illustrations = $organization && $organization.specialties.find(({ name }) => name.toLowerCase() === 'all').subSpecialties.find(({ name }) => name.toLowerCase() === 'all').illustrations;
+    const _illustration = _illustrations && _illustrations.find(({ name }) => name.toLowerCase() === $selectedIllustrationTitle.toLowerCase());
 
-    return illustration
+    return _illustration
     ? {
-        ...illustration,
-        src: $illustrationsPath + illustration.src
+        ..._illustration,
+        src: $illustrationsPath + _illustration.src
       }
     : undefined
   }
