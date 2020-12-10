@@ -31,6 +31,12 @@ export const LINE_THICKNESS_6 = 96;
 
 export const RADIAN = 6.28318;
 
+export const ROLE_ADMIN = 'admin';
+
+export const ROLE_USER = 'user';
+
+export const ROLE_OWNER = 'owner';
+
 export const TOOL_ARROW = 'arrow';
 
 export const TOOL_ELLIPSE =  'ellipse';

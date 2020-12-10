@@ -38,6 +38,7 @@ exports.handler = async (_, context) => {
                           data {
                             name
                             src
+                            default_illustration
                           }
                         }
                       }
@@ -55,15 +56,6 @@ exports.handler = async (_, context) => {
         netlifyID: user.sub
       }
     });
-
-    // if (!subscription || !subscriptionContent) {
-    //   return {
-    //     statusCode: 402,
-    //     body: JSON.stringify({
-    //       copy: 'Not allowed.'
-    //     })
-    //   }
-    // }
 
     return {
       statusCode: 200,

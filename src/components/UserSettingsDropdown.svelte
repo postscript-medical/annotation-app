@@ -71,14 +71,14 @@
           onDark
         />
         <PsButton
-          asLink
+          style="inline"
           on:click={ manageTeam }
         >
           Manage team members
         </PsButton>
       { /if }
       <SignOutButton
-        asLink
+        inline
       />
     </div>
   { /if }

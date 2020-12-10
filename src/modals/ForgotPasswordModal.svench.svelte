@@ -8,14 +8,26 @@
   const DEFAULT = 'Default';
 
   let modalToOpen = '';
+  let loading = false;
+  let emailSent = false;
 
   function openModal (modalName) {
-    modalToOpen = modalName
-  }
+    emailSent = false;
+    modalToOpen = modalName;
+  };
 
   function closeModal () {
-    modalToOpen = ''
-  }
+    modalToOpen = '';
+  };
+
+  function requestResetPassword ({ detail: email }) {
+    loading = true;
+
+    setTimeout(() => {
+      loading = false;
+      emailSent = true;
+    }, 1666);
+  };
 
 </script>
 
@@ -30,8 +42,10 @@
     </PsButton>
     { #if modalToOpen === DEFAULT }
       <ForgotPasswordModal
+        { loading }
+        { emailSent }
         on:close={ closeModal }
-        on:confirm={ closeModal }
+        on:request-reset-password={ requestResetPassword }
       />
     { /if }
   </div>
