@@ -60,17 +60,14 @@
 </script>
 
 <CredentialsForm
+  confirmButtonCopy="Login"
   { errorMessage }
-  onDark
+  hidePasswordRequirements
+  hideTerms
   showStayLogged
-  { showTerms }
+  style="on-dark"
   on:submit={ submit }
 >
-  <span
-    slot="cta"
-  >
-    Already have an account?
-  </span>
   <span>
     Sign in
   </span>
@@ -78,12 +75,6 @@
     slot="footer"
     class="footer"
   >
-    <PsButton
-      style="on-dark"
-      type="submit"
-    >
-      Login
-    </PsButton>
     <PsButton
       style="on-dark inline"
       on:click={ openForgotPasswordModal }
