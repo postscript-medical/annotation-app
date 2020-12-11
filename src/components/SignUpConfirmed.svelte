@@ -17,14 +17,6 @@
     <p>
       Please use the link in the email to confirm your details and complete your sign up.
     </p>
-    <!-- <div>
-      <strong>
-        Didn&apos;t receive it?
-      </strong>
-      <button>
-        Resend
-      </button>
-    </div> -->
   </article>
 </div>
 
