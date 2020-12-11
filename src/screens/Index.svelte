@@ -67,13 +67,25 @@
   <main
     class="main-grid main-content central-align"
   >
-    <SignUpForm
-      on:user-created={ showThankYou }
-    />
+    <div>
+      <h2>
+        Get started today
+      </h2>
 
-    <SignInForm
-      on:open-forgot-password-modal={ open_forgot_password_modal}
-    />
+      <SignUpForm
+        on:user-created={ showThankYou }
+      />
+    </div>
+
+    <div>
+      <h2 class="on-dark">
+        Already have an account?
+      </h2>
+
+      <SignInForm
+        on:open-forgot-password-modal={ open_forgot_password_modal}
+      />
+    </div>
   </main>
 
   { #if userEmail }
@@ -98,3 +110,13 @@
     />
   { /if }
 </div>
+
+<style>
+  div > :global(:not(:last-child)) {
+    margin-bottom: 2rem;
+  }
+
+  .on-dark {
+    color: white;
+  }
+</style>
