@@ -432,7 +432,7 @@
     { loading }
     on:clear-errors={ clear_errors }
     on:close={ close_reset_password_modal }
-    on:reset-password{ reset_user_password }
+    on:reset-password={ reset_user_password }
   />
 { :else if $showManageTeamModal }
   <ManageTeamModal
