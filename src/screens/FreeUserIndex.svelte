@@ -29,6 +29,10 @@
       background-color: white;
     }
 
+    article > :global(:not(:last-child)) {
+      margin-bottom: 2rem;
+    }
+
   @media screen and (min-width: 600px) {
     main {
       height: auto;
