@@ -1,25 +1,22 @@
-<!-- TODO: Implement at some point -->
-<!-- type = ['text', 'email', 'password'] -->
 <!-- TODO: We need an option for the input not to be nested inside the label
 to allow for grid layouts to be implemented -->
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { DEFAULT_AXIS_DIRECTION } from '../constants/defaults.js';
 
-  export let direction = DEFAULT_AXIS_DIRECTION;
   export let disabled = false;
-  export let readonly = false;
   export let placeholder = '';
-  export let value = '';
-  export let style = ''; /* options: 'inline' */
+  export let required = false; /* there's a bug when setting the field to required, it triggers the validation on render */
+  export let readonly = false;
+  export let style = 'horizontal'; /* options: 'inline', ['horizontal'|'vertical'] */
   export let size = 20;
+  export let type = 'text';
+  export let value = '';
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
     container
     ${style}
-    ${direction === DEFAULT_AXIS_DIRECTION ? DEFAULT_AXIS_DIRECTION : 'vertical'}
     ${disabled ? 'disabled' : ''}
   `;
 
@@ -39,12 +36,13 @@ to allow for grid layouts to be implemented -->
       <slot></slot>
     </span>
     <input
-      type="text"
-      { value }
-      { placeholder }
       { disabled }
-      { size }
+      { placeholder }
       { readonly }
+      { required }
+      { size }
+      { type }
+      { value }
       on:input={ onInput }
       on:blur={ onBlur }
     >

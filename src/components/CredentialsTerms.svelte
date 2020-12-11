@@ -1,12 +1,11 @@
 <script>
   import PsLink from './PsLink.svelte';
 
-  export let onDark = false;
+  export let style = ''; /* options: 'on-dark' */
 </script>
 
 <div
-  class="terms"
-  class:on-dark={ onDark }
+  class={ style }
 >
   <PsLink
     href="/terms_and_conditions.pdf"
@@ -23,11 +22,11 @@
 </div>
 
 <style>
-  .terms > :global(*:not(:last-child)) {
+  div > :global(*:not(:last-child)) {
     margin-right: 2rem;
   }
 
-  .terms.on-dark > :global(*) {
+  .on-dark > :global(*) {
     color: white;
   }
 </style>

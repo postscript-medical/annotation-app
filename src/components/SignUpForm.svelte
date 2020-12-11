@@ -43,8 +43,6 @@
 
 <CredentialsForm
   { errorMessage }
-  showPasswordRequirements
-  { showTerms }
   on:submit={ submit }
   on:error={ ({ detail }) => errorMessage = detail }
 />
