@@ -25,7 +25,7 @@
 <View name="With label - stacked">
   <PsTextInput
     placeholder="Placeholder text"
-    direction="vertical"
+    style="vertical"
   >
     Label
   </PsTextInput>
@@ -52,8 +52,7 @@
 <View name="Inline">
   <PsTextInput
     placeholder="Placeholder text"
-    style="inline"
-    direction="vertical"
+    style="inline vertical"
     value={ someValue }
     on:input={ updateInput }
   >
