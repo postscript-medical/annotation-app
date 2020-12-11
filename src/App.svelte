@@ -28,7 +28,7 @@
 
   let emailConfirmed = false;
   let error;
-  let error_message = '';
+  let errorMessage = '';
   let loading = false;
   let showResetPasswordModal = false;
 
@@ -47,7 +47,7 @@
   function clear_errors () {
     error = null;
 
-    error_message = '';
+    errorMessage = '';
   };
 
   function close_email_confirmed_modal () {
@@ -241,7 +241,7 @@
             netlifyID,
           },
         }
-      ).catch(err => error_message = err.message);
+      ).catch(err => errorMessage = err.message);
 
       if (!response) return;
     }
@@ -255,7 +255,7 @@
     clear_errors();
 
     if (!is_passwordGood) {
-      error_message = 'Password does not meet criteria.';
+      errorMessage = 'Password does not meet criteria.';
 
       return;
     }
@@ -269,7 +269,7 @@
         loading = false;
       })
       .catch((err) => {
-        error_message = `Failed to update user: ${err.message}`;
+        errorMessage = `Failed to update user: ${err.message}`;
       });
   };
 
@@ -291,7 +291,7 @@
         },
       }
     ).catch(err => {
-      error_message = err.message;
+      errorMessage = err.message;
 
       return;
     });
@@ -336,7 +336,7 @@
           teamID: $protectedContent.team._id,
         },
       }
-    ).catch(err => error_message = err.message);
+    ).catch(err => errorMessage = err.message);
 
     if (!response) return;
 
@@ -354,7 +354,7 @@
         },
       }
     ).catch(err => {
-      error_message = err.message;
+      errorMessage = err.message;
     });
 
     if (!response) return;
@@ -382,7 +382,7 @@
       .catch(err => {
         console.log('Error sending email:', err);
 
-        error_message = `Error sending invitation email ${err.message}`
+        errorMessage = `Error sending invitation email ${err.message}`
       });
   };
 
@@ -428,7 +428,7 @@
 
 { #if showResetPasswordModal }
   <ResetPasswordModal
-    { error_message }
+    { errorMessage }
     { loading }
     on:clear-errors={ clear_errors }
     on:close={ close_reset_password_modal }
@@ -436,7 +436,7 @@
   />
 { :else if $showManageTeamModal }
   <ManageTeamModal
-    { error_message }
+    { errorMessage }
     { loading }
     { teamName }
     members={ teamMembers }
