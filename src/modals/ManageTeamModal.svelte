@@ -11,7 +11,7 @@
   import PsDropdown from '../components/PsDropdown.svelte';
   import PsTextInput from '../components/PsTextInput.svelte';
 
-  export let error_message = '';
+  export let errorMessage = '';
   export let loading = false;
   export let members = [];
   export let maxTeamMembers = 1;
@@ -97,7 +97,7 @@
   function teamNameUpdateComplete () {
     updatingTeamName = false;
 
-    if (!error_message) {
+    if (!errorMessage) {
       editedTeamNameSrc = null;
     };
   };
@@ -131,7 +131,7 @@
 
     if (updatingTeamMember) updatingTeamMember = false;
 
-    if (!error_message) editingTeamMemberIndex = null;
+    if (!errorMessage) editingTeamMemberIndex = null;
   };
 </script>
 
@@ -146,7 +146,7 @@
       Edit team
     </h2>
     <ErrorMessage
-      message={ error_message }
+      message={ errorMessage }
     />
 
     <section
