@@ -1,22 +1,22 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import Modal from './Modal.svelte';
-  import ErrorMessage from '../components/ErrorMessage.svelte';
+  import { createEventDispatcher } from "svelte";
+  import Modal from "./Modal.svelte";
+  import ErrorMessage from "../components/ErrorMessage.svelte";
 
   export let loading = false;
   export let emailSent = false;
-  export let errorMessage = '';
+  export let errorMessage = "";
 
   const dispatch = createEventDispatcher();
 
   let email;
   let showThankYou = false;
 
-  function submitForm () {
-    dispatch('request-reset-password', email.value);
-  };
+  function submitForm() {
+    dispatch("request-reset-password", email.value);
+  }
 
-  function tweenOutComplete () {
+  function tweenOutComplete() {
     showThankYou = !errorMessage;
   }
 </script>
@@ -24,46 +24,34 @@
 <Modal
   cancelBtCopy="Close"
   confirmBtCopy="Send link"
-  hideCancelButton={ !emailSent || !showThankYou }
-  hideConfirmButton={ emailSent && showThankYou }
-  { loading }
+  hideCancelButton={!emailSent || !showThankYou}
+  hideConfirmButton={emailSent && showThankYou}
+  {loading}
   on:close
-  on:confirm={ submitForm }
-  on:tween-out-complete={ tweenOutComplete }
->
-  <span
-    slot="header"
-  >
-    { #if emailSent && showThankYou }
+  on:confirm={submitForm}
+  on:tween-out-complete={tweenOutComplete}>
+  <span slot="header">
+    {#if emailSent && showThankYou}
       Request sent successfully
-    { :else }
-      Request a recovery password email
-    { /if }
+    {:else}Request a recovery password email{/if}
   </span>
 
-  <ErrorMessage
-    message={ errorMessage }
-  />
+  <ErrorMessage message={errorMessage} />
 
-  { #if emailSent && showThankYou }
+  {#if emailSent && showThankYou}
     <p>
       Please await a few moments before checking your email for a recovery link.
     </p>
-  { :else }
+  {:else}
     <p>
-      Please enter the email address you registered with and we will email you a link to reset your password.
+      Please enter the email address you registered with and we will email you a
+      link to reset your password.
     </p>
     <label>
-      <span>
-        Email
-      </span>
-      <input
-        bind:this={ email }
-        type="email"
-        required
-      />
+      <span> Email </span>
+      <input bind:this={email} type="email" required />
     </label>
-  { /if }
+  {/if}
 </Modal>
 
 <style>

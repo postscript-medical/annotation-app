@@ -1,37 +1,37 @@
 <script>
-  import { user } from '../stores.js';
-  import ManageSubscription from '../components/ManageSubscription.svelte';
+  import { user } from "../stores.js";
+  import ManageSubscription from "../components/ManageSubscription.svelte";
 </script>
 
 <div class="ps-app">
-  <main
-    class="main-grid main-content central-align"
-  >
-    { #if user }
+  <main class="main-grid main-content central-align">
+    {#if user}
       <article>
-        <h2>
-          Thank you for signing up to PostScript Digital
-        </h2>
+        <h2>Thank you for signing up to PostScript Digital</h2>
         <p>
-          In order to access the services provided by us, you will have to setup a subscription.
+          In order to access the services provided by us, you will have to setup
+          a subscription.
         </p>
         <p>
-          To do so, click <ManageSubscription> on this link to manage your subscription</ManageSubscription>.
+          To do so, click
+          <ManageSubscription>
+            on this link to manage your subscription
+          </ManageSubscription>.
         </p>
       </article>
-    { /if }
+    {/if}
   </main>
 </div>
 
 <style>
-    main {
-      height: 100%;
-      background-color: white;
-    }
+  main {
+    height: 100%;
+    background-color: white;
+  }
 
-    article > :global(:not(:last-child)) {
-      margin-bottom: 2rem;
-    }
+  article > :global(:not(:last-child)) {
+    margin-bottom: 2rem;
+  }
 
   @media screen and (min-width: 600px) {
     main {

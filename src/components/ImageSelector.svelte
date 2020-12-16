@@ -8,99 +8,96 @@
     specialties,
     subSpecialties,
     user,
-  } from '../stores.js';
-  import ImagesGrid from './ImagesGrid.svelte';
-  import PsDropdown from './PsDropdown.svelte';
+  } from "../stores.js";
+  import ImagesGrid from "./ImagesGrid.svelte";
+  import PsDropdown from "./PsDropdown.svelte";
 
   export let show = false;
 
-  function selectSpecialty ({ detail: specialty }) {
+  function selectSpecialty({ detail: specialty }) {
     $selectedSpecialty = specialty;
 
     updateUserAppMetadata();
-  };
+  }
 
-  function selectSubSpecialty ({ detail: subSpecialty }) {
+  function selectSubSpecialty({ detail: subSpecialty }) {
     $selectedSubSpecialty = subSpecialty;
 
     updateUserAppMetadata();
-  };
+  }
 
-  function tween () {
+  function tween() {
     const tl = gsap.timeline({ paused: true });
 
-    tl
-      .from('.image-selector', {
-        duration: 0.15,
-        opacity: 0,
-        ease: 'none',
-      })
-      .from('.image-selector > *', {
+    tl.from(".image-selector", {
+      duration: 0.15,
+      opacity: 0,
+      ease: "none",
+    }).from(
+      ".image-selector > *",
+      {
         y: 50,
         opacity: 0,
-        ease: 'circ.out',
-        clearProps: 'transform',
-      }, '-=0.075')
+        ease: "circ.out",
+        clearProps: "transform",
+      },
+      "-=0.075"
+    );
 
     const duration = tl.totalDuration();
 
     return {
       duration: duration * 1000,
-      tick: t => {
+      tick: (t) => {
         tl.progress(t);
-      }
-    }
+      },
+    };
   }
 
-  function updateUserAppMetadata () {
+  function updateUserAppMetadata() {
     /*
-    * This is adding information to Netlify's user.user_metadata.
-    * We need to be very careful here as currently there is no way to remove this data
-    * once it is stored there. At some point in the future we should store this somewhere else.
-    * Right now it does not seem like a great idea as we don't want to run a Lambda function
-    * every time the user changes an illustration, it would end up costing us a lot of money.
-    */
+     * This is adding information to Netlify's user.user_metadata.
+     * We need to be very careful here as currently there is no way to remove this data
+     * once it is stored there. At some point in the future we should store this somewhere else.
+     * Right now it does not seem like a great idea as we don't want to run a Lambda function
+     * every time the user changes an illustration, it would end up costing us a lot of money.
+     */
     $user
       .update({
         data: {
           illustration: {
             name: $selectedIllustrationTitle,
             specialty: $selectedSpecialty,
-            subSpecialty:$selectedSubSpecialty
-          }
-        }
+            subSpecialty: $selectedSubSpecialty,
+          },
+        },
       })
-      .then(updatedUser => {
-        $user = updatedUser
+      .then((updatedUser) => {
+        $user = updatedUser;
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   }
 </script>
 
-{ #if show }
-  <div
-    class="image-selector"
-    transition:tween
-  >
-    <div class="left-column"></div>
+{#if show}
+  <div class="image-selector" transition:tween>
+    <div class="left-column" />
     <div class="left-column">
       <PsDropdown
-        options={ $specialties }
+        options={$specialties}
         optionKey="name"
-        selected={ $selectedSpecialty }
-        on:change={ selectSpecialty }
-      >
+        selected={$selectedSpecialty}
+        on:change={selectSpecialty}>
         Specialty
       </PsDropdown>
     </div>
 
     <div class="left-column">
       <PsDropdown
-        options={ $subSpecialties }
+        options={$subSpecialties}
         optionKey="name"
-        selected={ $selectedSubSpecialty }
-        on:change={ selectSubSpecialty }
-      >
+        selected={$selectedSubSpecialty}
+        on:change={selectSubSpecialty}>
         Sub-specialty
       </PsDropdown>
     </div>
@@ -109,16 +106,14 @@
       type="text"
       placeholder="What are you looking for?"
       class="image-search"
-      bind:value={ $illustrationSearchQuery }
-    />
+      bind:value={$illustrationSearchQuery} />
 
     <ImagesGrid
-      images={ $filteredIllustrations }
+      images={$filteredIllustrations}
       on:select-illustration
-      on:close
-    />
+      on:close />
   </div>
-{ /if }
+{/if}
 
 <style>
   .image-selector {
@@ -157,8 +152,8 @@
       grid-column-start: 1;
     }
     .image-search {
-    grid-column-start: 2;
-    grid-row-start: 1;
+      grid-column-start: 2;
+      grid-row-start: 1;
     }
   }
 </style>

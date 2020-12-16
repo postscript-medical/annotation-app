@@ -1,58 +1,55 @@
 <script>
-  import { View } from 'svench';
-  import ManageTeamModal from './ManageTeamModal.svelte';
-  import PsButton from '../components/PsButton.svelte';
+  import { View } from "svench";
+  import ManageTeamModal from "./ManageTeamModal.svelte";
+  import PsButton from "../components/PsButton.svelte";
 
-  const BUTTON_COPY = 'Open modal';
-  const DEFAULT = 'default';
+  const BUTTON_COPY = "Open modal";
+  const DEFAULT = "default";
   const MAX_USERS = 10;
   let members = [
     {
-      email: 'email@address.com',
-      firstName: 'Joey',
-      lastName: 'Passadena',
-      role: 'user',
+      email: "email@address.com",
+      firstName: "Joey",
+      lastName: "Passadena",
+      role: "user",
     },
     {
-      email: 'address@address.com',
-      firstName: 'Ma',
-      lastName: 'Darling',
-      role: 'user',
+      email: "address@address.com",
+      firstName: "Ma",
+      lastName: "Darling",
+      role: "user",
     },
   ];
-  let teamName = 'My team';
+  let teamName = "My team";
   let owner = {
-    email: 'another@address.com',
-    firstName: 'OwnerName',
-    lastName: 'LastName',
-    role: 'owner',
+    email: "another@address.com",
+    firstName: "OwnerName",
+    lastName: "LastName",
+    role: "owner",
   };
-  let modalToOpen = '';
+  let modalToOpen = "";
   let loading = false;
   let error_message;
 
-  function openModal (modalName) {
+  function openModal(modalName) {
     modalToOpen = modalName;
-  };
+  }
 
-  function closeModal () {
-    modalToOpen = '';
+  function closeModal() {
+    modalToOpen = "";
 
     members = members.filter(({ toInvite }) => !toInvite);
-  };
+  }
 
-  function addNewTeamMember (teamMember) {
-    members = [
-      ...members,
-      teamMember,
-    ];
-  };
+  function addNewTeamMember(teamMember) {
+    members = [...members, teamMember];
+  }
 
-  function clearErrorMessage () {
-    error_message = '';
-  };
+  function clearErrorMessage() {
+    error_message = "";
+  }
 
-  function fakeRequest (callback) {
+  function fakeRequest(callback) {
     loading = true;
 
     setTimeout(() => {
@@ -62,128 +59,125 @@
     }, 2000);
   }
 
-  function removeTeamMember (teamMember) {
+  function removeTeamMember(teamMember) {
     // Removes a teamMember that has not been created in the DB if one exists
     if (teamMember.toInvite) {
-      members = members.filter(({ toInvite }) => !toInvite );
+      members = members.filter(({ toInvite }) => !toInvite);
 
       return;
-    };
+    }
 
     fakeRequest(() => {
       members = members.filter(({ email }) => {
         return email !== teamMember.email;
       });
     });
-  };
+  }
 
-  function saveNewTeamMember (teamMember) {
+  function saveNewTeamMember(teamMember) {
     clearErrorMessage();
 
     fakeRequest(() => {
       if (!teamMember.email) {
-        error_message = 'You must provide a valid email address.';
-  
+        error_message = "You must provide a valid email address.";
+
         return;
-      };
-  
+      }
+
       const currentMembers = members.slice(0, -1);
-  
-      if (!!currentMembers.find( ({ email }) => email.toLowerCase() === teamMember.email.toLowerCase())) {
-        error_message = 'You must use an unique email address.';
-  
+
+      if (
+        !!currentMembers.find(
+          ({ email }) => email.toLowerCase() === teamMember.email.toLowerCase()
+        )
+      ) {
+        error_message = "You must use an unique email address.";
+
         return;
-      };
+      }
 
       const updatedMembers = [...members];
 
-      updatedMembers.forEach(member => {
+      updatedMembers.forEach((member) => {
         delete member.toInvite;
       });
 
       members = updatedMembers;
     });
-  };
+  }
 
-  function saveUpdatedTeamMember (teamMember) {
+  function saveUpdatedTeamMember(teamMember) {
     // We will trust the API to prevent us adding an email that already exists
     fakeRequest(() => {
-      members.forEach(member => {
+      members.forEach((member) => {
         if (member.email === teamMember.email) {
           member = teamMember;
         }
       });
     });
-  };
+  }
 
-  function saveUpdatedTeamName (name) {
+  function saveUpdatedTeamName(name) {
     fakeRequest();
-  };
+  }
 
-  function updateTeamMember (teamMember, index) {
-    const updatedMembers = [ ...members ];
+  function updateTeamMember(teamMember, index) {
+    const updatedMembers = [...members];
 
     updatedMembers.splice(index, 1, teamMember);
 
     members = updatedMembers;
-  };
+  }
 
-  function updateTeamName ({ detail: name }) {
+  function updateTeamName({ detail: name }) {
     teamName = name;
-  };
+  }
 
-  function handleTeamUpdate ({ detail }) {
+  function handleTeamUpdate({ detail }) {
     const { teamMember, action, index } = detail;
 
     switch (action) {
-      case 'add-new-team-member':
+      case "add-new-team-member":
         addNewTeamMember(teamMember);
         break;
 
-      case 'update-team-member':
+      case "update-team-member":
         updateTeamMember(teamMember, index);
         break;
 
-      case 'remove-team-member':
+      case "remove-team-member":
         removeTeamMember(teamMember);
         break;
 
-      case 'save-new-team-member':
+      case "save-new-team-member":
         saveNewTeamMember(teamMember);
         break;
 
-      case 'save-updated-team-member':
+      case "save-updated-team-member":
         saveUpdatedTeamMember(teamMember, index);
         break;
 
-      case 'save-updated-team-name':
+      case "save-updated-team-name":
         saveUpdatedTeamName(teamName);
         break;
     }
-  };
+  }
 </script>
 
 <View name="Default">
-  <div
-    class="modal-container"
-  >
-    <PsButton
-      on:click={ () => openModal(DEFAULT) }
-    >
-      { BUTTON_COPY }
-    </PsButton>
-    { #if modalToOpen === DEFAULT }
+  <div class="modal-container">
+    <PsButton on:click={() => openModal(DEFAULT)}>{BUTTON_COPY}</PsButton>
+    {#if modalToOpen === DEFAULT}
       <ManageTeamModal
-        { error_message }
-        { loading }
-        { members }
-        { teamName }
-        maxTeamMembers={ MAX_USERS }
-        on:close={ closeModal }
-        on:update={ handleTeamUpdate }
-        on:update-team-name={ updateTeamName }
-      />
-    { /if }
+        {error_message}
+        {loading}
+        {members}
+        {teamName}
+        maxTeamMembers={MAX_USERS}
+        on:close={closeModal}
+        on:update={handleTeamUpdate}
+        on:update-team-name={updateTeamName} />
+    {/if}
   </div>
 </View>
 
@@ -194,6 +188,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transform: translate(0,0);
+    transform: translate(0, 0);
   }
 </style>

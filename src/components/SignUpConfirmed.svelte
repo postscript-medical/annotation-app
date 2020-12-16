@@ -1,21 +1,16 @@
 <script>
-  import PsHeader from './PsHeader.svelte';
+  import PsHeader from "./PsHeader.svelte";
 
- export let userEmail;
+  export let userEmail;
 </script>
 
-<div
-  class="wrapper"
->
+<div class="wrapper">
   <article>
-    <h2>
-      Thank you for signing up
-    </h2>
+    <h2>Thank you for signing up</h2>
+    <p>We have just emailed <strong>{userEmail}</strong>.</p>
     <p>
-      We have just emailed <strong>{ userEmail }</strong>.
-    </p>
-    <p>
-      Please use the link in the email to confirm your details and complete your sign up.
+      Please use the link in the email to confirm your details and complete your
+      sign up.
     </p>
   </article>
 </div>
