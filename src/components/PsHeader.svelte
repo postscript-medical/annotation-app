@@ -1,8 +1,8 @@
 <script>
-  import { selectedIllustrationTitle } from '../stores.js';
-  import PsLogo from './PsLogo.svelte';
-  import ButtonShare from './ButtonShare.svelte';
-  import UserSettingsDropdown from './UserSettingsDropdown.svelte';
+  import { selectedIllustrationTitle } from "../stores.js";
+  import PsLogo from "./PsLogo.svelte";
+  import ButtonShare from "./ButtonShare.svelte";
+  import UserSettingsDropdown from "./UserSettingsDropdown.svelte";
 
   export let user;
   export let loggedIn = false;
@@ -10,30 +10,18 @@
   export let hasPaymentDetails = false;
 </script>
 
-<header
-  class="central-align"
-  class:centered={ loggedIn }
->
-  <div
-    class="options"
-  >
-    <PsLogo
-      showName={ !loggedIn }
-      size={ loggedIn ? 'small' : 'large' }
-    />
+<header class="central-align" class:centered={loggedIn}>
+  <div class="options">
+    <PsLogo showName={!loggedIn} size={loggedIn ? 'small' : 'large'} />
   </div>
-  { #if user }
-    <div
-      class="options"
-    >
-      { #if hasPaymentDetails }
+  {#if user}
+    <div class="options">
+      {#if hasPaymentDetails}
         <ButtonShare />
-      { /if }
-      <UserSettingsDropdown
-        { user }
-      />
+      {/if}
+      <UserSettingsDropdown {user} />
     </div>
-  { /if }
+  {/if}
 </header>
 
 <style>

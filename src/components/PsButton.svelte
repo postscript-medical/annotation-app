@@ -1,10 +1,11 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
 
   export let disabled = false;
   export let loading = false;
-  export let style = 'primary'; /* options: '[primary|secondary|tertiary], inline, on-dark' */
-  export let type = 'button';
+  export let style =
+    "primary"; /* options: '[primary|secondary|tertiary], inline, on-dark' */
+  export let type = "button";
 
   const PATH_LENGTH = 125.7;
   const dispatch = createEventDispatcher();
@@ -17,56 +18,63 @@
   $: isDisabled = disabled || disableButton;
   $: toggleLoadingAnimation(loading);
 
-  function loop () {
-    console.log('PsButton looping:', loading);
+  function loop() {
+    console.log("PsButton looping:", loading);
     if (loading) {
       gsap
         .timeline({
-          onComplete: loop
+          onComplete: loop,
         })
-        .fromTo(dot, {
-          strokeDashoffset: PATH_LENGTH,
-        },
-        {
-          duration: 1,
-          strokeDashoffset: PATH_LENGTH * 3,
-          ease: 'none',
-        })
+        .fromTo(
+          dot,
+          {
+            strokeDashoffset: PATH_LENGTH,
+          },
+          {
+            duration: 1,
+            strokeDashoffset: PATH_LENGTH * 3,
+            ease: "none",
+          }
+        );
 
       return;
-    };
+    }
 
     gsap
       .timeline({
         onComplete: () => {
-          dispatch('tween-out-complete')
+          dispatch("tween-out-complete");
           toggleDisable();
         },
       })
       .to(dot, {
         strokeDashoffset: PATH_LENGTH * 4,
-        ease: 'none',
+        ease: "none",
       })
       .to(dot, {
         scale: 0,
-        transformOrigin:"50% 50%",
-        ease: 'back.in',
+        transformOrigin: "50% 50%",
+        ease: "back.in",
       })
-      .to(inlineContent, {
-        opacity: 1,
-        ease: 'circ.in',
-      }, '-=0.25');
+      .to(
+        inlineContent,
+        {
+          opacity: 1,
+          ease: "circ.in",
+        },
+        "-=0.25"
+      );
   }
 
   function toggleLoadingAnimation(isLoading) {
     if (isLoading) {
       tl.play(0);
     }
-  };
+  }
 
-  function toggleDisable () {
+  function toggleDisable() {
     disableButton = !disableButton;
-  };
+  }
 
   onMount(() => {
     tl = gsap
@@ -77,62 +85,53 @@
       })
       .to(inlineContent, {
         opacity: 0,
-        ease: 'none',
+        ease: "none",
       })
-      .from(dot, {
-        scale: 0,
-        transformOrigin:"50% 50%",
-        ease: 'back.out',
-      }, '-=0.25')
-      .fromTo(dot, {
-        strokeDashoffset: 0,
-      }, {
-        strokeDashoffset: PATH_LENGTH,
-        ease: 'power1.in',
-      })
+      .from(
+        dot,
+        {
+          scale: 0,
+          transformOrigin: "50% 50%",
+          ease: "back.out",
+        },
+        "-=0.25"
+      )
+      .fromTo(
+        dot,
+        {
+          strokeDashoffset: 0,
+        },
+        {
+          strokeDashoffset: PATH_LENGTH,
+          ease: "power1.in",
+        }
+      );
   });
 
-  onDestroy(() => {
-
-  });
+  onDestroy(() => {});
 </script>
 
-<button
-  class={ style }
-  disabled={ isDisabled }
-  { type }
-  on:click
->
-  <div
-    class="loading-content"
-  >
-    <svg
-      viewBox="0 0 100 100"
-      width="100"
-      height="100"
-    >
+<button class={style} disabled={isDisabled} {type} on:click>
+  <div class="loading-content">
+    <svg viewBox="0 0 100 100" width="100" height="100">
       <circle
-        bind:this={ dot }
+        bind:this={dot}
         cx="50"
         cy="50"
         r="20"
         stroke-width="6"
-        stroke-dasharray={ PATH_LENGTH }
-      />
+        stroke-dasharray={PATH_LENGTH} />
     </svg>
   </div>
-  <span
-    bind:this={ inlineContent }
-    class="inline-content"
-  >
-    <slot></slot>
+  <span bind:this={inlineContent} class="inline-content">
+    <slot />
   </span>
 </button>
 
 <style>
   button {
     background-color: rgb(55, 154, 70);
-    border: 2px solid rgb(55,154,70);
+    border: 2px solid rgb(55, 154, 70);
     color: white;
     white-space: nowrap;
     position: relative;
@@ -158,13 +157,13 @@
   .on-dark {
     background-color: white;
     border-color: white;
-    color: rgb(42,41,41);
+    color: rgb(42, 41, 41);
   }
 
   .secondary {
     background-color: white;
-    border-color: rgb(42,41,41);
-    color: rgb(42,41,41);
+    border-color: rgb(42, 41, 41);
+    color: rgb(42, 41, 41);
   }
 
   .tertiary {

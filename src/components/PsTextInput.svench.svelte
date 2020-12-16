@@ -1,11 +1,11 @@
 <script>
-  import { View } from 'svench';
-  import PsTextInput from './PsTextInput.svelte';
+  import { View } from "svench";
+  import PsTextInput from "./PsTextInput.svelte";
 
-  let someValue = 'Some value';
+  let someValue = "Some value";
 
-  function updateInput ({ detail }) {
-    console.log('Update', detail);
+  function updateInput({ detail }) {
+    console.log("Update", detail);
     someValue = detail;
   }
 </script>
@@ -15,47 +15,29 @@
 </View>
 
 <View name="With label">
-  <PsTextInput
-    placeholder="Placeholder text"
-  >
-    Label
-  </PsTextInput>
+  <PsTextInput placeholder="Placeholder text">Label</PsTextInput>
 </View>
 
 <View name="With label - stacked">
-  <PsTextInput
-    placeholder="Placeholder text"
-    style="vertical"
-  >
+  <PsTextInput placeholder="Placeholder text" style="vertical">
     Label
   </PsTextInput>
 </View>
 
 <View name="Disabled">
-  <PsTextInput
-    placeholder="Placeholder text"
-    disabled
-  >
-    Label
-  </PsTextInput>
+  <PsTextInput placeholder="Placeholder text" disabled>Label</PsTextInput>
 </View>
 
 <View name="Read only">
-  <PsTextInput
-    placeholder="Placeholder text"
-    readonly
-  >
-    Label
-  </PsTextInput>
+  <PsTextInput placeholder="Placeholder text" readonly>Label</PsTextInput>
 </View>
 
 <View name="Inline">
   <PsTextInput
     placeholder="Placeholder text"
     style="inline vertical"
-    value={ someValue }
-    on:input={ updateInput }
-  >
+    value={someValue}
+    on:input={updateInput}>
     Label
   </PsTextInput>
 </View>
@@ -65,16 +47,11 @@
     placeholder="Placeholder text"
     style="inline"
     disabled
-    value={ someValue }
-  >
+    value={someValue}>
     Label
   </PsTextInput>
 </View>
 
 <View name="Inline - read only">
-  <PsTextInput
-    placeholder="Placeholder text"
-    style="inline"
-    readonly
-  />
+  <PsTextInput placeholder="Placeholder text" style="inline" readonly />
 </View>

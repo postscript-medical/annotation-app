@@ -3,85 +3,64 @@
     showManageTeamModal,
     protectedContent,
     userSettingsDropdownDrawerOpen,
-  } from '../stores.js';
-  import SignOutButton from './SignOutButton.svelte';
-  import ButtonIcon from './sketchpad/ButtonIcon.svelte';
-  import ManageSubscription from './ManageSubscription.svelte';
-  import PsButton from './PsButton.svelte';
+  } from "../stores.js";
+  import SignOutButton from "./SignOutButton.svelte";
+  import ButtonIcon from "./sketchpad/ButtonIcon.svelte";
+  import ManageSubscription from "./ManageSubscription.svelte";
+  import PsButton from "./PsButton.svelte";
 
   export let user;
 
-  function manageTeam () {
+  function manageTeam() {
     $showManageTeamModal = true;
     toggleDrawer();
-  };
+  }
 
-  function toggleDrawer () {
+  function toggleDrawer() {
     $userSettingsDropdownDrawerOpen = !$userSettingsDropdownDrawerOpen;
-  };
+  }
 
-  function tween () {
+  function tween() {
     const tl = gsap.timeline({ paused: true });
 
-    tl
-      .from('.dropdown', {
-        duration: 0.05,
-        scale: 0,
-        transformOrigin: '100% 0%',
-        ease: 'circ.inOut',
-      })
-      .from('.dropdown > *', {
-        duration: 0.05,
-        opacity: 0,
-        ease: 'none',
-        stagger: 0.025,
-      })
+    tl.from(".dropdown", {
+      duration: 0.05,
+      scale: 0,
+      transformOrigin: "100% 0%",
+      ease: "circ.inOut",
+    }).from(".dropdown > *", {
+      duration: 0.05,
+      opacity: 0,
+      ease: "none",
+      stagger: 0.025,
+    });
 
     const duration = tl.totalDuration();
 
     return {
       duration: duration * 1000,
-      tick: t => {
+      tick: (t) => {
         tl.progress(t);
-      }
-    }
-  };
+      },
+    };
+  }
 </script>
 
-<div
-  class="user-settings-dropdown"
->
-  <button
-      class="dropdown-button"
-      on:click={ toggleDrawer }
-    >
-      <span
-        class="user-avatar"
-      >
-        { user.email[0].toUpperCase() }
-      </span>
+<div class="user-settings-dropdown">
+  <button class="dropdown-button" on:click={toggleDrawer}>
+    <span class="user-avatar"> {user.email[0].toUpperCase()} </span>
   </button>
-  { #if $userSettingsDropdownDrawerOpen }
-    <div
-      class="dropdown shadow"
-      transition:tween
-    >
-      { #if $protectedContent.role === 'owner' }
-        <ManageSubscription
-          onDark
-        />
-        <PsButton
-          style="inline"
-          on:click={ manageTeam }
-        >
+  {#if $userSettingsDropdownDrawerOpen}
+    <div class="dropdown shadow" transition:tween>
+      {#if $protectedContent.role === 'owner'}
+        <ManageSubscription onDark />
+        <PsButton style="inline" on:click={manageTeam}>
           Manage team members
         </PsButton>
-      { /if }
-      <SignOutButton
-        inline
-      />
+      {/if}
+      <SignOutButton inline />
     </div>
-  { /if }
+  {/if}
 </div>
 
 <style>
@@ -91,7 +70,7 @@
 
   .dropdown-button {
     border: 0;
-    background-color: rgb(42,41,41);
+    background-color: rgb(42, 41, 41);
     color: white;
     border-radius: 50%;
     padding: 0;
@@ -101,7 +80,7 @@
     position: absolute;
     right: 0;
     top: 115%;
-    background-color: rgb(42,41,41);
+    background-color: rgb(42, 41, 41);
     padding: 2rem;
     border-radius: 0.5rem;
     min-width: 30ch;

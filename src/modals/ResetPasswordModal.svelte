@@ -1,10 +1,10 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import Modal from './Modal.svelte';
-  import ErrorMessage from '../components/ErrorMessage.svelte';
+  import { createEventDispatcher } from "svelte";
+  import Modal from "./Modal.svelte";
+  import ErrorMessage from "../components/ErrorMessage.svelte";
 
   export let loading = false;
-  export let errorMessage = '';
+  export let errorMessage = "";
 
   const dispatch = createEventDispatcher();
 
@@ -16,72 +16,56 @@
 
   function clearErrors() {
     submitAttempted = false;
-    dispatch('clear-errors')
-  };
+    dispatch("clear-errors");
+  }
 
-  function submitForm () {
+  function submitForm() {
     submitAttempted = true;
-    dispatch('reset-password', password.value);
-  };
+    dispatch("reset-password", password.value);
+  }
 
-  function tweenOutComplete () {
+  function tweenOutComplete() {
     submitAttempted = false;
     resetComplete = true;
-  };
+  }
 </script>
 
 <Modal
   cancelBtCopy="Close"
   confirmBtCopy="Reset password"
   hideCloseButton
-  hideCancelButton={ !resetComplete }
-  hideConfirmButton={ resetComplete }
-  { loading }
+  hideCancelButton={!resetComplete}
+  hideConfirmButton={resetComplete}
+  {loading}
   on:close
-  on:confirm={ submitForm }
-  on:tween-out-complete={ tweenOutComplete }
->
-  <span
-    slot="header"
-  >
-    { #if resetComplete }
-      Reset complete
-    { :else }
-      Reset your password
-    { /if }
+  on:confirm={submitForm}
+  on:tween-out-complete={tweenOutComplete}>
+  <span slot="header">
+    {#if resetComplete}Reset complete{:else}Reset your password{/if}
   </span>
 
-  <ErrorMessage
-    message={ errorMessage }
-  />
+  <ErrorMessage message={errorMessage} />
 
-  { #if resetComplete }
-    <p>
-      Your password has been successfully reset.
-    </p>
-  { :else }
+  {#if resetComplete}
+    <p>Your password has been successfully reset.</p>
+  {:else}
     <div>
       <label>
-        <span>
-          New password
-        </span>
+        <span> New password </span>
         <input
-          bind:this={ password }
-          disabled={ lockInput }
+          bind:this={password}
+          disabled={lockInput}
           required
           type="password"
-          on:input={ clearErrors }
-        />
-        <span
-          class="password-requirements"
-        >
+          on:input={clearErrors} />
+        <span class="password-requirements">
           8 characters or more.
-          <br/>
+          <br />
           Including at least one number and one special character.
         </span>
       </label>
     </div>
-  { /if }
+  {/if}
 </Modal>
 
 <style>

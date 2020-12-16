@@ -1,17 +1,17 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from "svelte";
   import {
     actions,
     canvas,
     context,
     illustrationSearchQuery,
-  } from '../../stores.js';
+  } from "../../stores.js";
   import {
     ERASER_SIZES,
     PEN_COLORS,
     PEN_SIZES,
     SHAPES,
-  } from '../../constants/sketch-pad.js';
+  } from "../../constants/sketch-pad.js";
   import {
     TOOL_ERASE_ALL,
     TOOL_ERASER,
@@ -19,45 +19,45 @@
     TOOL_SEARCH,
     TOOL_SHAPE,
     TOOL_TEXT,
-  } from '../../constants/defaults.js'
-  import ColorPalette from './ColorPalette.svelte';
-  import IconClose from '../icons/IconClose.svelte';
-  import IconEraser from '../icons/IconEraser.svelte';
-  import IconPen from '../icons/IconPen.svelte';
-  import IconTrashBin from '../icons/IconTrashBin.svelte';
-  import IconText from '../icons/IconText.svelte';
-  import IconSearch from '../icons/IconSearch.svelte';
-  import IconShapes from '../icons/IconShapes.svelte';
-  import ImageSelector from '../ImageSelector.svelte';
-  import ButtonTool from './ButtonTool.svelte';
+  } from "../../constants/defaults.js";
+  import ColorPalette from "./ColorPalette.svelte";
+  import IconClose from "../icons/IconClose.svelte";
+  import IconEraser from "../icons/IconEraser.svelte";
+  import IconPen from "../icons/IconPen.svelte";
+  import IconTrashBin from "../icons/IconTrashBin.svelte";
+  import IconText from "../icons/IconText.svelte";
+  import IconSearch from "../icons/IconSearch.svelte";
+  import IconShapes from "../icons/IconShapes.svelte";
+  import ImageSelector from "../ImageSelector.svelte";
+  import ButtonTool from "./ButtonTool.svelte";
 
   export let pen;
   export let eraser;
-  export let selectedToolId
+  export let selectedToolId;
   export let shape;
 
   const dispatch = createEventDispatcher();
 
   let showImageGallery = false;
 
-  function changeLineThickness (thickness, toolId) {
-    dispatch('change-thickness', { thickness, toolId });
-  };
+  function changeLineThickness(thickness, toolId) {
+    dispatch("change-thickness", { thickness, toolId });
+  }
 
-  function changeColor (color) {
-    dispatch('change-color', color);
-  };
+  function changeColor(color) {
+    dispatch("change-color", color);
+  }
 
-  function changeShape (shape) {
-    dispatch('change-shape', shape)
-  };
+  function changeShape(shape) {
+    dispatch("change-shape", shape);
+  }
 
-  function eraseAll () {
+  function eraseAll() {
     $context.clearRect(0, 0, $canvas.width, $canvas.height);
     $actions = [];
-  };
+  }
 
-  function handleEraserSecondaryTool (secondaryToolId, thickness, toolId) {
+  function handleEraserSecondaryTool(secondaryToolId, thickness, toolId) {
     if (secondaryToolId === TOOL_ERASE_ALL) {
       eraseAll();
 
@@ -65,136 +65,117 @@
     }
 
     changeLineThickness(thickness, toolId);
-  };
+  }
 
-  function selectIllustration ({ detail: title }) {
+  function selectIllustration({ detail: title }) {
     eraseAll();
 
-    dispatch('select-illustration', title);
-  };
+    dispatch("select-illustration", title);
+  }
 
-  function selectTool (toolId) {
-    dispatch('select-tool', toolId);
-  };
+  function selectTool(toolId) {
+    dispatch("select-tool", toolId);
+  }
 
-  function toggleShowImageGallery () {
-    $illustrationSearchQuery = '';
+  function toggleShowImageGallery() {
+    $illustrationSearchQuery = "";
 
     showImageGallery = !showImageGallery;
-  };
+  }
 </script>
 
-
-<div
-  class="ui main-content"
->
+<div class="ui main-content">
   <ButtonTool
-    primaryValue={ showImageGallery && TOOL_SEARCH }
-    toolName={ TOOL_SEARCH }
+    primaryValue={showImageGallery && TOOL_SEARCH}
+    toolName={TOOL_SEARCH}
     let:onDark
-    on:change-primary={ toggleShowImageGallery }
-  >
-    { #if showImageGallery }
+    on:change-primary={toggleShowImageGallery}>
+    {#if showImageGallery}
       <IconClose />
-    { :else }
+    {:else}
       <IconSearch />
-    { /if }
+    {/if}
   </ButtonTool>
-  
+
   <ButtonTool
-    primaryValue={ selectedToolId }
-    secondaryTools={ PEN_SIZES }
-    secondaryValue={ pen.lineWidth }
-    toolName={ TOOL_PEN }
+    primaryValue={selectedToolId}
+    secondaryTools={PEN_SIZES}
+    secondaryValue={pen.lineWidth}
+    toolName={TOOL_PEN}
     let:onDark
-    on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail }) => changeLineThickness(detail.value, TOOL_PEN) }
-  >
+    on:change-primary={({ detail: toolId }) => selectTool(toolId)}
+    on:change-secondary={({ detail }) => changeLineThickness(detail.value, TOOL_PEN)}>
     <IconPen />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
       class="secondary-tool"
-      class:on-dark={ onDark }
-    >
+      class:on-dark={onDark}>
       <svelte:component
-        this={ secondaryTool.component }
-        size={ secondaryTool.id }
-      />
+        this={secondaryTool.component}
+        size={secondaryTool.id} />
     </div>
   </ButtonTool>
 
   <ButtonTool
-    primaryValue={ selectedToolId }
-    toolName={ TOOL_ERASER }
-    secondaryTools={ ERASER_SIZES }
-    secondaryValue={ eraser.lineWidth }
+    primaryValue={selectedToolId}
+    toolName={TOOL_ERASER}
+    secondaryTools={ERASER_SIZES}
+    secondaryValue={eraser.lineWidth}
     let:onDark
-    on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER) }
-  >
+    on:change-primary={({ detail: toolId }) => selectTool(toolId)}
+    on:change-secondary={({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER)}>
     <IconEraser />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
       class="secondary-tool"
-      class:on-dark={ onDark }
-    >
+      class:on-dark={onDark}>
       <svelte:component
-        this={ secondaryTool.component }
-        size={ secondaryTool.id }
-      />
+        this={secondaryTool.component}
+        size={secondaryTool.id} />
     </div>
   </ButtonTool>
 
   <ButtonTool
-    primaryValue={ selectedToolId }
-    toolName={ TOOL_SHAPE }
-    secondaryTools={ SHAPES }
-    secondaryValue={ shape.type }
+    primaryValue={selectedToolId}
+    toolName={TOOL_SHAPE}
+    secondaryTools={SHAPES}
+    secondaryValue={shape.type}
     let:onDark
-    on:change-primary={ ({ detail: toolId }) => selectTool(toolId) }
-    on:change-secondary={ ({ detail }) => changeShape(detail.value) }
-  >
+    on:change-primary={({ detail: toolId }) => selectTool(toolId)}
+    on:change-secondary={({ detail }) => changeShape(detail.value)}>
     <IconShapes />
     <div
       slot="secondary-tool"
       let:secondaryTool
       let:onDark
       class="secondary-tool"
-      class:on-dark={ onDark }
-    >
-      <svelte:component
-        this={ secondaryTool.component }
-      />
+      class:on-dark={onDark}>
+      <svelte:component this={secondaryTool.component} />
     </div>
   </ButtonTool>
 
   <ButtonTool
-    primaryValue={ selectedToolId }
-    toolName={ TOOL_TEXT }
+    primaryValue={selectedToolId}
+    toolName={TOOL_TEXT}
     let:onDark
-    on:change-primary={ ({detail}) => selectTool(detail) }
-  >
+    on:change-primary={({ detail }) => selectTool(detail)}>
     <IconText />
   </ButtonTool>
 
   <ColorPalette
-    colors={ PEN_COLORS }
-    selected={ pen.color }
-    on:change={ ({ detail }) => changeColor(detail) }
-  />
-
+    colors={PEN_COLORS}
+    selected={pen.color}
+    on:change={({ detail }) => changeColor(detail)} />
 </div>
 
 <ImageSelector
-  show={ showImageGallery }
-  on:select-illustration={ selectIllustration }
-  on:close={ toggleShowImageGallery }
-/>
-
+  show={showImageGallery}
+  on:select-illustration={selectIllustration}
+  on:close={toggleShowImageGallery} />
 
 <style>
   .ui {

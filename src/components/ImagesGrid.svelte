@@ -1,62 +1,51 @@
 <script>
-  import {
-    createEventDispatcher,
-    onMount
-  } from 'svelte';
-  import { selectedIllustrationTitle } from '../stores.js';
-  import IntersectionObserver from './IntersectionObserver.svelte';
-  import ImagesGridThumbnail from './ImagesGridThumbnail.svelte';
+  import { createEventDispatcher, onMount } from "svelte";
+  import { selectedIllustrationTitle } from "../stores.js";
+  import IntersectionObserver from "./IntersectionObserver.svelte";
+  import ImagesGridThumbnail from "./ImagesGridThumbnail.svelte";
 
   export let images = [];
   let nativeLoading = false;
 
-  const URL_PATH = 'images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/';
+  const URL_PATH =
+    "images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/";
   const dispatch = createEventDispatcher();
 
   $: noImages = images.length === 0;
 
-  function selectIllustration (title) {
-    dispatch('select-illustration', title);
+  function selectIllustration(title) {
+    dispatch("select-illustration", title);
 
-    dispatch('close');
+    dispatch("close");
   }
 
   onMount(() => {
     // Determine whether to bypass the intersecting check
-    if ('loading' in HTMLImageElement.prototype) {
+    if ("loading" in HTMLImageElement.prototype) {
       nativeLoading = true;
     }
   });
 </script>
 
-{ #if noImages }
-  <div class="no-results">
-    No results found...
+{#if noImages}
+  <div class="no-results">No results found...</div>
+{:else}
+  <div class="images-grid">
+    {#each images as image (image.name)}
+      <button class="card" on:click={selectIllustration(image.name)}>
+        <IntersectionObserver once let:intersecting>
+          {#if nativeLoading || intersecting}
+            <ImagesGridThumbnail
+              src={URL_PATH + image.src}
+              alt={image.name}
+              selected={$selectedIllustrationTitle === image.name} />
+          {/if}
+        </IntersectionObserver>
+        {image.name}
+      </button>
+    {/each}
   </div>
-{ :else }
-<div class="images-grid">
-  { #each images as image (image.name) }
-    <button
-      class="card"
-      on:click={ selectIllustration(image.name) }
-    >
-      <IntersectionObserver
-        once
-        let:intersecting={ intersecting }
-      >
-        {#if nativeLoading || intersecting}
-          <ImagesGridThumbnail
-            src={ URL_PATH + image.src }
-            alt={ image.name }
-            selected={ $selectedIllustrationTitle === image.name }
-          />
-        { /if }
-      </IntersectionObserver>
-      { image.name }
-    </button>
-  { /each }
-</div>
-{ /if }
+{/if}
 
 <style>
   .images-grid {
