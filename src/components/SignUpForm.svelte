@@ -1,24 +1,18 @@
 <script>
-  import {
-    createEventDispatcher,
-  } from 'svelte';
-  import {
-    isLoading,
-    session,
-    viewportType
-  } from '../stores.js';
-  import { VIEWPORT_PHONE } from '../constants/defaults.js';
-  import CredentialsForm from './CredentialsForm.svelte';
-  
+  import { createEventDispatcher } from "svelte";
+  import { isLoading, session, viewportType } from "../stores.js";
+  import { VIEWPORT_PHONE } from "../constants/defaults.js";
+  import CredentialsForm from "./CredentialsForm.svelte";
+
   const dispatch = createEventDispatcher();
- 
+
   let errorMessage;
 
   $: showTerms = $viewportType !== VIEWPORT_PHONE;
 
-  function submit ({ detail }) {
+  function submit({ detail }) {
     if (!$session) {
-      console.error('No $session object!');
+      console.error("No $session object!");
       return;
     }
 
@@ -29,20 +23,18 @@
 
     $session
       .signup(email, password)
-      .then(response => {
-        dispatch('user-created', { email: response.email });
+      .then((response) => {
+        dispatch("user-created", { email: response.email });
         $isLoading = false;
-        }
-      )
-      .catch(error => {
+      })
+      .catch((error) => {
         errorMessage = error.json.msg;
         $isLoading = false;
       });
-  };
+  }
 </script>
 
 <CredentialsForm
-  { errorMessage }
-  on:submit={ submit }
-  on:error={ ({ detail }) => errorMessage = detail }
-/>
+  {errorMessage}
+  on:submit={submit}
+  on:error={({ detail }) => (errorMessage = detail)} />

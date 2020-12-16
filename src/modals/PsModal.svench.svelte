@@ -1,56 +1,39 @@
 <script>
-  import { View } from 'svench';
-  import PsModal from './PsModal.svelte';
-  import PsButton from '../components/PsButton.svelte';
+  import { View } from "svench";
+  import PsModal from "./PsModal.svelte";
+  import PsButton from "../components/PsButton.svelte";
 
-  const BUTTON_COPY = 'Open modal';
-  const DEFAULT = 'Default';
-  const LONG_HEADER_TITLE = 'Long header title';
+  const BUTTON_COPY = "Open modal";
+  const DEFAULT = "Default";
+  const LONG_HEADER_TITLE = "Long header title";
 
-  let modalToOpen = '';
+  let modalToOpen = "";
 
-  function confirmAction (modalName) {
-    console.log('Confirmed:', modalName);
+  function confirmAction(modalName) {
+    console.log("Confirmed:", modalName);
     closeModal();
-  };
+  }
 
-  function openModal (modalName) {
+  function openModal(modalName) {
     modalToOpen = modalName;
-  };
+  }
 
-  function closeModal () {
-    modalToOpen = '';
-  };
+  function closeModal() {
+    modalToOpen = "";
+  }
 </script>
 
+<View name={DEFAULT + '- with content'}>
+  <div class="modal-container">
+    <PsButton on:click={() => openModal(DEFAULT)}>{BUTTON_COPY}</PsButton>
+    {#if modalToOpen === DEFAULT}
+      <PsModal on:close={closeModal} on:confirm={() => confirmAction(DEFAULT)}>
+        <span slot="header"> Header </span>
 
-<View name={ DEFAULT + '- with content'}>
-  <div
-    class="modal-container"
-  >
-    <PsButton
-      on:click={ () => openModal(DEFAULT) }
-    >
-      { BUTTON_COPY }
-    </PsButton>
-    { #if modalToOpen === DEFAULT }
-      <PsModal
-        on:close={ closeModal }
-        on:confirm={ () => confirmAction(DEFAULT) }
-      >
-        <span
-          slot="header"
-        >
-          Header
-        </span>
-
-        <div>
-          Content area
-        </div>
-
+        <div>Content area</div>
       </PsModal>
-    { /if }
-    </div>
+    {/if}
+  </div>
 </View>
 
 <style>
@@ -60,7 +43,7 @@
     display: block;
     justify-content: center;
     align-items: center;
-    transform: translate(0,0);
+    transform: translate(0, 0);
     width: 100%;
   }
 </style>

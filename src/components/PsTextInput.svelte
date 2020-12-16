@@ -1,53 +1,50 @@
 <!-- TODO: We need an option for the input not to be nested inside the label
 to allow for grid layouts to be implemented -->
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from "svelte";
 
   export let disabled = false;
-  export let placeholder = '';
+  export let placeholder = "";
   export let required = false; /* there's a bug when setting the field to required, it triggers the validation on render */
   export let readonly = false;
-  export let style = 'horizontal'; /* options: 'inline', ['horizontal'|'vertical'] */
+  export let style =
+    "horizontal"; /* options: 'inline', ['horizontal'|'vertical'] */
   export let size = 20;
-  export let type = 'text';
-  export let value = '';
+  export let type = "text";
+  export let value = "";
 
   const dispatch = createEventDispatcher();
 
   $: labelClass = `
     container
     ${style}
-    ${disabled ? 'disabled' : ''}
+    ${disabled ? "disabled" : ""}
   `;
 
-  function onInput ({ target }) {
-    dispatch('input', target.value);
-  };
+  function onInput({ target }) {
+    dispatch("input", target.value);
+  }
 
-  function onBlur (event) {
-    dispatch('blur', event);
-  };
+  function onBlur(event) {
+    dispatch("blur", event);
+  }
 </script>
 
-<label
-  class={ labelClass }
->
-    <span>
-      <slot></slot>
-    </span>
-    <input
-      { disabled }
-      { placeholder }
-      { readonly }
-      { required }
-      { size }
-      { type }
-      { value }
-      on:input={ onInput }
-      on:blur={ onBlur }
-    >
+<label class={labelClass}>
+  <span>
+    <slot />
+  </span>
+  <input
+    {disabled}
+    {placeholder}
+    {readonly}
+    {required}
+    {size}
+    {type}
+    {value}
+    on:input={onInput}
+    on:blur={onBlur} />
 </label>
-
 
 <style>
   input[type="text"] {

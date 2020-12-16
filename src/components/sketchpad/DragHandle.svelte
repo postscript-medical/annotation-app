@@ -1,10 +1,6 @@
 <script>
-    import {
-      createEventDispatcher,
-      onDestroy,
-      onMount,
-  } from 'svelte';
-  import IconDrag from '../icons/IconDrag.svelte';
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import IconDrag from "../icons/IconDrag.svelte";
 
   export let index;
   export let eventType;
@@ -16,17 +12,17 @@
   $: width = boundingRect.width;
   $: height = boundingRect.height;
 
-  function startDrag () {
-    dispatch('drag', { index, active: true, width, height });
+  function startDrag() {
+    dispatch("drag", { index, active: true, width, height });
 
     window.addEventListener(eventType.up, stopDrag, false);
-  };
+  }
 
-  function stopDrag () {
-    dispatch('drag', { index, active: false });
+  function stopDrag() {
+    dispatch("drag", { index, active: false });
 
     window.removeEventListener(eventType.up, stopDrag, false);
-  };
+  }
 
   onMount(() => {
     dragHandler.addEventListener(eventType.down, startDrag, false);
@@ -37,10 +33,7 @@
   });
 </script>
 
-<button
-  bind:this={ dragHandler }
-  class="drag-handle shadow"
->
+<button bind:this={dragHandler} class="drag-handle shadow">
   <IconDrag />
 </button>
 

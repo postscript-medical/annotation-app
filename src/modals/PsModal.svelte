@@ -1,141 +1,108 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte';
-  import IconClose from '../components/icons/IconClose.svelte';
-  import PsButton from '../components/PsButton.svelte';
+  import { createEventDispatcher, onMount } from "svelte";
+  import IconClose from "../components/icons/IconClose.svelte";
+  import PsButton from "../components/PsButton.svelte";
 
-  export let cancelBtCopy = 'Cancel';
-  export let confirmBtCopy = 'Confirm';
+  export let cancelBtCopy = "Cancel";
+  export let confirmBtCopy = "Confirm";
   export let hideCancelButton = false;
   export let hideCloseButton = false;
   export let hideConfirmButton = false;
   export let loading = false;
 
   let wrapper;
-  let modal
+  let modal;
 
   const dispatch = createEventDispatcher();
 
   function confirm() {
-    dispatch('confirm');
-  };
+    dispatch("confirm");
+  }
 
   // TODO: Different animation for confirm/cancel
-  function close (isConfirm) {
-    const tl = gsap
-      .timeline({
-        onComplete: () => {
-          if (isConfirm) dispatch('confirm');
-          else dispatch('close');
-        }
-      })
+  function close(isConfirm) {
+    const tl = gsap.timeline({
+      onComplete: () => {
+        if (isConfirm) dispatch("confirm");
+        else dispatch("close");
+      },
+    });
 
-      if (isConfirm) {
-        tl.to(
-          modal,
-          {
-            duration: 0.15,
-            scale: 0.9,
-            opacity: 0,
-            ease: 'circ.in',
-          }
-        );
+    if (isConfirm) {
+      tl.to(modal, {
+        duration: 0.15,
+        scale: 0.9,
+        opacity: 0,
+        ease: "circ.in",
+      });
+    } else {
+      tl.to(modal, {
+        duration: 0.5,
+        ease: "circ.in",
+        y: 50,
+        opacity: 0,
+      });
+    }
 
-      } else {
-        tl.to(
-          modal,
-          {
-            duration: 0.5,
-            ease: 'circ.in',
-            y: 50,
-            opacity: 0,
-          }
-        );
-      }
-
-      tl.to(
-        wrapper,
-        {
-          duration: 0.15,
-          opacity: 0,
-          ease: 'none',
-        }
-      );
-  };
+    tl.to(wrapper, {
+      duration: 0.15,
+      opacity: 0,
+      ease: "none",
+    });
+  }
 
   onMount(() => {
     gsap
       .timeline()
       .from(wrapper, {
         duration: 0.075,
-        ease: 'none',
+        ease: "none",
         opacity: 0,
       })
       .from(modal, {
         duration: 0.5,
-        ease: 'circ.out',
+        ease: "circ.out",
         y: 50,
         opacity: 0,
-      })
+      });
   });
 </script>
 
-<div
-  bind:this={ wrapper }
-  class="wrapper"
->
+<div bind:this={wrapper} class="wrapper">
   <!-- TODO: Create a separate FormModal that extends Modal to contain the form element -->
-  <aside
-    bind:this={ modal }
-    class="modal shadow"
-  >
+  <aside bind:this={modal} class="modal shadow">
     <header>
-      <slot
-        name="title"
-      ></slot>
-      { #if !hideCloseButton }
-          <button
-            class="close"
-            type="button"
-            on:click={ () => close() }
-          >
-            <IconClose />
-          </button>
-        { /if }
+      <slot name="title" />
+      {#if !hideCloseButton}
+        <button class="close" type="button" on:click={() => close()}>
+          <IconClose />
+        </button>
+      {/if}
     </header>
 
-    <div
-      class="content"
-    >
-      <slot></slot>
+    <div class="content">
+      <slot />
     </div>
 
     <footer>
-      <slot name="footer"></slot>
-      { #if !hideCancelButton }
-        <PsButton
-          disabled={ loading }
-          style="secondary"
-          on:click={ () => close() }
-        >
-          { cancelBtCopy }
+      <slot name="footer" />
+      {#if !hideCancelButton}
+        <PsButton disabled={loading} style="secondary" on:click={() => close()}>
+          {cancelBtCopy}
         </PsButton>
-      { /if }
-      { #if !hideConfirmButton }
-        <PsButton
-          { loading }
-          on:tween-out-complete
-          on:click={ confirm }
-        >
-          { confirmBtCopy }
+      {/if}
+      {#if !hideConfirmButton}
+        <PsButton {loading} on:tween-out-complete on:click={confirm}>
+          {confirmBtCopy}
         </PsButton>
-      { /if }
+      {/if}
     </footer>
   </aside>
 </div>
 
 <style>
   .wrapper {
-    background-color: rgba(255,255,255,0.96);
+    background-color: rgba(255, 255, 255, 0.96);
     height: 100%;
     left: 0;
     position: fixed;
