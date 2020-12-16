@@ -1,9 +1,9 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte';
-  import { EVENTS_TOUCH } from '../../constants/defaults.js';
-  import ButtonIcon from './ButtonIcon.svelte';
-  import IconClose from '../icons/IconClose.svelte';
-  import DragHandle from './DragHandle.svelte';
+  import { createEventDispatcher, onMount } from "svelte";
+  import { EVENTS_TOUCH } from "../../constants/defaults.js";
+  import ButtonIcon from "./ButtonIcon.svelte";
+  import IconClose from "../icons/IconClose.svelte";
+  import DragHandle from "./DragHandle.svelte";
 
   export let content;
   export let eventType = EVENTS_TOUCH;
@@ -18,50 +18,37 @@
 
   $: style = `transform: translate3d(${x}px,${y}px,0px)`;
 
- function closeEntry () {
-    dispatch('close', { index });
-  };
+  function closeEntry() {
+    dispatch("close", { index });
+  }
 
-  function checkForEnter (event) {
+  function checkForEnter(event) {
     if (event.keyCode === 13) {
       document.activeElement.blur();
     }
-  };
+  }
 
-  function updateContent ({ target }) {
-    dispatch('input', { index, content: target.value });
+  function updateContent({ target }) {
+    dispatch("input", { index, content: target.value });
   }
 
   onMount(() => {
     boundingRect = container.getBoundingClientRect();
-
   });
 </script>
 
-<div
-  bind:this={ container }
-  class="typed-text-entry"
-  { style }
->
+<div bind:this={container} class="typed-text-entry" {style}>
   <!-- svelte-ignore a11y-autofocus -->
   <input
     autofocus
-    value={ content }
+    value={content}
     type="text"
     class="typed-annotation"
-    style={ `color: ${color};` }
-    on:input={ updateContent }
-    on:keyup|preventDefault={ checkForEnter }
-  />
-  <DragHandle
-    { boundingRect }
-    { eventType }
-    { index }
-    on:drag
-  />
-  <ButtonIcon
-    on:click={ closeEntry }
-  >
+    style={`color: ${color};`}
+    on:input={updateContent}
+    on:keyup|preventDefault={checkForEnter} />
+  <DragHandle {boundingRect} {eventType} {index} on:drag />
+  <ButtonIcon on:click={closeEntry}>
     <IconClose />
   </ButtonIcon>
 </div>

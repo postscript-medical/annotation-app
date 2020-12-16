@@ -1,12 +1,12 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import Modal from './Modal.svelte';
-  import ErrorMessage from '../components/ErrorMessage.svelte';
-  import PsButton from '../components/PsButton.svelte';
+  import { createEventDispatcher } from "svelte";
+  import Modal from "./Modal.svelte";
+  import ErrorMessage from "../components/ErrorMessage.svelte";
+  import PsButton from "../components/PsButton.svelte";
 
   export let loading = false;
   export let emailSent = false;
-  export let errorMessage = '';
+  export let errorMessage = "";
 
   const dispatch = createEventDispatcher();
 
@@ -19,77 +19,55 @@
   function clearErrors() {
     submitAttempted = false;
 
-    dispatch('clear-errors')
-  };
+    dispatch("clear-errors");
+  }
 
-  function downloadImage () {
-    dispatch('download-image')
-  };
+  function downloadImage() {
+    dispatch("download-image");
+  }
 
-  function submitForm () {
+  function submitForm() {
     submitAttempted = true;
 
-    dispatch('send-email', email.value);
-  };
+    dispatch("send-email", email.value);
+  }
 
-  function tweenOutComplete () {
+  function tweenOutComplete() {
     submitAttempted = false;
     showThankYou = !errorMessage;
-  };
+  }
 </script>
 
-<Modal
-  hideCancelButton
-  hideConfirmButton
-  on:close
-  on:confirm={ submitForm }
->
-  <span
-    slot="header"
-  >
-    { #if emailSent && showThankYou }
-        Your email has been sent
-    { :else }
-        Email the image to someone
-    { /if }
+<Modal hideCancelButton hideConfirmButton on:close on:confirm={submitForm}>
+  <span slot="header">
+    {#if emailSent && showThankYou}
+      Your email has been sent
+    {:else}Email the image to someone{/if}
   </span>
 
-  <ErrorMessage
-    message={ errorMessage }
-  />
+  <ErrorMessage message={errorMessage} />
 
-  <div
-    class="modal-body"
-  >
-    { #if emailSent && showThankYou }
-      <p>
-      You can now close this window.
-      </p>
-    { :else }
+  <div class="modal-body">
+    {#if emailSent && showThankYou}
+      <p>You can now close this window.</p>
+    {:else}
       <input
-        bind:this={ email }
-        disabled={ lockInput }
+        bind:this={email}
+        disabled={lockInput}
         placeholder="Email address"
         required
         type="email"
-        on:input={ clearErrors }
-      />
+        on:input={clearErrors} />
       <PsButton
-        { loading }
+        {loading}
         type="submit"
-        on:tween-out-complete={ tweenOutComplete }
-      >
+        on:tween-out-complete={tweenOutComplete}>
         Send
       </PsButton>
-    { /if }
+    {/if}
     <hr />
-    <h3>
-      Or save the image to your machine
-    </h3>
-    <PsButton
-      style="secondary"
-      on:click={ downloadImage }
-    >
+    <h3>Or save the image to your machine</h3>
+    <PsButton style="secondary" on:click={downloadImage}>
       Download image
     </PsButton>
   </div>

@@ -1,19 +1,12 @@
 <script>
-  import {
-    createEventDispatcher,
-  } from 'svelte';
-  import {
-    isLoading,
-    session,
-    user,
-    viewportType
-  } from '../stores.js';
-  import { VIEWPORT_PHONE } from '../constants/defaults.js';
-  import { STORAGE_KEY } from '../constants/session.js'
-  import loadProtectedContent from '../methods/load-protected-content.js';
-  import CredentialsForm from './CredentialsForm.svelte';
-  import PsButton from './PsButton.svelte';
-  import PsLink from './PsLink.svelte';
+  import { createEventDispatcher } from "svelte";
+  import { isLoading, session, user, viewportType } from "../stores.js";
+  import { VIEWPORT_PHONE } from "../constants/defaults.js";
+  import { STORAGE_KEY } from "../constants/session.js";
+  import loadProtectedContent from "../methods/load-protected-content.js";
+  import CredentialsForm from "./CredentialsForm.svelte";
+  import PsButton from "./PsButton.svelte";
+  import PsLink from "./PsLink.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -21,12 +14,12 @@
   $: showTerms = $viewportType === VIEWPORT_PHONE;
 
   function openForgotPasswordModal() {
-    dispatch('open-forgot-password-modal');
-  };
+    dispatch("open-forgot-password-modal");
+  }
 
-  async function submit ({ detail }) {
+  async function submit({ detail }) {
     if (!$session) {
-      console.warn('No $session object!');
+      console.warn("No $session object!");
       return;
     }
 
@@ -38,47 +31,40 @@
 
     const response = await $session
       .login(email, password, stayLogged)
-      .catch(error => {
+      .catch((error) => {
         errorMessage = error.json.error_description;
 
         $isLoading = false;
       });
 
-      if (!response) return;
+    if (!response) return;
 
-      if (!stayLogged) {
-        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
-      }
+    if (!stayLogged) {
+      window.sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ email, password })
+      );
+    }
 
-      $user = response;
+    $user = response;
 
-      await loadProtectedContent($user);
+    await loadProtectedContent($user);
 
-      $isLoading = false;
-  };
-
+    $isLoading = false;
+  }
 </script>
 
 <CredentialsForm
   confirmButtonCopy="Login"
-  { errorMessage }
+  {errorMessage}
   hidePasswordRequirements
   hideTerms
   showStayLogged
   style="on-dark"
-  on:submit={ submit }
->
-  <span>
-    Sign in
-  </span>
-  <div
-    slot="footer"
-    class="footer"
-  >
-    <PsButton
-      style="on-dark inline"
-      on:click={ openForgotPasswordModal }
-    >
+  on:submit={submit}>
+  <span> Sign in </span>
+  <div slot="footer" class="footer">
+    <PsButton style="on-dark inline" on:click={openForgotPasswordModal}>
       Forgot your password?
     </PsButton>
   </div>

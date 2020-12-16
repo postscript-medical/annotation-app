@@ -2,12 +2,14 @@
   export let position = { x: -1000, y: -1000 };
   export let size = 10;
 
-  $: radius = size / 2
+  $: radius = size / 2;
 
-  $: style = `width: ${size}px; height: ${size}px; transform: translate3d(${position.x - radius}px,${position.y - radius}px,0px);`
+  $: style = `width: ${size}px; height: ${size}px; transform: translate3d(${
+    position.x - radius
+  }px,${position.y - radius}px,0px);`;
 </script>
 
-<div {style}></div>
+<div {style} />
 
 <style>
   div {

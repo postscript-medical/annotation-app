@@ -1,13 +1,11 @@
 <script>
-  import IconClose from './icons/IconClose.svelte';
+  import IconClose from "./icons/IconClose.svelte";
   export let message;
 </script>
 
-{ #if message }
-  <div>
-    { message }
-  </div>
-{ /if }
+{#if message}
+  <div>{message}</div>
+{/if}
 
 <style>
   div {

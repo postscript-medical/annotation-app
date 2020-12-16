@@ -1,21 +1,17 @@
-
 <script>
   export let showName = false;
-  export let size = 'medium';
+  export let size = "medium";
 
-  const mainLogo = 'images/postscript-medical/annotation-app/main_logo.svg';
-  const mainLogoNoTitle = 'images/postscript-medical/annotation-app/main_logo_no_title.svg'
+  const mainLogo = "images/postscript-medical/annotation-app/main_logo.svg";
+  const mainLogoNoTitle =
+    "images/postscript-medical/annotation-app/main_logo_no_title.svg";
 
   $: src = showName ? mainLogo : mainLogoNoTitle;
-  $: logoSize = ['small', 'medium', 'large'].find(entry => entry === size);
+  $: logoSize = ["small", "medium", "large"].find((entry) => entry === size);
   $: className = `main-logo ${logoSize}`;
 </script>
 
-<img
-  { src }
-  alt="PostScript"
-  class={ className }
-/>
+<img {src} alt="PostScript" class={className} />
 
 <style>
   .x-small {
@@ -34,7 +30,7 @@
     height: 4.4375rem;
   }
 
-@media screen and (min-width: 600px) {
+  @media screen and (min-width: 600px) {
     .large {
       width: 6.125rem;
       height: 6.875rem;

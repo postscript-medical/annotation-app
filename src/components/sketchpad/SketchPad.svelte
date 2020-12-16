@@ -1,9 +1,5 @@
 <script>
-  import {
-    createEventDispatcher,
-    onDestroy,
-    onMount,
-  } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import {
     actions,
     canvas,
@@ -12,13 +8,11 @@
     selectedIllustration,
     toolDrawerOpen,
     typedTextEntries,
-  } from '../../stores.js';
-  import closeUserSettingsDropdown from '../../methods/closeUserSettingsDropdown.js';
-  import getPointerLocation from './helpers/get-pointer-location.js';
-  import setupCanvas from './helpers/setup-canvas.js';
-  import {
-    SHAPE_ARROW,
-  } from '../../constants/sketch-pad.js';
+  } from "../../stores.js";
+  import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
+  import getPointerLocation from "./helpers/get-pointer-location.js";
+  import setupCanvas from "./helpers/setup-canvas.js";
+  import { SHAPE_ARROW } from "../../constants/sketch-pad.js";
   import {
     EVENTS_POINTER,
     EVENTS_TOUCH,
@@ -31,10 +25,10 @@
     TOOL_RECTANGLE,
     TOOL_SHAPE,
     TOOL_TEXT,
-  } from '../../constants/defaults.js';
-  import Illustration from './Illustration.svelte';
-  import StokeCursor from './StokeCursor.svelte';
-  import TypedTextEntry from './TypedTextEntry.svelte';
+  } from "../../constants/defaults.js";
+  import Illustration from "./Illustration.svelte";
+  import StokeCursor from "./StokeCursor.svelte";
+  import TypedTextEntry from "./TypedTextEntry.svelte";
 
   export let pen;
   export let selectedTool;
@@ -45,7 +39,7 @@
   const dispatch = createEventDispatcher();
 
   let actionsIndex = 0;
-  let encodedImage = '';
+  let encodedImage = "";
   let isPointerActive = false;
   let dragTypedText = { index: 0, active: false };
   let offsetTop = 0;
@@ -58,8 +52,7 @@
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: src = $selectedIllustration ? $selectedIllustration.src : false;
 
-
-  function addShape (shapeId, event) {
+  function addShape(shapeId, event) {
     const { x, y } = pointerLocation;
 
     let newShape = {
@@ -81,12 +74,12 @@
 
     if (shape.type === TOOL_ARROW) {
       newShape.length = SHAPE_ARROW.length;
-    };
+    }
 
     return newShape;
-  };
+  }
 
-  function addStroke (event) {
+  function addStroke(event) {
     // this causes every single click to add an entry to the array, potentially bloating it with empty entries
     // we should wait until the mouse has moved at least x pixels before adding an entry to the array
     isPointerActive = true;
@@ -99,49 +92,56 @@
       color: selectedTool.color,
       points: [],
     };
-  };
+  }
 
-  function addTypedText (event) {
+  function addTypedText(event) {
     return {
       name: TOOL_TEXT,
-      content: '',
+      content: "",
       color: pen.color,
       eventType,
       index: actionsIndex,
       x: pointerLocation.x - offsetLeft,
       y: pointerLocation.y - offsetTop,
     };
-  };
+  }
 
-  function clearCanvas () {
+  function clearCanvas() {
     $context.clearRect(0, 0, $canvas.width, $canvas.height);
-  };
+  }
 
-  function drawStroke (_context, { name, lineWidth, color, points }) {
-      if (points.length < 3) return;
+  function drawStroke(_context, { name, lineWidth, color, points }) {
+    if (points.length < 3) return;
 
-      const maxIndex = points.length - 2;
-      const isDrawing = name === TOOL_PEN;
+    const maxIndex = points.length - 2;
+    const isDrawing = name === TOOL_PEN;
 
-      _context.save();
-      _context.globalCompositeOperation = isDrawing ? 'source-over' : 'destination-out';
-      _context.strokeStyle = color;
-      _context.beginPath();
-      _context.lineWidth = lineWidth;
-      _context.moveTo(points[0].x, points[0].y);
+    _context.save();
+    _context.globalCompositeOperation = isDrawing
+      ? "source-over"
+      : "destination-out";
+    _context.strokeStyle = color;
+    _context.beginPath();
+    _context.lineWidth = lineWidth;
+    _context.moveTo(points[0].x, points[0].y);
 
-      for(let i = 1; i < maxIndex; i++) {
-        const xc = (points[i].x + points[i + 1].x) / 2;
-        const yc = (points[i].y + points[i + 1].y) / 2;
-        _context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
-      }
+    for (let i = 1; i < maxIndex; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      _context.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
 
-      _context.quadraticCurveTo(points[maxIndex].x, points[maxIndex].y, points[maxIndex+1].x, points[maxIndex+1].y);
-      _context.stroke();
-      _context.restore();
-  };
+    _context.quadraticCurveTo(
+      points[maxIndex].x,
+      points[maxIndex].y,
+      points[maxIndex + 1].x,
+      points[maxIndex + 1].y
+    );
+    _context.stroke();
+    _context.restore();
+  }
 
-  function drawShape (_context, shape) {
+  function drawShape(_context, shape) {
     _context.save();
     _context.lineWidth = shape.lineWidth;
     _context.strokeStyle = shape.color;
@@ -154,18 +154,26 @@
         _context.translate(shape.x, shape.y);
         _context.rotate(shape.angle);
         _context.beginPath();
-        _context.moveTo(0,0);
+        _context.moveTo(0, 0);
         _context.lineTo(shape.length, 0);
-        _context.lineTo(arrowHeadXLength,arrowHeadYLength);
-        _context.moveTo(shape.length,0);
-        _context.lineTo(arrowHeadXLength,-arrowHeadYLength);
+        _context.lineTo(arrowHeadXLength, arrowHeadYLength);
+        _context.moveTo(shape.length, 0);
+        _context.lineTo(arrowHeadXLength, -arrowHeadYLength);
         _context.stroke();
         break;
 
       case TOOL_ELLIPSE:
         _context.translate(shape.x, shape.y);
         _context.beginPath();
-        _context.ellipse(shape.dx, shape.dy, Math.abs(shape.dx), Math.abs(shape.dy), 0, 0, RADIAN);
+        _context.ellipse(
+          shape.dx,
+          shape.dy,
+          Math.abs(shape.dx),
+          Math.abs(shape.dy),
+          0,
+          0,
+          RADIAN
+        );
         _context.stroke();
         break;
 
@@ -175,10 +183,10 @@
 
       default:
         break;
-    };
+    }
 
     _context.restore();
-  };
+  }
 
   function init() {
     document.body.addEventListener(eventType.up, stopDrawing, false);
@@ -189,12 +197,12 @@
     $context = setupCanvas($canvas);
 
     resizeCanvas();
-  };
+  }
 
   function onPointerDown(event) {
     event.preventDefault();
 
-    $toolDrawerOpen = '';
+    $toolDrawerOpen = "";
 
     closeUserSettingsDropdown();
 
@@ -206,31 +214,28 @@
       case TOOL_TEXT:
         newAction = addTypedText(event);
         ++actionsIndex;
-        dispatch('select-tool', TOOL_PEN);
+        dispatch("select-tool", TOOL_PEN);
         break;
 
       case TOOL_SHAPE:
         newAction = addShape(selectedToolId, event);
         break;
-    
+
       default:
         newAction = addStroke(event);
         break;
-    };
+    }
 
-    $actions = [
-      ...$actions,
-      newAction
-    ];
+    $actions = [...$actions, newAction];
 
     render();
-  };
+  }
 
   function onPointerUp(event) {
     resetPointerLocationId();
 
     stopDrawing();
-  };
+  }
 
   function onPointerMove(event) {
     event.preventDefault();
@@ -239,10 +244,10 @@
 
     if (dragTypedText.active) {
       typedTextDragBox();
-    };
-  };
+    }
+  }
 
-  function recordPoint (event) {
+  function recordPoint(event) {
     const previousLocation = { ...pointerLocation };
     pointerLocation = getPointerLocation(event, previousLocation, hasPointer);
 
@@ -252,7 +257,9 @@
     }
 
     if (isPointerActive) {
-      const targetIndex = $actions.findIndex(({ index }) => index === actionsIndex);
+      const targetIndex = $actions.findIndex(
+        ({ index }) => index === actionsIndex
+      );
       let target = { ...$actions[targetIndex] };
 
       if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
@@ -261,46 +268,48 @@
           {
             x: pointerLocation.x - offsetLeft,
             y: pointerLocation.y - offsetTop,
-          }
+          },
         ];
-      };
+      }
 
       if (selectedToolId === TOOL_SHAPE) {
         switch (target.type) {
           case TOOL_ARROW:
-          target.dx = pointerLocation.x - target.x - offsetLeft;
-          target.dy = pointerLocation.y - target.y - offsetTop;
-          target.length = Math.sqrt(target.dx * target.dx + target.dy * target.dy);
-          target.angle = Math.atan2(target.dy, target.dx);
-          break;
+            target.dx = pointerLocation.x - target.x - offsetLeft;
+            target.dy = pointerLocation.y - target.y - offsetTop;
+            target.length = Math.sqrt(
+              target.dx * target.dx + target.dy * target.dy
+            );
+            target.angle = Math.atan2(target.dy, target.dx);
+            break;
 
-        case TOOL_ELLIPSE:
-          target.dx = (pointerLocation.x - target.x - offsetLeft) / 2;
-          target.dy = (pointerLocation.y - target.y - offsetTop) / 2;
-          break;
+          case TOOL_ELLIPSE:
+            target.dx = (pointerLocation.x - target.x - offsetLeft) / 2;
+            target.dy = (pointerLocation.y - target.y - offsetTop) / 2;
+            break;
 
-        case TOOL_RECTANGLE:
-          target.dx = pointerLocation.x - target.x - offsetLeft;
-          target.dy = pointerLocation.y - target.y - offsetTop;
-          break;
-      
-        default:
-          break;
-        };
-      };
+          case TOOL_RECTANGLE:
+            target.dx = pointerLocation.x - target.x - offsetLeft;
+            target.dy = pointerLocation.y - target.y - offsetTop;
+            break;
+
+          default:
+            break;
+        }
+      }
 
       $actions[targetIndex] = target;
       $actions = [...$actions];
-    };
-  };
+    }
+  }
 
-  function render () {
+  function render() {
     clearCanvas();
 
-    $context.lineCap = 'round';
-    $context.lineJoin = 'round';
+    $context.lineCap = "round";
+    $context.lineJoin = "round";
 
-    $actions.forEach(action => {
+    $actions.forEach((action) => {
       switch (action.name) {
         case TOOL_PEN:
         case TOOL_ERASER:
@@ -310,7 +319,7 @@
         case TOOL_SHAPE:
           drawShape($context, action);
           break;
-      
+
         default:
           break;
       }
@@ -321,16 +330,16 @@
     } else {
       cancelAnimationFrame(rafID);
     }
-  };
+  }
 
-  function resetPointerLocationId () {
+  function resetPointerLocationId() {
     pointerLocation = {
       ...pointerLocation,
       id: undefined,
     };
-  };
+  }
 
-  function resizeCanvas () {
+  function resizeCanvas() {
     // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
     const oldSize = { width: $canvas.width, height: $canvas.height };
 
@@ -338,9 +347,12 @@
 
     updateOffset();
 
-    const scaleFactor = { width: $canvas.width / oldSize.width, height: $canvas.height / oldSize.height };
+    const scaleFactor = {
+      width: $canvas.width / oldSize.width,
+      height: $canvas.height / oldSize.height,
+    };
 
-    $actions = $actions.map(action => {
+    $actions = $actions.map((action) => {
       switch (action.name) {
         case TOOL_PEN:
         case TOOL_ERASER:
@@ -352,7 +364,7 @@
                 y: y * scaleFactor.height,
                 lineWidth: lineWidth * scaleFactor.width,
               };
-            })
+            }),
           };
 
         case TOOL_SHAPE:
@@ -366,9 +378,11 @@
           };
 
           if (action.type === TOOL_ARROW) {
-            scaledShape.length = Math.sqrt(scaledShape.dx * scaledShape.dx + scaledShape.dy * scaledShape.dy);
+            scaledShape.length = Math.sqrt(
+              scaledShape.dx * scaledShape.dx + scaledShape.dy * scaledShape.dy
+            );
             scaledShape.angle = Math.atan2(scaledShape.dy, scaledShape.dx);
-          };
+          }
 
           return scaledShape;
 
@@ -377,82 +391,88 @@
             ...action,
             x: action.x * scaleFactor.width,
             y: action.y * scaleFactor.height,
-          }
+          };
       }
     });
 
     render();
-  };
+  }
 
-  function stopDrawing () {
+  function stopDrawing() {
     if (isPointerActive) ++actionsIndex;
 
     isPointerActive = false;
-  };
+  }
 
-  function toggleTypedTextDrag ({ detail }) {
+  function toggleTypedTextDrag({ detail }) {
     dragTypedText = detail;
 
     resetPointerLocationId();
-  }; 
+  }
 
-  function typedTextDragBox () {
-      const targetIndex = $actions.findIndex(({ index }) => index === dragTypedText.index);
-      const scaledWidth = $canvas.width / $dpr;
-      const scaledHeight = $canvas.height / $dpr;
-      // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
-      let target = {
-        ...$actions[targetIndex],
-        x: pointerLocation.x - offsetLeft,
-        y: pointerLocation.y - offsetTop,
-      };
+  function typedTextDragBox() {
+    const targetIndex = $actions.findIndex(
+      ({ index }) => index === dragTypedText.index
+    );
+    const scaledWidth = $canvas.width / $dpr;
+    const scaledHeight = $canvas.height / $dpr;
+    // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
+    let target = {
+      ...$actions[targetIndex],
+      x: pointerLocation.x - offsetLeft,
+      y: pointerLocation.y - offsetTop,
+    };
 
-      // work out if box is going to be outside the paper boundaries
-      if (target.x < offsetLeft) {
-        target.x = offsetLeft;
-      }
+    // work out if box is going to be outside the paper boundaries
+    if (target.x < offsetLeft) {
+      target.x = offsetLeft;
+    }
 
-      if (target.x + dragTypedText.width > scaledWidth) {
-        target.x = scaledWidth - dragTypedText.width;
-      }
+    if (target.x + dragTypedText.width > scaledWidth) {
+      target.x = scaledWidth - dragTypedText.width;
+    }
 
-      if (target.y < offsetTop) {
-        target.y = offsetTop;
-      }
+    if (target.y < offsetTop) {
+      target.y = offsetTop;
+    }
 
-      if (target.y + dragTypedText.height > scaledHeight) {
-        target.y = scaledHeight - dragTypedText.height;
-      }
+    if (target.y + dragTypedText.height > scaledHeight) {
+      target.y = scaledHeight - dragTypedText.height;
+    }
 
-      $actions[targetIndex] = target;
-      $actions = [...$actions];
-  };
+    $actions[targetIndex] = target;
+    $actions = [...$actions];
+  }
 
-  function typedTexRemovetEntry ({ detail }) {
-    const targetIndex = $actions.findIndex(({ index }) => index === detail.index);
+  function typedTexRemovetEntry({ detail }) {
+    const targetIndex = $actions.findIndex(
+      ({ index }) => index === detail.index
+    );
     let target = [...$actions];
 
     target.splice(targetIndex, 1);
 
     $actions = target;
-  };
+  }
 
-  function typedTextUpdateEntryContent ({ detail }) {
-    const targetIndex = $actions.findIndex(({ index }) => index === detail.index);
+  function typedTextUpdateEntryContent({ detail }) {
+    const targetIndex = $actions.findIndex(
+      ({ index }) => index === detail.index
+    );
     let target = {
-        ...$actions[targetIndex],
-        content: detail.content,
-      };
+      ...$actions[targetIndex],
+      content: detail.content,
+    };
 
     $actions[targetIndex] = target;
     $actions = [...$actions];
-  };
+  }
 
-  function updateOffset () {
+  function updateOffset() {
     const boundingRect = $canvas.getBoundingClientRect();
     offsetTop = boundingRect.top;
     offsetLeft = boundingRect.left;
-  };
+  }
 
   onMount(() => {
     init();
@@ -466,43 +486,27 @@
   });
 </script>
 
-<svelte:window
-  on:resize={ resizeCanvas }
-/>
+<svelte:window on:resize={resizeCanvas} />
 
-<div
-  bind:this={ paper }
-  class="paper shadow aspect-ratio-lock"
->
-  { #if src }
-    <Illustration
-      { src }
-    />
-  { /if }
+<div bind:this={paper} class="paper shadow aspect-ratio-lock">
+  {#if src}
+    <Illustration {src} />
+  {/if}
 
-  <canvas
-    bind:this={ $canvas }
-    style={ isPointerActive ? 'cursor: none;' : '' }
-  ></canvas>
+  <canvas bind:this={$canvas} style={isPointerActive ? 'cursor: none;' : ''} />
 
-  <div
-    class="typed-text"
-  >
-    { #each $typedTextEntries as entry (entry.index) }
+  <div class="typed-text">
+    {#each $typedTextEntries as entry (entry.index)}
       <TypedTextEntry
-        { ...entry }
-        on:close={ typedTexRemovetEntry }
-        on:drag={ toggleTypedTextDrag }
-        on:input={ typedTextUpdateEntryContent }
-      />
-    { /each }
+        {...entry}
+        on:close={typedTexRemovetEntry}
+        on:drag={toggleTypedTextDrag}
+        on:input={typedTextUpdateEntryContent} />
+    {/each}
   </div>
-  { #if isPointerActive && selectedTool }
-    <StokeCursor
-      position={ pointerLocation }
-      size={ selectedTool.lineWidth }
-    />
-  { /if }
+  {#if isPointerActive && selectedTool}
+    <StokeCursor position={pointerLocation} size={selectedTool.lineWidth} />
+  {/if}
 </div>
 
 <style>

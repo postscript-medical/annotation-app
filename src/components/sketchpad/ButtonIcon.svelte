@@ -1,22 +1,18 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from "svelte";
 
   const dispatch = createEventDispatcher();
 
   export let value = null;
   export let onDark = false;
 
-  function changeTool () {
-    dispatch('click', value);
+  function changeTool() {
+    dispatch("click", value);
   }
 </script>
 
-<button
-  class:on-dark={ onDark }
-  class="shadow"
-  on:click={ changeTool(value) }
->
-  <slot></slot>
+<button class:on-dark={onDark} class="shadow" on:click={changeTool(value)}>
+  <slot />
 </button>
 
 <style>
@@ -32,7 +28,7 @@
   }
 
   .on-dark {
-    background-color: rgb(42,41,41);
+    background-color: rgb(42, 41, 41);
     color: white;
   }
 </style>

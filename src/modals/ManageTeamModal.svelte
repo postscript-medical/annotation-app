@@ -1,17 +1,13 @@
 <script>
-  import {
-    createEventDispatcher,
-  } from 'svelte';
-  import {
-    ROLE_USER,
-  } from '../constants/defaults.js';
-  import ErrorMessage from '../components/ErrorMessage.svelte';
-  import PsModal from './PsModal.svelte';
-  import PsButton from '../components/PsButton.svelte';
-  import PsDropdown from '../components/PsDropdown.svelte';
-  import PsTextInput from '../components/PsTextInput.svelte';
+  import { createEventDispatcher } from "svelte";
+  import { ROLE_USER } from "../constants/defaults.js";
+  import ErrorMessage from "../components/ErrorMessage.svelte";
+  import PsModal from "./PsModal.svelte";
+  import PsButton from "../components/PsButton.svelte";
+  import PsDropdown from "../components/PsDropdown.svelte";
+  import PsTextInput from "../components/PsTextInput.svelte";
 
-  export let errorMessage = '';
+  export let errorMessage = "";
   export let loading = false;
   export let members = [];
   export let maxTeamMembers = 1;
@@ -30,21 +26,25 @@
 
   $: totalTeamMembersAssigned = members.length;
   $: totalTeamMembersLeft = maxTeamMembers - totalTeamMembersAssigned;
-  $: disabled = totalTeamMembersLeft < 1 || !!(typeof editingTeamMemberIndex === 'number');
+  $: disabled =
+    totalTeamMembersLeft < 1 || !!(typeof editingTeamMemberIndex === "number");
   $: maxTeamMemberIndex = maxTeamMembers - 1;
 
-  function addTeamMember () {
+  function addTeamMember() {
     const newTeamMember = {
-        email: '',
-        firstName: '',
-        lastName: '',
-        role: ROLE_USER,
-        toInvite: true,
+      email: "",
+      firstName: "",
+      lastName: "",
+      role: ROLE_USER,
+      toInvite: true,
     };
 
     editedTeamMemberSrc = newTeamMember;
 
-    dispatch('update', { action: 'add-new-team-member', teamMember: newTeamMember });
+    dispatch("update", {
+      action: "add-new-team-member",
+      teamMember: newTeamMember,
+    });
 
     editingTeamMemberIndex = totalTeamMembersAssigned;
 
@@ -54,55 +54,55 @@
 
       teamMembersTable.parentNode.scroll(0, height);
     });
-  };
+  }
 
-  function cancelTeamMemberEdit (index) {
+  function cancelTeamMemberEdit(index) {
     editingTeamMemberIndex = null;
 
     if (editedTeamMemberSrc.toInvite) {
       removeTeamMember(editedTeamMemberSrc);
 
       return;
-    };
-    
-    updateTeamMember(editedTeamMemberSrc, index);
-  };
+    }
 
-  function editTeamMember (teamMember, index) {
+    updateTeamMember(editedTeamMemberSrc, index);
+  }
+
+  function editTeamMember(teamMember, index) {
     editedTeamMemberSrc = { ...teamMember };
 
     editingTeamMemberIndex = index;
-  };
+  }
 
-  function updateTeamMember (teamMember, index) {
-    dispatch('update', { action: 'update-team-member', teamMember, index });
-  };
+  function updateTeamMember(teamMember, index) {
+    dispatch("update", { action: "update-team-member", teamMember, index });
+  }
 
-  async function removeTeamMember (teamMember) {
-    dispatch('update', { action: 'remove-team-member', teamMember });
-  };
+  async function removeTeamMember(teamMember) {
+    dispatch("update", { action: "remove-team-member", teamMember });
+  }
 
-  async function saveNewTeamMember (teamMember) {
+  async function saveNewTeamMember(teamMember) {
     creatingNewTeamMember = true;
 
-    dispatch('update', { action: 'save-new-team-member', teamMember });
-  };
+    dispatch("update", { action: "save-new-team-member", teamMember });
+  }
 
-  async function saveUpdatedTeamMember (teamMember) {
+  async function saveUpdatedTeamMember(teamMember) {
     updatingTeamMember = true;
 
-    dispatch('update', { action: 'save-updated-team-member', teamMember });
-  };
+    dispatch("update", { action: "save-updated-team-member", teamMember });
+  }
 
-  function teamNameUpdateComplete () {
+  function teamNameUpdateComplete() {
     updatingTeamName = false;
 
     if (!errorMessage) {
       editedTeamNameSrc = null;
-    };
-  };
+    }
+  }
 
-  function toggleEditTeamName (teamName) {
+  function toggleEditTeamName(teamName) {
     if (teamName) {
       editedTeamNameSrc = teamName;
     } else {
@@ -110,238 +110,189 @@
 
       editedTeamNameSrc = null;
     }
-  };
+  }
 
   function updateTeamMemberProperty(key, value, index) {
     updateTeamMember({ ...members[index], [key]: value }, index);
-  };
+  }
 
   function updateTeamName(name) {
-    dispatch('update-team-name', name);
-  };
+    dispatch("update-team-name", name);
+  }
 
-  function saveUpdatedTeamName (teamName) {
+  function saveUpdatedTeamName(teamName) {
     updatingTeamName = true;
 
-    dispatch('update', { action: 'save-updated-team-name', teamName });
-  };
+    dispatch("update", { action: "save-updated-team-name", teamName });
+  }
 
-  function teamMemberUpdateComplete () {
+  function teamMemberUpdateComplete() {
     if (creatingNewTeamMember) creatingNewTeamMember = false;
 
     if (updatingTeamMember) updatingTeamMember = false;
 
     if (!errorMessage) editingTeamMemberIndex = null;
-  };
+  }
 </script>
 
-<PsModal
-  hideCancelButton
-  hideConfirmButton
-  on:close
->
-    <h2
-      slot="title"
-    >
-      Edit team
-    </h2>
-    <ErrorMessage
-      message={ errorMessage }
-    />
+<PsModal hideCancelButton hideConfirmButton on:close>
+  <h2 slot="title">Edit team</h2>
+  <ErrorMessage message={errorMessage} />
 
-    <section
-      class="entry"
-    >
-      <h3>
-        Team details
-      </h3>
-      <div
-        class="team-name"
-      >
-        <PsTextInput
-          readonly={ !editedTeamNameSrc }
-          value={ teamName }
-          style="inline"
-          on:input={ ({ detail: value }) => updateTeamName(value) }
-        >
-          Team name:
-        </PsTextInput>
-        { #if !!editedTeamNameSrc }
-          <PsButton
-            { loading }
-            style="secondary inline"
-            on:click={ () => saveUpdatedTeamName(teamName) }
-            on:tween-out-complete={ teamNameUpdateComplete }
-          >
-            Save
-          </PsButton>
-          <PsButton
-            disabled={ loading || updatingTeamName }
-            style="secondary inline"
-            on:click={ () => toggleEditTeamName() }
-          >
-            Cancel
-          </PsButton>
-        { :else }
-          <PsButton
-            disabled={ loading }
-            style="secondary inline"
-            on:click={ () => toggleEditTeamName(teamName) }
-          >
-            Edit
-          </PsButton>
-        { /if }
-      </div>
+  <section class="entry">
+    <h3>Team details</h3>
+    <div class="team-name">
       <PsTextInput
-        readonly
-        value={ `${totalTeamMembersLeft} of ${maxTeamMembers} user slots used` }
+        readonly={!editedTeamNameSrc}
+        value={teamName}
         style="inline"
-      >
-        Usage:
+        on:input={({ detail: value }) => updateTeamName(value)}>
+        Team name:
       </PsTextInput>
-    </section>
-
-    <section
-      class="team-members"
-    >
-      <h3>
-        Team members
-      </h3>
-
-      <div
-        class="team-members-table"
-      >
-        <table
-          bind:this={ teamMembersTable }
-        >
-          <thead>
-            <tr>
-              <th>
-                First name
-              </th>
-              <th>
-                Last name
-              </th>
-              <th>
-                Email
-              </th>
-              <th>
-                Role
-              </th>
-              <th>
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            { #each members as member, index }
-              <tr>
-                <td>
-                  <PsTextInput
-                    readonly={ editingTeamMemberIndex !== index }
-                    size="30"
-                    style="inline"
-                    value={ member.firstName }
-                    placeholder="First name"
-                    disabled={ index > maxTeamMemberIndex }
-                    on:input={ ({ detail: value }) => updateTeamMemberProperty('firstName', value, index) }
-                  />
-                </td>
-                <td>
-                  <PsTextInput
-                    readonly={ editingTeamMemberIndex !== index }
-                    size="30"
-                    style="inline"
-                    value={ member.lastName }
-                    placeholder="Last name"
-                    disabled={ index > maxTeamMemberIndex }
-                    on:input={ ({ detail: value }) => updateTeamMemberProperty('lastName', value, index) }
-                  />
-                </td>
-                <td>
-                  <PsTextInput
-                    readonly={ editingTeamMemberIndex !== index }
-                    size="30"
-                    style="inline"
-                    value={ member.email }
-                    placeholder="Email address"
-                    disabled={ index > maxTeamMemberIndex }
-                    on:input={ ({ detail: value }) => updateTeamMemberProperty('email', value, index) }
-                  />
-                </td>
-                <td>
-                  <PsDropdown
-                    editable={ editingTeamMemberIndex === index }
-                    options={ ROLES }
-                    style="inline"
-                    selected={ member.role }
-                    disabled={ index > maxTeamMemberIndex }
-                    on:change={ ({ detail: value }) => updateTeamMemberProperty('role', value, index) }
-                  />
-                </td>
-                <td>
-                  { #if editingTeamMemberIndex === index }
-                    { #if member.toInvite || creatingNewTeamMember }
-                      <PsButton
-                        { loading }
-                        style="secondary inline"
-                        on:click={ () => saveNewTeamMember(member) }
-                        on:tween-out-complete={ teamMemberUpdateComplete }
-                      >
-                        Create
-                      </PsButton>
-                    { :else }
-                      <PsButton
-                        { loading }
-                        style="secondary inline"
-                        on:click={ () => saveUpdatedTeamMember(member, index) }
-                        on:tween-out-complete={ teamMemberUpdateComplete }
-                      >
-                        Save
-                      </PsButton>
-                    { /if }
-                    /
-                    <PsButton
-                      disabled={ loading || creatingNewTeamMember || updatingTeamMember }
-                      style="secondary inline"
-                      on:click={ () => cancelTeamMemberEdit(index) }
-                    >
-                      Cancel
-                    </PsButton>
-                  { :else }
-                    <PsButton
-                      disabled={ loading || creatingNewTeamMember || updatingTeamMember }
-                      style="secondary inline"
-                      on:click={ () => editTeamMember(member, index) }
-                    >
-                      Edit
-                    </PsButton>
-                    /
-                    <PsButton
-                      disabled={ loading || creatingNewTeamMember || updatingTeamMember }
-                      style="secondary inline"
-                      on:click={ () => removeTeamMember(member) }
-                    >
-                      Remove
-                    </PsButton>
-                  { /if }
-                </td>
-              </tr>
-            { /each }
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div>
-      <PsButton
-        disabled={ loading || disabled }
-        style='tertiary'
-        on:click={ addTeamMember }
-      >
-        + Add user
-      </PsButton>
+      {#if !!editedTeamNameSrc}
+        <PsButton
+          {loading}
+          style="secondary inline"
+          on:click={() => saveUpdatedTeamName(teamName)}
+          on:tween-out-complete={teamNameUpdateComplete}>
+          Save
+        </PsButton>
+        <PsButton
+          disabled={loading || updatingTeamName}
+          style="secondary inline"
+          on:click={() => toggleEditTeamName()}>
+          Cancel
+        </PsButton>
+      {:else}
+        <PsButton
+          disabled={loading}
+          style="secondary inline"
+          on:click={() => toggleEditTeamName(teamName)}>
+          Edit
+        </PsButton>
+      {/if}
     </div>
+    <PsTextInput
+      readonly
+      value={`${totalTeamMembersLeft} of ${maxTeamMembers} user slots used`}
+      style="inline">
+      Usage:
+    </PsTextInput>
+  </section>
+
+  <section class="team-members">
+    <h3>Team members</h3>
+
+    <div class="team-members-table">
+      <table bind:this={teamMembersTable}>
+        <thead>
+          <tr>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each members as member, index}
+            <tr>
+              <td>
+                <PsTextInput
+                  readonly={editingTeamMemberIndex !== index}
+                  size="30"
+                  style="inline"
+                  value={member.firstName}
+                  placeholder="First name"
+                  disabled={index > maxTeamMemberIndex}
+                  on:input={({ detail: value }) => updateTeamMemberProperty('firstName', value, index)} />
+              </td>
+              <td>
+                <PsTextInput
+                  readonly={editingTeamMemberIndex !== index}
+                  size="30"
+                  style="inline"
+                  value={member.lastName}
+                  placeholder="Last name"
+                  disabled={index > maxTeamMemberIndex}
+                  on:input={({ detail: value }) => updateTeamMemberProperty('lastName', value, index)} />
+              </td>
+              <td>
+                <PsTextInput
+                  readonly={editingTeamMemberIndex !== index}
+                  size="30"
+                  style="inline"
+                  value={member.email}
+                  placeholder="Email address"
+                  disabled={index > maxTeamMemberIndex}
+                  on:input={({ detail: value }) => updateTeamMemberProperty('email', value, index)} />
+              </td>
+              <td>
+                <PsDropdown
+                  editable={editingTeamMemberIndex === index}
+                  options={ROLES}
+                  style="inline"
+                  selected={member.role}
+                  disabled={index > maxTeamMemberIndex}
+                  on:change={({ detail: value }) => updateTeamMemberProperty('role', value, index)} />
+              </td>
+              <td>
+                {#if editingTeamMemberIndex === index}
+                  {#if member.toInvite || creatingNewTeamMember}
+                    <PsButton
+                      {loading}
+                      style="secondary inline"
+                      on:click={() => saveNewTeamMember(member)}
+                      on:tween-out-complete={teamMemberUpdateComplete}>
+                      Create
+                    </PsButton>
+                  {:else}
+                    <PsButton
+                      {loading}
+                      style="secondary inline"
+                      on:click={() => saveUpdatedTeamMember(member, index)}
+                      on:tween-out-complete={teamMemberUpdateComplete}>
+                      Save
+                    </PsButton>
+                  {/if}
+                  /
+                  <PsButton
+                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    style="secondary inline"
+                    on:click={() => cancelTeamMemberEdit(index)}>
+                    Cancel
+                  </PsButton>
+                {:else}
+                  <PsButton
+                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    style="secondary inline"
+                    on:click={() => editTeamMember(member, index)}>
+                    Edit
+                  </PsButton>
+                  /
+                  <PsButton
+                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    style="secondary inline"
+                    on:click={() => removeTeamMember(member)}>
+                    Remove
+                  </PsButton>
+                {/if}
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div>
+    <PsButton
+      disabled={loading || disabled}
+      style="tertiary"
+      on:click={addTeamMember}>
+      + Add user
+    </PsButton>
+  </div>
 </PsModal>
 
 <style>
@@ -362,7 +313,7 @@
 
   .team-members-table {
     overflow: auto;
-    border: 1px solid rgba(42,41,41, 0.1);
+    border: 1px solid rgba(42, 41, 41, 0.1);
   }
 
   table {
@@ -373,13 +324,14 @@
     white-space: nowrap;
   }
 
-  td, th {
+  td,
+  th {
     padding: 0.5rem;
     min-width: 10ch;
   }
 
   th {
-    background-color: rgb(242,241,241);
+    background-color: rgb(242, 241, 241);
     position: sticky;
     top: 0;
     /*
@@ -395,7 +347,7 @@
   }
 
   tr:nth-child(2n) {
-    background-color: rgba(42,41,41, 0.025);
+    background-color: rgba(42, 41, 41, 0.025);
   }
 
   section > :global(:not(:last-child)) {

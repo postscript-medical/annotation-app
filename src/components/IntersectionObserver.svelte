@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   export let once = false;
   export let top = 0;
@@ -11,17 +11,20 @@
   let container;
 
   onMount(() => {
-    if (typeof IntersectionObserver !== 'undefined') {
+    if (typeof IntersectionObserver !== "undefined") {
       const rootMargin = `${bottom}px ${left}px ${top}px ${right}px`;
-      const observer = new IntersectionObserver(entries => {
-        intersecting = entries[0].isIntersecting;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          intersecting = entries[0].isIntersecting;
 
-        if (intersecting && once) {
-          observer.unobserve(container);
+          if (intersecting && once) {
+            observer.unobserve(container);
+          }
+        },
+        {
+          rootMargin,
         }
-      }, {
-        rootMargin
-      });
+      );
 
       observer.observe(container);
 
@@ -31,31 +34,25 @@
     function handler() {
       const bcr = container.getBoundingClientRect();
 
-      intersecting = (
-        (bcr.bottom + bottom) > 0 &&
-        (bcr.right + right) > 0 &&
-        (bcr.top - top) < window.innerHeight &&
-        (bcr.left - left) < window.innerWidth
-      );
+      intersecting =
+        bcr.bottom + bottom > 0 &&
+        bcr.right + right > 0 &&
+        bcr.top - top < window.innerHeight &&
+        bcr.left - left < window.innerWidth;
 
       if (intersecting && once) {
-        window.removeEventListener('scroll', handler);
+        window.removeEventListener("scroll", handler);
       }
     }
 
-    window.addEventListener('scroll', handler);
+    window.addEventListener("scroll", handler);
 
-    return () => window.removeEventListener('scroll', handler);
+    return () => window.removeEventListener("scroll", handler);
   });
 </script>
 
-<div
-  bind:this={ container }
-  class="aspect-ratio-box"
->
-  <slot
-    { intersecting }
-  ></slot>
+<div bind:this={container} class="aspect-ratio-box">
+  <slot {intersecting} />
 </div>
 
 <style>
@@ -72,7 +69,8 @@
     height: 0;
     padding-top: 122.22%;
   }
-  .aspect-ratio-box::after { /* to clear float */
+  .aspect-ratio-box::after {
+    /* to clear float */
     content: "";
     display: table;
     clear: both;
