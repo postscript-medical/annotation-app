@@ -1,17 +1,14 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { isLoading, session, user, viewportType } from "../stores.js";
-  import { VIEWPORT_PHONE } from "../constants/defaults.js";
+  import { isLoading, session, user } from "../stores.js";
   import { STORAGE_KEY } from "../constants/session.js";
   import loadProtectedContent from "../methods/load-protected-content.js";
   import CredentialsForm from "./CredentialsForm.svelte";
   import PsButton from "./PsButton.svelte";
-  import PsLink from "./PsLink.svelte";
 
   const dispatch = createEventDispatcher();
 
   let errorMessage;
-  $: showTerms = $viewportType === VIEWPORT_PHONE;
 
   function openForgotPasswordModal() {
     dispatch("open-forgot-password-modal");
@@ -27,14 +24,14 @@
 
     errorMessage = null;
 
-    $isLoading = true;
+    isLoading.set(true);
 
     const response = await $session
       .login(email, password, stayLogged)
       .catch((error) => {
         errorMessage = error.json.error_description;
 
-        $isLoading = false;
+        isLoading.set(false);
       });
 
     if (!response) return;
@@ -50,7 +47,7 @@
 
     await loadProtectedContent($user);
 
-    $isLoading = false;
+    isLoading.set(false);
   }
 </script>
 

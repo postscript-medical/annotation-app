@@ -1,4 +1,7 @@
 <script>
+  /*global gsap*/
+  /*eslint no-undef: "error"*/
+
   import {
     filteredIllustrations,
     illustrationSearchQuery,

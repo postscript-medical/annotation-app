@@ -1,6 +1,4 @@
 <script>
-  import PsHeader from "./PsHeader.svelte";
-
   export let userEmail;
 </script>
 

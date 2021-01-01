@@ -21,12 +21,12 @@
     },
   ];
   let teamName = "My team";
-  let owner = {
-    email: "another@address.com",
-    firstName: "OwnerName",
-    lastName: "LastName",
-    role: "owner",
-  };
+  // let owner = {
+  //   email: "another@address.com",
+  //   firstName: "OwnerName",
+  //   lastName: "LastName",
+  //   role: "owner",
+  // };
   let modalToOpen = "";
   let loading = false;
   let error_message;
@@ -87,7 +87,7 @@
       const currentMembers = members.slice(0, -1);
 
       if (
-        !!currentMembers.find(
+        currentMembers.find(
           ({ email }) => email.toLowerCase() === teamMember.email.toLowerCase()
         )
       ) {
@@ -117,7 +117,7 @@
     });
   }
 
-  function saveUpdatedTeamName(name) {
+  function saveUpdatedTeamName() {
     fakeRequest();
   }
 

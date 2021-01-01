@@ -1,10 +1,9 @@
 <script>
+  /*global gsap*/
+  /*eslint no-undef: "error"*/
+
   import { createEventDispatcher } from "svelte";
-  import {
-    toolDrawerOpen,
-    userSettingsDropdownDrawerOpen,
-    viewportType,
-  } from "../../stores.js";
+  import { toolDrawerOpen, viewportType } from "../../stores.js";
   import { VIEWPORT_PHONE, VIEWPORT_TABLET } from "../../constants/defaults.js";
   import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
   import ButtonIcon from "./ButtonIcon.svelte";

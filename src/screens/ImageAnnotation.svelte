@@ -1,4 +1,7 @@
 <script>
+  /*global emailjs*/
+  /*eslint no-undef: "error"*/
+
   import { onMount } from "svelte";
   import {
     annotatedImage,
@@ -12,7 +15,6 @@
     ERASER_SIZES,
     PEN_COLORS,
     PEN_SIZES,
-    SHAPE_ARROW,
     SHAPES,
   } from "../constants/sketch-pad.js";
   import {
@@ -120,7 +122,7 @@
   function selectIllustration({ detail: illustrationTitle }) {
     updateUserAppMetadata(illustrationTitle);
 
-    tweenOut(() => ($selectedIllustrationTitle = illustrationTitle));
+    tweenOut(() => selectedIllustrationTitle.set(illustrationTitle));
   }
 
   function selectTool({ detail: toolId }) {

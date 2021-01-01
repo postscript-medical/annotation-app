@@ -23,7 +23,7 @@ shared wrapper component -->
     ${disabled ? "disabled" : ""}
   `;
 
-  function onChange(e) {
+  function onChange() {
     dispatch("change", this.value);
   }
 </script>

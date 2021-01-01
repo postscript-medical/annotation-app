@@ -1,5 +1,4 @@
 <script>
-  import { selectedIllustrationTitle } from "../stores.js";
   import PsLogo from "./PsLogo.svelte";
   import ButtonShare from "./ButtonShare.svelte";
   import UserSettingsDropdown from "./UserSettingsDropdown.svelte";

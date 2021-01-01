@@ -1,6 +1,5 @@
 <script>
   import { View } from "svench";
-  import Modal from "./Modal.svelte";
   import PsButton from "../components/PsButton.svelte";
   import ForgotPasswordModal from "./ForgotPasswordModal.svelte";
 
@@ -20,7 +19,7 @@
     modalToOpen = "";
   }
 
-  function requestResetPassword({ detail: email }) {
+  function requestResetPassword() {
     loading = true;
 
     setTimeout(() => {

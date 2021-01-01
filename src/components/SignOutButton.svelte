@@ -16,20 +16,19 @@
   } from "../stores.js";
   import { STORAGE_KEY } from "../constants/session.js";
   import closeUserSettingsDropdown from "../methods/closeUserSettingsDropdown.js";
-  import loadProtectedContent from "../methods/load-protected-content.js";
   import PsButton from "./PsButton.svelte";
 
   export let inline = false;
 
   function logout() {
-    $isLoading = true;
+    isLoading.set(true);
 
     $user
       .logout()
-      .then((response) => {
+      .then(() => {
         clearLocalApplicationData();
 
-        $isLoading = false;
+        isLoading.set(false);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -37,14 +36,14 @@
   }
 
   function clearLocalApplicationData() {
-    $actions = [];
-    $protectedContent = null;
-    $illustrationSearchQuery = "";
-    $illustrationLoaded = false;
-    $selectedIllustrationTitle = null;
-    $selectedSpecialty = DEFAULT_SELECTED_SPECIALTY;
-    $selectedSubSpecialty = DEFAULT_SELECTED_SUB_SPECIALTY;
-    $user = null;
+    actions.set([]);
+    protectedContent.set(null);
+    illustrationSearchQuery.set("");
+    illustrationLoaded.set(false);
+    selectedIllustrationTitle.set(null);
+    selectedSpecialty.set(DEFAULT_SELECTED_SPECIALTY);
+    selectedSubSpecialty.set(DEFAULT_SELECTED_SUB_SPECIALTY);
+    user.set(null);
 
     closeUserSettingsDropdown();
 

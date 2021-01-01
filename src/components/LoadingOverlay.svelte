@@ -1,5 +1,7 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
+  /*global gsap*/
+  /*eslint no-undef: "error"*/
+
   import PsLogo from "./PsLogo.svelte";
 
   export let loading = false;

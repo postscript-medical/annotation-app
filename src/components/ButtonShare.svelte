@@ -9,7 +9,7 @@
   import PsButton from "./PsButton.svelte";
 
   function click() {
-    $annotatedImage = generateAnnotatedImage();
+    annotatedImage.set(generateAnnotatedImage());
 
     $showShareModal = !$showShareModal;
   }
