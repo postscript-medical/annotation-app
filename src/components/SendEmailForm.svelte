@@ -1,4 +1,7 @@
 <script>
+  /*global emailjs*/
+  /*eslint no-undef: "error"*/
+
   import { createEventDispatcher, onMount } from "svelte";
 
   export let encodedImage;
@@ -13,14 +16,14 @@
     dispatch("close", true);
   }
 
-  function sendEmail(event) {
+  function sendEmail() {
     emailjs
       .send("5609467", "postscript_annotated_img", {
         image: encodedImage,
         to_email: toEmail,
         to_name: toName,
       })
-      .then((response) => {
+      .then(() => {
         emailSent = true;
         // focus the close button
       })

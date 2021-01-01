@@ -1,4 +1,7 @@
 <script>
+  /*global emailjs*/
+  /*eslint no-undef: "error"*/
+
   import GoTrue from "gotrue-js";
   import {
     session,
@@ -9,7 +12,7 @@
     showManageTeamModal,
   } from "./stores.js";
   import { ROLE_OWNER } from "./constants/defaults.js";
-  import { STORAGE_KEY, SUBSCRIPTION_PLANS_PAID } from "./constants/session.js";
+  import { STORAGE_KEY } from "./constants/session.js";
   import loadProtectedContent from "./methods/load-protected-content.js";
   import checkPasswordRequirements from "./methods/check-password-requirements.js";
   import ErrorModal from "./modals/ErrorModal.svelte";
@@ -385,7 +388,7 @@
 
     await $session
       .requestPasswordRecovery(email)
-      .then((response) => {
+      .then(() => {
         console.log("Recovery email sent.");
       })
       .catch((err) => {

@@ -1,18 +1,20 @@
 <script>
+  /*global gsap*/
+  /*eslint no-undef: "error"*/
+
   import {
     showManageTeamModal,
     protectedContent,
     userSettingsDropdownDrawerOpen,
   } from "../stores.js";
   import SignOutButton from "./SignOutButton.svelte";
-  import ButtonIcon from "./sketchpad/ButtonIcon.svelte";
   import ManageSubscription from "./ManageSubscription.svelte";
   import PsButton from "./PsButton.svelte";
 
   export let user;
 
   function manageTeam() {
-    $showManageTeamModal = true;
+    showManageTeamModal.set(true);
     toggleDrawer();
   }
 

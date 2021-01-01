@@ -39,7 +39,6 @@
   const dispatch = createEventDispatcher();
 
   let actionsIndex = 0;
-  let encodedImage = "";
   let isPointerActive = false;
   let dragTypedText = { index: 0, active: false };
   let offsetTop = 0;
@@ -47,12 +46,11 @@
   let paper;
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
-  let selectedImageId;
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
   $: src = $selectedIllustration ? $selectedIllustration.src : false;
 
-  function addShape(shapeId, event) {
+  function addShape(shapeId) {
     const { x, y } = pointerLocation;
 
     let newShape = {
@@ -79,7 +77,7 @@
     return newShape;
   }
 
-  function addStroke(event) {
+  function addStroke() {
     // this causes every single click to add an entry to the array, potentially bloating it with empty entries
     // we should wait until the mouse has moved at least x pixels before adding an entry to the array
     isPointerActive = true;
@@ -94,7 +92,7 @@
     };
   }
 
-  function addTypedText(event) {
+  function addTypedText() {
     return {
       name: TOOL_TEXT,
       content: "",
@@ -147,7 +145,7 @@
     _context.strokeStyle = shape.color;
 
     switch (shape.type) {
-      case TOOL_ARROW:
+      case TOOL_ARROW: {
         const arrowHeadYLength = shape.length < 100 ? shape.length / 5 : 20;
         const arrowHeadXLength = shape.length - arrowHeadYLength;
 
@@ -161,6 +159,7 @@
         _context.lineTo(arrowHeadXLength, -arrowHeadYLength);
         _context.stroke();
         break;
+      }
 
       case TOOL_ELLIPSE:
         _context.translate(shape.x, shape.y);
@@ -202,7 +201,7 @@
   function onPointerDown(event) {
     event.preventDefault();
 
-    $toolDrawerOpen = "";
+    toolDrawerOpen.set("");
 
     closeUserSettingsDropdown();
 
@@ -231,7 +230,7 @@
     render();
   }
 
-  function onPointerUp(event) {
+  function onPointerUp() {
     resetPointerLocationId();
 
     stopDrawing();
@@ -367,7 +366,7 @@
             }),
           };
 
-        case TOOL_SHAPE:
+        case TOOL_SHAPE: {
           const scaledShape = {
             ...action,
             x: action.x * scaleFactor.width,
@@ -385,6 +384,7 @@
           }
 
           return scaledShape;
+        }
 
         case TOOL_TEXT:
           return {

@@ -1,6 +1,5 @@
 <script>
   import { View } from "svench";
-  import Modal from "./Modal.svelte";
   import PsButton from "../components/PsButton.svelte";
   import ResetPasswordModal from "./ResetPasswordModal.svelte";
   import checkPasswordRequirements from "../methods/check-password-requirements.js";

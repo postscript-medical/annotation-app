@@ -1,6 +1,5 @@
 <script>
   import { View } from "svench";
-  import Modal from "./Modal.svelte";
   import PsButton from "../components/PsButton.svelte";
   import EmailConfirmedModal from "./EmailConfirmedModal.svelte";
 

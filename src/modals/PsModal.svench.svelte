@@ -5,7 +5,6 @@
 
   const BUTTON_COPY = "Open modal";
   const DEFAULT = "Default";
-  const LONG_HEADER_TITLE = "Long header title";
 
   let modalToOpen = "";
 

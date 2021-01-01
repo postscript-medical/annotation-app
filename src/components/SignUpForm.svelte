@@ -1,14 +1,11 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { isLoading, session, viewportType } from "../stores.js";
-  import { VIEWPORT_PHONE } from "../constants/defaults.js";
+  import { isLoading, session } from "../stores.js";
   import CredentialsForm from "./CredentialsForm.svelte";
 
   const dispatch = createEventDispatcher();
 
   let errorMessage;
-
-  $: showTerms = $viewportType !== VIEWPORT_PHONE;
 
   function submit({ detail }) {
     if (!$session) {
@@ -19,17 +16,17 @@
     const { email, password } = detail;
 
     errorMessage = null;
-    $isLoading = true;
+    isLoading.set(true);
 
     $session
       .signup(email, password)
       .then((response) => {
         dispatch("user-created", { email: response.email });
-        $isLoading = false;
+        isLoading.set(false);
       })
       .catch((error) => {
         errorMessage = error.json.msg;
-        $isLoading = false;
+        isLoading.set(false);
       });
   }
 </script>

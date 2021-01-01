@@ -1,5 +1,4 @@
 <script>
-  import IconClose from "./icons/IconClose.svelte";
   export let message;
 </script>
 

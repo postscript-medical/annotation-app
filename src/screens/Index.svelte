@@ -17,8 +17,6 @@
   let userEmail;
   let showForgotPasswordModal = false;
 
-  $: showSignUpForm = !showEmailConfirmed;
-
   function confirmation_acknoleged() {
     dispatch("email-confirmed");
   }
@@ -33,16 +31,7 @@
   }
 
   async function request_reset_password({ detail: email }) {
-    if (!$session) {
-      error = {
-        json: {
-          msg:
-            "User session not authenticated. Please log out and log back in.",
-        },
-      };
-
-      return;
-    }
+    if (!$session) return;
 
     loading = true;
 

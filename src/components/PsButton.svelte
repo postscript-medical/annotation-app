@@ -1,4 +1,7 @@
 <script>
+  /*global gsap*/
+  /*eslint no-undef: "error"*/
+
   import { createEventDispatcher, onMount, onDestroy } from "svelte";
 
   export let disabled = false;

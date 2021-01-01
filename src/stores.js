@@ -1,4 +1,4 @@
-import { derived, readable, writable } from 'svelte/store';
+import { derived, readable, writable } from "svelte/store";
 import {
   DEFAULT_SELECTED_SPECIALTY,
   DEFAULT_SELECTED_SUB_SPECIALTY,
@@ -6,8 +6,8 @@ import {
   VIEWPORT_PHONE,
   VIEWPORT_TABLET,
   VIEWPORT_LAPTOP,
-  VIEWPORT_WIDESCREEN
-} from './constants/defaults.js';
+  VIEWPORT_WIDESCREEN,
+} from "./constants/defaults.js";
 
 export const session = writable();
 
@@ -19,34 +19,46 @@ export const isLoading = writable(true);
 
 export const protectedContent = writable();
 
-export const viewportType = readable(VIEWPORT_PHONE, set => {
-  const mediaQueryPhone = window.matchMedia('(max-width: 599px');
-  const mediaQueryTablet = window.matchMedia('(min-width: 600px) and (max-width: 899px)');
-  const mediaQueryLaptop = window.matchMedia('(min-width: 900px) and (max-width: 1199px)');
-  const mediaQueryWideScreen = window.matchMedia('(min-width: 1200px)');
+export const viewportType = readable(VIEWPORT_PHONE, (set) => {
+  const mediaQueryPhone = window.matchMedia("(max-width: 599px");
+  const mediaQueryTablet = window.matchMedia(
+    "(min-width: 600px) and (max-width: 899px)"
+  );
+  const mediaQueryLaptop = window.matchMedia(
+    "(min-width: 900px) and (max-width: 1199px)"
+  );
+  const mediaQueryWideScreen = window.matchMedia("(min-width: 1200px)");
   const hasEventListenerType = mediaQueryPhone.addEventListener;
 
-  function phoneQueryChange ({ matches }) {
+  function phoneQueryChange({ matches }) {
     if (matches) set(VIEWPORT_PHONE);
-  };
+  }
 
-  function tabletQueryChange ({ matches }) {
+  function tabletQueryChange({ matches }) {
     if (matches) set(VIEWPORT_TABLET);
-  };
-  
-  function laptopQueryChange ({ matches }) {
+  }
+
+  function laptopQueryChange({ matches }) {
     if (matches) set(VIEWPORT_LAPTOP);
-  };
-  
-  function widescreenQueryChange ({ matches }) {
+  }
+
+  function widescreenQueryChange({ matches }) {
     if (matches) set(VIEWPORT_WIDESCREEN);
-  };
+  }
 
   /* iOS does not seem to currently support 'addEventListener' */
-  hasEventListenerType ? mediaQueryPhone.addEventListener('change', phoneQueryChange) : mediaQueryPhone.addListener(phoneQueryChange) ;
-  hasEventListenerType ? mediaQueryTablet.addEventListener('change', tabletQueryChange) : mediaQueryTablet.addListener(tabletQueryChange) ;
-  hasEventListenerType ? mediaQueryLaptop.addEventListener('change', laptopQueryChange) : mediaQueryLaptop.addListener(laptopQueryChange) ;
-  hasEventListenerType ? mediaQueryWideScreen.addEventListener('change', widescreenQueryChange) : mediaQueryWideScreen.addListener(widescreenQueryChange) ;
+  hasEventListenerType
+    ? mediaQueryPhone.addEventListener("change", phoneQueryChange)
+    : mediaQueryPhone.addListener(phoneQueryChange);
+  hasEventListenerType
+    ? mediaQueryTablet.addEventListener("change", tabletQueryChange)
+    : mediaQueryTablet.addListener(tabletQueryChange);
+  hasEventListenerType
+    ? mediaQueryLaptop.addEventListener("change", laptopQueryChange)
+    : mediaQueryLaptop.addListener(laptopQueryChange);
+  hasEventListenerType
+    ? mediaQueryWideScreen.addEventListener("change", widescreenQueryChange)
+    : mediaQueryWideScreen.addListener(widescreenQueryChange);
 
   phoneQueryChange(mediaQueryPhone);
   tabletQueryChange(mediaQueryTablet);
@@ -54,16 +66,28 @@ export const viewportType = readable(VIEWPORT_PHONE, set => {
   widescreenQueryChange(mediaQueryWideScreen);
 
   return () => {
-    hasEventListenerType ? mediaQueryPhone.removeEventListener('change', phoneQueryChange) : mediaQueryPhone.removeListener(phoneQueryChange);
-    hasEventListenerType ? mediaQueryTablet.removeEventListener('change', tabletQueryChange) : mediaQueryTablet.removeListener(tabletQueryChange);
-    hasEventListenerType ? mediaQueryLaptop.removeEventListener('change', laptopQueryChange) : mediaQueryLaptop.removeListener(laptopQueryChange);
-    hasEventListenerType ? mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange) : mediaQueryWideScreen.removeListener(widescreenQueryChange);
-  }
+    hasEventListenerType
+      ? mediaQueryPhone.removeEventListener("change", phoneQueryChange)
+      : mediaQueryPhone.removeListener(phoneQueryChange);
+    hasEventListenerType
+      ? mediaQueryTablet.removeEventListener("change", tabletQueryChange)
+      : mediaQueryTablet.removeListener(tabletQueryChange);
+    hasEventListenerType
+      ? mediaQueryLaptop.removeEventListener("change", laptopQueryChange)
+      : mediaQueryLaptop.removeListener(laptopQueryChange);
+    hasEventListenerType
+      ? mediaQueryWideScreen.removeEventListener(
+          "change",
+          widescreenQueryChange
+        )
+      : mediaQueryWideScreen.removeListener(widescreenQueryChange);
+  };
 });
 
 export const organization = derived(
   protectedContent,
-  $protectedContent => $protectedContent && $protectedContent.team.organization
+  ($protectedContent) =>
+    $protectedContent && $protectedContent.team.organization
 );
 
 /**
@@ -76,33 +100,26 @@ export const showManageTeamModal = writable(false);
 export const showShareModal = writable(false);
 
 export const customerPortalUrl = derived(
-  [
-    user,
-    organization
-  ], 
-  ([
-    $user,
-    $organization
-  ], set) => {
+  [user, organization],
+  ([$user, $organization], set) => {
     if (!$user || !$organization) return;
 
-    fetch('/.netlify/functions/create-manage-link', {
-      method: 'POST',
+    fetch("/.netlify/functions/create-manage-link", {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${$user.token.access_token}`,
       },
       body: JSON.stringify({
-        stripeID: $organization.stripeID
-      })
+        stripeID: $organization.stripeID,
+      }),
     })
-    .then(response => response.json())
-    .then(link => {
-      set(link);
-    })
+      .then((response) => response.json())
+      .then((link) => {
+        set(link);
+      });
   },
-  '#'
+  "#"
 );
-
 
 /**
  * Canvas-related stores
@@ -113,7 +130,7 @@ export const canvas = writable();
 
 export const context = writable();
 
-export const dpr = readable(1, set => {
+export const dpr = readable(1, (set) => {
   let pixelRatio = window.devicePixelRatio || 1;
   pixelRatio = pixelRatio < 1 ? 1 : pixelRatio;
 
@@ -122,102 +139,97 @@ export const dpr = readable(1, set => {
   return () => {};
 });
 
-export const toolDrawerOpen = writable('');
+export const toolDrawerOpen = writable("");
 
-export const typedTextEntries = derived(
-  actions,
-  $actions => $actions.filter(({ name }) => name === TOOL_TEXT)
+export const typedTextEntries = derived(actions, ($actions) =>
+  $actions.filter(({ name }) => name === TOOL_TEXT)
 );
-
 
 /**
  * Illustrations-related stores
  */
 export const annotatedImage = writable();
 
-export const illustrationSearchQuery = writable('');
+export const illustrationSearchQuery = writable("");
 
 export const illustrationLoaded = writable(false);
 
 export const illustrationDisplayed = writable();
 
-export const selectedIllustrationTitle = writable('');
+export const selectedIllustrationTitle = writable("");
 
 export const selectedSpecialty = writable(DEFAULT_SELECTED_SPECIALTY);
 
 export const selectedSubSpecialty = writable(DEFAULT_SELECTED_SUB_SPECIALTY);
 
-export const specialties = derived(
-  organization,
-  $organization => {
-    return $organization ? $organization.specialties : false;
-  }
-);
+export const specialties = derived(organization, ($organization) => {
+  return $organization ? $organization.specialties : false;
+});
 
 export const subSpecialties = derived(
-  [
-    selectedSpecialty,
-    specialties
-  ],
-  ([
-    $selectedSpecialty,
-    $specialties
-  ]) => {
-    return $specialties && $specialties.find(({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()).subSpecialties
+  [selectedSpecialty, specialties],
+  ([$selectedSpecialty, $specialties]) => {
+    return (
+      $specialties &&
+      $specialties.find(
+        ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
+      ).subSpecialties
+    );
   }
 );
 
 export const illustrations = derived(
-  [
-    selectedSubSpecialty,
-    subSpecialties
-  ],
-  ([
-    $selectedSubSpecialty,
-    $subSpecialties
-  ]) => {
-    return $subSpecialties && $subSpecialties.find(({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()).illustrations
+  [selectedSubSpecialty, subSpecialties],
+  ([$selectedSubSpecialty, $subSpecialties]) => {
+    return (
+      $subSpecialties &&
+      $subSpecialties.find(
+        ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
+      ).illustrations
+    );
   }
 );
 
-const redirectPath = 'images';
+const redirectPath = "images";
 export const illustrationsPath = derived(
   selectedSpecialty,
-  $selectedSpecialty => $selectedSpecialty ? `${redirectPath}/postscript-medical/annotation-app/illustrations/` : ''
+  ($selectedSpecialty) =>
+    $selectedSpecialty
+      ? `${redirectPath}/postscript-medical/annotation-app/illustrations/`
+      : ""
 );
 
 export const filteredIllustrations = derived(
-  [
-    illustrations,
-    illustrationSearchQuery
-  ],
-  ([
-    $illustrations,
+  [illustrations, illustrationSearchQuery],
+  ([$illustrations, $illustrationSearchQuery]) =>
     $illustrationSearchQuery
-  ]) => $illustrationSearchQuery
-    ? $illustrations.filter(({ name }) => name.toLowerCase().includes($illustrationSearchQuery.toLowerCase()))
-    : $illustrations
+      ? $illustrations.filter(({ name }) =>
+          name.toLowerCase().includes($illustrationSearchQuery.toLowerCase())
+        )
+      : $illustrations
 );
 
 export const selectedIllustration = derived(
-  [
-    illustrationsPath,
-    organization,
-    selectedIllustrationTitle
-  ],
-  ([
-    $illustrationsPath,
-    $organization,
-    $selectedIllustrationTitle
-  ]) => {
-    const _illustrations = $organization && $organization.specialties.find(({ name }) => name.toLowerCase() === 'all').subSpecialties.find(({ name }) => name.toLowerCase() === 'all').illustrations;
-    const _illustration = _illustrations && _illustrations.find(({ name }) => name.toLowerCase() === $selectedIllustrationTitle.toLowerCase());
+  [illustrationsPath, organization, selectedIllustrationTitle],
+  ([$illustrationsPath, $organization, $selectedIllustrationTitle]) => {
+    const _illustrations =
+      $organization &&
+      $organization.specialties
+        .find(({ name }) => name.toLowerCase() === "all")
+        .subSpecialties.find(({ name }) => name.toLowerCase() === "all")
+        .illustrations;
+    const _illustration =
+      _illustrations &&
+      _illustrations.find(
+        ({ name }) =>
+          name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
+      );
 
     return _illustration
-    ? {
-        ..._illustration,
-        src: $illustrationsPath + _illustration.src
-      }
-    : undefined
+      ? {
+          ..._illustration,
+          src: $illustrationsPath + _illustration.src,
+        }
+      : undefined;
   }
 );

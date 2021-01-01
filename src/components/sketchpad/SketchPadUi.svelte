@@ -24,7 +24,6 @@
   import IconClose from "../icons/IconClose.svelte";
   import IconEraser from "../icons/IconEraser.svelte";
   import IconPen from "../icons/IconPen.svelte";
-  import IconTrashBin from "../icons/IconTrashBin.svelte";
   import IconText from "../icons/IconText.svelte";
   import IconSearch from "../icons/IconSearch.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
@@ -54,7 +53,7 @@
 
   function eraseAll() {
     $context.clearRect(0, 0, $canvas.width, $canvas.height);
-    $actions = [];
+    actions.set([]);
   }
 
   function handleEraserSecondaryTool(secondaryToolId, thickness, toolId) {
@@ -78,7 +77,7 @@
   }
 
   function toggleShowImageGallery() {
-    $illustrationSearchQuery = "";
+    illustrationSearchQuery.set("");
 
     showImageGallery = !showImageGallery;
   }
