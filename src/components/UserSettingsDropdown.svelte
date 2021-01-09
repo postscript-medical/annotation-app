@@ -9,7 +9,7 @@
   } from "../stores.js";
   import SignOutButton from "./SignOutButton.svelte";
   import ManageSubscription from "./ManageSubscription.svelte";
-  import PsButton from "./PsButton.svelte";
+  import PsLink from "./PsLink.svelte";
 
   export let user;
 
@@ -54,11 +54,12 @@
   </button>
   {#if $userSettingsDropdownDrawerOpen}
     <div class="dropdown shadow" transition:tween>
+      <PsLink href="#/annotate" style="on-dark">Annotate image</PsLink>
       {#if $protectedContent.role === 'owner'}
         <ManageSubscription onDark />
-        <PsButton style="inline" on:click={manageTeam}>
+        <PsLink href="#/manage-team" style="on-dark">
           Manage team members
-        </PsButton>
+        </PsLink>
       {/if}
       <SignOutButton inline />
     </div>

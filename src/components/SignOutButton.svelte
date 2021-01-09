@@ -1,4 +1,5 @@
 <script>
+  import { push } from "svelte-spa-router";
   import {
     DEFAULT_SELECTED_SPECIALTY,
     DEFAULT_SELECTED_SUB_SPECIALTY,
@@ -27,6 +28,8 @@
       .logout()
       .then(() => {
         clearLocalApplicationData();
+
+        push("/");
 
         isLoading.set(false);
       })
