@@ -36,7 +36,7 @@
   $: maxTeamMembers = ($organization && $organization.maxUsers) || 1;
   $: maxTeamMemberIndex = maxTeamMembers - 1;
 
-  function addTeamMember() {
+  function add_team_member() {
     const newTeamMember = {
       email: "",
       firstName: "",
@@ -47,10 +47,10 @@
 
     editedTeamMemberSrc = newTeamMember;
 
-    dispatch("update", {
-      action: "add-new-team-member",
-      teamMember: newTeamMember,
-    });
+    $protectedContent.team.members = [
+      ...$protectedContent.team.members,
+      newTeamMember,
+    ];
 
     editingTeamMemberIndex = totalTeamMembersAssigned;
 
@@ -335,7 +335,7 @@
       <PsButton
         disabled={loading || disabled}
         style="tertiary"
-        on:click={addTeamMember}>
+        on:click={add_team_member}>
         + Add user
       </PsButton>
     </div>
