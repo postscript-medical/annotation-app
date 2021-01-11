@@ -2,7 +2,7 @@
   import Modal from "./Modal.svelte";
 </script>
 
-<Modal cancelBtCopy="Sign in" hideConfirmButton on:close on:confirm>
+<Modal cancelBtCopy="Close" hideConfirmButton on:close>
   <span slot="header"> Thank you </span>
   <p>Your email is now confirmed. You can now log into your account.</p>
 </Modal>

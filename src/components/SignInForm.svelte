@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { push } from "svelte-spa-router";
   import { isLoading, session, user } from "../stores.js";
   import { STORAGE_KEY } from "../constants/session.js";
-  import loadProtectedContent from "../methods/load-protected-content.js";
   import CredentialsForm from "./CredentialsForm.svelte";
   import PsButton from "./PsButton.svelte";
 
@@ -45,7 +45,7 @@
 
     $user = response;
 
-    await loadProtectedContent($user);
+    push("/annotate");
 
     isLoading.set(false);
   }
@@ -55,7 +55,6 @@
   confirmButtonCopy="Login"
   {errorMessage}
   hidePasswordRequirements
-  hideTerms
   showStayLogged
   style="on-dark"
   on:submit={submit}>

@@ -174,8 +174,6 @@
   }
 
   onMount(() => {
-    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
-
     selectTool({ detail: TOOL_PEN });
   });
 </script>
