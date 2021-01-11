@@ -8,7 +8,7 @@ to allow for grid layouts to be implemented -->
   export let required = false; /* there's a bug when setting the field to required, it triggers the validation on render */
   export let readonly = false;
   export let style =
-    "horizontal"; /* options: 'inline', ['horizontal'|'vertical'] */
+    "horizontal"; /* options: ['inline', 'horizontal'|'vertical'] */
   export let size = 20;
   export let type = "text";
   export let value = "";
@@ -69,7 +69,6 @@ to allow for grid layouts to be implemented -->
     border-right: 0;
     border-top: 0;
     border-radius: 0;
-    line-height: 1;
     padding: 0;
     flex: 0;
   }
@@ -82,6 +81,7 @@ to allow for grid layouts to be implemented -->
     flex-direction: row;
     align-items: baseline;
   }
+  .inline > :not(:last-child):not(:empty),
   .horizontal > :not(:last-child):not(:empty) {
     margin-right: 0.5rem;
   }
