@@ -1,7 +1,6 @@
 <script>
   /*global gsap*/
   /*eslint no-undef: "error"*/
-
   import PsLogo from "./PsLogo.svelte";
 
   export let loading = false;
@@ -42,7 +41,7 @@
 
 {#if loading}
   <div class="wrapper" transition:tween>
-    <PsLogo showName size="large" />
+    <PsLogo showName style="large full-color" />
     <div bind:this={copy}>loading</div>
   </div>
 {/if}
