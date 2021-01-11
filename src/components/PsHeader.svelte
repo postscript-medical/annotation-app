@@ -10,9 +10,11 @@
 </script>
 
 <header class="central-align" class:centered={loggedIn}>
-  <div class="options">
-    <PsLogo showName={!loggedIn} size={loggedIn ? 'small' : 'large'} />
-  </div>
+  <h1 class="options">
+    <PsLogo
+      showName={!loggedIn}
+      style={(loggedIn ? 'small' : 'large') + ' white'} />
+  </h1>
   {#if user}
     <div class="options">
       {#if hasPaymentDetails}
