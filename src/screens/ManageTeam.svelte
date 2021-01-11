@@ -212,9 +212,9 @@
     }
   }
 
-  function toggle_edit_team_name(_teamName) {
-    if (_teamName) {
-      editedTeamNameSrc = _teamName;
+  function toggle_edit_team_name(name) {
+    if (name) {
+      editedTeamNameSrc = name;
     } else {
       update_team_name(editedTeamNameSrc);
 
@@ -321,7 +321,7 @@
         <PsButton
           disabled={loading || updatingTeamName}
           style="secondary inline"
-          on:click={toggle_edit_team_name}>
+          on:click={() => toggle_edit_team_name()}>
           Cancel
         </PsButton>
       {:else}
