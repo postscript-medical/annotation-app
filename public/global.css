@@ -51,14 +51,6 @@ input,
 button,
 select,
 textarea {
-  background-color: #f8f8f8;
-  border: 1px solid rgba(41, 41, 42, 0.2);
-  border-radius: 0.25rem;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: 2;
-  -webkit-padding: 0.4em 0;
-  padding: 0.4em 1.75em 0.4em 0.6em;
   width: 100%;
 }
 
@@ -135,6 +127,10 @@ th {
   border-color: transparent;
 }
 
+.manage-team {
+  background-color: white;
+}
+
 .link-style {
   background: none;
   padding: 0;
@@ -144,8 +140,8 @@ th {
 
 .central-align {
   max-width: 100ch;
-  left: 45%;
-  transform: translate(-45%, 0);
+  left: 50%;
+  transform: translate(-50%, 0);
   position: relative;
   width: 100%;
 }
