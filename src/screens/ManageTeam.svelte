@@ -1,6 +1,7 @@
 <script>
   /*global emailjs*/
   /*eslint no-undef: "error"*/
+  import { onMount, onDestroy } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
   import { session, user, organization, protectedContent } from "../stores.js";
   import load_protected_content from "../methods/load-protected-content.js";
@@ -280,9 +281,21 @@
     // Reload the data from the server
     load_protected_content($user);
   }
+
+  /*
+   * This is hacky as hell but there is no current better alternative as far as I know currently
+   * https://github.com/sveltejs/svelte/issues/3105
+   */
+  onMount(() => {
+    document.body.classList.add("manage-team");
+  });
+
+  onDestroy(() => {
+    document.body.classList.remove("manage-team");
+  });
 </script>
 
-<main class="main-content central-align">
+<main class="main-content">
   <h2>Edit team</h2>
   <ErrorMessage message={errorMessage} />
 
@@ -444,6 +457,9 @@
 </main>
 
 <style>
+  main > :global(:not(:last-child)) {
+    margin-bottom: 2rem;
+  }
   .team-name {
     display: flex;
     align-items: baseline;
