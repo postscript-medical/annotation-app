@@ -24,12 +24,16 @@
       scale: 0,
       transformOrigin: "100% 0%",
       ease: "circ.inOut",
-    }).from(".dropdown > *", {
-      duration: 0.05,
-      opacity: 0,
-      ease: "none",
-      stagger: 0.025,
-    });
+    }).to(
+      ".dropdown > *",
+      {
+        duration: 0.1,
+        opacity: 1,
+        ease: "none",
+        stagger: 0.025,
+      },
+      "+=0.05"
+    );
 
     const duration = tl.totalDuration();
 
@@ -85,7 +89,11 @@
     flex-direction: column;
   }
 
-  .dropdown > :global(*:not(:last-child)) {
+  .dropdown > :global(*) {
+    opacity: 0;
+  }
+
+  .dropdown > :global(:not(:last-child)) {
     margin-bottom: 1rem;
   }
 
