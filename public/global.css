@@ -215,16 +215,10 @@ select[aria-disabled="true"] {
 
 /* 600px, 900px, 1200px, and 1800px */
 @media screen and (min-width: 320px) {
-  html {
-    font-size: calc(14px + 6 * ((100vw - 320px) / 980));
-  }
 }
 
 @media screen and (min-width: 600px) {
 }
 
 @media screen and (min-width: 1200px) {
-  html {
-    font-size: 20px;
-  }
 }
