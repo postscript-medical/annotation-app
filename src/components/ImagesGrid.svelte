@@ -30,27 +30,31 @@
 {#if noImages}
   <div class="no-results">No results found...</div>
 {:else}
-  <div class="images-grid">
-    {#each images as image (image.name)}
-      <button class="card" on:click={selectIllustration(image.name)}>
-        <IntersectionObserver once let:intersecting>
-          {#if nativeLoading || intersecting}
-            <ImagesGridThumbnail
-              src={URL_PATH + image.src}
-              alt={image.name}
-              selected={$selectedIllustrationTitle === image.name} />
-          {/if}
-        </IntersectionObserver>
-        {image.name}
-      </button>
-    {/each}
+  <div class="scrollable-container">
+    <div class="images-grid">
+      {#each images as image (image.name)}
+        <button class="card" on:click={selectIllustration(image.name)}>
+          <IntersectionObserver once let:intersecting>
+            {#if nativeLoading || intersecting}
+              <ImagesGridThumbnail
+                src={URL_PATH + image.src}
+                alt={image.name}
+                selected={$selectedIllustrationTitle === image.name} />
+            {/if}
+          </IntersectionObserver>
+          {image.name}
+        </button>
+      {/each}
+    </div>
   </div>
 {/if}
 
 <style>
+  .scrollable-container {
+    overflow: auto;
+  }
   .images-grid {
     align-items: start;
-    overflow: auto;
     display: grid;
     gap: 2rem 1rem;
     grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
@@ -62,7 +66,8 @@
     background-color: transparent;
     margin: 0;
     padding: 0;
-    overflow: visible;
+    overflow: hidden;
+    text-overflow: ellipsis;
     padding: 0.5rem;
     text-align: left;
   }
@@ -72,9 +77,15 @@
   }
 
   @media screen and (min-width: 900px) {
-    .images-grid {
+    .scrollable-container {
       grid-row: 2 / span 3;
       grid-column-start: 2;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .images-grid {
+      grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
     }
   }
 </style>

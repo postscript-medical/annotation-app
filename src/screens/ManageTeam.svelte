@@ -1,6 +1,7 @@
 <script>
   /*global emailjs*/
   /*eslint no-undef: "error"*/
+  import { onMount, onDestroy } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
   import { session, user, organization, protectedContent } from "../stores.js";
   import load_protected_content from "../methods/load-protected-content.js";
@@ -211,9 +212,9 @@
     }
   }
 
-  function toggle_edit_team_name(_teamName) {
-    if (_teamName) {
-      editedTeamNameSrc = _teamName;
+  function toggle_edit_team_name(name) {
+    if (name) {
+      editedTeamNameSrc = name;
     } else {
       update_team_name(editedTeamNameSrc);
 
@@ -280,6 +281,18 @@
     // Reload the data from the server
     load_protected_content($user);
   }
+
+  /*
+   * This is hacky as hell but there is no current better alternative as far as I know currently
+   * https://github.com/sveltejs/svelte/issues/3105
+   */
+  onMount(() => {
+    document.body.classList.add("manage-team");
+  });
+
+  onDestroy(() => {
+    document.body.classList.remove("manage-team");
+  });
 </script>
 
 <main class="main-content central-align">
@@ -287,7 +300,9 @@
   <ErrorMessage message={errorMessage} />
 
   <section class="entry">
-    <h3>Team details</h3>
+    <header>
+      <h3>Team details</h3>
+    </header>
     <div class="team-name">
       <PsTextInput
         disabled={loading || updatingTeamName}
@@ -308,7 +323,7 @@
         <PsButton
           disabled={loading || updatingTeamName}
           style="secondary inline"
-          on:click={toggle_edit_team_name}>
+          on:click={() => toggle_edit_team_name()}>
           Cancel
         </PsButton>
       {:else}
@@ -329,16 +344,16 @@
   </section>
 
   <section class="team-members">
-    <h3>Team members</h3>
+    <header>
+      <h3>Team members</h3>
 
-    <div>
       <PsButton
         disabled={loading || disabled}
         style="tertiary"
         on:click={add_team_member}>
-        + Add user
+        + add
       </PsButton>
-    </div>
+    </header>
 
     <div class="team-members-table">
       <table bind:this={teamMembersTable}>
@@ -444,6 +459,9 @@
 </main>
 
 <style>
+  main > :global(:not(:last-child)) {
+    margin-bottom: 2rem;
+  }
   .team-name {
     display: flex;
     align-items: baseline;
@@ -457,6 +475,11 @@
     flex-direction: column;
     flex-shrink: 1;
     overflow: hidden;
+  }
+
+  .team-members header {
+    display: flex;
+    justify-content: space-between;
   }
 
   .team-members-table {

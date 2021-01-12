@@ -127,44 +127,37 @@
   });
 </script>
 
-<div class="ps-app">
-  <main class="main-grid main-content central-align">
-    <div>
-      <!-- Blank on purpose -->
-    </div>
+<main class="central-align main-content">
+  <SignInForm on:open-forgot-password-modal={open_forgot_password_modal} />
+</main>
 
-    <div>
-      <h2 class="on-dark">Already have an account?</h2>
-
-      <SignInForm on:open-forgot-password-modal={open_forgot_password_modal} />
-    </div>
-  </main>
-
-  {#if showEmailConfirmed}
-    <EmailConfirmedModal on:close={navigate_home} />
-  {:else if showResetPasswordModal}
-    <ResetPasswordModal
-      {errorMessage}
-      {loading}
-      on:clear-errors={clear_errors}
-      on:close={close_reset_password_modal}
-      on:reset-password={reset_user_password} />
-  {:else if showForgotPasswordModal}
-    <ForgotPasswordModal
-      {errorMessage}
-      {emailSent}
-      {loading}
-      on:close={close_forgotten_password_modal}
-      on:request-reset-password={request_reset_password} />
-  {/if}
-</div>
+{#if showEmailConfirmed}
+  <EmailConfirmedModal on:close={navigate_home} />
+{:else if showResetPasswordModal}
+  <ResetPasswordModal
+    {errorMessage}
+    {loading}
+    on:clear-errors={clear_errors}
+    on:close={close_reset_password_modal}
+    on:reset-password={reset_user_password} />
+{:else if showForgotPasswordModal}
+  <ForgotPasswordModal
+    {errorMessage}
+    {emailSent}
+    {loading}
+    on:close={close_forgotten_password_modal}
+    on:request-reset-password={request_reset_password} />
+{/if}
 
 <style>
-  div > :global(:not(:last-child)) {
-    margin-bottom: 2rem;
+  main {
+    max-width: 45ch;
+    padding-top: 1rem;
   }
 
-  .on-dark {
-    color: white;
+  @media screen and (min-width: 600px) {
+    main {
+      padding-top: 2rem;
+    }
   }
 </style>

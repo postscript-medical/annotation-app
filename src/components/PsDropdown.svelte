@@ -11,7 +11,7 @@ shared wrapper component -->
   export let optionKey = null;
   // TODO: change the below to 'value'
   export let selected = null;
-  export let style = ""; /* options: 'inline' */
+  export let style = ""; /* options: ['inline', 'horizontal'|'vertical'] */
 
   const dispatch = createEventDispatcher();
 
