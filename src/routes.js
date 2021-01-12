@@ -77,8 +77,12 @@ async function init_authentication() {
 async function is_user_logged_in() {
   if (!hasAuthenticated) await init_authentication();
 
+  isLoading.set(true);
+
   if (logged_user) {
     if (!protected_content) await load_protected_content(logged_user);
+
+    isLoading.set(false);
 
     return true;
   }
