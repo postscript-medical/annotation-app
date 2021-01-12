@@ -3,7 +3,6 @@
   /*eslint no-undef: "error"*/
 
   import {
-    showManageTeamModal,
     protectedContent,
     userSettingsDropdownDrawerOpen,
   } from "../stores.js";
@@ -12,11 +11,6 @@
   import PsLink from "./PsLink.svelte";
 
   export let user;
-
-  function manageTeam() {
-    showManageTeamModal.set(true);
-    toggleDrawer();
-  }
 
   function toggleDrawer() {
     $userSettingsDropdownDrawerOpen = !$userSettingsDropdownDrawerOpen;

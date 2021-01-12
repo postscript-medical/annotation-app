@@ -95,8 +95,6 @@ export const organization = derived(
  */
 export const userSettingsDropdownDrawerOpen = writable(false);
 
-export const showManageTeamModal = writable(false);
-
 export const showShareModal = writable(false);
 
 export const customerPortalUrl = derived(
