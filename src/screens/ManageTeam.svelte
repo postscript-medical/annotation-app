@@ -295,12 +295,14 @@
   });
 </script>
 
-<main class="main-content">
+<main class="main-content central-align">
   <h2>Edit team</h2>
   <ErrorMessage message={errorMessage} />
 
   <section class="entry">
-    <h3>Team details</h3>
+    <header>
+      <h3>Team details</h3>
+    </header>
     <div class="team-name">
       <PsTextInput
         disabled={loading || updatingTeamName}
@@ -342,16 +344,16 @@
   </section>
 
   <section class="team-members">
-    <h3>Team members</h3>
+    <header>
+      <h3>Team members</h3>
 
-    <div>
       <PsButton
         disabled={loading || disabled}
         style="tertiary"
         on:click={add_team_member}>
-        + Add user
+        + add
       </PsButton>
-    </div>
+    </header>
 
     <div class="team-members-table">
       <table bind:this={teamMembersTable}>
@@ -473,6 +475,11 @@
     flex-direction: column;
     flex-shrink: 1;
     overflow: hidden;
+  }
+
+  .team-members header {
+    display: flex;
+    justify-content: space-between;
   }
 
   .team-members-table {
