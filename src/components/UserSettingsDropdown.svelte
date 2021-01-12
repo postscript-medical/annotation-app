@@ -46,8 +46,8 @@
   }
 </script>
 
-<div class="user-settings-dropdown">
-  <button class="dropdown-button" on:click={toggleDrawer}>
+<div class="user-settings-dropdown" on:click={toggleDrawer}>
+  <button class="dropdown-button">
     <span class="user-avatar"> {user.email[0].toUpperCase()} </span>
   </button>
   {#if $userSettingsDropdownDrawerOpen}
