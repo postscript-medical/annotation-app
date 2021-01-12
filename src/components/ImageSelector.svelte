@@ -90,6 +90,7 @@
         options={$specialties}
         optionKey="name"
         selected={$selectedSpecialty}
+        style="vertical"
         on:change={selectSpecialty}>
         Specialty
       </PsDropdown>
@@ -100,6 +101,7 @@
         options={$subSpecialties}
         optionKey="name"
         selected={$selectedSubSpecialty}
+        style="vertical"
         on:change={selectSubSpecialty}>
         Sub-specialty
       </PsDropdown>
@@ -123,10 +125,10 @@
     align-content: start;
     background-color: white;
     border-color: transparent;
-    border-width: 8rem 1rem 0 1rem;
+    border-width: 9rem 1rem 0 1rem;
     border-style: solid;
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
     grid-template-columns: 1fr;
     grid-template-rows: min-content;
     justify-content: center;
@@ -145,14 +147,19 @@
     margin: 0;
   }
 
+  .left-column {
+    display: none;
+  }
+
   @media screen and (min-width: 900px) {
     .image-selector {
       border-width: 5rem 1rem 0 1rem;
-      grid-template-columns: minmax(10ch, 40ch) minmax(10rem, 65rem);
+      grid-template-columns: minmax(10ch, 30ch) minmax(10rem, 65rem);
     }
 
     .left-column {
       grid-column-start: 1;
+      display: block;
     }
     .image-search {
       grid-column-start: 2;
