@@ -46,8 +46,6 @@
     $user = response;
 
     push("/annotate");
-
-    isLoading.set(false);
   }
 </script>
 
