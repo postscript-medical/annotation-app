@@ -71,6 +71,7 @@ to allow for grid layouts to be implemented -->
     border-radius: 0;
     padding: 0;
     flex: 0;
+    line-height: 1.5;
   }
 
   .disabled {
