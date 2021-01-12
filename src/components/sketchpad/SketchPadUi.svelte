@@ -87,7 +87,6 @@
   <ButtonTool
     primaryValue={showImageGallery && TOOL_SEARCH}
     toolName={TOOL_SEARCH}
-    let:onDark
     on:change-primary={toggleShowImageGallery}>
     {#if showImageGallery}
       <IconClose />
@@ -101,7 +100,6 @@
     secondaryTools={PEN_SIZES}
     secondaryValue={pen.lineWidth}
     toolName={TOOL_PEN}
-    let:onDark
     on:change-primary={({ detail: toolId }) => selectTool(toolId)}
     on:change-secondary={({ detail }) => changeLineThickness(detail.value, TOOL_PEN)}>
     <IconPen />
@@ -122,7 +120,6 @@
     toolName={TOOL_ERASER}
     secondaryTools={ERASER_SIZES}
     secondaryValue={eraser.lineWidth}
-    let:onDark
     on:change-primary={({ detail: toolId }) => selectTool(toolId)}
     on:change-secondary={({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER)}>
     <IconEraser />
@@ -143,7 +140,6 @@
     toolName={TOOL_SHAPE}
     secondaryTools={SHAPES}
     secondaryValue={shape.type}
-    let:onDark
     on:change-primary={({ detail: toolId }) => selectTool(toolId)}
     on:change-secondary={({ detail }) => changeShape(detail.value)}>
     <IconShapes />
@@ -160,7 +156,6 @@
   <ButtonTool
     primaryValue={selectedToolId}
     toolName={TOOL_TEXT}
-    let:onDark
     on:change-primary={({ detail }) => selectTool(detail)}>
     <IconText />
   </ButtonTool>
