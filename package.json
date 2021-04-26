@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
-    "dev": "nollup",
-    "dev:rollup": "rollup -c -w",
+    "dev": "rollup -c -w",
     "svench": "SVENCH=1 nollup",
     "svench:rollup": "SVENCH=1 rollup -wc rollup.config.svench.js",
     "start": "sirv public --host"
@@ -31,6 +30,7 @@
   "dependencies": {
     "faunadb": "^3.0.1",
     "gotrue-js": "^0.9.29",
+    "netlify-cli": "^3.21.12",
     "node-fetch": "^2.6.1",
     "sirv-cli": "^1.0.11",
     "stripe": "^8.145.0",
