@@ -9,6 +9,7 @@ import load_protected_content from "./methods/load-protected-content.js";
 import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
 import ManageTeam from "./screens/ManageTeam.svelte";
+import SignUp from "./screens/SignUp.svelte";
 
 let logged_user;
 let user_session;
@@ -114,5 +115,8 @@ export default {
   "/manage-team": wrap({
     component: ManageTeam,
     conditions: [is_user_logged_in],
+  }),
+  "/sign-up": wrap({
+    component: SignUp,
   }),
 };
