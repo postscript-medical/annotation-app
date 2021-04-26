@@ -14,6 +14,12 @@ After that install the project's dependencies:
 npm install
 ```
 
+Link the cloned repository to the Netlify ID
+
+```bash
+netlify link
+```
+
 Use the following command to start the local development server using Netlify's CLI so we can have access to Netlify's functions in the localhost environment.
 
 ```bash
