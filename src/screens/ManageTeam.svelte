@@ -1,6 +1,4 @@
 <script>
-  /*global emailjs*/
-  /*eslint no-undef: "error"*/
   import { onMount, onDestroy } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
   import { session, user, organization, protectedContent } from "../stores.js";

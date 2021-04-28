@@ -1,7 +1,4 @@
 <script>
-  /*global gsap*/
-  /*eslint no-undef: "error"*/
-
   import { createEventDispatcher, onMount } from "svelte";
   import IconClose from "../components/icons/IconClose.svelte";
   import PsButton from "../components/PsButton.svelte";

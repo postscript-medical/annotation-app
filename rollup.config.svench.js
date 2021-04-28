@@ -2,8 +2,6 @@ import * as path from "path";
 import del from "rollup-plugin-delete";
 import { svenchify } from "svench/rollup";
 
-/*global process*/
-/*eslint no-undef: "error"*/
 const isWatch = !!process.env.ROLLUP_WATCH;
 
 const svenchDist = ".svench/dist";

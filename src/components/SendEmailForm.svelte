@@ -1,7 +1,4 @@
 <script>
-  /*global emailjs*/
-  /*eslint no-undef: "error"*/
-
   import { createEventDispatcher, onMount } from "svelte";
 
   export let encodedImage;

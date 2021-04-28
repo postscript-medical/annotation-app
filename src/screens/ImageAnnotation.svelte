@@ -1,7 +1,4 @@
 <script>
-  /*global emailjs*/
-  /*eslint no-undef: "error"*/
-
   import { onMount } from "svelte";
   import {
     annotatedImage,

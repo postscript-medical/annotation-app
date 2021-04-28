@@ -1,7 +1,4 @@
 <script>
-  /*global gsap*/
-  /*eslint no-undef: "error"*/
-
   import {
     protectedContent,
     userSettingsDropdownDrawerOpen,

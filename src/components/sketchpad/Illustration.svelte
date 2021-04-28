@@ -1,7 +1,4 @@
 <script context="module">
-  /*global gsap*/
-  /*eslint no-undef: "error"*/
-
   let target;
 
   export function tweenOut(callback) {
@@ -16,9 +13,6 @@
 </script>
 
 <script>
-  /*global gsap*/
-  /*eslint no-undef: "error"*/
-
   import { onMount, onDestroy } from "svelte";
   import { illustrationDisplayed } from "../../stores.js";
 

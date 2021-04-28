@@ -1,7 +1,4 @@
 <script>
-  /*global gsap*/
-  /*eslint no-undef: "error"*/
-
   import { createEventDispatcher } from "svelte";
   import { toolDrawerOpen, viewportType } from "../../stores.js";
   import { VIEWPORT_PHONE, VIEWPORT_TABLET } from "../../constants/defaults.js";

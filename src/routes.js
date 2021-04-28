@@ -1,5 +1,4 @@
 /*global emailjs*/
-/*eslint no-undef: "error"*/
 import GoTrue from "gotrue-js";
 import { wrap } from "svelte-spa-router/wrap";
 import { push } from "svelte-spa-router";

@@ -4,8 +4,6 @@ import commonjs from "@rollup/plugin-commonjs";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 
-/*global process, require*/
-/*eslint no-undef: "error"*/
 const production = !process.env.ROLLUP_WATCH;
 const isSvench = !!process.env.SVENCH;
 const isNollup = !!process.env.NOLLUP;
