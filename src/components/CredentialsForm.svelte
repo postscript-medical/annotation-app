@@ -106,7 +106,8 @@
     margin-right: 1rem;
   }
 
-  .on-dark {
+  .on-dark,
+  .on-dark .password-requirements {
     color: white;
   }
 

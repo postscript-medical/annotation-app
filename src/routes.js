@@ -10,6 +10,7 @@ import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
 import ManageTeam from "./screens/ManageTeam.svelte";
 import SignUp from "./screens/SignUp.svelte";
+import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
 let logged_user;
 let user_session;
@@ -118,5 +119,8 @@ export default {
   }),
   "/sign-up": wrap({
     component: SignUp,
+  }),
+  "/success": wrap({
+    component: SignUpSuccess,
   }),
 };

@@ -33,5 +33,6 @@
 
 <CredentialsForm
   {errorMessage}
+  style="on-dark"
   on:submit={submit}
   on:error={({ detail }) => (errorMessage = detail)} />
