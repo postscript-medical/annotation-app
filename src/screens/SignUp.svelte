@@ -1,34 +1,41 @@
 <script>
   import { onMount } from "svelte";
   import { isLoading } from "../stores.js";
+  import PsLink from "../components/PsLink.svelte";
 
-  let chosenPlan = 1;
   const plans = [
     {
       label: "Individual plan",
       id: 1,
       price: "9.95",
+      priceId: "price_1IledhApFf30oe2K3r4cavj9",
       billingCycle: "Monthly",
     },
     {
       label: "Individual plan",
       id: 2,
       price: "99.5",
+      priceId: "price_1IleecApFf30oe2KlfjYOSOT",
       billingCycle: "Yearly",
     },
     {
       label: "Team plan",
       id: 3,
       price: "995",
+      priceId: "price_1IlefsApFf30oe2KTztwzYjK",
       billingCycle: "Yearly",
     },
     {
       label: "Hospital plan",
       id: 4,
       price: "9,995",
+      priceId: "price_1IlegbApFf30oe2Ke1TniqAU",
       billingCycle: "Yearly",
     },
   ];
+  let selection = 1;
+
+  $: selectedPlan = plans.find(({ id }) => id === selection);
 
   function handleResult(result) {
     console.log("result", result);
@@ -42,7 +49,7 @@
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        priceId: chosenPlan,
+        priceId: selectedPlan.priceId,
       }),
     })
       .then(function (result) {
@@ -76,7 +83,7 @@
         <input
           id={plan.id}
           type="radio"
-          bind:group={chosenPlan}
+          bind:group={selection}
           value={plan.id} />
         <label for={plan.id}>
           {plan.label}
@@ -88,7 +95,22 @@
     {/each}
   </div>
 
-  <button id="checkout" on:click={inititate_checkout}>Subscribe</button>
+  <p>
+    By subscribing, you agree to our
+    <PsLink
+      style="on-dark"
+      href="https://www.postscriptmedical.com/terms-of-use">
+      terms of use
+    </PsLink>
+    and
+    <PsLink
+      style="on-dark"
+      href="https://www.postscriptmedical.com/privacy-policy">
+      privacy policy
+    </PsLink>.
+  </p>
+
+  <button id="checkout" on:click={inititate_checkout}>Enter payment information</button>
 </main>
 
 <style>

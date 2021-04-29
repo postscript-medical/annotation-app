@@ -1,24 +1,21 @@
-const {
-  PLAN_0,
-  SUBSCRIPTIONS
-} = require('./constants');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { faunaFetch } = require('./utils/fauna');
+const { PLAN_0, SUBSCRIPTIONS } = require("./constants");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async ({ body, headers }) => {
   try {
     // make sure this event was sent legitimately.
     const stripeEvent = stripe.webhooks.constructEvent(
       body,
-      headers['stripe-signature'],
-      process.env.STRIPE_WEBHOOK_SECRET,
+      headers["stripe-signature"],
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    
     // bail if this is not a subscription update event
-    if (stripeEvent.type !== 'customer.subscription.updated') return;
-    
+    if (stripeEvent.type !== "customer.subscription.updated") return;
+
     const subscription = stripeEvent.data.object;
+    console.log("handle subscription change", subscription);
     const result = await faunaFetch({
       query: `
           query ($id: ID!) {
@@ -33,14 +30,14 @@ exports.handler = async ({ body, headers }) => {
     });
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
-    const new_subscription = SUBSCRIPTIONS.find(({ product }) => product === productID);
+    const new_subscription = SUBSCRIPTIONS.find(
+      ({ product }) => product === productID
+    );
 
-
-    const TEMP_SPECIALTIES = ['281450725888754183', '281450746883342853'];
-    let updated_organization;
+    const TEMP_SPECIALTIES = ["281450725888754183", "281450746883342853"];
 
     if (new_subscription.level === PLAN_0) {
-      updated_organization = await faunaFetch({
+      await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
             updateOrganization (id: $id, data: {
@@ -64,12 +61,12 @@ exports.handler = async ({ body, headers }) => {
           maxUsers: new_subscription.maxUsers,
           specialties: TEMP_SPECIALTIES,
           subscriptionLevel: new_subscription.level,
-        }
-      }).catch(err => {
-        console.log('handle fetch error', err.message)
+        },
+      }).catch((err) => {
+        console.log("handle fetch error", err.message);
       });
     } else {
-      updated_organization = await faunaFetch({
+      await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
             updateOrganization (id: $id, data: {
@@ -93,9 +90,9 @@ exports.handler = async ({ body, headers }) => {
           maxUsers: new_subscription.maxUsers,
           specialties: TEMP_SPECIALTIES,
           subscriptionLevel: new_subscription.level,
-        }
-      }).catch(err => {
-        console.log('handle fetch error', err.message)
+        },
+      }).catch((err) => {
+        console.log("handle fetch error", err.message);
       });
     }
 

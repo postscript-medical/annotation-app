@@ -10,7 +10,7 @@ exports.handler = async (event) => {
     payment_method_types: ["card"],
     line_items: [
       {
-        price: "price_1HbnUGApFf30oe2Kdm2ahhmg",
+        price: priceId,
         quantity: 1,
       },
     ],
@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     // the actual Session ID is returned in the query parameter when your customer
     // is redirected to the success page.
     success_url: `${process.env.URL}/#/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.URL}/#/cancel`,
+    cancel_url: `${process.env.URL}/#/sign-up`,
   });
 
   return {
