@@ -1,6 +1,14 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-exports.handler = async ({ body, headers }) => {
+exports.handler = async ({ body, headers, httpMethod }) => {
+  if (httpMethod !== "POST") {
+    return {
+      statusCode: 200,
+      headers,
+      body: `This was not a POST request`,
+    };
+  }
+
   console.log("request body", body);
   try {
     // make sure this event was sent legitimately.
