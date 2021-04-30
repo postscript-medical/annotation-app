@@ -1,4 +1,4 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async ({ body, headers, httpMethod }) => {
   if (httpMethod !== "POST") {
@@ -11,12 +11,13 @@ exports.handler = async ({ body, headers, httpMethod }) => {
 
   console.log("request body", body);
   try {
+    const stripeEvent = { type: "checkout.session.completed" };
     // make sure this event was sent legitimately.
-    const stripeEvent = stripe.webhooks.constructEvent(
-      body,
-      headers["stripe-signature"],
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    // const stripeEvent = stripe.webhooks.constructEvent(
+    //   body,
+    //   headers["stripe-signature"],
+    //   process.env.STRIPE_WEBHOOK_SECRET
+    // );
 
     console.log("handle subscription creation event:", stripeEvent.type);
 
