@@ -3,6 +3,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async ({ body, headers }) => {
+  console.log("request body", body);
   try {
     // make sure this event was sent legitimately.
     const stripeEvent = stripe.webhooks.constructEvent(
