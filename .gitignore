@@ -7,3 +7,4 @@
 .netlify
 
 .eslintcache
+.env

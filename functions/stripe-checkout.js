@@ -1,11 +1,10 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
-  const body = JSON.parse(event.body);
-  const { priceId } = body;
+  const { priceId, email } = JSON.parse(event.body);
 
-  console.log("stripe-checkout:::", body, priceId);
   const session = await stripe.checkout.sessions.create({
+    customer_email: email,
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [

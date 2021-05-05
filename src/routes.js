@@ -118,6 +118,12 @@ export default {
   }),
   "/sign-up": wrap({
     component: SignUp,
+    conditions: [
+      async () => {
+        if (!hasAuthenticated) await init_authentication();
+        return true;
+      },
+    ],
   }),
   "/success": wrap({
     component: SignUpSuccess,

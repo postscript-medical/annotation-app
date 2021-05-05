@@ -1,4 +1,5 @@
-// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+// const { faunaFetch } = require('./utils/fauna');
 
 exports.handler = async ({ body, headers, httpMethod }) => {
   if (httpMethod !== "POST") {
@@ -9,28 +10,33 @@ exports.handler = async ({ body, headers, httpMethod }) => {
     };
   }
 
-  console.log("request body", body);
   try {
-    const stripeEvent = { type: "checkout.session.completed" };
     // make sure this event was sent legitimately.
-    // const stripeEvent = stripe.webhooks.constructEvent(
-    //   body,
-    //   headers["stripe-signature"],
-    //   process.env.STRIPE_WEBHOOK_SECRET
-    // );
+    const stripeEvent = stripe.webhooks.constructEvent(
+      body,
+      headers["stripe-signature"],
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
-    console.log("handle subscription creation event:", stripeEvent.type);
+    console.log("handle subscription creation event::", stripeEvent.type);
 
-    // bail if this is not a subscription update event
-    if (stripeEvent.type !== "checkout.session.completed") return;
+    // bail if this is not the event we are after
+    if (stripeEvent.type !== "checkout.session.completed")
+      return {
+        statusCode: 200,
+        headers,
+        body: "Not the desired event",
+      };
 
-    console.log("handle subscription creation data:", stripeEvent.data);
+    // Check the payment was successful and update faunaDB accordingly
 
     return {
       statusCode: 200,
       body: `{ received: true }`,
     };
   } catch (error) {
+    console.log(`Stripe webhook failed with ${error}`);
+
     return {
       statusCode: 400,
       body: `Webhook Error: ${error.message}`,

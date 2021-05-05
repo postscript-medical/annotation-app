@@ -3,7 +3,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async ({ body, headers }) => {
-  console.log("request body", body);
   try {
     // make sure this event was sent legitimately.
     const stripeEvent = stripe.webhooks.constructEvent(
@@ -12,11 +11,22 @@ exports.handler = async ({ body, headers }) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    // bail if this is not a subscription update event
-    if (stripeEvent.type !== "customer.subscription.updated") return;
-
     const subscription = stripeEvent.data.object;
-    console.log("handle subscription change", subscription);
+
+    console.log("stripeEvent >>>>", stripeEvent);
+
+    // bail if this is not a the desired update event
+    if (
+      stripeEvent.type !== "customer.subscription.updated" ||
+      !subscription ||
+      !subscription.customer
+    )
+      return {
+        statusCode: 200,
+        headers,
+        body: "Not the desired event",
+      };
+
     const result = await faunaFetch({
       query: `
           query ($id: ID!) {
@@ -29,6 +39,13 @@ exports.handler = async ({ body, headers }) => {
         id: subscription.customer,
       },
     });
+
+    // TO FIX:
+    // Frequently during the test phase, we receive null
+    // as part of the result Response, which causes everything
+    // that follows to createEventDispatcher.
+    console.log("result >>>>>>", result);
+
     const organizationID = result.data.findOrganizationBystripeID._id;
     const productID = subscription.items.data[0].plan.product;
     const new_subscription = SUBSCRIPTIONS.find(
@@ -102,6 +119,8 @@ exports.handler = async ({ body, headers }) => {
       body: `{ received: true }`,
     };
   } catch (error) {
+    console.log(`Stripe webhook failed with ${error}`);
+
     return {
       statusCode: 400,
       body: `Webhook Error: ${error.message}`,
