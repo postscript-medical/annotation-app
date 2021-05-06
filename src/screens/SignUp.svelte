@@ -88,6 +88,8 @@
       Once your accounts is confirmed, you will be able to log in and choose
       your subscription level.
     </p>
+
+    <PsLink href="/">Go to sign in page</PsLink>
   {:else}
     <!-- <form action=""> -->
     <ErrorMessage message={errorMessage} />
