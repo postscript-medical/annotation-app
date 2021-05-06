@@ -1,8 +1,9 @@
-
-const { faunaFetch } = require('./utils/fauna');
+const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async (_, context) => {
   const { user } = context.clientContext;
+
+  console.log("get-protected-content>>>>>>>>", user);
 
   try {
     const result = await faunaFetch({
@@ -53,8 +54,8 @@ exports.handler = async (_, context) => {
         }
       `,
       variables: {
-        netlifyID: user.sub
-      }
+        netlifyID: user.sub,
+      },
     });
 
     return {
@@ -64,9 +65,10 @@ exports.handler = async (_, context) => {
       }),
     };
   } catch (error) {
+    console.log("error", error);
     return {
       statusCode: 400,
-      body: `Webhook Error: ${error.message}`
-    }
-  };
+      body: `Webhook Error: ${error.message}`,
+    };
+  }
 };

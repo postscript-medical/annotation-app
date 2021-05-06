@@ -81,6 +81,7 @@ async function is_user_logged_in() {
   isLoading.set(true);
 
   if (logged_user) {
+    console.log("logged_user", logged_user);
     if (!protected_content) await load_protected_content(logged_user);
 
     isLoading.set(false);

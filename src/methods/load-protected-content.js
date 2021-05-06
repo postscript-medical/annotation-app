@@ -43,6 +43,8 @@ export default async function (user) {
     },
   });
 
+  console.log("response", response);
+
   if (!response || !response.ok) {
     // TODO: clear session storage whenever we hit this error
     throw new Error(
@@ -61,6 +63,10 @@ export default async function (user) {
     // TODO: show error that no user could be found
     return;
   }
+
+  /**
+   *
+   */
 
   const mappedData = {
     ...data,

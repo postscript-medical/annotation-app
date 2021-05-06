@@ -40,9 +40,6 @@
   let password = "";
   let password_confirmation = "";
   let errorMessage;
-  let selection = 1;
-
-  $: selectedPlan = plans.find(({ id }) => id === selection);
 
   function create_account() {
     if (!$session) {
@@ -71,39 +68,6 @@
       });
   }
 
-  function handleResult(result) {
-    console.log("result", result);
-  }
-
-  function inititate_checkout() {
-    console.log("initiate checkout");
-
-    fetch("/.netlify/functions/stripe-checkout", {
-      method: "Post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        priceId: selectedPlan.priceId,
-        email,
-        password,
-      }),
-    })
-      .then(function (result) {
-        return result.json();
-      })
-      .then(function (data) {
-        console.log("before init Stripe::", data);
-        const stripe = Stripe(data.publishableKey);
-
-        stripe
-          .redirectToCheckout({
-            sessionId: data.sessionId,
-          })
-          .then(handleResult);
-      });
-  }
-
   onMount(() => {
     $isLoading = false;
   });
@@ -115,36 +79,17 @@
   </header>
 
   {#if created}
-    <!-- <form action=""> -->
     <p>
-      Your account has been created. You will receive an email with a
-      confirmation link at the address you used to sign up.
+      Your account has been created. Please check your email for the
+      confirmation link.
     </p>
 
-    <p>Please enter your payment information to activate your account.</p>
-
-    <button on:click={inititate_checkout}>Enter payment information</button>
-    <!-- </form> -->
+    <p>
+      Once your accounts is confirmed, you will be able to log in and choose
+      your subscription level.
+    </p>
   {:else}
     <!-- <form action=""> -->
-    <div class="plans">
-      {#each plans as plan}
-        <div class="plan">
-          <input
-            id={plan.id}
-            type="radio"
-            bind:group={selection}
-            value={plan.id} />
-          <label for={plan.id}>
-            {plan.label}
-            - £{plan.price}
-            -
-            {plan.billingCycle}
-          </label>
-        </div>
-      {/each}
-    </div>
-
     <ErrorMessage message={errorMessage} />
 
     <PsTextInput
@@ -204,19 +149,6 @@
     margin-bottom: 2rem;
   }
 
-  .plans > :global(:not(:last-child)) {
-    margin-bottom: 1rem;
-  }
-  .plan {
-    display: flex;
-  }
-
-  input[type="radio"] {
-    position: static;
-    visibility: visible;
-    left: 0;
-    top: 0;
-  }
   @media screen and (min-width: 600px) {
     main {
       padding-top: 2rem;
