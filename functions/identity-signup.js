@@ -1,11 +1,11 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { faunaFetch } = require('./utils/fauna');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { faunaFetch } = require("./utils/fauna");
 
 // TODO: Remove unused environment keys from Netlify
 
-exports.handler = async event => {
+exports.handler = async (event) => {
   const { user } = JSON.parse(event.body);
-  const role = 'owner';
+  const roles = ["owner", "inactive"];
 
   // create a new customer in Stripe
   const customer = await stripe.customers.create({ email: user.email });
@@ -49,7 +49,7 @@ exports.handler = async event => {
       email: user.email,
       netlifyID: user.id,
       stripeID: customer.id,
-      role
+      role: roles,
     },
   });
 
@@ -57,7 +57,7 @@ exports.handler = async event => {
     statusCode: 200,
     body: JSON.stringify({
       app_metadata: {
-        roles: [role],
+        roles,
       },
     }),
   };

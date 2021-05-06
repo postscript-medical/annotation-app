@@ -43,8 +43,6 @@ export default async function (user) {
     },
   });
 
-  console.log("response", response);
-
   if (!response || !response.ok) {
     // TODO: clear session storage whenever we hit this error
     throw new Error(

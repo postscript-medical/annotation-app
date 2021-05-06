@@ -3,8 +3,6 @@ const { faunaFetch } = require("./utils/fauna");
 exports.handler = async (_, context) => {
   const { user } = context.clientContext;
 
-  console.log("get-protected-content>>>>>>>>", user);
-
   try {
     const result = await faunaFetch({
       query: `

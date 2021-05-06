@@ -7,9 +7,12 @@ import { STORAGE_KEY } from "./constants/session.js";
 import load_protected_content from "./methods/load-protected-content.js";
 import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
+import InactiveAccount from "./screens/InactiveAccount.svelte";
 import ManageTeam from "./screens/ManageTeam.svelte";
 import SignUp from "./screens/SignUp.svelte";
-import SignUpSuccess from "./screens/SignUpSuccess.svelte";
+
+const ROUTE_INACTIVE_ACCOUNT = "/inactive-account";
+const ROUTE_ANNOTATE = "/annotate";
 
 let logged_user;
 let user_session;
@@ -75,13 +78,18 @@ async function init_authentication() {
   hasAuthenticated = true;
 }
 
-async function is_user_logged_in() {
+async function is_user_logged_in(detail) {
   if (!hasAuthenticated) await init_authentication();
 
   isLoading.set(true);
 
   if (logged_user) {
-    console.log("logged_user", logged_user);
+    if (
+      logged_user.app_metadata.roles.includes("inactive") &&
+      detail.route === ROUTE_ANNOTATE
+    )
+      return redirectTo(ROUTE_INACTIVE_ACCOUNT);
+
     if (!protected_content) await load_protected_content(logged_user);
 
     isLoading.set(false);
@@ -89,7 +97,13 @@ async function is_user_logged_in() {
     return true;
   }
 
-  push("/");
+  return redirectTo("/");
+}
+
+function redirectTo(path) {
+  push(path);
+
+  isLoading.set(false);
 
   return false;
 }
@@ -109,8 +123,12 @@ export default {
       },
     ],
   }),
-  "/annotate": wrap({
+  [ROUTE_ANNOTATE]: wrap({
     component: ImageAnnotation,
+    conditions: [is_user_logged_in],
+  }),
+  [ROUTE_INACTIVE_ACCOUNT]: wrap({
+    component: InactiveAccount,
     conditions: [is_user_logged_in],
   }),
   "/manage-team": wrap({
@@ -125,8 +143,5 @@ export default {
         return true;
       },
     ],
-  }),
-  "/success": wrap({
-    component: SignUpSuccess,
   }),
 };
