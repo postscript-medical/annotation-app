@@ -21,7 +21,7 @@
 
   function submitForm() {
     if (!hidePasswordRequirements) {
-      const isPasswordGood = checkPasswordRequirements(password.value);
+      const isPasswordGood = checkPasswordRequirements(password);
 
       if (!isPasswordGood) {
         dispatch("error", { message: "Password does not meet criteria" });
@@ -31,8 +31,8 @@
     }
 
     dispatch("submit", {
-      email: email.value,
-      password: password.value,
+      email: email,
+      password: password,
       stayLogged,
     });
   }
