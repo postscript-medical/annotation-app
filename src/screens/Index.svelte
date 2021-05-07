@@ -151,7 +151,7 @@
 
 <style>
   main {
-    max-width: 45ch;
+    max-width: 30rem;
     padding-top: 1rem;
   }
 
