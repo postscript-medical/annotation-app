@@ -4,6 +4,7 @@
   import CredentialsTerms from "./CredentialsTerms.svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
   import PsButton from "./PsButton.svelte";
+  import PsTextInput from "./PsTextInput.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -45,21 +46,21 @@
   </header>
   <ErrorMessage message={errorMessage} />
   <form on:submit|preventDefault={submitForm}>
-    <label>
-      <span> Email </span>
-      <input bind:this={email} type="email" required />
-    </label>
-    <label>
-      <span> Password </span>
-      <input bind:this={password} type="password" required />
-      {#if !hidePasswordRequirements}
-        <span class="password-requirements">
-          8 characters or more.
-          <br />
-          Including at least one number and one special character.
-        </span>
-      {/if}
-    </label>
+    <PsTextInput
+      required
+      style="vertical"
+      value={email}
+      on:input={({ detail: value }) => (email = value)}>
+      Email
+    </PsTextInput>
+
+    <PsTextInput
+      style="vertical"
+      value={password}
+      type="password"
+      on:input={({ detail: value }) => (password = value)}>
+      Password
+    </PsTextInput>
     {#if showStayLogged}
       <label class="stay-logged">
         <input type="checkbox" />
@@ -87,15 +88,6 @@
     flex-direction: column;
   }
 
-  label > :global(span) {
-    line-height: 1rem;
-    font-size: 0.875rem;
-  }
-
-  label > :global(*:not(:last-child)) {
-    margin-bottom: 0.5rem;
-  }
-
   .form-footer {
     display: flex;
     align-items: center;
@@ -106,14 +98,8 @@
     margin-right: 1rem;
   }
 
-  .on-dark,
-  .on-dark .password-requirements {
+  .on-dark {
     color: white;
-  }
-
-  .password-requirements {
-    color: #a1a1a1;
-    font-size: 0.75rem;
   }
 
   .stay-logged {

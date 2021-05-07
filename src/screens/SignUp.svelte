@@ -1,64 +1,49 @@
 <script>
   import { onMount } from "svelte";
   import { isLoading, session } from "../stores.js";
+  import checkPasswordRequirements from "../methods/check-password-requirements.js";
   import ErrorMessage from "../components/ErrorMessage.svelte";
+  import PsButton from "../components/PsButton.svelte";
   import PsLink from "../components/PsLink.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
 
-  const plans = [
-    {
-      label: "Individual plan",
-      id: 1,
-      price: "9.95",
-      priceId: "price_1IledhApFf30oe2K3r4cavj9",
-      billingCycle: "Monthly",
-    },
-    {
-      label: "Individual plan",
-      id: 2,
-      price: "99.5",
-      priceId: "price_1IleecApFf30oe2KlfjYOSOT",
-      billingCycle: "Yearly",
-    },
-    {
-      label: "Team plan",
-      id: 3,
-      price: "995",
-      priceId: "price_1IlefsApFf30oe2KTztwzYjK",
-      billingCycle: "Yearly",
-    },
-    {
-      label: "Hospital plan",
-      id: 4,
-      price: "9,995",
-      priceId: "price_1IlegbApFf30oe2Ke1TniqAU",
-      billingCycle: "Yearly",
-    },
-  ];
   let created = false;
-  let email = "";
-  let password = "";
-  let password_confirmation = "";
+  let email;
   let errorMessage;
+  let password;
+  let password_confirmation;
 
   function create_account() {
-    if (!$session) {
-      console.error("No $session object!");
+    errorMessage = null;
+
+    const isPasswordGood = checkPasswordRequirements(password);
+
+    if (!isPasswordGood) {
+      errorMessage = "Password does not meet criteria";
+
       return;
     }
 
-    errorMessage = null;
+    if (!$session) {
+      console.error("No $session object!");
+      errorMessage =
+        "Something went wrong. Try reloading the page. Or if the problem persists, get in touch.";
+
+      return;
+    }
+
     isLoading.set(true);
 
     if (password !== password_confirmation) {
       errorMessage = "Password do not match. Try again.";
       isLoading.set(false);
+
       return;
     }
 
     $session
       .signup(email, password)
-      .then((response) => {
+      .then(() => {
         isLoading.set(false);
         created = true;
       })
@@ -89,54 +74,67 @@
       your subscription level.
     </p>
 
-    <PsLink href="/">Go to sign in page</PsLink>
+    <PsLink href="/" style="on-dark">Go to sign in page</PsLink>
   {:else}
-    <!-- <form action=""> -->
     <ErrorMessage message={errorMessage} />
 
-    <PsTextInput
-      placeholder="name@address.domain"
-      style="vertical"
-      value={email}
-      on:input={({ detail: value }) => (email = value)}>
-      Email address
-    </PsTextInput>
+    <form on:submit|preventDefault={create_account}>
+      <PsTextInput
+        required
+        style="vertical"
+        value={email}
+        on:input={({ detail: value }) => (email = value)}>
+        Email address
+      </PsTextInput>
 
-    <PsTextInput
-      placeholder="Letters, numbers and special characters"
-      style="vertical"
-      value={password}
-      type="password"
-      on:input={({ detail: value }) => (password = value)}>
-      Password
-    </PsTextInput>
+      <div class="stacker--small">
+        <PsTextInput
+          required
+          style="vertical"
+          value={password}
+          type="password"
+          on:input={({ detail: value }) => (password = value)}>
+          Password
+        </PsTextInput>
 
-    <PsTextInput
-      placeholder="Letters, numbers and special characters"
-      style="vertical"
-      value={password_confirmation}
-      type="password"
-      on:input={({ detail: value }) => (password_confirmation = value)}>
-      Confirm password
-    </PsTextInput>
+        <p class="note">
+          8 characters or more.
+          <br />
+          Including at least one number and one special character.
+        </p>
+      </div>
+
+      <PsTextInput
+        required
+        style="vertical"
+        value={password_confirmation}
+        type="password"
+        on:input={({ detail: value }) => (password_confirmation = value)}>
+        Confirm password
+      </PsTextInput>
+
+      <p>
+        By subscribing, you agree to our
+        <PsLink
+          style="on-dark"
+          href="https://www.postscriptmedical.com/terms-of-use">
+          terms of use
+        </PsLink>
+        and
+        <PsLink
+          style="on-dark"
+          href="https://www.postscriptmedical.com/privacy-policy">
+          privacy policy
+        </PsLink>.
+      </p>
+
+      <PsButton type="submit" style="on-dark">Create account</PsButton>
+    </form>
 
     <p>
-      By subscribing, you agree to our
-      <PsLink
-        style="on-dark"
-        href="https://www.postscriptmedical.com/terms-of-use">
-        terms of use
-      </PsLink>
-      and
-      <PsLink
-        style="on-dark"
-        href="https://www.postscriptmedical.com/privacy-policy">
-        privacy policy
-      </PsLink>.
+      Already have an account?
+      <PsLink href="/" style="on-dark">Sign in</PsLink>.
     </p>
-
-    <button on:click={create_account}>Create account</button>
-    <!-- </form> -->
   {/if}
 </main>
 

@@ -91,8 +91,6 @@ async function is_user_logged_in(detail) {
       return redirectTo(ROUTE_INACTIVE_ACCOUNT);
     }
 
-    console.log("logged", logged_user);
-
     if (!protected_content) {
       await load_protected_content(logged_user);
     }

@@ -72,7 +72,7 @@ input[type="radio"] {
 }
 
 input[type="radio"] {
-  visibility: hidden;
+  opacity: 0;
   position: absolute;
   left: -10000px;
   top: -10000px;
@@ -219,6 +219,14 @@ select[aria-disabled="true"] {
   transform: translate(-50%, 0);
   position: relative;
   width: 100%;
+}
+
+.note {
+  font-size: 0.8em;
+}
+
+.stacker--small > :not(:last-child) {
+  margin-bottom: 0.5rem;
 }
 
 /* Media queries */

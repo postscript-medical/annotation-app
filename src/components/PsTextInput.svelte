@@ -70,7 +70,7 @@ to allow for grid layouts to be implemented -->
     border-top: 0;
     border-radius: 0;
     padding: 0;
-    flex: 0;
+    flex: 0 auto;
     line-height: 1.5;
   }
 
