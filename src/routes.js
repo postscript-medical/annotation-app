@@ -55,7 +55,7 @@ async function init_authentication() {
   isLoading.set(true);
 
   const response = await new GoTrue.default({
-    APIUrl: "https://boring-wozniak-bbc476.netlify.app/.netlify/identity",
+    APIUrl: "https://app-postscript-medical.netlify.app/.netlify/identity",
     setCookie: true,
   });
 
