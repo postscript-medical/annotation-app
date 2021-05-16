@@ -77,7 +77,6 @@ exports.handler = async ({ body, headers, httpMethod }) => {
         mutation ($id: ID! $stripeID: ID! $email: String! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
           updateOrganization (id: $id, data: {
             stripeID: $stripeID
-            email: $email
             maxUsers: $maxUsers
             specialties: { connect: $specialties }
             subscriptionLevel: $subscriptionLevel
@@ -96,7 +95,6 @@ exports.handler = async ({ body, headers, httpMethod }) => {
       variables: {
         id: `${organizationID}`,
         stripeID: eventData.customer,
-        email: eventData.customer_email,
         maxUsers: new_subscription.maxUsers,
         specialties: TEMP_SPECIALTIES,
         subscriptionLevel: new_subscription.level,

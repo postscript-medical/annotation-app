@@ -4,7 +4,7 @@ type Organization {
   name: String
   specialties: [Specialty] @relation
   stripeID: ID @unique
-  email: String! @unique
+  email: String @unique
   subscriptionLevel: String
   teams: [Team] @relation
 }
