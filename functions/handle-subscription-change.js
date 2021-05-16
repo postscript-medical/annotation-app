@@ -20,12 +20,13 @@ exports.handler = async ({ body, headers }) => {
       stripeEvent.type !== "customer.subscription.updated" ||
       !subscription ||
       !subscription.customer
-    )
+    ) {
       return {
         statusCode: 200,
         headers,
         body: "Not the desired event",
       };
+    }
 
     const result = await faunaFetch({
       query: `

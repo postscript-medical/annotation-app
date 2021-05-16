@@ -25,6 +25,7 @@ exports.handler = async (event) => {
           maxUsers: 1
           name: "My organization"
           stripeID: $stripeID
+          email: $email
           subscriptionLevel: "inactive"
           teams: {
             create: [{
