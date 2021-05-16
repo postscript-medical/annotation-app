@@ -61,7 +61,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
 
     console.log("organization:", organization);
 
-    const organizationID = organization.data.findOrganizationBystripeID._id;
+    const organizationID = organization.data.findOrganizationByEmail._id;
     const productID = subscription.plan.product;
     const new_subscription = SUBSCRIPTIONS.find(
       ({ product }) => product === productID
