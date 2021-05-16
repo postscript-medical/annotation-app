@@ -16,7 +16,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
     const stripeEvent = stripe.webhooks.constructEvent(
       body,
       headers["stripe-signature"],
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SUBSCRIPTION_CREATION
     );
 
     console.log("handle subscription creation event::", stripeEvent.type);
