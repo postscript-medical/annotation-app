@@ -22,14 +22,13 @@ exports.handler = async ({ body, headers, httpMethod }) => {
     console.log("handle subscription creation event::", stripeEvent.type);
     console.log("StripeEvent:", stripeEvent);
 
-    const subscription = stripeEvent.data.object;
+    const eventData = stripeEvent.data.object;
 
-    console.log("Subrscription details:", subscription.items.data);
     // bail if this is not the event we are after
     if (
       stripeEvent.type !== "checkout.session.completed" ||
-      !subscription ||
-      !subscription.customer
+      !eventData ||
+      !eventData.customer
     ) {
       return {
         statusCode: 200,
@@ -37,6 +36,12 @@ exports.handler = async ({ body, headers, httpMethod }) => {
         body: "Not the desired event",
       };
     }
+
+    const subscription = await stripe.subscriptions.retrieve(
+      eventData.subscription
+    );
+
+    console.log("Subrscription details:", subscription);
 
     // Check the payment was successful and update faunaDB accordingly
 
