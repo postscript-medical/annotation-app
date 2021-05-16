@@ -7,8 +7,8 @@
 
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
-  // const returningFromCheckout = searchParams.get('from-checkout')
 
+  let email;
   let userConfirmed = false;
 
   async function confirm_user_sign_up(token) {
@@ -20,6 +20,9 @@
       });
 
       if (!response) return;
+
+      console.log("response", response);
+      email = response.email;
     }
 
     userConfirmed = true;
@@ -33,6 +36,8 @@
       },
       body: JSON.stringify({
         priceId,
+        email,
+        fromConfirmationPage: true,
       }),
     }).then(function (result) {
       return result.json();

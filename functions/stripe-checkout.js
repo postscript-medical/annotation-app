@@ -1,9 +1,10 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
-  const { priceId, email } = JSON.parse(event.body);
+  const { priceId, email, fromConfirmationPage } = JSON.parse(event.body);
 
   const sessionParams = {
+    customer_email: email,
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [
@@ -16,12 +17,11 @@ exports.handler = async (event) => {
     // the actual Session ID is returned in the query parameter when your customer
     // is redirected to the success page.
     success_url: `${process.env.URL}/#/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.URL}/#/confirm-signup?show-plans=true`,
+    cancel_url: `${process.env.URL}/#/inactive-account`,
   };
 
-  if (email) {
-    (sessionParams.customer_email = email),
-      (sessionParams.cancel_url = `${process.env.URL}/#/inactive-account`);
+  if (fromConfirmationPage) {
+    sessionParams.cancel_url = `${process.env.URL}/#/confirm-signup?show-plans=true`;
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams);
