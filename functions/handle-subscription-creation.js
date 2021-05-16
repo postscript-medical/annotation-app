@@ -69,12 +69,15 @@ exports.handler = async ({ body, headers, httpMethod }) => {
 
     const TEMP_SPECIALTIES = ["281450725888754183", "281450746883342853"];
 
+    console.log("new subscription:", new_subscription);
+
     // add stripeId to faunaDB from
     await faunaFetch({
       query: `
-        mutation ($id: ID! $stripeID: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+        mutation ($id: ID! $stripeID: ID! $email: String $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
           updateOrganization (id: $id, data: {
             stripeID: $stripeID
+            email: $email
             maxUsers: $maxUsers
             specialties: { connect: $specialties }
             subscriptionLevel: $subscriptionLevel
@@ -93,6 +96,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
       variables: {
         id: `${organizationID}`,
         stripeID: eventData.customer,
+        email: eventData.customer_email,
         maxUsers: new_subscription.maxUsers,
         specialties: TEMP_SPECIALTIES,
         subscriptionLevel: new_subscription.level,
