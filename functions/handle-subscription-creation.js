@@ -1,5 +1,6 @@
+const { SUBSCRIPTIONS } = require("./constants");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// const { faunaFetch } = require('./utils/fauna');
+const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async ({ body, headers, httpMethod }) => {
   console.log("handle-subscription-creation");
@@ -45,21 +46,60 @@ exports.handler = async ({ body, headers, httpMethod }) => {
 
     // Check the payment was successful and update faunaDB accordingly
 
-    // findOrganisationByEmail
-    // const organization = await faunaFetch({
-    //   query: `
-    //     query ($email: String!) {
-    //       findOrganizationByEmail (email: $email) {
-    //         _id
-    //       }
-    //     }
-    //   `,
-    //   variables: {
-    //     email: subscription.customer_email
-    //   }
-    // })
+    const organization = await faunaFetch({
+      query: `
+        query ($email: String!) {
+          findOrganizationByEmail (email: $email) {
+            _id
+          }
+        }
+      `,
+      variables: {
+        email: eventData.customer_email,
+      },
+    });
+
+    console.log("organization:", organization);
+
+    const organizationID = organization.data.findOrganizationBystripeID._id;
+    const productID = subscription.plan.product;
+    const new_subscription = SUBSCRIPTIONS.find(
+      ({ product }) => product === productID
+    );
+
+    const TEMP_SPECIALTIES = ["281450725888754183", "281450746883342853"];
 
     // add stripeId to faunaDB from
+    await faunaFetch({
+      query: `
+        mutation ($id: ID! $stripeID: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+          updateOrganization (id: $id, data: {
+            stripeID: $stripeID
+            maxUsers: $maxUsers
+            specialties: { connect: $specialties }
+            subscriptionLevel: $subscriptionLevel
+          }) {
+            name
+            maxUsers
+            subscriptionLevel
+            specialties {
+              data {
+                name
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        id: `${organizationID}`,
+        stripeID: eventData.customer,
+        maxUsers: new_subscription.maxUsers,
+        specialties: TEMP_SPECIALTIES,
+        subscriptionLevel: new_subscription.level,
+      },
+    }).catch((err) => {
+      console.log("handle fetch error", err.message);
+    });
 
     return {
       statusCode: 200,
