@@ -5,7 +5,7 @@ const { faunaFetch } = require("./utils/fauna");
 
 exports.handler = async (event) => {
   const { user } = JSON.parse(event.body);
-  const roles = ["owner", "inactive"];
+  const roles = ["owner"];
 
   // create a new customer in Stripe
   const customer = await stripe.customers.create({ email: user.email });
@@ -15,6 +15,10 @@ exports.handler = async (event) => {
     customer: customer.id,
     items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
   });
+
+  console.log(">>>>> identity signup:", user);
+  console.log("customer:", customer);
+  console.log("stripe", stripe);
 
   // Create a brand new organization in Fauna
   await faunaFetch({

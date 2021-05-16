@@ -71,11 +71,9 @@
     </p>
 
     <p>
-      Once your accounts is confirmed, you will be able to log in and choose
-      your subscription level.
+      Once your accounts is confirmed, you will be able to choose your
+      subscription level.
     </p>
-
-    <PsLink href="/" style="on-dark">Go to sign in page</PsLink>
   {:else}
     <ErrorMessage message={errorMessage} />
 
