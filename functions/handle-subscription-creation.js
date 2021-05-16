@@ -2,6 +2,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // const { faunaFetch } = require('./utils/fauna');
 
 exports.handler = async ({ body, headers, httpMethod }) => {
+  console.log("handle-subscription-creation");
   if (httpMethod !== "POST") {
     return {
       statusCode: 200,

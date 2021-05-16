@@ -5,6 +5,7 @@ import { push } from "svelte-spa-router";
 import { user, isLoading, session, protectedContent } from "./stores";
 import { STORAGE_KEY } from "./constants/session.js";
 import load_protected_content from "./methods/load-protected-content.js";
+import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
 import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
 import InactiveAccount from "./screens/InactiveAccount.svelte";
@@ -130,6 +131,15 @@ export default {
     component: ImageAnnotation,
     conditions: [is_user_logged_in],
   }),
+  "/confirm-signup": wrap({
+    component: ConfirmSignUp,
+    conditions: [
+      async () => {
+        if (!hasAuthenticated) await init_authentication();
+        return true;
+      },
+    ],
+  }),
   [ROUTE_INACTIVE_ACCOUNT]: wrap({
     component: InactiveAccount,
     conditions: [is_user_logged_in],
@@ -142,9 +152,11 @@ export default {
     component: SignUp,
     conditions: [
       async () => {
+        // If there are not search params, redirect to home
         if (!hasAuthenticated) await init_authentication();
         return true;
       },
     ],
   }),
+  // "*": 404
 };
