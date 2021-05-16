@@ -74,7 +74,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
     // add stripeId to faunaDB from
     await faunaFetch({
       query: `
-        mutation ($id: ID! $stripeID: ID! $email: String $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
+        mutation ($id: ID! $stripeID: ID! $email: String! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
           updateOrganization (id: $id, data: {
             stripeID: $stripeID
             email: $email
