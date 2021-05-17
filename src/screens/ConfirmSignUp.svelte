@@ -5,6 +5,8 @@
   import PsButton from "../components/PsButton.svelte";
   import subscriptionPlans from "../constants/subscription-plans";
 
+  // TODO: We need to make sure all third party scripts are loaded before runing our code. There seems to be a condition where confirmation fails if that does not happen.
+
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
 

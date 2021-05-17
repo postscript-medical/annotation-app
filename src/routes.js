@@ -11,6 +11,7 @@ import ImageAnnotation from "./screens/ImageAnnotation.svelte";
 import InactiveAccount from "./screens/InactiveAccount.svelte";
 import ManageTeam from "./screens/ManageTeam.svelte";
 import SignUp from "./screens/SignUp.svelte";
+import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
 const ROUTE_INACTIVE_ACCOUNT = "/inactive-account";
 const ROUTE_ANNOTATE = "/annotate";
@@ -157,6 +158,9 @@ export default {
         return true;
       },
     ],
+  }),
+  "/success": wrap({
+    component: SignUpSuccess,
   }),
   // "*": 404
 };
