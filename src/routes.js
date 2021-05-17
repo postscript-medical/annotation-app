@@ -80,19 +80,12 @@ async function init_authentication() {
   hasAuthenticated = true;
 }
 
-async function is_user_logged_in(detail) {
+async function is_user_logged_in() {
   if (!hasAuthenticated) await init_authentication();
 
   isLoading.set(true);
 
   if (logged_user) {
-    if (
-      logged_user.app_metadata.roles.includes("inactive") &&
-      detail.route === ROUTE_ANNOTATE
-    ) {
-      return redirectTo(ROUTE_INACTIVE_ACCOUNT);
-    }
-
     if (!protected_content) {
       await load_protected_content(logged_user);
     }
