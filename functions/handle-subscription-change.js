@@ -55,6 +55,8 @@ exports.handler = async ({ body, headers }) => {
 
     const TEMP_SPECIALTIES = ["281450725888754183", "281450746883342853"];
 
+    console.log("new subscription:", new_subscription);
+
     if (new_subscription.level === PLAN_0) {
       await faunaFetch({
         query: `
