@@ -87,6 +87,34 @@ exports.handler = async ({ body, headers }) => {
         console.log("handle fetch error", err.message);
       });
     } else {
+      /**
+       * Hack:
+       * Currently we don't know how we can update the specialties without
+       * disconnecting them first. Without the disconnect, we get a "Instance is not unique."
+       * error in faunaDB.
+       * https://forums.fauna.com/t/help-with-instance-is-not-unique-when-updating-an-entry/2054
+       */
+      await faunaFetch({
+        query: `
+          mutation ($id: ID! $specialties: [ID]) {
+            updateOrganization (id: $id, data: {
+              specialties: { disconnect: $specialties }
+            }) {
+              name
+              specialties {
+                data {
+                  name
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          id: `${organizationID}`,
+          specialties: TEMP_SPECIALTIES,
+        },
+      });
+
       await faunaFetch({
         query: `
           mutation ($id: ID! $specialties: [ID] $maxUsers: Int $subscriptionLevel: String) {
