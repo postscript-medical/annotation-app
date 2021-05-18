@@ -16,8 +16,7 @@
   function create_account() {
     errorMessage = null;
 
-    // const isPasswordGood = checkPasswordRequirements(password);
-    const isPasswordGood = true;
+    const isPasswordGood = checkPasswordRequirements(password);
 
     if (!isPasswordGood) {
       errorMessage = "Password does not meet criteria";
