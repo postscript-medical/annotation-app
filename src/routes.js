@@ -10,6 +10,7 @@ import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
 import InactiveAccount from "./screens/InactiveAccount.svelte";
 import ManageTeam from "./screens/ManageTeam.svelte";
+import NotFound from "./screens/NotFound.svelte";
 import SignUp from "./screens/SignUp.svelte";
 import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
@@ -155,5 +156,7 @@ export default {
   "/success": wrap({
     component: SignUpSuccess,
   }),
-  // "*": 404
+  "*": wrap({
+    component: NotFound,
+  }),
 };
