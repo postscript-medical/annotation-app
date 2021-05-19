@@ -1,29 +1,28 @@
 <script>
   import { onMount } from "svelte";
-  import { location, querystring } from "svelte-spa-router";
+  import { querystring } from "svelte-spa-router";
   import { session } from "../stores";
-  import PsButton from "../components/PsButton.svelte";
   import subscriptionPlans from "../constants/subscription-plans";
+  import PsLink from "../components/PsLink.svelte";
 
   // TODO: We need to make sure all third party scripts are loaded before runing our code. There seems to be a condition where confirmation fails if that does not happen.
 
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
+  const duration = 0.15;
 
   let email;
+  let errorMessage;
   let userConfirmed = false;
 
   async function confirm_user_sign_up(token) {
     if (token) {
       const response = await $session.confirm(token).catch((err) => {
-        console.log("Error confirming:", err);
-        // Show error message
-        // dispatch("routeEvent", { errorMessage: err.json.msg });
+        errorMessage = err.json.msg;
       });
 
       if (!response) return;
 
-      console.log("response", response);
       email = response.email;
     }
 
@@ -48,11 +47,10 @@
 
   function initialise_checkout(priceId) {
     if (!priceId) {
-      console.log("no priceId");
-      // TODO: show error
+      console.error("no priceId");
       return;
     }
-    console.log("click");
+
     // Stripe is a Global object
     const stripe = Stripe(
       "pk_test_51HRFNnApFf30oe2K3dr1r6nLyYkJfisTDUzVAQ8uCh3SGIcHwY49wndXzVLpnuu5B0WX4QFW9lmFaQYUhcsKW09900IiYkkBpQ"
@@ -68,31 +66,153 @@
     });
   }
 
+  function tween_in(element) {
+    const tl = gsap.from(element, {
+      autoAlpha: 0,
+      delay: duration * 0.75,
+      duration,
+      ease: "none",
+    });
+
+    return {
+      /* GSAP's duration is in seconds. Svelte's is in miliseconds */
+      duration: tl.totalDuration() * 1000,
+      tick: (t) => {
+        tl.progress(t);
+      },
+    };
+  }
+
+  function tween_out(element) {
+    const tl = gsap.timeline();
+
+    tl.set(element, {
+      position: "absolute",
+    }).to(element, {
+      autoAlpha: 0,
+      duration,
+      ease: "none",
+    });
+
+    return {
+      /* GSAP's duration is in seconds. Svelte's is in miliseconds */
+      duration: tl.totalDuration() * 1000,
+      tick: (_, u) => {
+        tl.progress(u);
+      },
+    };
+  }
+
   onMount(() => {
     confirm_user_sign_up(token);
   });
 </script>
 
-<main class="central-align main-content">
-  {#if userConfirmed}
-    <h1>Choose your subscription level</h1>
+{#if userConfirmed}
+  <main class="central-align main-content" in:tween_in out:tween_out>
+    <h1>Sign up as</h1>
 
-    <ul>
+    <ul role="list">
       {#each subscriptionPlans as plan}
         <li>
-          <PsButton on:click={() => initialise_checkout(plan.priceId)}>
-            <p>{plan.name}</p>
-            <p>Amount: {plan.price}</p>
-            <p>Billing: {plan.frequency}</p>
-          </PsButton>
+          <p class="plan-name">{plan.name}</p>
+          <p class="price">£{plan.price}</p>
+          <p class="billing-frequency">Per {plan.frequency}</p>
+          <button on:click={() => initialise_checkout(plan.priceId)}>
+            Choose
+          </button>
         </li>
       {/each}
     </ul>
-  {:else}
-    <h1>User confirmation in progress...</h1>
 
-    <p>The current page is: {$location}</p>
-    <p>The querystring is: {$querystring}</p>
-    <p>The token is: {token}</p>
-  {/if}
-</main>
+    <p>
+      On choosing one of the plans above you will be redirect to Stripe, where
+      you be asked to provide your card details.
+    </p>
+  </main>
+{:else if errorMessage}
+  <main class="central-align main-content" in:tween_in out:tween_out>
+    <h1>Something went wrong</h1>
+
+    <p>
+      <strong>{errorMessage}</strong>. Please
+
+      <PsLink href="mailto:accounts@postscriptmedical.com" style="on-dark">
+        get in touch
+      </PsLink>.
+    </p>
+  </main>
+{:else}
+  <main class="central-align main-content" in:tween_in out:tween_out>
+    <h1>Please wait</h1>
+
+    <p>We are confiming your details.</p>
+  </main>
+{/if}
+
+<style>
+  main {
+    padding-top: 1rem;
+    color: #fff;
+    text-align: center;
+    position: absolute;
+  }
+
+  main > :not(:last-child) {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 3.15rem;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  li {
+    background-color: #fff;
+    color: #000;
+    border-radius: 0.25em;
+    box-shadow: 0 0.125rem 0.25rem #205928;
+    padding: 0.75rem 1.33rem;
+    width: 200px;
+  }
+
+  li > :not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
+
+  button {
+    background-color: #379a46;
+    border: none;
+    border-radius: 2em;
+    box-shadow: 0 0.125rem 0.25rem #a1a1a1;
+    color: #fff;
+  }
+
+  p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .plan-name {
+    font-size: 1.33rem;
+    font-weight: 700;
+  }
+
+  .price {
+    font-size: 2.36rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .billing-frequency {
+    text-transform: uppercase;
+    color: #a1a1a1;
+    font-size: 0.9em;
+  }
+</style>

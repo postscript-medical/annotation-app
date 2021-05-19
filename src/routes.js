@@ -14,9 +14,6 @@ import NotFound from "./screens/NotFound.svelte";
 import SignUp from "./screens/SignUp.svelte";
 import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
-const ROUTE_INACTIVE_ACCOUNT = "/inactive-account";
-const ROUTE_ANNOTATE = "/annotate";
-
 let logged_user;
 let user_session;
 let hasAuthenticated = false;
@@ -122,20 +119,28 @@ export default {
       },
     ],
   }),
-  [ROUTE_ANNOTATE]: wrap({
+  "/annotate": wrap({
     component: ImageAnnotation,
     conditions: [is_user_logged_in],
   }),
   "/confirm-signup": wrap({
     component: ConfirmSignUp,
     conditions: [
-      async () => {
+      async ({ querystring }) => {
         if (!hasAuthenticated) await init_authentication();
-        return true;
+
+        const searchParams = new URLSearchParams(querystring);
+        const token = searchParams.get("token");
+
+        if (token) {
+          return true;
+        }
+
+        redirectTo("/");
       },
     ],
   }),
-  [ROUTE_INACTIVE_ACCOUNT]: wrap({
+  "/inactive-account": wrap({
     component: InactiveAccount,
     conditions: [is_user_logged_in],
   }),

@@ -3,8 +3,8 @@
 
   export let disabled = false;
   export let loading = false;
-  export let style =
-    "primary"; /* options: '[primary|secondary|tertiary], inline, on-dark' */
+  /* options: '[primary|secondary|tertiary], inline, on-dark' */
+  export let style = "primary";
   export let type = "button";
 
   const PATH_LENGTH = 125.7;
