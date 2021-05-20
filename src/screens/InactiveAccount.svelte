@@ -1,9 +1,15 @@
+<script>
+  import ManageSubscription from "../components/ManageSubscription.svelte";
+</script>
+
 <main class="central-align main-content">
   <h2>Inactive account</h2>
 
+  <p>You account is currently inactive.</p>
+
   <p>
-    You account is currently inactive. This could be because you have just
-    signed up to PostScript Medical or because you have cancelled your
+    This could be because you have just signed up to PostScript Medical and
+    haven't chosen your subscription level or because you have cancelled your
     subscription.
   </p>
 
@@ -12,10 +18,7 @@
     payment details.
   </p>
 
-  <p>
-    You can find the subscription plans on the top-right menu on your screen.
-    Just click on the avatar and choose "Manage subscription".
-  </p>
+  <ManageSubscription />
 </main>
 
 <style>
@@ -32,6 +35,12 @@
 
   main > :global(:not(:last-child)) {
     margin-bottom: 2rem;
+  }
+
+  main > :global(a) {
+    margin: 0 auto;
+    width: 30rem;
+    display: block;
   }
 
   @media screen and (min-width: 600px) {
