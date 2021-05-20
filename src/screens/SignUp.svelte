@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from "svelte";
   import { isLoading, session } from "../stores.js";
   import checkPasswordRequirements from "../methods/check-password-requirements.js";
   import ErrorMessage from "../components/ErrorMessage.svelte";
@@ -32,11 +31,11 @@
       return;
     }
 
-    isLoading.set(true);
+    $isLoading = true;
 
     if (password !== password_confirmation) {
       errorMessage = "Password do not match. Try again.";
-      isLoading.set(false);
+      $isLoading = false;
 
       return;
     }
@@ -44,18 +43,14 @@
     $session
       .signup(email, password)
       .then(() => {
-        isLoading.set(false);
+        $isLoading = false;
         created = true;
       })
       .catch((error) => {
         errorMessage = error.json.msg;
-        isLoading.set(false);
+        $isLoading = false;
       });
   }
-
-  onMount(() => {
-    $isLoading = false;
-  });
 </script>
 
 <main class="central-align main-content">
