@@ -32,6 +32,12 @@ user.subscribe((value) => {
   logged_user = value;
 });
 
+function confirm_navigation() {
+  isLoading.set(false);
+
+  return true;
+}
+
 async function get_user_from_session_storage() {
   const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
 
@@ -74,8 +80,6 @@ async function init_authentication() {
 
   emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
 
-  isLoading.set(false);
-
   hasAuthenticated = true;
 }
 
@@ -89,23 +93,18 @@ async function is_user_logged_in() {
       await load_protected_content(logged_user);
     }
 
-    isLoading.set(false);
-
-    return true;
+    return confirm_navigation();
   }
 
   return redirectTo("/");
 }
 
 function is_subscription_valid() {
-  console.log("Route guard:", protected_content.team.organization);
   if (protected_content.team.organization.subscriptionLevel === PLAN_0) {
     return redirectTo("/inactive-account");
   }
 
-  isLoading.set(false);
-
-  return true;
+  return confirm_navigation();
 }
 
 function redirectTo(path) {
@@ -123,11 +122,9 @@ export default {
       async () => {
         if (!hasAuthenticated) await init_authentication();
 
-        if (!logged_user) return true;
+        if (!logged_user) return confirm_navigation();
 
-        push("/annotate");
-
-        return false;
+        return redirectTo("/annotate");
       },
     ],
   }),
@@ -145,7 +142,7 @@ export default {
         const token = searchParams.get("token");
 
         if (token) {
-          return true;
+          return confirm_navigation();
         }
 
         redirectTo("/");
@@ -166,12 +163,24 @@ export default {
       async () => {
         // If there are not search params, redirect to home
         if (!hasAuthenticated) await init_authentication();
-        return true;
+
+        return confirm_navigation();
       },
     ],
   }),
   "/success": wrap({
     component: SignUpSuccess,
+    conditions: [
+      async () => {
+        if (!hasAuthenticated) await init_authentication();
+
+        if (logged_user) {
+          return redirectTo("/annotate");
+        }
+
+        return confirm_navigation();
+      },
+    ],
   }),
   "*": wrap({
     component: NotFound,
