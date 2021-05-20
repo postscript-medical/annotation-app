@@ -4,6 +4,7 @@ import { wrap } from "svelte-spa-router/wrap";
 import { push } from "svelte-spa-router";
 import { user, isLoading, session, protectedContent } from "./stores";
 import { STORAGE_KEY } from "./constants/session.js";
+import { PLAN_0 } from "../functions/constants.js";
 import load_protected_content from "./methods/load-protected-content.js";
 import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
 import Index from "./screens/Index.svelte";
@@ -62,7 +63,7 @@ async function init_authentication() {
   if (!response) {
     isLoading.set(false);
 
-    return;
+    return true;
   }
 
   session.set(response);
@@ -96,6 +97,17 @@ async function is_user_logged_in() {
   return redirectTo("/");
 }
 
+function is_subscription_valid() {
+  console.log("Route guard:", protected_content.team.organization);
+  if (protected_content.team.organization.subscriptionLevel === PLAN_0) {
+    return redirectTo("/inactive-account");
+  }
+
+  isLoading.set(false);
+
+  return true;
+}
+
 function redirectTo(path) {
   push(path);
 
@@ -121,7 +133,7 @@ export default {
   }),
   "/annotate": wrap({
     component: ImageAnnotation,
-    conditions: [is_user_logged_in],
+    conditions: [is_user_logged_in, is_subscription_valid],
   }),
   "/confirm-signup": wrap({
     component: ConfirmSignUp,
