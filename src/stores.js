@@ -124,7 +124,7 @@ export const customerPortalUrl = derived(
  */
 export const actions = writable([]);
 
-export const canvas = writable();
+export const canvasElement = writable();
 
 export const context = writable();
 
