@@ -173,7 +173,7 @@
 
 <style>
   .ui {
-    position: absolute;
+    position: fixed;
     pointer-events: none;
     display: flex;
     flex-wrap: wrap;
