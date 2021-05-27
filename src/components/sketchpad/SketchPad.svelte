@@ -424,16 +424,16 @@
     };
 
     // work out if box is going to be outside the paper boundaries
-    if (target.x < offsetLeft) {
-      target.x = offsetLeft;
+    if (target.x < 0) {
+      target.x = 0;
     }
 
     if (target.x + dragTypedText.width > scaledWidth) {
       target.x = scaledWidth - dragTypedText.width;
     }
 
-    if (target.y < offsetTop) {
-      target.y = offsetTop;
+    if (target.y < 0) {
+      target.y = 0;
     }
 
     if (target.y + dragTypedText.height > scaledHeight) {
