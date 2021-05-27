@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import {
     actions,
-    canvas,
+    canvasElement,
     context,
     illustrationSearchQuery,
   } from "../../stores.js";
@@ -52,7 +52,7 @@
   }
 
   function eraseAll() {
-    $context.clearRect(0, 0, $canvas.width, $canvas.height);
+    $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
     actions.set([]);
   }
 

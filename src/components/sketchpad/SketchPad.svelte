@@ -2,7 +2,7 @@
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import {
     actions,
-    canvas,
+    canvasElement,
     context,
     dpr,
     selectedIllustration,
@@ -105,7 +105,7 @@
   }
 
   function clearCanvas() {
-    $context.clearRect(0, 0, $canvas.width, $canvas.height);
+    $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
   }
 
   function drawStroke(_context, { name, lineWidth, color, points }) {
@@ -189,11 +189,11 @@
 
   function init() {
     document.body.addEventListener(eventType.up, stopDrawing, false);
-    $canvas.addEventListener(eventType.down, onPointerDown, false);
-    $canvas.addEventListener(eventType.up, onPointerUp, false);
+    $canvasElement.addEventListener(eventType.down, onPointerDown, false);
+    $canvasElement.addEventListener(eventType.up, onPointerUp, false);
     paper.addEventListener(eventType.move, onPointerMove, false);
 
-    $context = setupCanvas($canvas);
+    $context = setupCanvas($canvasElement);
 
     resizeCanvas();
   }
@@ -340,15 +340,18 @@
 
   function resizeCanvas() {
     // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
-    const oldSize = { width: $canvas.width, height: $canvas.height };
+    const oldSize = {
+      width: $canvasElement.width,
+      height: $canvasElement.height,
+    };
 
-    $context = setupCanvas($canvas);
+    $context = setupCanvas($canvasElement);
 
     updateOffset();
 
     const scaleFactor = {
-      width: $canvas.width / oldSize.width,
-      height: $canvas.height / oldSize.height,
+      width: $canvasElement.width / oldSize.width,
+      height: $canvasElement.height / oldSize.height,
     };
 
     $actions = $actions.map((action) => {
@@ -414,8 +417,8 @@
     const targetIndex = $actions.findIndex(
       ({ index }) => index === dragTypedText.index
     );
-    const scaledWidth = $canvas.width / $dpr;
-    const scaledHeight = $canvas.height / $dpr;
+    const scaledWidth = $canvasElement.width / $dpr;
+    const scaledHeight = $canvasElement.height / $dpr;
     // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
     let target = {
       ...$actions[targetIndex],
@@ -469,7 +472,7 @@
   }
 
   function updateOffset() {
-    const boundingRect = $canvas.getBoundingClientRect();
+    const boundingRect = $canvasElement.getBoundingClientRect();
     offsetTop = boundingRect.top;
     offsetLeft = boundingRect.left;
   }
@@ -480,8 +483,8 @@
 
   onDestroy(() => {
     document.body.removeEventListener(eventType.up, stopDrawing, false);
-    $canvas.removeEventListener(eventType.down, onPointerDown, false);
-    $canvas.removeEventListener(eventType.up, onPointerUp, false);
+    $canvasElement.removeEventListener(eventType.down, onPointerDown, false);
+    $canvasElement.removeEventListener(eventType.up, onPointerUp, false);
     paper.removeEventListener(eventType.move, onPointerMove, false);
   });
 </script>
@@ -493,7 +496,9 @@
     <Illustration {src} />
   {/if}
 
-  <canvas bind:this={$canvas} style={isPointerActive ? 'cursor: none;' : ''} />
+  <canvas
+    bind:this={$canvasElement}
+    style={isPointerActive ? 'cursor: none;' : ''} />
 
   <div class="typed-text">
     {#each $typedTextEntries as entry (entry.index)}

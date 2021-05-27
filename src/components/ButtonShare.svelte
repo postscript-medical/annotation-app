@@ -1,7 +1,7 @@
 <script>
   import {
     annotatedImage,
-    canvas,
+    canvasElement,
     dpr,
     illustrationDisplayed,
     showShareModal,
@@ -38,11 +38,11 @@
   function generateAnnotatedImage() {
     const annotatedImage = document.createElement("canvas");
     const context = annotatedImage.getContext("2d");
-    const boundingRect = $canvas.getBoundingClientRect();
+    const boundingRect = $canvasElement.getBoundingClientRect();
     const illustrationBoudingRect = $illustrationDisplayed.getBoundingClientRect();
 
-    annotatedImage.width = $canvas.width;
-    annotatedImage.height = $canvas.height;
+    annotatedImage.width = $canvasElement.width;
+    annotatedImage.height = $canvasElement.height;
 
     context.fillStyle = "white";
     context.fillRect(
@@ -58,7 +58,7 @@
       illustrationBoudingRect.width * $dpr,
       illustrationBoudingRect.height * $dpr
     );
-    context.drawImage($canvas, 0, 0);
+    context.drawImage($canvasElement, 0, 0);
 
     drawTypedText(context, boundingRect);
 
