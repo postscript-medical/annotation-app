@@ -7,8 +7,7 @@
   export let images = [];
   let nativeLoading = false;
 
-  const URL_PATH =
-    "images/c_thumb,h_220,w_180/postscript-medical/annotation-app/illustrations/";
+  const URL_PATH = "images/c_thumb,h_220,w_180/annotation-app/illustrations/";
   const dispatch = createEventDispatcher();
 
   $: noImages = images.length === 0;

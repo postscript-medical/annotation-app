@@ -13,7 +13,7 @@ body {
   background-position: bottom right;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url("/images/postscript-medical/annotation-app/bg_logo.svg");
+  background-image: url("/images/annotation-app/bg_logo.svg");
 }
 
 h2 {

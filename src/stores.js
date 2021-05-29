@@ -192,9 +192,7 @@ const redirectPath = "images";
 export const illustrationsPath = derived(
   selectedSpecialty,
   ($selectedSpecialty) =>
-    $selectedSpecialty
-      ? `${redirectPath}/postscript-medical/annotation-app/illustrations/`
-      : ""
+    $selectedSpecialty ? `${redirectPath}/annotation-app/illustrations/` : ""
 );
 
 export const filteredIllustrations = derived(
