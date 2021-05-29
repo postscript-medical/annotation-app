@@ -62,7 +62,7 @@ async function init_authentication() {
   isLoading.set(true);
 
   const response = await new GoTrue.default({
-    APIUrl: "https://app-postscript-medical.netlify.app/.netlify/identity",
+    APIUrl: "https://app.postscriptmedical.com/.netlify/identity",
     setCookie: true,
   });
 
