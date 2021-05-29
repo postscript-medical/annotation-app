@@ -32,7 +32,7 @@
       tl.to(modal, {
         duration: 0.15,
         scale: 0.9,
-        opacity: 0,
+        autoAlpha: 0,
         ease: "circ.in",
       });
     } else {
@@ -40,13 +40,13 @@
         duration: 0.5,
         ease: "circ.in",
         y: 50,
-        opacity: 0,
+        autoAlpha: 0,
       });
     }
 
     tl.to(wrapper, {
       duration: 0.15,
-      opacity: 0,
+      autoAlpha: 0,
       ease: "none",
     });
   }
@@ -57,13 +57,13 @@
       .from(wrapper, {
         duration: 0.075,
         ease: "none",
-        opacity: 0,
+        autoAlpha: 0,
       })
       .from(modal, {
         duration: 0.5,
         ease: "circ.out",
         y: 50,
-        opacity: 0,
+        autoAlpha: 0,
       });
   });
 </script>
