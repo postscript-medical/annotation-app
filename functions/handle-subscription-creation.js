@@ -67,7 +67,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
       ({ product }) => product === productID
     );
 
-    const TEMP_SPECIALTIES = ["281450725888754183", "281450746883342853"];
+    const TEMP_SPECIALTIES = ["299935734045868551"];
 
     console.log("new subscription:", new_subscription);
 
