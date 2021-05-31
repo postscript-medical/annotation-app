@@ -216,22 +216,20 @@ export const selectedIllustration = derived(
         .subSpecialties.find(({ name }) => name.toLowerCase() === "all")
         .illustrations;
 
-    if (!$selectedIllustrationTitle) {
-      const _illustration = _illustrations.find(
-        ({ default_illustration }) => default_illustration
-      );
+    let _illustration;
 
-      return {
-        ..._illustration,
-        src: $illustrationsPath + _illustration.src,
-      };
+    if ($selectedIllustrationTitle) {
+      _illustration =
+        _illustrations &&
+        _illustrations.find(
+          ({ name }) =>
+            name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
+        );
+    } else {
+      _illustration =
+        _illustrations &&
+        _illustrations.find(({ default_illustration }) => default_illustration);
     }
-    const _illustration =
-      _illustrations &&
-      _illustrations.find(
-        ({ name }) =>
-          name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
-      );
 
     return _illustration
       ? {
