@@ -208,12 +208,24 @@ export const filteredIllustrations = derived(
 export const selectedIllustration = derived(
   [illustrationsPath, organization, selectedIllustrationTitle],
   ([$illustrationsPath, $organization, $selectedIllustrationTitle]) => {
+    // We need to ask the user for a specialty if none is chosen rather than have this hardcoded value
     const _illustrations =
       $organization &&
       $organization.specialties
-        .find(({ name }) => name.toLowerCase() === "all")
+        .find(({ name }) => name.toLowerCase() === "gastroenterology")
         .subSpecialties.find(({ name }) => name.toLowerCase() === "all")
         .illustrations;
+
+    if (!$selectedIllustrationTitle) {
+      const _illustration = _illustrations.find(
+        ({ default_illustration }) => default_illustration
+      );
+
+      return {
+        ..._illustration,
+        src: $illustrationsPath + _illustration.src,
+      };
+    }
     const _illustration =
       _illustrations &&
       _illustrations.find(
