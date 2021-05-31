@@ -92,6 +92,7 @@ exports.handler = async ({ body, headers }) => {
        * Currently we don't know how we can update the specialties without
        * disconnecting them first. Without the disconnect, we get a "Instance is not unique."
        * error in faunaDB.
+       * We need to learn how to do what is suggested in the thread below:
        * https://forums.fauna.com/t/help-with-instance-is-not-unique-when-updating-an-entry/2054
        */
       await faunaFetch({
