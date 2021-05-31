@@ -32,7 +32,7 @@ type Specialty {
 }
 
 type SubSpecialty {
-  name: String!
+  name: String
   specialties: [Specialty!]! @relation(name: "sub_specialty")
   illustrations: [Illustration] @relation
 }
