@@ -39,6 +39,7 @@ type SubSpecialty {
 
 type Illustration {
   name: String
+  alias: [String]
   src: String
   default_illustration: Boolean
   subSpecialties: [SubSpecialty] @relation
