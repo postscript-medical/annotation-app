@@ -173,7 +173,7 @@
   }
 
   async function send_email(email, firstName) {
-    await emailjs.send("5609467", "ps_team_member_welcome", {
+    await emailjs.send("5609467", "team_member_welcome", {
       from_email: $user.email,
       from_name: $user.user_metadata.full_name || "Admininstrator",
       org_name: $organization.name,

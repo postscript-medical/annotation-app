@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let encodedImage;
 
@@ -15,7 +15,7 @@
 
   function sendEmail() {
     emailjs
-      .send("5609467", "postscript_annotated_img", {
+      .send("5609467", "annotated_img", {
         image: encodedImage,
         to_email: toEmail,
         to_name: toName,
@@ -30,10 +30,6 @@
         // show error message
       });
   }
-
-  onMount(() => {
-    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
-  });
 </script>
 
 <div class="overlay">

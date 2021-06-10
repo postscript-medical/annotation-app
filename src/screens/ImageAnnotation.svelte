@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import {
     annotatedImage,
+    showFeedbackModal,
     showShareModal,
     selectedIllustrationTitle,
     selectedSpecialty,
@@ -23,6 +24,7 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../constants/defaults.js";
+  import FeedbackModal from "../modals/FeedbackModal.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
   import SketchPadUi from "../components/sketchpad/SketchPadUi.svelte";
   import ShareModal from "../modals/ShareModal.svelte";
@@ -103,6 +105,10 @@
     errorMessage = "";
   }
 
+  function closeFeedbackModal() {
+    $showFeedbackModal = false;
+  }
+
   function closeShareModal() {
     $showShareModal = false;
   }
@@ -131,7 +137,7 @@
 
     const encodedImage = $annotatedImage.toDataURL();
     const response = await emailjs
-      .send("5609467", "postscript_annotated_img", {
+      .send("5609467", "annotated_img", {
         image: encodedImage,
         to_email: email,
       })
@@ -203,6 +209,10 @@
     on:close={closeShareModal}
     on:send-email={sendImageViaEmail}
     on:download-image={downloadImage} />
+{/if}
+
+{#if $showFeedbackModal}
+  <FeedbackModal on:close={closeFeedbackModal} />
 {/if}
 
 <style>
