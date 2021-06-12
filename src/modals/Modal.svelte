@@ -93,11 +93,7 @@
           </PsButton>
         {/if}
         {#if !hideConfirmButton}
-          <PsButton
-            {loading}
-            on:tween-out-complete
-            on:click={confirm}
-            type="submit">
+          <PsButton {loading} on:tween-out-complete type="submit">
             {confirmBtCopy}
           </PsButton>
         {/if}
