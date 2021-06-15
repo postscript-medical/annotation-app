@@ -131,7 +131,7 @@
 
     const encodedImage = $annotatedImage.toDataURL();
     const response = await emailjs
-      .send("5609467", "postscript_annotated_img", {
+      .send("5609467", "annotated_img", {
         image: encodedImage,
         to_email: email,
       })
