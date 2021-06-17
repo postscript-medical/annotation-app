@@ -19,7 +19,6 @@
   $: toggleLoadingAnimation(loading);
 
   function loop() {
-    console.log("PsButton looping:", loading);
     if (loading) {
       gsap
         .timeline({
