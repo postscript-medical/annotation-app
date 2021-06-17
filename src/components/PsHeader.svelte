@@ -1,6 +1,7 @@
 <script>
   import PsLogo from "./PsLogo.svelte";
   import ButtonShare from "./ButtonShare.svelte";
+  import ButtonFeedback from "./ButtonFeedback.svelte";
   import UserSettingsDropdown from "./UserSettingsDropdown.svelte";
 
   export let user;
@@ -17,6 +18,7 @@
   </h1>
   {#if user}
     <div class="options">
+      <ButtonFeedback />
       {#if hasPaymentDetails}
         <ButtonShare />
       {/if}
@@ -32,7 +34,7 @@
     z-index: 3;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: flex-start;
     height: auto;
     max-height: none;
     padding: 1rem 1rem 0 1rem;
@@ -49,9 +51,8 @@
   .options {
     display: flex;
     align-items: flex-end;
-  }
-
-  .options > :global(*:not(:last-child)) {
-    margin-right: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
   }
 </style>

@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let encodedImage;
 
@@ -30,10 +30,6 @@
         // show error message
       });
   }
-
-  onMount(() => {
-    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
-  });
 </script>
 
 <div class="overlay">

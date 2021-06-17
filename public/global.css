@@ -229,6 +229,28 @@ select[aria-disabled="true"] {
   margin-bottom: 0.5rem;
 }
 
+noscript {
+  color: #fff;
+}
+
+noscript main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+noscript main > :not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+noscript h1 {
+  font-size: 3.15rem;
+}
+
+noscript p {
+  width: 100%;
+}
+
 /* Media queries */
 /* 600px, 900px, 1200px, and 1800px */
 @media screen and (min-width: 320px) {
