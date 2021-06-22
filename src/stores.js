@@ -1,3 +1,4 @@
+import "whatwg-fetch";
 import { derived, readable, writable } from "svelte/store";
 import {
   DEFAULT_SELECTED_SPECIALTY,

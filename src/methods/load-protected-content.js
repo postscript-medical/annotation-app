@@ -1,3 +1,4 @@
+import "whatwg-fetch";
 import {
   protectedContent,
   selectedSpecialty,
@@ -11,22 +12,23 @@ import {
 
 function find_default_illustration(source) {
   const ALL = "all";
+  const DEFAULT_ILLUSTRATION_NAME = "Gastrointestinal tract";
 
   const all_specialties = source.find(({ name }) => name.toLowerCase() === ALL);
 
-  if (!all_specialties) return "";
+  if (!all_specialties) return DEFAULT_ILLUSTRATION_NAME;
 
   const all_sub_specialties = all_specialties.subSpecialties.find(
     ({ name }) => name.toLowerCase() === ALL
   );
 
-  if (!all_sub_specialties) return "";
+  if (!all_sub_specialties) return DEFAULT_ILLUSTRATION_NAME;
 
   const illustration = all_sub_specialties.illustrations.find(
     ({ default_illustration }) => default_illustration
   );
 
-  if (!illustration) return "";
+  if (!illustration) return DEFAULT_ILLUSTRATION_NAME;
 
   return illustration.name;
 }

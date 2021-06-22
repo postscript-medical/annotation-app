@@ -114,12 +114,18 @@
   }
 
   function downloadImage() {
-    const encodedImage = $annotatedImage.toDataURL("image/jpg", 0.7);
-    const hiddenLink = document.createElement("a");
+    const fileName = "myImage.jpg";
+    // IE11
+    if (window.navigator.msSaveBlob) {
+      window.navigator.msSaveBlob($annotatedImage.msToBlob(), fileName);
+    } else {
+      const encodedImage = $annotatedImage.toDataURL("image/jpg", 0.7);
+      const hiddenLink = document.createElement("a");
 
-    hiddenLink.setAttribute("href", encodedImage);
-    hiddenLink.setAttribute("download", "myImage.jpg");
-    hiddenLink.click();
+      hiddenLink.setAttribute("href", encodedImage);
+      hiddenLink.setAttribute("download", fileName);
+      hiddenLink.click();
+    }
   }
 
   function selectIllustration({ detail: illustrationTitle }) {

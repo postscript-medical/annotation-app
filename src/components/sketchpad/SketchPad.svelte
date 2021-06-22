@@ -164,15 +164,30 @@
       case TOOL_ELLIPSE:
         _context.translate(shape.x, shape.y);
         _context.beginPath();
-        _context.ellipse(
-          shape.dx,
-          shape.dy,
-          Math.abs(shape.dx),
-          Math.abs(shape.dy),
-          0,
-          0,
-          RADIAN
-        );
+
+        if (_context.ellipse) {
+          // IE does not support ellipse path command in Canvas
+          _context.ellipse(
+            shape.dx,
+            shape.dy,
+            Math.abs(shape.dx),
+            Math.abs(shape.dy),
+            0,
+            0,
+            RADIAN
+          );
+        } else {
+          _context.arc(
+            shape.dx,
+            shape.dy,
+            Math.sqrt(
+              shape.dx * shape.dx + shape.dy * shape.dy
+            ) /* hypotenuse */,
+            0,
+            6.283185
+          );
+        }
+
         _context.stroke();
         break;
 
@@ -528,7 +543,6 @@
   .paper {
     background: white;
     position: relative;
-    flex: 1;
     overflow: hidden;
     display: flex;
     align-items: center;

@@ -2,7 +2,7 @@
   import ManageSubscription from "../components/ManageSubscription.svelte";
 </script>
 
-<main class="central-align main-content">
+<main>
   <h2>Inactive account</h2>
 
   <p>You account is currently inactive.</p>
@@ -24,7 +24,10 @@
 <style>
   main {
     background: rgb(250, 250, 250);
+    display: block;
     min-height: 100vh;
+    padding: 1rem;
+    padding-top: 7rem;
   }
 
   main > * {
@@ -41,11 +44,5 @@
     margin: 0 auto;
     width: 30rem;
     display: block;
-  }
-
-  @media screen and (min-width: 600px) {
-    main {
-      padding-top: 2rem;
-    }
   }
 </style>

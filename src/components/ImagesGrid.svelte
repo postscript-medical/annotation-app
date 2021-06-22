@@ -36,12 +36,13 @@
       {#each images as image (image.name)}
         <button class="card" on:click={selectIllustration(image.name)}>
           <IntersectionObserver once let:intersecting>
-            {#if nativeLoading || intersecting}
-              <ImagesGridThumbnail
-                src={URL_PATH + image.src}
-                alt={image.name}
-                selected={$selectedIllustrationTitle === image.name} />
-            {/if}
+            <!-- This is not triggering on IE -->
+            <!-- {#if nativeLoading || intersecting} -->
+            <ImagesGridThumbnail
+              src={URL_PATH + image.src}
+              alt={image.name}
+              selected={$selectedIllustrationTitle === image.name} />
+            <!-- {/if} -->
           </IntersectionObserver>
           {image.name}
         </button>
@@ -51,42 +52,82 @@
 {/if}
 
 <style>
-  .scrollable-container {
-    overflow: auto;
-  }
-  .images-grid {
-    align-items: start;
-    display: grid;
-    gap: 2rem 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
-  }
-
+  /* Base styling */
   .card {
-    width: 100%;
-    border: 0;
     background-color: transparent;
+    border: 0;
     margin: 0;
-    padding: 0;
+    padding: 0.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0.5rem;
     text-align: left;
+    width: 100%;
   }
 
   .card > :global(:not(:last-child)) {
     margin-bottom: 1rem;
   }
 
-  @media screen and (min-width: 900px) {
-    .scrollable-container {
-      grid-row: 2 / span 3;
-      grid-column-start: 2;
-    }
+  .no-results {
+    font-size: 3rem;
+    font-weight: 600;
   }
 
-  @media screen and (min-width: 1200px) {
+  /* IE11 */
+  .scrollable-container {
+    width: 100%;
+    flex-grow: 1;
+  }
+
+  .images-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    width: 25%;
+    max-width: 250px;
+  }
+
+  .no-results {
+    padding-top: 1rem;
+    width: 100%;
+    flex-grow: 1;
+  }
+
+  /* Modern browsers */
+  @supports (display: grid) {
+    .scrollable-container {
+      overflow: auto;
+    }
     .images-grid {
-      grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+      align-items: start;
+      display: grid;
+      gap: 2rem 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
+    }
+
+    .card {
+      width: auto;
+      max-width: none;
+    }
+
+    @media screen and (min-width: 900px) {
+      .scrollable-container {
+        grid-row: 2 / span 3;
+        grid-column-start: 2;
+      }
+
+      .no-results {
+        grid-row: 2 / span 2;
+        grid-column-start: 2;
+      }
+    }
+
+    @media screen and (min-width: 1200px) {
+      .images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+      }
     }
   }
 </style>

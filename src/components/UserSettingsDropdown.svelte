@@ -64,6 +64,7 @@
 <style>
   .user-settings-dropdown {
     position: relative;
+    display: flex; /* IE11 */
   }
 
   .dropdown-button {

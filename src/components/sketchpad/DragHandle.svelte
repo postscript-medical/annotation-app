@@ -40,6 +40,7 @@
 <style>
   .drag-handle {
     background: white;
+    border: 0;
     text-align: center;
     cursor: grab;
     left: 0;

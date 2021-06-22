@@ -56,8 +56,6 @@ textarea {
   border-radius: 0.25rem;
   font-family: inherit;
   font-size: inherit;
-  line-height: 2;
-  -webkit-padding: 0.4em 0;
   padding: 0.4em 1.75em 0.4em 0.6em;
   width: 100%;
 }
@@ -133,6 +131,7 @@ th {
   border-width: 7rem 1rem 0.5rem 1rem;
   border-style: solid;
   border-color: transparent;
+  display: block; /* IE11 */
 }
 
 .manage-team {
@@ -140,10 +139,10 @@ th {
 }
 
 .aspect-ratio-lock {
+  max-width: 133.33vh;
+  max-height: 100vh;
   height: 75vw;
   width: 100vw;
-  max-height: 100vh;
-  max-width: 133.33vh;
 }
 
 .tool-icon {
@@ -214,9 +213,9 @@ select[aria-disabled="true"] {
 }
 
 .central-align {
+  margin-left: auto;
+  margin-right: auto;
   max-width: 100ch;
-  left: 50%;
-  transform: translate(-50%, 0);
   position: relative;
   width: 100%;
 }

@@ -47,9 +47,6 @@ to allow for grid layouts to be implemented -->
 </label>
 
 <style>
-  input[type="text"] {
-    padding: 0.25rem;
-  }
   input:read-only {
     border-color: transparent;
     background-color: transparent;

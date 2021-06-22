@@ -42,8 +42,6 @@
   }
 
   .centered {
-    left: 50%;
-    transform: translate(-50%, 0);
     max-width: none;
     position: fixed;
   }
@@ -53,6 +51,18 @@
     align-items: flex-end;
     justify-content: flex-end;
     flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
+  }
+
+  .options > :global(*) {
+    margin-right: 0.25rem;
+  }
+
+  @supports (gap: 1rem) {
+    .options {
+      gap: 0.25rem 0.5rem;
+    }
+    .options > :global(*) {
+      margin-right: 0;
+    }
   }
 </style>

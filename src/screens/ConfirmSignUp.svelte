@@ -1,4 +1,5 @@
 <script>
+  import "whatwg-fetch";
   import { onMount } from "svelte";
   import { querystring } from "svelte-spa-router";
   import { session } from "../stores";
@@ -17,9 +18,16 @@
 
   async function confirm_user_sign_up(token) {
     if (token) {
-      const response = await $session.confirm(token).catch((err) => {
-        errorMessage = err.json.msg;
-      });
+      let response = "";
+
+      try {
+        response = await $session.confirm(token).catch((err) => {
+          // .catch() does not work on IE11
+          errorMessage = err.json.msg;
+        });
+      } catch {
+        errorMessage = "There was an unknown error";
+      }
 
       if (!response) return;
 
@@ -151,6 +159,7 @@
 {/if}
 
 <style>
+  /* Base styling */
   main {
     padding-top: 1rem;
     color: #fff;
@@ -168,7 +177,6 @@
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
     justify-content: center;
   }
 
@@ -213,5 +221,23 @@
     text-transform: uppercase;
     color: #a1a1a1;
     font-size: 0.9em;
+  }
+
+  /* IE11 */
+  ul > li {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Modern browsers */
+  @supports (display: grid) {
+    ul {
+      gap: 1rem;
+    }
+
+    ul > li {
+      margin-right: 0;
+      margin-bottom: 0;
+    }
   }
 </style>

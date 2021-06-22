@@ -1,3 +1,5 @@
+import "whatwg-fetch";
+
 export default async function (url, user, params) {
   const token = user ? await user.jwt() : false;
 

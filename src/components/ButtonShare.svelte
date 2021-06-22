@@ -24,10 +24,10 @@
     entries.forEach((entry) => {
       const boundingRect = entry.getBoundingClientRect();
       const x =
-        (boundingRect.x - parentBoundingRect.x + 7) *
+        (boundingRect.left - parentBoundingRect.left + 7) *
         $dpr; /* 7 is the padding in the input */
       const y =
-        (boundingRect.y - parentBoundingRect.y + boundingRect.height / 2) *
+        (boundingRect.top - parentBoundingRect.top + boundingRect.height / 2) *
         $dpr;
 
       context.fillStyle = entry.style.color;

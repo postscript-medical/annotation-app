@@ -73,6 +73,6 @@
   }
 
   .typed-text-entry > :global(:last-child) {
-    left: 100%;
+    right: -16%;
   }
 </style>

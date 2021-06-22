@@ -120,17 +120,12 @@
 {/if}
 
 <style>
+  /* Base styling */
   .image-selector {
-    align-content: start;
     background-color: white;
     border-color: transparent;
     border-width: 9rem 1rem 0 1rem;
     border-style: solid;
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-    grid-template-rows: min-content;
-    justify-content: center;
     overflow: hidden;
     position: absolute;
     pointer-events: auto;
@@ -141,11 +136,6 @@
     z-index: 2;
   }
 
-  .image-search {
-    align-self: end;
-    margin: 0;
-  }
-
   .left-column {
     display: none;
   }
@@ -153,16 +143,65 @@
   @media screen and (min-width: 900px) {
     .image-selector {
       border-width: 5rem 1rem 0 1rem;
-      grid-template-columns: minmax(10ch, 30ch) minmax(10rem, 65rem);
     }
 
     .left-column {
-      grid-column-start: 1;
       display: block;
     }
+  }
+
+  /* IE11 */
+  .image-selector {
+    overflow-y: auto;
+  }
+
+  .left-column {
+    width: 25%;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .image-search {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  /* Modern browsers */
+  @supports (display: grid) {
+    .image-selector {
+      align-content: start;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+      grid-template-rows: min-content;
+      justify-content: center;
+    }
+
+    .left-column {
+      width: auto;
+      margin: 0;
+    }
+
     .image-search {
-      grid-column-start: 2;
-      grid-row-start: 1;
+      align-self: end;
+      margin: 0;
+      width: auto;
+    }
+
+    @media screen and (min-width: 900px) {
+      .image-selector {
+        grid-template-columns: minmax(10ch, 30ch) minmax(10rem, 65rem);
+      }
+
+      .left-column {
+        grid-column-start: 1;
+      }
+      .image-search {
+        grid-column-start: 2;
+        grid-row-start: 1;
+      }
     }
   }
 </style>

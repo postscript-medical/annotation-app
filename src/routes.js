@@ -96,12 +96,12 @@ async function is_user_logged_in() {
     return confirm_navigation();
   }
 
-  return redirectTo("/");
+  return redirectTo("#/");
 }
 
 function is_subscription_valid() {
   if (protected_content.team.organization.subscriptionLevel === PLAN_0) {
-    return redirectTo("/inactive-account");
+    return redirectTo("#/inactive-account");
   }
 
   return confirm_navigation();
@@ -124,7 +124,7 @@ export default {
 
         if (!logged_user) return confirm_navigation();
 
-        return redirectTo("/annotate");
+        return redirectTo("#/annotate");
       },
     ],
   }),
@@ -145,7 +145,7 @@ export default {
           return confirm_navigation();
         }
 
-        redirectTo("/");
+        redirectTo("#/");
       },
     ],
   }),
@@ -161,7 +161,6 @@ export default {
     component: SignUp,
     conditions: [
       async () => {
-        // If there are not search params, redirect to home
         if (!hasAuthenticated) await init_authentication();
 
         return confirm_navigation();
@@ -175,7 +174,7 @@ export default {
         if (!hasAuthenticated) await init_authentication();
 
         if (logged_user) {
-          return redirectTo("/annotate");
+          return redirectTo("#/annotate");
         }
 
         return confirm_navigation();
