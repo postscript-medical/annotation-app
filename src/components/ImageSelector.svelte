@@ -82,8 +82,10 @@
 {#if show}
   <div class="image-selector" transition:tween>
     <div class="left-column" />
+
     <div class="left-column">
       <PsDropdown
+        disabled
         options={$specialties}
         optionKey="name"
         selected={$selectedSpecialty}
