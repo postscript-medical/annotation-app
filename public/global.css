@@ -128,7 +128,7 @@ th {
 }
 
 .main-content {
-  border-width: 7rem 1rem 0.5rem 1rem;
+  border-width: 1rem;
   border-style: solid;
   border-color: transparent;
   display: block; /* IE11 */

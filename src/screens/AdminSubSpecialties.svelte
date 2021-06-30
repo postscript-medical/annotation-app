@@ -5,6 +5,7 @@
   import EditSubSpecialtyModal from "../modals/EditSubSpecialtyModal.svelte";
   import NavBar from "../components/admin/NavBar.svelte";
   import PsButton from "../components/PsButton.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
 
   let editCardIndex = null;
   let editCardData = null;
@@ -74,6 +75,8 @@
 </script>
 
 <main class="main-content central-align">
+  <PsHeader user={$user} loggedIn hideButtons />
+
   <h1>Sub-specialty management</h1>
 
   <NavBar />
@@ -119,7 +122,7 @@
 </main>
 
 <style>
-  main {
+  .main-content {
     display: flex;
     flex-direction: column;
     height: 100vh;

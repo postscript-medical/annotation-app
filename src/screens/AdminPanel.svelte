@@ -1,6 +1,8 @@
 <script>
   import { onDestroy } from "svelte";
+  import { user } from "../stores.js";
   import NavBar from "../components/admin/NavBar.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
 
   /*
    * This is hacky as hell but there is no current better alternative as far as I know currently
@@ -13,14 +15,16 @@
   });
 </script>
 
-<main class="main-content central-align">
+<div class="main-content central-align">
+  <PsHeader user={$user} loggedIn hideButtons />
+
   <h1>Administration panel</h1>
 
   <NavBar />
-</main>
+</div>
 
 <style>
-  main {
+  .main-content {
     display: flex;
     flex-direction: column;
     height: 100vh;

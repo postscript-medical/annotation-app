@@ -3,6 +3,7 @@
   import checkPasswordRequirements from "../methods/check-password-requirements.js";
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
   import PsLink from "../components/PsLink.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
 
@@ -52,6 +53,8 @@
       });
   }
 </script>
+
+<PsHeader />
 
 <main class="central-align main-content">
   <header>

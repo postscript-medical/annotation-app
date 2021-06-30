@@ -1,8 +1,12 @@
 <script>
+  import { user } from "../stores";
+  import PsHeader from "../components/PsHeader.svelte";
   import ManageSubscription from "../components/ManageSubscription.svelte";
 </script>
 
-<main>
+<main class="central-align main-content">
+  <PsHeader user={$user} loggedIn hideButtons />
+
   <h2>Inactive account</h2>
 
   <p>You account is currently inactive.</p>

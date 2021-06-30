@@ -1,6 +1,9 @@
 <script>
+  import PsHeader from "../components/PsHeader.svelte";
   import SignInForm from "../components/SignInForm.svelte";
 </script>
+
+<PsHeader />
 
 <main class="central-align main-content">
   <h1>Subscription success</h1>

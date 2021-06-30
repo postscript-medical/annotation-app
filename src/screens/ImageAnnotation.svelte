@@ -193,7 +193,7 @@
   });
 </script>
 
-<main>
+<div class="main-content">
   <SketchPad
     {pen}
     {shape}
@@ -212,7 +212,7 @@
     on:select-illustration={selectIllustration}
     on:select-tool={selectTool}
   />
-</main>
+</div>
 
 {#if $showShareModal}
   <ShareModal
@@ -231,7 +231,7 @@
 {/if}
 
 <style>
-  main {
+  .main-content {
     background: rgb(250, 250, 250);
     display: flex;
     align-items: center;

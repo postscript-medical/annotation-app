@@ -1,12 +1,15 @@
 <script>
   import { onMount } from "svelte";
   import { isLoading } from "../stores";
+  import PsHeader from "../components/PsHeader.svelte";
   import PsLink from "../components/PsLink.svelte";
 
   onMount(() => {
     $isLoading = false;
   });
 </script>
+
+<PsHeader />
 
 <main class="central-align main-content">
   <h1>Page not found.</h1>

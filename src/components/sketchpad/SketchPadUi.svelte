@@ -8,6 +8,7 @@
     protectedContent,
     selectedSubSpecialty,
     selectedSpecialty,
+    user,
   } from "../../stores.js";
   import {
     ERASER_SIZES,
@@ -23,6 +24,7 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../../constants/defaults.js";
+  import ButtonTool from "./ButtonTool.svelte";
   import ColorPalette from "./ColorPalette.svelte";
   import IconClose from "../icons/IconClose.svelte";
   import IconEraser from "../icons/IconEraser.svelte";
@@ -31,7 +33,7 @@
   import IconSearch from "../icons/IconSearch.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
   import ImageSelector from "../ImageSelector.svelte";
-  import ButtonTool from "./ButtonTool.svelte";
+  import PsHeader from "../PsHeader.svelte";
 
   export let pen;
   export let eraser;
@@ -104,6 +106,8 @@
 </script>
 
 <div class="ui main-content">
+  <PsHeader user={$user} loggedIn />
+
   {#if showImageGallery}
     <ButtonTool
       primaryValue=""
@@ -225,7 +229,6 @@
     height: 100%;
     width: 100%;
     max-height: auto;
-    border-top-width: 5.5rem;
     z-index: 3;
   }
 

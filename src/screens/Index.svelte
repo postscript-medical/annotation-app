@@ -5,6 +5,7 @@
   import checkPasswordRequirements from "../methods/check-password-requirements.js";
   import EmailConfirmedModal from "../modals/EmailConfirmedModal.svelte";
   import ForgotPasswordModal from "../modals/ForgotPasswordModal.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
   import ResetPasswordModal from "../modals/ResetPasswordModal.svelte";
   import SignInForm from "../components/SignInForm.svelte";
 
@@ -126,6 +127,8 @@
     }
   });
 </script>
+
+<PsHeader />
 
 <main class="central-align main-content">
   <SignInForm on:open-forgot-password-modal={open_forgot_password_modal} />

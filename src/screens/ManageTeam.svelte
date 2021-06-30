@@ -7,6 +7,7 @@
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
 
   const ROLES = [ROLE_USER];
@@ -294,13 +295,17 @@
 </script>
 
 <main class="main-content central-align">
+  <PsHeader user={$user} loggedIn hideButtons />
+
   <h2>Edit team</h2>
+
   <ErrorMessage message={errorMessage} />
 
   <section class="entry">
     <header>
       <h3>Team details</h3>
     </header>
+
     <div class="team-name">
       <PsTextInput
         disabled={loading || updatingTeamName}
@@ -311,6 +316,7 @@
       >
         Team name:
       </PsTextInput>
+
       {#if !!editedTeamNameSrc}
         <PsButton
           {loading}
@@ -320,6 +326,7 @@
         >
           Save
         </PsButton>
+
         <PsButton
           disabled={loading || updatingTeamName}
           style="secondary inline"
@@ -337,6 +344,7 @@
         </PsButton>
       {/if}
     </div>
+
     <PsTextInput
       readonly
       value={`${totalTeamMembersLeft} of ${maxTeamMembers} user slots used`}

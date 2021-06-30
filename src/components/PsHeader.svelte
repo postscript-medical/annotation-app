@@ -6,11 +6,10 @@
 
   export let user;
   export let loggedIn = false;
-  // TODO: once the subscription level is inside the user object, remove the below.
-  export let hasPaymentDetails = false;
+  export let hideButtons = false;
 </script>
 
-<header class="central-align" class:centered={loggedIn}>
+<header class:padded={!loggedIn}>
   <h1 class="options">
     <PsLogo
       showName={!loggedIn}
@@ -19,10 +18,12 @@
   </h1>
   {#if user}
     <div class="options">
-      <ButtonFeedback />
-      {#if hasPaymentDetails}
+      {#if !hideButtons}
+        <ButtonFeedback />
+
         <ButtonShare />
       {/if}
+
       <UserSettingsDropdown {user} />
     </div>
   {/if}
@@ -30,21 +31,10 @@
 
 <style>
   header {
-    position: absolute;
-    top: 0;
-    z-index: 3;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    height: auto;
-    max-height: none;
-    padding: 1rem 1rem 0 1rem;
-    pointer-events: none;
-  }
-
-  .centered {
-    max-width: none;
-    position: fixed;
+    align-items: center;
+    width: 100%;
   }
 
   .options {
@@ -65,5 +55,9 @@
     .options > :global(*) {
       margin-right: 0;
     }
+  }
+
+  .padded {
+    padding: 1rem 1rem 0 1rem;
   }
 </style>

@@ -91,6 +91,7 @@
     min-width: 30ch;
     display: flex;
     flex-direction: column;
+    z-index: 1;
   }
 
   .dropdown > :global(*) {

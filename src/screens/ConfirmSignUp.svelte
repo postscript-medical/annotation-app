@@ -4,6 +4,7 @@
   import { querystring } from "svelte-spa-router";
   import { session } from "../stores";
   import subscriptionPlans from "../constants/subscription-plans";
+  import PsHeader from "../components/PsHeader.svelte";
   import PsLink from "../components/PsLink.svelte";
 
   // TODO: We need to make sure all third party scripts are loaded before runing our code. There seems to be a condition where confirmation fails if that does not happen.
@@ -115,6 +116,8 @@
     confirm_user_sign_up(token);
   });
 </script>
+
+<PsHeader />
 
 {#if userConfirmed}
   <main class="central-align main-content" in:tween_in out:tween_out>

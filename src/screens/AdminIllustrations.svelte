@@ -9,6 +9,7 @@
   import Modal from "../modals/Modal.svelte";
   import NavBar from "../components/admin/NavBar.svelte";
   import PsButton from "../components/PsButton.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
   import PsTagsInput from "../components/PsTagsInput.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
 
@@ -144,7 +145,9 @@
   });
 </script>
 
-<main class="main-content central-align">
+<div class="main-content central-align">
+  <PsHeader user={$user} loggedIn hideButtons />
+
   <h1>Illustration management</h1>
 
   <NavBar />
@@ -258,10 +261,10 @@
       </div>
     </Modal>
   {/if}
-</main>
+</div>
 
 <style>
-  main {
+  .main-content {
     display: flex;
     flex-direction: column;
     height: 100vh;
