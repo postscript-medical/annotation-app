@@ -13,6 +13,8 @@
   $: noImages = images.length === 0;
 
   function selectIllustration(title) {
+    if (title === $selectedIllustrationTitle) return;
+
     dispatch("select-illustration", title);
 
     dispatch("close");
