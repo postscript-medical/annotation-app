@@ -1,6 +1,12 @@
-const { SUBSCRIPTIONS } = require("./constants");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require("./utils/fauna");
+const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const { SUBSCRIPTIONS } = require("./constants");
+const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
+const STRIPE_WEBHOOK_SUBSCRIPTION_CREATION = getEnvironmentKey(
+  "STRIPE_WEBHOOK_SUBSCRIPTION_CREATION",
+  process.env
+);
+const stripe = require("stripe")(process.env[STRIPE_KEY]);
 
 exports.handler = async ({ body, headers, httpMethod }) => {
   console.log("handle-subscription-creation");
@@ -17,7 +23,7 @@ exports.handler = async ({ body, headers, httpMethod }) => {
     const stripeEvent = stripe.webhooks.constructEvent(
       body,
       headers["stripe-signature"],
-      process.env.STRIPE_WEBHOOK_SUBSCRIPTION_CREATION
+      process.env[STRIPE_WEBHOOK_SUBSCRIPTION_CREATION]
     );
 
     console.log("handle subscription creation event::", stripeEvent.type);

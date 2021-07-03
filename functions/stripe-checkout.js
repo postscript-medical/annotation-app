@@ -1,4 +1,10 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const STRIPE_PUBLIC_KEY = getEnvironmentKey(
+  "STRIPE_PUBLISHABLE_KEY",
+  process.env
+);
+const STRIPE_SECRET_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
+const stripe = require("stripe")(process.env[STRIPE_SECRET_KEY]);
 
 exports.handler = async (event) => {
   const { priceId, email, fromConfirmationPage } = JSON.parse(event.body);
@@ -30,7 +36,7 @@ exports.handler = async (event) => {
     statusCode: 200,
     body: JSON.stringify({
       sessionId: session.id,
-      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+      publishableKey: process.env[STRIPE_PUBLIC_KEY],
     }),
   };
 };

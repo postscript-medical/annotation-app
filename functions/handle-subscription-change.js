@@ -1,6 +1,12 @@
-const { PLAN_0, SUBSCRIPTIONS } = require("./constants");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { faunaFetch } = require("./utils/fauna");
+const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const { PLAN_0, SUBSCRIPTIONS } = require("./constants");
+const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
+const STRIPE_WEBHOOK_SECRET = getEnvironmentKey(
+  "STRIPE_WEBHOOK_SECRET",
+  process.env
+);
+const stripe = require("stripe")(process.env[STRIPE_KEY]);
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -8,12 +14,10 @@ exports.handler = async ({ body, headers }) => {
     const stripeEvent = stripe.webhooks.constructEvent(
       body,
       headers["stripe-signature"],
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env[STRIPE_WEBHOOK_SECRET]
     );
 
     const subscription = stripeEvent.data.object;
-
-    console.log("stripeEvent >>>>", stripeEvent);
 
     // bail if this is not a the desired update event
     if (
