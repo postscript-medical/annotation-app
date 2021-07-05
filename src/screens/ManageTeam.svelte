@@ -457,6 +457,13 @@
 </main>
 
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
   main > :global(:not(:last-child)) {
     margin-bottom: 2rem;
   }
