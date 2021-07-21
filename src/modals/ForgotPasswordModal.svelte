@@ -50,6 +50,12 @@
     <label>
       <span> Email </span>
       <input bind:this={email} type="email" required />
+      <p class="note">
+        *When submitting a request for a new password, please allow 15 minutes
+        before receiving your reset password email. Submitting multiple requests
+        within this time period will result in the request being regenerated and
+        delay the process.
+      </p>
     </label>
   {/if}
 </Modal>
@@ -61,8 +67,17 @@
   }
 
   label > :global(span) {
-    margin-bottom: 0.5rem;
     font-size: 0.875rem;
     line-height: 1rem;
+  }
+
+  label > :global(*) {
+    margin-bottom: 0.5rem;
+  }
+
+  .note {
+    font-size: 0.75em;
+    opacity: 0.5;
+    font-style: italic;
   }
 </style>
