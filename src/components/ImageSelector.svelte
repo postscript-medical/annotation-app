@@ -85,7 +85,6 @@
 
     <div class="left-column">
       <PsDropdown
-        disabled
         options={$specialties}
         optionKey="name"
         selected={$selectedSpecialty}
@@ -97,6 +96,7 @@
 
     <div class="left-column">
       <PsDropdown
+        disabled={$subSpecialties.length === 0}
         options={$subSpecialties}
         optionKey="name"
         selected={$selectedSubSpecialty}

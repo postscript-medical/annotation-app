@@ -36,7 +36,11 @@ function find_default_illustration(source) {
 export default async function (user) {
   const token = user ? await user.jwt(true) : false;
 
-  if (!token) return;
+  if (!token) {
+    return Promise.reject(
+      new Error("Could not validate your token. Please contact support.")
+    );
+  }
 
   const response = await fetch("/.netlify/functions/get-protected-content", {
     method: "POST",
@@ -65,9 +69,9 @@ export default async function (user) {
   }
 
   /**
-   *
+   * TODO: Move this mapping into the Netlify function.
+   * Return the data correctly mapped to be used
    */
-
   const mappedData = {
     ...data,
     team: {

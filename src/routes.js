@@ -6,6 +6,7 @@ import { user, isLoading, session, protectedContent } from "./stores";
 import { STORAGE_KEY } from "./constants/session.js";
 import { PLAN_0 } from "../functions/constants.js";
 import load_protected_content from "./methods/load-protected-content.js";
+import AdminPanel from "./screens/AdminPanel.svelte";
 import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
 import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
@@ -83,6 +84,13 @@ async function init_authentication() {
   hasAuthenticated = true;
 }
 
+function is_user_dm() {
+  if (protected_content && protected_content.role === "dm")
+    return confirm_navigation();
+
+  return redirectTo("#/");
+}
+
 async function is_user_logged_in() {
   if (!hasAuthenticated) await init_authentication();
 
@@ -127,6 +135,10 @@ export default {
         return redirectTo("#/annotate");
       },
     ],
+  }),
+  "/admin": wrap({
+    component: AdminPanel,
+    conditions: [is_user_logged_in, is_user_dm],
   }),
   "/annotate": wrap({
     component: ImageAnnotation,

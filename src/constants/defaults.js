@@ -3,6 +3,9 @@
  */
 export const redirectPath = "/images/";
 
+export const ILLUSTRATION_THUMBNAIL_PATH =
+  "images/c_thumb,h_220,w_180/annotation-app/illustrations/";
+
 export const SIZE_SMALL = "small";
 
 export const SIZE_MEDIUM = "medium";
@@ -32,6 +35,8 @@ export const LINE_THICKNESS_6 = 96;
 export const RADIAN = 6.28318;
 
 export const ROLE_ADMIN = "admin";
+
+export const ROLE_DM = "dm";
 
 export const ROLE_USER = "user";
 

@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { selectedIllustrationTitle } from "../stores.js";
   import IntersectionObserver from "./IntersectionObserver.svelte";
   import ImagesGridThumbnail from "./ImagesGridThumbnail.svelte";
@@ -12,6 +12,11 @@
 
   $: noImages = images.length === 0;
 
+  // Determine whether to bypass the intersecting check
+  if ("loading" in HTMLImageElement.prototype) {
+    nativeLoading = true;
+  }
+
   function selectIllustration(title) {
     if (title === $selectedIllustrationTitle) return;
 
@@ -19,13 +24,6 @@
 
     dispatch("close");
   }
-
-  onMount(() => {
-    // Determine whether to bypass the intersecting check
-    if ("loading" in HTMLImageElement.prototype) {
-      nativeLoading = true;
-    }
-  });
 </script>
 
 {#if noImages}

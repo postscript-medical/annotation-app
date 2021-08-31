@@ -182,12 +182,14 @@ export const subSpecialties = derived(
 export const illustrations = derived(
   [selectedSubSpecialty, subSpecialties],
   ([$selectedSubSpecialty, $subSpecialties]) => {
-    return (
-      $subSpecialties &&
-      $subSpecialties.find(
-        ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
-      ).illustrations
-    );
+    const hasSubSpecialties = $subSpecialties && $subSpecialties.length > 0;
+
+    return hasSubSpecialties
+      ? $subSpecialties.find(
+          ({ name }) =>
+            name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
+        ).illustrations
+      : [];
   }
 );
 

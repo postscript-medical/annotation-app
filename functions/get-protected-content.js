@@ -63,7 +63,7 @@ exports.handler = async (_, context) => {
       }),
     };
   } catch (error) {
-    console.log("error", error);
+    console.log(":: ERROR :: [get-protected-content] >>>", error);
     return {
       statusCode: 400,
       body: `Webhook Error: ${error.message}`,

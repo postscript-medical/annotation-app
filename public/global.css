@@ -224,8 +224,16 @@ select[aria-disabled="true"] {
   font-size: 0.8em;
 }
 
-.stacker--small > :not(:last-child) {
-  margin-bottom: 0.5rem;
+.stacker {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stacker--small {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 noscript {

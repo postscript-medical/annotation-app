@@ -50,4 +50,5 @@ type Query {
   findOrganizationBystripeID(stripeID: ID!): Organization!
   findUserByNetlifyID(netlifyID: ID!): User!
   findUserByEmail(email: String!): User!
+  getIllustrations: [Illustration!]
 }

@@ -19,7 +19,7 @@ to allow for grid layouts to be implemented -->
     container
     ${style}
     ${disabled ? "disabled" : ""}
-  `;
+  `.trim();
 
   function onInput({ target }) {
     dispatch("input", target.value);
