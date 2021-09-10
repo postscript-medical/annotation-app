@@ -50,7 +50,8 @@
       required
       style="vertical"
       value={email}
-      on:input={({ detail: value }) => (email = value)}>
+      on:input={({ detail: value }) => (email = value)}
+    >
       Email
     </PsTextInput>
 
@@ -58,7 +59,8 @@
       style="vertical"
       value={password}
       type="password"
-      on:input={({ detail: value }) => (password = value)}>
+      on:input={({ detail: value }) => (password = value)}
+    >
       Password
     </PsTextInput>
     {#if showStayLogged}

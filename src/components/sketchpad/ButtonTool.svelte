@@ -98,20 +98,24 @@
     <div
       bind:this={secondaryToolsContainer}
       class="secondary-tools shadow"
-      transition:tween>
+      transition:tween
+    >
       {#each secondaryTools as secondaryTool}
         <label
           id={secondaryTool.id}
-          class:on-dark={secondaryTool.value === secondaryValue}>
+          class:on-dark={secondaryTool.value === secondaryValue}
+        >
           <input
-            name={'secondary-' + toolName}
+            name={"secondary-" + toolName}
             type="radio"
             value={secondaryTool.value}
-            on:change={changeSecondary(secondaryTool.value, secondaryTool.id)} />
+            on:change={changeSecondary(secondaryTool.value, secondaryTool.id)}
+          />
           <slot
             name="secondary-tool"
             onDark={secondaryTool.value === secondaryValue}
-            {secondaryTool} />
+            {secondaryTool}
+          />
         </label>
       {/each}
     </div>

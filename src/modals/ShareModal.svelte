@@ -57,11 +57,13 @@
         placeholder="Email address"
         required
         type="email"
-        on:input={clearErrors} />
+        on:input={clearErrors}
+      />
       <PsButton
         {loading}
         type="submit"
-        on:tween-out-complete={tweenOutComplete}>
+        on:tween-out-complete={tweenOutComplete}
+      >
         Send
       </PsButton>
     {/if}

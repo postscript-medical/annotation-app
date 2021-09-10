@@ -1,5 +1,5 @@
 const faunadb = require("faunadb");
-const { Update, Ref, Collection } = faunadb.query;
+const { Collection, Ref, Update } = faunadb.query;
 
 exports.handler = (event) => {
   let body;
@@ -21,8 +21,12 @@ exports.handler = (event) => {
 
   return client
     .query(
-      Update(Ref(Collection("Illustration"), body.ref["@ref"].id), {
-        data: body.data,
+      Update(Ref(Collection("Illustration"), body.id), {
+        data: {
+          name: body.name,
+          alias: body.alias,
+          src: body.src,
+        },
       })
     )
     .then((response) => {

@@ -51,28 +51,6 @@
   });
 </script>
 
-<div bind:this={container} class="aspect-ratio-box">
+<div bind:this={container}>
   <slot {intersecting} />
 </div>
-
-<style>
-  /* div {
-    width: 100%;
-    height: 100%;
-  } */
-
-  .aspect-ratio-box::before {
-    content: "";
-    width: 1px;
-    margin-left: -1px;
-    float: left;
-    height: 0;
-    padding-top: 122.22%;
-  }
-  .aspect-ratio-box::after {
-    /* to clear float */
-    content: "";
-    display: table;
-    clear: both;
-  }
-</style>

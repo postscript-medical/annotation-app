@@ -22,7 +22,7 @@
   }
 </script>
 
-<View name={DEFAULT + '- with content'}>
+<View name={DEFAULT + "- with content"}>
   <div class="modal-container">
     <PsButton on:click={() => openModal(DEFAULT)}>{BUTTON_COPY}</PsButton>
     {#if modalToOpen === DEFAULT}

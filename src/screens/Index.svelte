@@ -139,14 +139,16 @@
     {loading}
     on:clear-errors={clear_errors}
     on:close={close_reset_password_modal}
-    on:reset-password={reset_user_password} />
+    on:reset-password={reset_user_password}
+  />
 {:else if showForgotPasswordModal}
   <ForgotPasswordModal
     {errorMessage}
     {emailSent}
     {loading}
     on:close={close_forgotten_password_modal}
-    on:request-reset-password={request_reset_password} />
+    on:request-reset-password={request_reset_password}
+  />
 {/if}
 
 <style>

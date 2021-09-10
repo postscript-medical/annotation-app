@@ -32,7 +32,8 @@
 <View name="Primary button - loading">
   <PsButton
     loading={loading === LOADING_1}
-    on:click={() => fakeLoading(LOADING_1)}>
+    on:click={() => fakeLoading(LOADING_1)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>
@@ -49,7 +50,8 @@
   <PsButton
     style="inline"
     loading={loading === LOADING_2}
-    on:click={() => fakeLoading(LOADING_2)}>
+    on:click={() => fakeLoading(LOADING_2)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>
@@ -66,7 +68,8 @@
   <PsButton
     style="on-dark"
     loading={loading === LOADING_2}
-    on:click={() => fakeLoading(LOADING_2)}>
+    on:click={() => fakeLoading(LOADING_2)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>
@@ -88,7 +91,8 @@
   <PsButton
     style="secondary"
     loading={loading === LOADING_3}
-    on:click={() => fakeLoading(LOADING_3)}>
+    on:click={() => fakeLoading(LOADING_3)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>
@@ -105,7 +109,8 @@
   <PsButton
     style="secondary inline"
     loading={loading === LOADING_4}
-    on:click={() => fakeLoading(LOADING_4)}>
+    on:click={() => fakeLoading(LOADING_4)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>
@@ -123,7 +128,8 @@
   <PsButton
     style="tertiary"
     loading={loading === LOADING_4}
-    on:click={() => fakeLoading(LOADING_4)}>
+    on:click={() => fakeLoading(LOADING_4)}
+  >
     {CLICK_TO_SIMULATE}
   </PsButton>
 </View>

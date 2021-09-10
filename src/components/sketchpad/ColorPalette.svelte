@@ -12,12 +12,13 @@
 
 <div class="colors-palette shadow">
   {#each colors as color}
-    <label id={'palette-' + color.id}>
+    <label id={"palette-" + color.id}>
       <input
         name="color-palette"
         type="radio"
         value={color.value}
-        on:change={changeColor} />
+        on:change={changeColor}
+      />
       <svg class="tool-icon" viewBox="0 0 100 100" width="24px" height="24px">
         {#if selected === color.value}
           <circle cx="50" cy="50" r="60" stroke={color.value} fill="none" />

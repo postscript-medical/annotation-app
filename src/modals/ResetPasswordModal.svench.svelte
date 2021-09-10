@@ -49,7 +49,8 @@
         {loading}
         on:clear-errors={clearErrors}
         on:close={closeModal}
-        on:reset-password={resetUserPassword} />
+        on:reset-password={resetUserPassword}
+      />
     {/if}
   </div>
 </View>

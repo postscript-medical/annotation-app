@@ -42,7 +42,8 @@
         {emailSent}
         on:close={closeModal}
         on:send-email={sendImageViaEmail}
-        on:download-image={downloadImage} />
+        on:download-image={downloadImage}
+      />
     {/if}
   </div>
 </View>

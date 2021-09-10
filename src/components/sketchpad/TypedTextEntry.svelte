@@ -46,7 +46,8 @@
     class="typed-annotation"
     style={`color: ${color};`}
     on:input={updateContent}
-    on:keyup|preventDefault={checkForEnter} />
+    on:keyup|preventDefault={checkForEnter}
+  />
   <DragHandle {boundingRect} {eventType} {index} on:drag />
   <ButtonIcon on:click={closeEntry}>
     <IconClose />

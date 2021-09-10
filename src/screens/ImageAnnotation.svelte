@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import {
     annotatedImage,
+    protectedContent,
     showFeedbackModal,
     showShareModal,
     selectedIllustrationTitle,
@@ -128,10 +129,14 @@
     }
   }
 
-  function selectIllustration({ detail: illustrationTitle }) {
-    updateUserAppMetadata(illustrationTitle);
+  function selectIllustration({ detail: illustration }) {
+    updateAppState(illustration.name);
 
-    tweenOut(() => selectedIllustrationTitle.set(illustrationTitle));
+    if (illustration.name !== $selectedIllustrationTitle) {
+      tweenOut(() => {
+        $selectedIllustrationTitle = illustration.name;
+      });
+    }
   }
 
   function selectTool({ detail: toolId }) {
@@ -158,28 +163,29 @@
     loading = false;
   }
 
-  function updateUserAppMetadata(illustrationTitle) {
-    /*
-     * This is adding information to Netlify's user.user_metadata.
-     * We need to be very careful here as currently there is no way to remove this data
-     * once it is stored there. At some point in the future we should store this somewhere else.
-     * Right now it does not seem like a great idea as we don't want to run a Lambda function
-     * every time the user changes an illustration, it would end up costing us a lot of money.
-     */
-    $user
-      .update({
-        data: {
-          illustration: {
-            name: illustrationTitle,
-            specialty: $selectedSpecialty,
-            subSpecialty: $selectedSubSpecialty,
-          },
-        },
-      })
-      .then((updatedUser) => {
-        $user = updatedUser;
-      })
-      .catch((error) => console.error(error));
+  async function updateAppState(illustrationTitle) {
+    const token = $user ? await $user.jwt(true) : false;
+
+    if (!token) {
+      return Promise.reject(
+        new Error("Could not validate your token. Please contact support.")
+      );
+    }
+
+    await fetch("/.netlify/functions/update-app-state", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        id: $protectedContent.appState.id,
+        selectedIllustrationTitle: illustrationTitle,
+        selectedSpecialty: $selectedSpecialty,
+        selectedSubSpecialty: $selectedSubSpecialty,
+      }),
+    }).catch((error) =>
+      console.error("::: Error updating app state :::", error)
+    );
   }
 
   onMount(() => {
@@ -193,7 +199,8 @@
     {shape}
     {selectedTool}
     {selectedToolId}
-    on:select-tool={selectTool} />
+    on:select-tool={selectTool}
+  />
   <SketchPadUi
     {eraser}
     {pen}
@@ -203,7 +210,8 @@
     on:change-color={changePenColor}
     on:change-shape={changeShapeType}
     on:select-illustration={selectIllustration}
-    on:select-tool={selectTool} />
+    on:select-tool={selectTool}
+  />
 </main>
 
 {#if $showShareModal}
@@ -214,7 +222,8 @@
     on:clear-errors={clearErrors}
     on:close={closeShareModal}
     on:send-email={sendImageViaEmail}
-    on:download-image={downloadImage} />
+    on:download-image={downloadImage}
+  />
 {/if}
 
 {#if $showFeedbackModal}

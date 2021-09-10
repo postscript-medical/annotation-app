@@ -119,7 +119,8 @@
         cy="50"
         r="20"
         stroke-width="6"
-        stroke-dasharray={PATH_LENGTH} />
+        stroke-dasharray={PATH_LENGTH}
+      />
     </svg>
   </div>
   <span bind:this={inlineContent} class="inline-content">
@@ -139,6 +140,10 @@
 
   button :global(*) {
     pointer-events: none;
+  }
+
+  button:focus {
+    background-color: rgba(42, 41, 41, 0.2);
   }
 
   button:disabled {

@@ -76,7 +76,8 @@
         required
         style="vertical"
         value={email}
-        on:input={({ detail: value }) => (email = value)}>
+        on:input={({ detail: value }) => (email = value)}
+      >
         Email address
       </PsTextInput>
 
@@ -86,7 +87,8 @@
           style="vertical"
           value={password}
           type="password"
-          on:input={({ detail: value }) => (password = value)}>
+          on:input={({ detail: value }) => (password = value)}
+        >
           Password
         </PsTextInput>
 
@@ -102,7 +104,8 @@
         style="vertical"
         value={password_confirmation}
         type="password"
-        on:input={({ detail: value }) => (password_confirmation = value)}>
+        on:input={({ detail: value }) => (password_confirmation = value)}
+      >
         Confirm password
       </PsTextInput>
 
@@ -110,13 +113,15 @@
         By subscribing, you agree to our
         <PsLink
           style="on-dark"
-          href="https://www.postscriptmedical.com/terms-of-use">
+          href="https://www.postscriptmedical.com/terms-of-use"
+        >
           terms of use
         </PsLink>
         and
         <PsLink
           style="on-dark"
-          href="https://www.postscriptmedical.com/privacy-policy">
+          href="https://www.postscriptmedical.com/privacy-policy"
+        >
           privacy policy
         </PsLink>.
       </p>

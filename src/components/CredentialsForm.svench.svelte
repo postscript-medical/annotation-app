@@ -37,7 +37,8 @@
     showStayLogged
     style="on-dark"
     on:submit={submit}
-    on:error={handle_error}>
+    on:error={handle_error}
+  >
     <span> Sign in </span>
 
     <div slot="footer">

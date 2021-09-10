@@ -5,6 +5,9 @@
     canvasElement,
     context,
     illustrationSearchQuery,
+    protectedContent,
+    selectedSubSpecialty,
+    selectedSpecialty,
   } from "../../stores.js";
   import {
     ERASER_SIZES,
@@ -38,6 +41,7 @@
   const dispatch = createEventDispatcher();
 
   let showImageGallery = false;
+  let tempAppState = {};
 
   function changeLineThickness(thickness, toolId) {
     dispatch("change-thickness", { thickness, toolId });
@@ -66,53 +70,78 @@
     changeLineThickness(thickness, toolId);
   }
 
-  function selectIllustration({ detail: title }) {
+  function selectIllustration({ detail: illustration }) {
     eraseAll();
 
-    dispatch("select-illustration", title);
+    dispatch("select-illustration", illustration);
   }
 
   function selectTool(toolId) {
     dispatch("select-tool", toolId);
   }
 
-  function toggleShowImageGallery() {
+  function openImageGallery() {
     illustrationSearchQuery.set("");
 
-    showImageGallery = !showImageGallery;
+    tempAppState = { ...$protectedContent.appState };
+
+    showImageGallery = true;
+  }
+
+  function hideImageGallery() {
+    // reset the appState
+    $protectedContent.appState = { ...tempAppState };
+
+    $selectedSpecialty = tempAppState.selectedSpecialty;
+    $selectedSubSpecialty = tempAppState.selectedSubSpecialty;
+
+    closeImageGallery();
+  }
+
+  function closeImageGallery() {
+    showImageGallery = false;
   }
 </script>
 
 <div class="ui main-content">
-  <ButtonTool
-    primaryValue={showImageGallery && TOOL_SEARCH}
-    toolName={TOOL_SEARCH}
-    on:change-primary={toggleShowImageGallery}>
-    {#if showImageGallery}
+  {#if showImageGallery}
+    <ButtonTool
+      primaryValue=""
+      toolName={TOOL_SEARCH}
+      on:change-primary={hideImageGallery}
+    >
       <IconClose />
-    {:else}
+    </ButtonTool>
+  {:else}
+    <ButtonTool
+      primaryValue=""
+      toolName={TOOL_SEARCH}
+      on:change-primary={openImageGallery}
+    >
       <IconSearch />
-    {/if}
-  </ButtonTool>
+    </ButtonTool>
 
-  {#if !showImageGallery}
     <ButtonTool
       primaryValue={selectedToolId}
       secondaryTools={PEN_SIZES}
       secondaryValue={pen.lineWidth}
       toolName={TOOL_PEN}
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-      on:change-secondary={({ detail }) => changeLineThickness(detail.value, TOOL_PEN)}>
+      on:change-secondary={({ detail }) =>
+        changeLineThickness(detail.value, TOOL_PEN)}
+    >
       <IconPen />
       <div
         slot="secondary-tool"
         let:secondaryTool
         let:onDark
         class="secondary-tool"
-        class:on-dark={onDark}>
+        class:on-dark={onDark}
+      >
         <svelte:component
           this={secondaryTool.component}
-          size={secondaryTool.id} />
+          size={secondaryTool.id}
+        />
       </div>
     </ButtonTool>
 
@@ -122,17 +151,21 @@
       secondaryTools={ERASER_SIZES}
       secondaryValue={eraser.lineWidth}
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-      on:change-secondary={({ detail }) => handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER)}>
+      on:change-secondary={({ detail }) =>
+        handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER)}
+    >
       <IconEraser />
       <div
         slot="secondary-tool"
         let:secondaryTool
         let:onDark
         class="secondary-tool"
-        class:on-dark={onDark}>
+        class:on-dark={onDark}
+      >
         <svelte:component
           this={secondaryTool.component}
-          size={secondaryTool.id} />
+          size={secondaryTool.id}
+        />
       </div>
     </ButtonTool>
 
@@ -142,14 +175,16 @@
       secondaryTools={SHAPES}
       secondaryValue={shape.type}
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-      on:change-secondary={({ detail }) => changeShape(detail.value)}>
+      on:change-secondary={({ detail }) => changeShape(detail.value)}
+    >
       <IconShapes />
       <div
         slot="secondary-tool"
         let:secondaryTool
         let:onDark
         class="secondary-tool"
-        class:on-dark={onDark}>
+        class:on-dark={onDark}
+      >
         <svelte:component this={secondaryTool.component} />
       </div>
     </ButtonTool>
@@ -157,21 +192,24 @@
     <ButtonTool
       primaryValue={selectedToolId}
       toolName={TOOL_TEXT}
-      on:change-primary={({ detail }) => selectTool(detail)}>
+      on:change-primary={({ detail }) => selectTool(detail)}
+    >
       <IconText />
     </ButtonTool>
 
     <ColorPalette
       colors={PEN_COLORS}
       selected={pen.color}
-      on:change={({ detail }) => changeColor(detail)} />
+      on:change={({ detail }) => changeColor(detail)}
+    />
   {/if}
 </div>
 
 <ImageSelector
   show={showImageGallery}
   on:select-illustration={selectIllustration}
-  on:close={toggleShowImageGallery} />
+  on:close={closeImageGallery}
+/>
 
 <style>
   .ui {

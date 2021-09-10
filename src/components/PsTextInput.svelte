@@ -43,7 +43,8 @@ to allow for grid layouts to be implemented -->
     {type}
     {value}
     on:input={onInput}
-    on:blur={onBlur} />
+    on:blur={onBlur}
+  />
 </label>
 
 <style>

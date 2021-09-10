@@ -7,12 +7,14 @@
 <div class={style}>
   <PsLink
     href="https://www.postscriptmedical.com/terms-of-use/"
-    target="_blank">
+    target="_blank"
+  >
     Terms
   </PsLink>
   <PsLink
     href="https://www.postscriptmedical.com/privacy-policy/"
-    target="_blank">
+    target="_blank"
+  >
     Privacy
   </PsLink>
 </div>

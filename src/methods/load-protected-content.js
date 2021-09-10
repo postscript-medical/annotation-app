@@ -5,33 +5,6 @@ import {
   selectedSubSpecialty,
   selectedIllustrationTitle,
 } from "../stores.js";
-import {
-  DEFAULT_SELECTED_SPECIALTY,
-  DEFAULT_SELECTED_SUB_SPECIALTY,
-} from "../constants/defaults";
-
-function find_default_illustration(source) {
-  const ALL = "all";
-  const DEFAULT_ILLUSTRATION_NAME = "Gastrointestinal tract";
-
-  const all_specialties = source.find(({ name }) => name.toLowerCase() === ALL);
-
-  if (!all_specialties) return DEFAULT_ILLUSTRATION_NAME;
-
-  const all_sub_specialties = all_specialties.subSpecialties.find(
-    ({ name }) => name.toLowerCase() === ALL
-  );
-
-  if (!all_sub_specialties) return DEFAULT_ILLUSTRATION_NAME;
-
-  const illustration = all_sub_specialties.illustrations.find(
-    ({ default_illustration }) => default_illustration
-  );
-
-  if (!illustration) return DEFAULT_ILLUSTRATION_NAME;
-
-  return illustration.name;
-}
 
 export default async function (user) {
   const token = user ? await user.jwt(true) : false;
@@ -42,7 +15,7 @@ export default async function (user) {
     );
   }
 
-  const response = await fetch("/.netlify/functions/get-protected-content", {
+  const response = await fetch("/.netlify/functions/get-protected-content-2", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -68,44 +41,10 @@ export default async function (user) {
     return;
   }
 
-  /**
-   * TODO: Move this mapping into the Netlify function.
-   * Return the data correctly mapped to be used
-   */
-  const mappedData = {
-    ...data,
-    team: {
-      ...data.team,
-      members: data.team.members.data,
-      organization: {
-        ...data.team.organization,
-        specialties: data.team.organization.specialties.data.map(
-          (specialty) => {
-            return {
-              ...specialty,
-              subSpecialties: specialty.subSpecialties.data.map(
-                (subSpecialty) => {
-                  return {
-                    ...subSpecialty,
-                    illustrations: subSpecialty.illustrations.data,
-                  };
-                }
-              ),
-            };
-          }
-        ),
-      },
-    },
-  };
+  console.log("Protected content:", data);
 
-  const userDefaults = user.user_metadata.illustration || {
-    name: find_default_illustration(mappedData.team.organization.specialties),
-    specialty: DEFAULT_SELECTED_SPECIALTY,
-    subSpecialty: DEFAULT_SELECTED_SUB_SPECIALTY,
-  };
-
-  selectedIllustrationTitle.set(userDefaults.name);
-  selectedSpecialty.set(userDefaults.specialty);
-  selectedSubSpecialty.set(userDefaults.subSpecialty);
-  protectedContent.set(mappedData);
+  protectedContent.set(data);
+  selectedIllustrationTitle.set(data.appState.selectedIllustrationTitle);
+  selectedSpecialty.set(data.appState.selectedSpecialty);
+  selectedSubSpecialty.set(data.appState.selectedSubSpecialty);
 }

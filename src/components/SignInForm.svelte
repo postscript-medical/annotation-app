@@ -55,7 +55,8 @@
   hidePasswordRequirements
   showStayLogged
   style="on-dark"
-  on:submit={submit}>
+  on:submit={submit}
+>
   <span> Sign in </span>
   <div slot="footer" class="footer">
     <PsButton style="on-dark inline" on:click={openForgotPasswordModal}>

@@ -37,7 +37,8 @@
     type="text"
     value={tags}
     on:input={onInput}
-    on:blur={onBlur} />
+    on:blur={onBlur}
+  />
 </label>
 
 <style>

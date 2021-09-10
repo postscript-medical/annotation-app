@@ -7,6 +7,8 @@ import { STORAGE_KEY } from "./constants/session.js";
 import { PLAN_0 } from "../functions/constants.js";
 import load_protected_content from "./methods/load-protected-content.js";
 import AdminPanel from "./screens/AdminPanel.svelte";
+import AdminIllustrations from "./screens/AdminIllustrations.svelte";
+import AdminSubSpecialties from "./screens/AdminSubSpecialties.svelte";
 import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
 import Index from "./screens/Index.svelte";
 import ImageAnnotation from "./screens/ImageAnnotation.svelte";
@@ -138,6 +140,14 @@ export default {
   }),
   "/admin": wrap({
     component: AdminPanel,
+    conditions: [is_user_logged_in, is_user_dm],
+  }),
+  "/admin/illustrations": wrap({
+    component: AdminIllustrations,
+    conditions: [is_user_logged_in, is_user_dm],
+  }),
+  "/admin/sub-specialties": wrap({
+    component: AdminSubSpecialties,
     conditions: [is_user_logged_in, is_user_dm],
   }),
   "/annotate": wrap({

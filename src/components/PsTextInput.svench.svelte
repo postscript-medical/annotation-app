@@ -37,7 +37,8 @@
     placeholder="Placeholder text"
     style="inline vertical"
     value={someValue}
-    on:input={updateInput}>
+    on:input={updateInput}
+  >
     Label
   </PsTextInput>
 </View>
@@ -47,7 +48,8 @@
     placeholder="Placeholder text"
     style="inline"
     disabled
-    value={someValue}>
+    value={someValue}
+  >
     Label
   </PsTextInput>
 </View>

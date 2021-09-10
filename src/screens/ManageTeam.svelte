@@ -307,7 +307,8 @@
         readonly={!editedTeamNameSrc}
         value={teamName}
         style="inline"
-        on:input={({ detail: value }) => update_team_name(value)}>
+        on:input={({ detail: value }) => update_team_name(value)}
+      >
         Team name:
       </PsTextInput>
       {#if !!editedTeamNameSrc}
@@ -315,20 +316,23 @@
           {loading}
           style="secondary inline"
           on:click={save_updated_team_name}
-          on:tween-out-complete={team_name_update_complete}>
+          on:tween-out-complete={team_name_update_complete}
+        >
           Save
         </PsButton>
         <PsButton
           disabled={loading || updatingTeamName}
           style="secondary inline"
-          on:click={() => toggle_edit_team_name()}>
+          on:click={() => toggle_edit_team_name()}
+        >
           Cancel
         </PsButton>
       {:else}
         <PsButton
           disabled={loading}
           style="secondary inline"
-          on:click={() => toggle_edit_team_name(teamName)}>
+          on:click={() => toggle_edit_team_name(teamName)}
+        >
           Edit
         </PsButton>
       {/if}
@@ -336,7 +340,8 @@
     <PsTextInput
       readonly
       value={`${totalTeamMembersLeft} of ${maxTeamMembers} user slots used`}
-      style="inline">
+      style="inline"
+    >
       Usage:
     </PsTextInput>
   </section>
@@ -348,7 +353,8 @@
       <PsButton
         disabled={loading || disabled}
         style="tertiary"
-        on:click={add_team_member}>
+        on:click={add_team_member}
+      >
         + add
       </PsButton>
     </header>
@@ -375,7 +381,9 @@
                   value={member.firstName}
                   placeholder="First name"
                   disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) => update_team_member_property('firstName', value, index)} />
+                  on:input={({ detail: value }) =>
+                    update_team_member_property("firstName", value, index)}
+                />
               </td>
               <td>
                 <PsTextInput
@@ -385,7 +393,9 @@
                   value={member.lastName}
                   placeholder="Last name"
                   disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) => update_team_member_property('lastName', value, index)} />
+                  on:input={({ detail: value }) =>
+                    update_team_member_property("lastName", value, index)}
+                />
               </td>
               <td>
                 <PsTextInput
@@ -395,7 +405,9 @@
                   value={member.email}
                   placeholder="Email address"
                   disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) => update_team_member_property('email', value, index)} />
+                  on:input={({ detail: value }) =>
+                    update_team_member_property("email", value, index)}
+                />
               </td>
               <td>
                 <PsDropdown
@@ -404,7 +416,9 @@
                   style="inline"
                   selected={member.role}
                   disabled={index > maxTeamMemberIndex}
-                  on:change={({ detail: value }) => update_team_member_property('role', value, index)} />
+                  on:change={({ detail: value }) =>
+                    update_team_member_property("role", value, index)}
+                />
               </td>
               <td>
                 {#if editingTeamMemberIndex === index}
@@ -413,7 +427,8 @@
                       {loading}
                       style="secondary inline"
                       on:click={() => save_new_team_member(member)}
-                      on:tween-out-complete={team_member_update_complete}>
+                      on:tween-out-complete={team_member_update_complete}
+                    >
                       Create
                     </PsButton>
                   {:else}
@@ -421,29 +436,39 @@
                       {loading}
                       style="secondary inline"
                       on:click={() => save_updated_team_member(member, index)}
-                      on:tween-out-complete={team_member_update_complete}>
+                      on:tween-out-complete={team_member_update_complete}
+                    >
                       Save
                     </PsButton>
                   {/if}
                   /
                   <PsButton
-                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    disabled={loading ||
+                      creatingNewTeamMember ||
+                      updatingTeamMember}
                     style="secondary inline"
-                    on:click={() => cancel_team_member_edit(index)}>
+                    on:click={() => cancel_team_member_edit(index)}
+                  >
                     Cancel
                   </PsButton>
                 {:else}
                   <PsButton
-                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    disabled={loading ||
+                      creatingNewTeamMember ||
+                      updatingTeamMember}
                     style="secondary inline"
-                    on:click={() => edit_team_member(member, index)}>
+                    on:click={() => edit_team_member(member, index)}
+                  >
                     Edit
                   </PsButton>
                   /
                   <PsButton
-                    disabled={loading || creatingNewTeamMember || updatingTeamMember}
+                    disabled={loading ||
+                      creatingNewTeamMember ||
+                      updatingTeamMember}
                     style="secondary inline"
-                    on:click={() => remove_team_member(member)}>
+                    on:click={() => remove_team_member(member)}
+                  >
                     Remove
                   </PsButton>
                 {/if}

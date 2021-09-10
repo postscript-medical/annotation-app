@@ -39,7 +39,8 @@
   {loading}
   on:close
   on:confirm={submitForm}
-  on:tween-out-complete={tweenOutComplete}>
+  on:tween-out-complete={tweenOutComplete}
+>
   <span slot="header">
     {#if resetComplete}Reset complete{:else}Reset your password{/if}
   </span>
@@ -57,7 +58,8 @@
           disabled={lockInput}
           required
           type="password"
-          on:input={clearErrors} />
+          on:input={clearErrors}
+        />
         <span class="password-requirements">
           8 characters or more.
           <br />

@@ -22,7 +22,8 @@
   class:selected
   class:loaded
   loading="lazy"
-  {src} />
+  {src}
+/>
 
 <style>
   img {

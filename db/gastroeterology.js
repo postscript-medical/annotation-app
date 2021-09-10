@@ -3,14 +3,15 @@
  * 
  * And this is the query to build it using Fauna's shell:
  * 
- * q.Map(
+ * Map(
   [...data],
-  q.Lambda(
+  Lambda(
     "entry",
-    q.Create(q.Collection("Illustration"), {
+    Create(Collection("Illustration"), {
       data: {
-        name: q.Select(["name"], q.Var("entry")),
-        src: q.Select(["src"], q.Var("entry"))
+        name: Select(["name"], Var("entry")),
+        src: Select(["src"], Var("entry")),
+        alias: Select(["alias"], Var("alias"))
       }
     })
   )

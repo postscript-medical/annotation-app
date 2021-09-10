@@ -88,7 +88,8 @@
           <PsButton
             disabled={loading}
             style="secondary"
-            on:click={() => close()}>
+            on:click={() => close()}
+          >
             {cancelBtCopy}
           </PsButton>
         {/if}

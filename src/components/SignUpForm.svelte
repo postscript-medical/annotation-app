@@ -35,4 +35,5 @@
   {errorMessage}
   style="on-dark"
   on:submit={submit}
-  on:error={({ detail }) => (errorMessage = detail)} />
+  on:error={({ detail }) => (errorMessage = detail)}
+/>

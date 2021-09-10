@@ -4,10 +4,12 @@ const {
   Get,
   Index,
   Lambda,
+  Let,
   Map,
   Match,
   Paginate,
   Ref,
+  Select,
   Var,
 } = faunadb.query;
 
@@ -55,7 +57,20 @@ exports.handler = (event) => {
           after,
           before,
         }),
-        Lambda(["name", "ref"], Get(Var("ref")))
+        Lambda(
+          ["name", "ref"],
+          Let(
+            {
+              illustrationDoc: Get(Var("ref")),
+            },
+            {
+              alias: Select(["data", "alias"], Var("illustrationDoc")),
+              id: Select(["ref", "id"], Var("illustrationDoc")),
+              name: Select(["data", "name"], Var("illustrationDoc")),
+              src: Select(["data", "src"], Var("illustrationDoc")),
+            }
+          )
+        )
       )
     )
     .then((response) => {

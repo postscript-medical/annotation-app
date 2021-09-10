@@ -2,12 +2,10 @@
   import {
     filteredIllustrations,
     illustrationSearchQuery,
-    selectedIllustrationTitle,
     selectedSpecialty,
     selectedSubSpecialty,
     specialties,
     subSpecialties,
-    user,
   } from "../stores.js";
   import ImagesGrid from "./ImagesGrid.svelte";
   import PsDropdown from "./PsDropdown.svelte";
@@ -17,13 +15,11 @@
   function selectSpecialty({ detail: specialty }) {
     $selectedSpecialty = specialty;
 
-    updateUserAppMetadata();
+    selectSubSpecialty({ detail: $subSpecialties[0].name });
   }
 
   function selectSubSpecialty({ detail: subSpecialty }) {
     $selectedSubSpecialty = subSpecialty;
-
-    updateUserAppMetadata();
   }
 
   function tween() {
@@ -53,30 +49,6 @@
       },
     };
   }
-
-  function updateUserAppMetadata() {
-    /*
-     * This is adding information to Netlify's user.user_metadata.
-     * We need to be very careful here as currently there is no way to remove this data
-     * once it is stored there. At some point in the future we should store this somewhere else.
-     * Right now it does not seem like a great idea as we don't want to run a Lambda function
-     * every time the user changes an illustration, it would end up costing us a lot of money.
-     */
-    $user
-      .update({
-        data: {
-          illustration: {
-            name: $selectedIllustrationTitle,
-            specialty: $selectedSpecialty,
-            subSpecialty: $selectedSubSpecialty,
-          },
-        },
-      })
-      .then((updatedUser) => {
-        $user = updatedUser;
-      })
-      .catch((error) => console.error(error));
-  }
 </script>
 
 {#if show}
@@ -89,7 +61,8 @@
         optionKey="name"
         selected={$selectedSpecialty}
         style="vertical"
-        on:change={selectSpecialty}>
+        on:change={selectSpecialty}
+      >
         Specialty
       </PsDropdown>
     </div>
@@ -101,7 +74,8 @@
         optionKey="name"
         selected={$selectedSubSpecialty}
         style="vertical"
-        on:change={selectSubSpecialty}>
+        on:change={selectSubSpecialty}
+      >
         Sub-specialty
       </PsDropdown>
     </div>
@@ -110,12 +84,14 @@
       type="text"
       placeholder="What are you looking for?"
       class="image-search"
-      bind:value={$illustrationSearchQuery} />
+      bind:value={$illustrationSearchQuery}
+    />
 
     <ImagesGrid
       images={$filteredIllustrations}
       on:select-illustration
-      on:close />
+      on:close
+    />
   </div>
 {/if}
 

@@ -17,10 +17,8 @@
     nativeLoading = true;
   }
 
-  function selectIllustration(title) {
-    if (title === $selectedIllustrationTitle) return;
-
-    dispatch("select-illustration", title);
+  function selectIllustration(illustration) {
+    dispatch("select-illustration", illustration);
 
     dispatch("close");
   }
@@ -32,14 +30,15 @@
   <div class="scrollable-container">
     <div class="images-grid">
       {#each images as image (image.name)}
-        <button class="card" on:click={selectIllustration(image.name)}>
+        <button class="card" on:click={selectIllustration(image)}>
           <IntersectionObserver once let:intersecting>
             <!-- This is not triggering on IE -->
             <!-- {#if nativeLoading || intersecting} -->
             <ImagesGridThumbnail
               src={URL_PATH + image.src}
               alt={image.name}
-              selected={$selectedIllustrationTitle === image.name} />
+              selected={$selectedIllustrationTitle === image.name}
+            />
             <!-- {/if} -->
           </IntersectionObserver>
           {image.name}

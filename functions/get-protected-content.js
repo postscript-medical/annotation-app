@@ -8,6 +8,12 @@ exports.handler = async (_, context) => {
       query: `
         query ($netlifyID: ID!) {
           findUserByNetlifyID(netlifyID: $netlifyID) {
+            appState {
+              _id
+              selectedSpecialty
+              selectedIllustrationTitle
+              selectedSubSpecialty 
+            }
             showTutorial
             role
             team {

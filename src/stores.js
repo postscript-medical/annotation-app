@@ -1,5 +1,5 @@
 import "whatwg-fetch";
-import { derived, readable, writable } from "svelte/store";
+import { derived, readable, writable, get } from "svelte/store";
 import {
   DEFAULT_SELECTED_SPECIALTY,
   DEFAULT_SELECTED_SUB_SPECIALTY,
@@ -12,8 +12,6 @@ import {
 
 export const session = writable();
 
-// Investigate: We want to reactively trigger a loadProtectedContent when the user is updated > use derived stores
-// no we might not want as we update the user every time they select an image/specialty/subSpecialty
 export const user = writable();
 
 export const isLoading = writable(true);
@@ -163,8 +161,8 @@ export const selectedSpecialty = writable(DEFAULT_SELECTED_SPECIALTY);
 
 export const selectedSubSpecialty = writable(DEFAULT_SELECTED_SUB_SPECIALTY);
 
-export const specialties = derived(organization, ($organization) => {
-  return $organization ? $organization.specialties : false;
+export const specialties = derived(protectedContent, ($protectedContent) => {
+  return $protectedContent ? $protectedContent.team.specialties : false;
 });
 
 export const subSpecialties = derived(
@@ -180,46 +178,33 @@ export const subSpecialties = derived(
 );
 
 export const illustrations = derived(
-  [selectedSubSpecialty, subSpecialties],
-  ([$selectedSubSpecialty, $subSpecialties]) => {
-    const hasSubSpecialties = $subSpecialties && $subSpecialties.length > 0;
+  [subSpecialties, selectedSubSpecialty],
+  ([$subSpecialties, $selectedSubSpecialty]) => {
+    const subSpecialty =
+      $subSpecialties &&
+      $subSpecialties.find(
+        ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
+      );
 
-    return hasSubSpecialties
-      ? $subSpecialties.find(
-          ({ name }) =>
-            name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
-        ).illustrations
-      : [];
+    return subSpecialty ? subSpecialty.illustrations : [];
   }
-);
-
-const redirectPath = "images";
-export const illustrationsPath = derived(
-  selectedSpecialty,
-  ($selectedSpecialty) =>
-    $selectedSpecialty ? `${redirectPath}/annotation-app/illustrations/` : ""
 );
 
 export const filteredIllustrations = derived(
   [illustrations, illustrationSearchQuery],
-  ([$illustrations, $illustrationSearchQuery]) =>
-    $illustrationSearchQuery
+  ([$illustrations, $illustrationSearchQuery]) => {
+    return $illustrationSearchQuery
       ? $illustrations.filter(({ name }) =>
           name.toLowerCase().includes($illustrationSearchQuery.toLowerCase())
         )
-      : $illustrations
+      : $illustrations;
+  }
 );
 
 export const selectedIllustration = derived(
-  [illustrationsPath, organization, selectedIllustrationTitle],
-  ([$illustrationsPath, $organization, $selectedIllustrationTitle]) => {
-    // We need to ask the user for a specialty if none is chosen rather than have this hardcoded value
-    const _illustrations =
-      $organization &&
-      $organization.specialties
-        .find(({ name }) => name.toLowerCase() === "gastroenterology")
-        .subSpecialties.find(({ name }) => name.toLowerCase() === "all")
-        .illustrations;
+  [selectedIllustrationTitle],
+  ([$selectedIllustrationTitle]) => {
+    const _illustrations = get(illustrations);
 
     let _illustration;
 
@@ -239,7 +224,7 @@ export const selectedIllustration = derived(
     return _illustration
       ? {
           ..._illustration,
-          src: $illustrationsPath + _illustration.src,
+          src: "images/annotation-app/illustrations/" + _illustration.src,
         }
       : undefined;
   }

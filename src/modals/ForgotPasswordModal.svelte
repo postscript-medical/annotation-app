@@ -29,7 +29,8 @@
   {loading}
   on:close
   on:confirm={submitForm}
-  on:tween-out-complete={tweenOutComplete}>
+  on:tween-out-complete={tweenOutComplete}
+>
   <span slot="header">
     {#if emailSent && showThankYou}
       Request sent successfully

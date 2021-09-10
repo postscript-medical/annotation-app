@@ -1,0 +1,44 @@
+const faunadb = require("faunadb");
+const { Collection, Ref, Update } = faunadb.query;
+
+exports.handler = (event) => {
+  let body;
+
+  try {
+    body = JSON.parse(event.body);
+  } catch (error) {
+    console.log("::: ERROR :::", event);
+
+    return {
+      statusCode: 400,
+      body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
+    };
+  }
+
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SERVER_KEY,
+  });
+
+  let illustrationList = body.illustrations.map(({ id }) =>
+    Ref(Collection("Illustration"), id)
+  );
+
+  console.log("Illustration lis >>>>>>>>>>>>", illustrationList);
+
+  return client
+    .query(
+      Update(Ref(Collection("SubSpecialty"), body.id), {
+        data: {
+          name: body.name,
+          illustrations: illustrationList,
+        },
+      })
+    )
+    .then((response) => {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response),
+      };
+    })
+    .catch((error) => console.log("::: Update SubSpecialty ERROR :::", error));
+};

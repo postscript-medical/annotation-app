@@ -14,7 +14,8 @@
   <h1 class="options">
     <PsLogo
       showName={!loggedIn}
-      style={loggedIn ? 'small full-color' : 'large white'} />
+      style={loggedIn ? "small full-color" : "large white"}
+    />
   </h1>
   {#if user}
     <div class="options">

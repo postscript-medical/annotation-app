@@ -37,7 +37,8 @@
         {loading}
         {emailSent}
         on:close={closeModal}
-        on:request-reset-password={requestResetPassword} />
+        on:request-reset-password={requestResetPassword}
+      />
     {/if}
   </div>
 </View>

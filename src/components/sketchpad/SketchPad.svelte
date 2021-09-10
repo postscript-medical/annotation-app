@@ -513,7 +513,8 @@
 
   <canvas
     bind:this={$canvasElement}
-    style={isPointerActive ? 'cursor: none;' : ''} />
+    style={isPointerActive ? "cursor: none;" : ""}
+  />
 
   <div class="typed-text">
     {#each $typedTextEntries as entry (entry.index)}
@@ -521,7 +522,8 @@
         {...entry}
         on:close={typedTexRemovetEntry}
         on:drag={toggleTypedTextDrag}
-        on:input={typedTextUpdateEntryContent} />
+        on:input={typedTextUpdateEntryContent}
+      />
     {/each}
   </div>
   {#if isPointerActive && selectedTool}

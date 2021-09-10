@@ -39,7 +39,8 @@
     const annotatedImage = document.createElement("canvas");
     const context = annotatedImage.getContext("2d");
     const boundingRect = $canvasElement.getBoundingClientRect();
-    const illustrationBoudingRect = $illustrationDisplayed.getBoundingClientRect();
+    const illustrationBoudingRect =
+      $illustrationDisplayed.getBoundingClientRect();
 
     annotatedImage.width = $canvasElement.width;
     annotatedImage.height = $canvasElement.height;
