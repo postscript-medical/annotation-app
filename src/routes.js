@@ -64,7 +64,7 @@ async function get_user_from_session_storage() {
 async function init_authentication() {
   isLoading.set(true);
 
-  const response = await new GoTrue.default({
+  const response = await new GoTrue({
     APIUrl: "https://app.postscriptmedical.com/.netlify/identity",
     setCookie: true,
   });

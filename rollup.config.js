@@ -1,9 +1,10 @@
 import svelte from "rollup-plugin-svelte-hot";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import babel from "@rollup/plugin-babel";
+import css from "rollup-plugin-css-only";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
-import babel from "@rollup/plugin-babel";
 
 const production = !process.env.ROLLUP_WATCH;
 const isSvench = !!process.env.SVENCH;
@@ -45,16 +46,15 @@ export default {
   },
   plugins: [
     svelte({
-      // enable run-time checks when not in production
-      dev: !production,
-      hot: isNollup,
-      // we'll extract any component CSS out into
-      // a separate file - better for performance
-      css: (css) => {
-        css.write(isNollup ? "build/bundle.css" : "bundle.css");
+      compilerOptions: {
+        // enable run-time checks when not in production
+        dev: !production,
       },
-      extensions: [".svelte"],
+      hot: isNollup,
     }),
+    // we'll extract any component CSS out into
+    // a separate file - better for performance
+    css({ output: isNollup ? "build/bundle.css" : "bundle.css" }),
 
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
@@ -85,15 +85,6 @@ export default {
             },
           ],
         ],
-        // plugins: [
-        //   "@babel/plugin-syntax-dynamic-import",
-        //   [
-        //     "@babel/plugin-transform-runtime",
-        //     {
-        //       useESModules: true,
-        //     },
-        //   ],
-        // ],
       }),
 
     // In dev mode, call `npm run start` once
