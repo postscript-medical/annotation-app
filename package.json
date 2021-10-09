@@ -4,8 +4,6 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "svench": "SVENCH=1 nollup",
-    "svench:rollup": "SVENCH=1 rollup -wc rollup.config.svench.js",
     "start": "sirv public --host",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
@@ -34,7 +32,7 @@
     "rollup-plugin-svelte-hot": "^1.0.0-8",
     "rollup-plugin-terser": "^7.0.2",
     "svelte": "^3.43.1",
-    "svench": "0.2.0-31",
+    "svench": "^0.2.0-31",
     "whatwg-fetch": "^3.6.2"
   },
   "dependencies": {

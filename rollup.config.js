@@ -7,8 +7,6 @@ import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 
 const production = !process.env.ROLLUP_WATCH;
-const isSvench = !!process.env.SVENCH;
-const isNollup = !!process.env.NOLLUP;
 const isLegacy = true;
 
 function serve() {
@@ -50,11 +48,10 @@ export default {
         // enable run-time checks when not in production
         dev: !production,
       },
-      hot: isNollup,
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance
-    css({ output: isNollup ? "build/bundle.css" : "bundle.css" }),
+    css({ output: "bundle.css" }),
 
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
@@ -89,11 +86,11 @@ export default {
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
-    !isSvench && !isNollup && !production && serve(),
+    !production && serve(),
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !isSvench && !isNollup && !production && livereload("public"),
+    !production && livereload("public"),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
