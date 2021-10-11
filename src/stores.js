@@ -194,9 +194,18 @@ export const filteredIllustrations = derived(
   [illustrations, illustrationSearchQuery],
   ([$illustrations, $illustrationSearchQuery]) => {
     const filtered = $illustrationSearchQuery
-      ? $illustrations.filter(({ name }) =>
-          name.toLowerCase().includes($illustrationSearchQuery.toLowerCase())
-        )
+      ? $illustrations.filter(({ name, alias }) => {
+          return (
+            name
+              .toLowerCase()
+              .includes($illustrationSearchQuery.toLowerCase()) ||
+            alias.find((entry) =>
+              entry
+                .toLowerCase()
+                .includes($illustrationSearchQuery.toLowerCase())
+            )
+          );
+        })
       : $illustrations;
 
     const sorted = JSON.parse(JSON.stringify(filtered));

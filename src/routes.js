@@ -99,9 +99,7 @@ async function is_user_logged_in() {
   isLoading.set(true);
 
   if (logged_user) {
-    if (!protected_content) {
-      await load_protected_content(logged_user);
-    }
+    await load_protected_content(logged_user);
 
     return confirm_navigation();
   }
