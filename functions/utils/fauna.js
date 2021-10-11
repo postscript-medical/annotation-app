@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const { getEnvironmentKey } = require("./getEnvironmentKey");
 const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
 
 exports.faunaFetch = async ({ query, variables }) => {
