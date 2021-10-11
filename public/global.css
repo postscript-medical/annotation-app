@@ -69,7 +69,11 @@ input[type="radio"] {
   width: auto;
 }
 
+.visually-hidden,
 input[type="radio"] {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
   opacity: 0;
   position: absolute;
   left: -10000px;

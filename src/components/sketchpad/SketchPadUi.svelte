@@ -33,6 +33,7 @@
   import IconSearch from "../icons/IconSearch.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
   import ImageSelector from "../ImageSelector.svelte";
+  import ColorWheel from "../ColorWheel.svelte";
   import PsHeader from "../PsHeader.svelte";
 
   export let pen;
@@ -201,11 +202,14 @@
       <IconText />
     </ButtonTool>
 
+    <!-- If IE11 -->
     <ColorPalette
       colors={PEN_COLORS}
       selected={pen.color}
       on:change={({ detail }) => changeColor(detail)}
     />
+    <!-- Else -->
+    <ColorWheel on:change={({ detail }) => changeColor(detail)} />
   {/if}
 </div>
 

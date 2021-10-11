@@ -1,9 +1,9 @@
-import IconArrow from '../components/icons/IconArrow.svelte';
-import IconEllipse from '../components/icons/IconEllipse.svelte';
-import IconEraserSize from '../components/icons/IconEraserSize.svelte';
-import IconLineThickness from '../components/icons/IconLineThickness.svelte';
-import IconRectangle from '../components/icons/IconRectangle.svelte';
-import IconTrashBin from '../components/icons/IconTrashBin.svelte';
+import IconArrow from "../components/icons/IconArrow.svelte";
+import IconEllipse from "../components/icons/IconEllipse.svelte";
+import IconEraserSize from "../components/icons/IconEraserSize.svelte";
+import IconLineThickness from "../components/icons/IconLineThickness.svelte";
+import IconRectangle from "../components/icons/IconRectangle.svelte";
+import IconTrashBin from "../components/icons/IconTrashBin.svelte";
 import {
   DEFAULT_COLOR,
   DEFAULT_SIZE,
@@ -20,7 +20,7 @@ import {
   TOOL_ARROW,
   TOOL_ELLIPSE,
   TOOL_RECTANGLE,
-} from './defaults.js';
+} from "./defaults.js";
 
 export const ERASER_SIZES = [
   {
@@ -42,21 +42,21 @@ export const ERASER_SIZES = [
     id: TOOL_ERASE_ALL,
     value: LINE_THICKNESS_0,
     component: IconTrashBin,
-  }
+  },
 ];
 
 export const PEN_COLORS = [
   {
     id: DEFAULT_COLOR,
-    value: 'rgb(0,0,0)',
+    value: "#000000",
   },
   {
-    id: 'red',
-    value: 'rgb(255,0,0)',
+    id: "red",
+    value: "#ff0000",
   },
   {
-    id: 'green',
-    value: 'rgb(55, 154, 70)',
+    id: "green",
+    value: "#379a46",
   },
 ];
 
@@ -107,8 +107,4 @@ const SHAPE_RECTANGLE = {
   component: IconRectangle,
 };
 
-export const SHAPES = [
-  SHAPE_ARROW,
-  SHAPE_ELLIPSE,
-  SHAPE_RECTANGLE,
-];
+export const SHAPES = [SHAPE_ARROW, SHAPE_ELLIPSE, SHAPE_RECTANGLE];

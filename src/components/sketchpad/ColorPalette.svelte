@@ -51,4 +51,14 @@
       align-items: flex-start;
     }
   }
+
+  /*
+   * We only want to show this component is the browser is IE
+   /*
+  /* Modern browsers */
+  @supports (display: grid) {
+    .colors-palette {
+      display: none;
+    }
+  }
 </style>
