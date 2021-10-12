@@ -4,7 +4,7 @@
   import ButtonFeedback from "./ButtonFeedback.svelte";
   import UserSettingsDropdown from "./UserSettingsDropdown.svelte";
 
-  export let user;
+  export let user = undefined;
   export let loggedIn = false;
   export let hideButtons = false;
 </script>
