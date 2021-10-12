@@ -229,7 +229,8 @@
     position: relative;
   }
 
-  .search-widget:focus-within .search-widget__options {
+  .search-widget:focus-within .search-widget__options,
+  .search-widget__options:hover {
     visibility: visible;
   }
 
