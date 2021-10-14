@@ -15,5 +15,7 @@
     width: 1.25rem;
     height: 1.25rem;
     stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-width: 2;
   }
 </style>

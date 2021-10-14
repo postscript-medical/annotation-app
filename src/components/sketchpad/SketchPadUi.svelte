@@ -30,7 +30,7 @@
   import IconEraser from "../icons/IconEraser.svelte";
   import IconPen from "../icons/IconPen.svelte";
   import IconText from "../icons/IconText.svelte";
-  import IconSearch from "../icons/IconSearch.svelte";
+  import IconImages from "../icons/IconImages.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
   import ImageSelector from "../ImageSelector.svelte";
   import ColorWheel from "../ColorWheel.svelte";
@@ -123,7 +123,7 @@
       toolName={TOOL_SEARCH}
       on:change-primary={openImageGallery}
     >
-      <IconSearch />
+      <IconImages />
     </ButtonTool>
 
     <ButtonTool
