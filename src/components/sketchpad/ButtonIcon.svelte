@@ -9,9 +9,23 @@
   function changeTool() {
     dispatch("click", value);
   }
+
+  function handleLeave() {
+    dispatch("leave");
+  }
+
+  function handleEnter() {
+    dispatch("enter", this);
+  }
 </script>
 
-<button class:on-dark={onDark} class="shadow" on:click={changeTool(value)}>
+<button
+  class:on-dark={onDark}
+  class="shadow"
+  on:click={changeTool(value)}
+  on:pointerenter={handleEnter}
+  on:pointerleave={handleLeave}
+>
   <slot />
 </button>
 

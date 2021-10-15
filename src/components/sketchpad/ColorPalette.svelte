@@ -1,16 +1,42 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import Portal from "svelte-portal";
+  import PsTooltip from "../PsTooltip.svelte";
+
   export let colors = [];
   export let selected;
+  export let tooltip = "";
 
   const dispatch = createEventDispatcher();
+
+  let showTooltip = false;
+  let position = { x: 0, y: 0 };
 
   function changeColor() {
     dispatch("change", this.value);
   }
+
+  function handleEnter() {
+    const { left, top, width, height } = this.getBoundingClientRect();
+
+    position = {
+      x: left + width,
+      y: top + height / 2,
+    };
+
+    showTooltip = true;
+  }
+
+  function handleLeave() {
+    showTooltip = false;
+  }
 </script>
 
-<div class="colors-palette shadow">
+<div
+  class="colors-palette shadow"
+  on:pointerenter={handleEnter}
+  on:pointerleave={handleLeave}
+>
   {#each colors as color}
     <label id={"palette-" + color.id}>
       <input
@@ -28,6 +54,14 @@
     </label>
   {/each}
 </div>
+
+{#if tooltip && showTooltip}
+  <Portal target=".tooltip-container">
+    <PsTooltip x={position.x} y={position.y}>
+      {tooltip}
+    </PsTooltip>
+  </Portal>
+{/if}
 
 <style>
   .colors-palette {

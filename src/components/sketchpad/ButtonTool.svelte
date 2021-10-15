@@ -1,11 +1,14 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import Portal from "svelte-portal";
   import { toolDrawerOpen, viewportType } from "../../stores.js";
   import { VIEWPORT_PHONE, VIEWPORT_TABLET } from "../../constants/defaults.js";
   import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
   import ButtonIcon from "./ButtonIcon.svelte";
+  import PsTooltip from "../PsTooltip.svelte";
 
   export let toolName;
+  export let tooltip = "";
   export let primaryValue = "";
   export let secondaryTools = [];
   export let secondaryValue = "";
@@ -13,6 +16,8 @@
   const dispatch = createEventDispatcher();
 
   let secondaryToolsContainer;
+  let showTooltip = false;
+  let position = { x: 0, y: 0 };
 
   $: openDrawer = $toolDrawerOpen === toolName;
   $: isSelected = primaryValue === toolName;
@@ -42,6 +47,21 @@
     closeUserSettingsDropdown();
 
     dispatch("change-secondary", { value, id });
+  }
+
+  function handleEnter({ detail: element }) {
+    const { left, top, width, height } = element.getBoundingClientRect();
+
+    position = {
+      x: left + width,
+      y: top + height * 0.5,
+    };
+
+    showTooltip = true;
+  }
+
+  function handleLeave() {
+    showTooltip = false;
   }
 
   function tween(node) {
@@ -91,7 +111,13 @@
 </script>
 
 <div class="primary-tool ">
-  <ButtonIcon on:click={changePrimary} onDark={isSelected} value={toolName}>
+  <ButtonIcon
+    on:click={changePrimary}
+    on:enter={handleEnter}
+    on:leave={handleLeave}
+    onDark={isSelected}
+    value={toolName}
+  >
     <slot onDark={isSelected}>!!</slot>
   </ButtonIcon>
   {#if showSecondaryTools}
@@ -119,6 +145,14 @@
         </label>
       {/each}
     </div>
+  {/if}
+
+  {#if tooltip && showTooltip}
+    <Portal target=".tooltip-container">
+      <PsTooltip x={position.x} y={position.y}>
+        {tooltip}
+      </PsTooltip>
+    </Portal>
   {/if}
 </div>
 
@@ -163,10 +197,5 @@
       left: 115%;
       top: 0;
     }
-
-    /* .secondary-tools > :global(:not(:last-child)) {
-      margin-right: 0;
-      margin-bottom: 0.5rem;
-    } */
   }
 </style>

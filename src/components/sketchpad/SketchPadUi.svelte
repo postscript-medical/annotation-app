@@ -121,6 +121,7 @@
     <ButtonTool
       primaryValue=""
       toolName={TOOL_SEARCH}
+      tooltip="Image catalog"
       on:change-primary={openImageGallery}
     >
       <IconImages />
@@ -131,6 +132,7 @@
       secondaryTools={PEN_SIZES}
       secondaryValue={pen.lineWidth}
       toolName={TOOL_PEN}
+      tooltip="Annotate"
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
       on:change-secondary={({ detail }) =>
         changeLineThickness(detail.value, TOOL_PEN)}
@@ -153,6 +155,7 @@
     <ButtonTool
       primaryValue={selectedToolId}
       toolName={TOOL_ERASER}
+      tooltip="Erase"
       secondaryTools={ERASER_SIZES}
       secondaryValue={eraser.lineWidth}
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
@@ -177,6 +180,7 @@
     <ButtonTool
       primaryValue={selectedToolId}
       toolName={TOOL_SHAPE}
+      tooltip="Shapes"
       secondaryTools={SHAPES}
       secondaryValue={shape.type}
       on:change-primary={({ detail: toolId }) => selectTool(toolId)}
@@ -197,6 +201,7 @@
     <ButtonTool
       primaryValue={selectedToolId}
       toolName={TOOL_TEXT}
+      tooltip="Type text"
       on:change-primary={({ detail }) => selectTool(detail)}
     >
       <IconText />
@@ -205,11 +210,15 @@
     <!-- If IE11 -->
     <ColorPalette
       colors={PEN_COLORS}
+      tooltip="Colors"
       selected={pen.color}
       on:change={({ detail }) => changeColor(detail)}
     />
     <!-- Else -->
-    <ColorWheel on:change={({ detail }) => changeColor(detail)} />
+    <ColorWheel
+      tooltip="Colors"
+      on:change={({ detail }) => changeColor(detail)}
+    />
   {/if}
 </div>
 

@@ -20,6 +20,8 @@
 
 <Router {routes} on:routeEvent={handle_route_event} />
 
+<div class="tooltip-container" />
+
 {#if errorMessage}
   <ErrorModal on:close={clear_errors}>
     <p>{errorMessage}</p>
