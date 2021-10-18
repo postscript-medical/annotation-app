@@ -1,6 +1,5 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import Portal from "svelte-portal";
   import { toolDrawerOpen, viewportType } from "../../stores.js";
   import { VIEWPORT_PHONE, VIEWPORT_TABLET } from "../../constants/defaults.js";
   import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
@@ -15,9 +14,9 @@
 
   const dispatch = createEventDispatcher();
 
+  let position = { x: 0, y: 0 };
   let secondaryToolsContainer;
   let showTooltip = false;
-  let position = { x: 0, y: 0 };
 
   $: openDrawer = $toolDrawerOpen === toolName;
   $: isSelected = primaryValue === toolName;
@@ -148,11 +147,9 @@
   {/if}
 
   {#if tooltip && showTooltip}
-    <Portal target=".tooltip-container">
-      <PsTooltip x={position.x} y={position.y}>
-        {tooltip}
-      </PsTooltip>
-    </Portal>
+    <PsTooltip x={position.x} y={position.y}>
+      {tooltip}
+    </PsTooltip>
   {/if}
 </div>
 

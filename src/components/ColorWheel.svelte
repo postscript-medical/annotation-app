@@ -1,6 +1,5 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import Portal from "svelte-portal";
   import PsTooltip from "./PsTooltip.svelte";
 
   export let color = "#000000";
@@ -45,11 +44,9 @@
 </label>
 
 {#if tooltip && showTooltip}
-  <Portal target=".tooltip-container">
-    <PsTooltip x={position.x} y={position.y}>
-      {tooltip}
-    </PsTooltip>
-  </Portal>
+  <PsTooltip x={position.x} y={position.y}>
+    {tooltip}
+  </PsTooltip>
 {/if}
 
 <style>

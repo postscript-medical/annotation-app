@@ -2,16 +2,19 @@
   import { createEventDispatcher, onMount } from "svelte";
   import IconClose from "../components/icons/IconClose.svelte";
   import PsButton from "../components/PsButton.svelte";
+  import PsTooltip from "../components/PsTooltip.svelte";
 
   export let cancelBtCopy = "Cancel";
   export let confirmBtCopy = "Confirm";
-  export let hideCloseButton = false;
   export let hideCancelButton = false;
+  export let hideCloseButton = false;
   export let hideConfirmButton = false;
   export let loading = false;
 
-  let wrapper;
   let modal;
+  let position = { x: 0, y: 0 };
+  let showTooltip = false;
+  let wrapper;
 
   const dispatch = createEventDispatcher();
 
@@ -51,6 +54,21 @@
     });
   }
 
+  function handleEnter() {
+    const { left, top, width, height } = this.getBoundingClientRect();
+
+    position = {
+      x: left + width,
+      y: top + height * 0.5,
+    };
+
+    showTooltip = true;
+  }
+
+  function handleLeave() {
+    showTooltip = false;
+  }
+
   onMount(() => {
     gsap
       .timeline()
@@ -76,14 +94,25 @@
       <h2 class="modal-header">
         <slot name="header" />
         {#if !hideCloseButton}
-          <button class="close" type="button" on:click={() => close()}>
+          <button
+            class="close"
+            type="button"
+            on:click={() => close()}
+            on:pointerenter={handleEnter}
+            on:pointerleave={handleLeave}
+          >
             <IconClose />
           </button>
+
+          {#if showTooltip}
+            <PsTooltip x={position.x} y={position.y}>Close</PsTooltip>
+          {/if}
         {/if}
       </h2>
       <slot />
       <footer>
         <slot name="footer" />
+
         {#if !hideCancelButton}
           <PsButton
             disabled={loading}
@@ -93,6 +122,7 @@
             {cancelBtCopy}
           </PsButton>
         {/if}
+
         {#if !hideConfirmButton}
           <PsButton {loading} on:tween-out-complete type="submit">
             {confirmBtCopy}

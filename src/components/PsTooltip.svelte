@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import Portal from "svelte-portal";
 
   export let x = 0;
   export let y = 0;
@@ -29,21 +30,24 @@
   });
 </script>
 
-<p
-  bind:this={element}
-  bind:clientHeight={h}
-  bind:clientWidth={w}
-  class="tooltip shadow"
-  style="transform:translate({posX}px, {posY}px);"
->
-  <slot>Tooltip copy missing</slot>
-</p>
+<Portal target=".tooltip-container">
+  <p
+    bind:this={element}
+    bind:clientHeight={h}
+    bind:clientWidth={w}
+    class="tooltip shadow"
+    style="transform:translate({posX}px, {posY}px);"
+  >
+    <slot>Tooltip copy missing</slot>
+  </p>
+</Portal>
 
 <style>
   .tooltip {
     background-color: white;
     border-radius: 0.5em;
     padding: 0.25em 0.5em;
+    pointer-events: none;
     position: absolute;
   }
 </style>
