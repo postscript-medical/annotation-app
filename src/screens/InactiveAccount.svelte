@@ -4,7 +4,7 @@
   import ManageSubscription from "../components/ManageSubscription.svelte";
 </script>
 
-<main class="central-align main-content">
+<main class="central-align ui-content">
   <PsHeader user={$user} loggedIn hideButtons />
 
   <h2>Inactive account</h2>
@@ -30,8 +30,6 @@
     background: rgb(250, 250, 250);
     display: block;
     min-height: 100vh;
-    padding: 1rem;
-    padding-top: 7rem;
   }
 
   main > * {

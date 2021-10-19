@@ -74,7 +74,7 @@
   });
 </script>
 
-<main class="main-content central-align">
+<main class="ui-content central-align">
   <PsHeader user={$user} loggedIn hideButtons />
 
   <h1>Sub-specialty management</h1>
@@ -122,13 +122,6 @@
 </main>
 
 <style>
-  .main-content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-
   .specialties-list {
     margin: 0;
     overflow-y: auto;

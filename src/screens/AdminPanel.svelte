@@ -15,19 +15,10 @@
   });
 </script>
 
-<div class="main-content central-align">
+<div class="ui-content central-align">
   <PsHeader user={$user} loggedIn hideButtons />
 
   <h1>Administration panel</h1>
 
   <NavBar />
 </div>
-
-<style>
-  .main-content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-</style>

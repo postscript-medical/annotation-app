@@ -106,7 +106,7 @@
   }
 </script>
 
-<div class="ui main-content">
+<div class="ui ui-content">
   <PsHeader user={$user} loggedIn />
 
   {#if showImageGallery}

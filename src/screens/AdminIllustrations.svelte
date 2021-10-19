@@ -145,7 +145,7 @@
   });
 </script>
 
-<div class="main-content central-align">
+<div class="ui-content central-align">
   <PsHeader user={$user} loggedIn hideButtons />
 
   <h1>Illustration management</h1>
@@ -264,13 +264,6 @@
 </div>
 
 <style>
-  .main-content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-
   ul {
     margin: 0;
     padding: 0;
