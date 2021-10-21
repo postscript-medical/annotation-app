@@ -19,8 +19,6 @@
 
   function selectIllustration(illustration) {
     dispatch("select-illustration", illustration);
-
-    dispatch("close");
   }
 </script>
 
@@ -107,18 +105,6 @@
     .card {
       width: auto;
       max-width: none;
-    }
-
-    @media screen and (min-width: 900px) {
-      .scrollable-container {
-        grid-row: 2 / span 3;
-        grid-column-start: 2;
-      }
-
-      .no-results {
-        grid-row: 2 / span 2;
-        grid-column-start: 2;
-      }
     }
 
     @media screen and (min-width: 1200px) {

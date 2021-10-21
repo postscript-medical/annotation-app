@@ -1,10 +1,13 @@
 <script>
   import { onMount } from "svelte";
   import {
+    actions,
+    activeModal,
     annotatedImage,
+    canvasElement,
+    context,
+    illustrationSearchQuery,
     protectedContent,
-    showFeedbackModal,
-    showShareModal,
     selectedIllustrationTitle,
     selectedSpecialty,
     selectedSubSpecialty,
@@ -20,12 +23,16 @@
     DEFAULT_COLOR,
     DEFAULT_SHAPE,
     DEFAULT_SIZE,
+    MODAL_CATALOG,
+    MODAL_FEEDBACK,
+    MODAL_SHARE,
     TOOL_ERASER,
     TOOL_PEN,
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../constants/defaults.js";
   import FeedbackModal from "../modals/FeedbackModal.svelte";
+  import ImageCatalogModal from "../modals/ImageCatalogModal.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
   import SketchPadUi from "../components/sketchpad/SketchPadUi.svelte";
   import ShareModal from "../modals/ShareModal.svelte";
@@ -52,6 +59,7 @@
     color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value,
     type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE).id,
   };
+  let tempAppState = {};
 
   $: {
     switch (selectedToolId) {
@@ -106,12 +114,17 @@
     errorMessage = "";
   }
 
-  function closeFeedbackModal() {
-    $showFeedbackModal = false;
+  function closeModal() {
+    $activeModal = "";
   }
 
-  function closeShareModal() {
-    $showShareModal = false;
+  function closeCatalogModal() {
+    $protectedContent.appState = { ...tempAppState };
+
+    $selectedSpecialty = tempAppState.selectedSpecialty;
+    $selectedSubSpecialty = tempAppState.selectedSubSpecialty;
+
+    closeModal();
   }
 
   function downloadImage() {
@@ -129,14 +142,35 @@
     }
   }
 
+  function eraseAnnotation() {
+    $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
+    $actions = [];
+  }
+
+  function openCatalogModal({ detail: modalName }) {
+    tempAppState = { ...$protectedContent.appState };
+
+    $illustrationSearchQuery = "";
+
+    openModal({ detail: modalName });
+  }
+
+  function openModal({ detail: modalName }) {
+    $activeModal = modalName;
+  }
+
   function selectIllustration({ detail: illustration }) {
     updateAppState(illustration.name);
+
+    eraseAnnotation();
 
     if (illustration.name !== $selectedIllustrationTitle) {
       tweenOut(() => {
         $selectedIllustrationTitle = illustration.name;
       });
     }
+
+    closeModal();
   }
 
   function selectTool({ detail: toolId }) {
@@ -209,25 +243,34 @@
     on:change-thickness={changeLineThickness}
     on:change-color={changePenColor}
     on:change-shape={changeShapeType}
+    on:erase-annotation={eraseAnnotation}
+    on:open-catalog={openCatalogModal}
     on:select-illustration={selectIllustration}
     on:select-tool={selectTool}
   />
 </div>
 
-{#if $showShareModal}
+{#if $activeModal === MODAL_SHARE}
   <ShareModal
     {loading}
     {emailSent}
     {errorMessage}
     on:clear-errors={clearErrors}
-    on:close={closeShareModal}
+    on:close={closeModal}
     on:send-email={sendImageViaEmail}
     on:download-image={downloadImage}
   />
 {/if}
 
-{#if $showFeedbackModal}
-  <FeedbackModal on:close={closeFeedbackModal} />
+{#if $activeModal === MODAL_FEEDBACK}
+  <FeedbackModal on:close={closeModal} />
+{/if}
+
+{#if $activeModal === MODAL_CATALOG}
+  <ImageCatalogModal
+    on:close={closeCatalogModal}
+    on:select-illustration={selectIllustration}
+  />
 {/if}
 
 <style>

@@ -1,10 +1,11 @@
 <script>
-  import { showFeedbackModal } from "../stores.js";
+  import { activeModal } from "../stores.js";
+  import { MODAL_FEEDBACK } from "../constants/defaults";
   import PsButton from "./PsButton.svelte";
 
-  function handle_click() {
-    $showFeedbackModal = !$showFeedbackModal;
+  function openFeedbackModal() {
+    $activeModal = MODAL_FEEDBACK;
   }
 </script>
 
-<PsButton style="tertiary" on:click={handle_click}>Feedback?</PsButton>
+<PsButton style="tertiary" on:click={openFeedbackModal}>Feedback?</PsButton>

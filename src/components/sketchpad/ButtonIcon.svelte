@@ -36,6 +36,7 @@
     border-radius: 50%;
     border: 0;
     display: flex;
+    font-size: 1.25rem;
     justify-content: center;
     margin: 0;
     padding: 0.75rem;

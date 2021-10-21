@@ -1,7 +1,6 @@
 <script>
   import { user, organization } from "../stores.js";
   import Modal from "./Modal.svelte";
-  import PsButton from "../components/PsButton.svelte";
 
   let feedback;
   let feedbackSent = false;
@@ -11,6 +10,7 @@
   async function submit_form() {
     loading = true;
     tweenComplete = false;
+
     await emailjs
       .send("5609467", "feedback_form", {
         from_email: $user.email,
@@ -18,14 +18,17 @@
         org_name: $organization.name,
         message: feedback,
       })
+      .then((response) => {
+        if (response.status === 200) {
+          feedbackSent = true;
+        }
+
+        loading = false;
+      })
       .catch((err) => {
         console.log(err);
         loading = false;
-        return;
       });
-
-    feedbackSent = true;
-    loading = false;
   }
 
   function tweenOutComplete() {
@@ -34,21 +37,28 @@
   }
 </script>
 
-<Modal hideCancelButton hideConfirmButton on:close on:confirm={submit_form}>
+<Modal
+  confirmBtCopy="Send"
+  cancelBtCopy="Close"
+  hideConfirmButton={feedbackSent && tweenComplete}
+  hideCancelButton={!feedbackSent || !tweenComplete}
+  {loading}
+  on:close
+  on:confirm={submit_form}
+  on:tween-out-complete={tweenOutComplete}
+>
   <span slot="header">
     {#if feedbackSent && tweenComplete}
       Thank you.
-    {:else}Have some feedback or would like to report a bug?{/if}
+    {:else}
+      Have some feedback or would like to report a bug?
+    {/if}
   </span>
 
   {#if feedbackSent && tweenComplete}
     Your message has been sent.
   {:else}
     <textarea bind:value={feedback} />
-
-    <PsButton {loading} type="submit" on:tween-out-complete={tweenOutComplete}>
-      Send
-    </PsButton>
   {/if}
 </Modal>
 

@@ -1,17 +1,18 @@
 <script>
   import {
+    activeModal,
     annotatedImage,
     canvasElement,
     dpr,
     illustrationDisplayed,
-    showShareModal,
   } from "../stores.js";
+  import { MODAL_SHARE } from "../constants/defaults";
   import PsButton from "./PsButton.svelte";
 
-  function click() {
-    annotatedImage.set(generateAnnotatedImage());
+  function openShareModal() {
+    $annotatedImage = generateAnnotatedImage();
 
-    $showShareModal = !$showShareModal;
+    $activeModal = MODAL_SHARE;
   }
 
   function drawTypedText(context, parentBoundingRect) {
@@ -67,4 +68,4 @@
   }
 </script>
 
-<PsButton style="tertiary" on:click={click}>Share</PsButton>
+<PsButton style="tertiary" on:click={openShareModal}>Share</PsButton>

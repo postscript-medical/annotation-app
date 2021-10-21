@@ -10,13 +10,14 @@
   export let hideCloseButton = false;
   export let hideConfirmButton = false;
   export let loading = false;
+  export let style = "normal"; /* [normal, extend] */
+
+  const dispatch = createEventDispatcher();
 
   let modal;
   let position = { x: 0, y: 0 };
   let showTooltip = false;
   let wrapper;
-
-  const dispatch = createEventDispatcher();
 
   function confirm() {
     dispatch("confirm");
@@ -87,12 +88,11 @@
 </script>
 
 <div bind:this={wrapper} class="wrapper">
-  <article bind:this={modal} class="modal shadow">
-    <!-- TODO: Create a separate FormModal that extends Modal to contain the form element -->
+  <article bind:this={modal} class={`modal shadow ${style}`}>
     <form on:submit|preventDefault={confirm}>
-      <!-- TODO: have only the body of the modal scroll -->
       <h2 class="modal-header">
         <slot name="header" />
+
         {#if !hideCloseButton}
           <button
             class="close"
@@ -149,42 +149,63 @@
   }
 
   .modal {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 95%;
-    max-height: 90%;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: 1rem repeat(6, 1fr) 1rem;
-    gap: 2rem 1rem;
     align-content: start;
-  }
-
-  .modal > :global(*) {
-    grid-column: 1 / -1;
+    background-color: white;
+    border-radius: 1rem;
+    display: grid;
+    gap: 2rem 1rem;
+    grid-template-columns: 1rem repeat(6, 1fr) 1rem;
+    grid-template-rows: 1fr;
+    padding: 2rem;
+    max-height: 90%;
+    overflow: hidden;
+    width: 95%;
   }
 
   .modal-header {
-    display: flex;
-    flex-direction: column-reverse;
+    align-items: start;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr min-content;
   }
 
-  .modal-header :global(:not(:last-child)) {
-    margin-top: 0.5rem;
-  }
   .close {
-    align-self: flex-end;
     border: 0;
     background: transparent;
     padding: 0;
+  }
+
+  form {
+    display: grid;
+    gap: 1rem;
+    grid-column: 1 / -1;
+    grid-template-rows: min-content 1fr min-content;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Temp hack to negate the global style */
+  form > :global(:not(:last-child)) {
+    margin: 0;
+  }
+
+  .extend {
+    height: 90%;
   }
 
   @media screen and (min-width: 600px) {
     .modal {
       min-width: 30rem;
       min-height: 20rem;
+    }
+
+    .normal {
       max-width: 50ch;
+    }
+
+    .extend {
+      width: 90%;
+      max-width: 1920px;
     }
   }
 </style>

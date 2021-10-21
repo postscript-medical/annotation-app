@@ -85,3 +85,9 @@ export const EVENTS_POINTER = {
   move: "pointermove",
   up: "pointerup",
 };
+
+export const MODAL_CATALOG = "modal-catalog";
+
+export const MODAL_SHARE = "modal-share";
+
+export const MODAL_FEEDBACK = "modal-feedback";

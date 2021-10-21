@@ -10,6 +10,8 @@ import {
   VIEWPORT_WIDESCREEN,
 } from "./constants/defaults.js";
 
+export const activeModal = writable("");
+
 export const session = writable();
 
 export const user = writable();
@@ -93,10 +95,6 @@ export const organization = derived(
  * Header-related stores
  */
 export const userSettingsDropdownDrawerOpen = writable(false);
-
-export const showFeedbackModal = writable(false);
-
-export const showShareModal = writable(false);
 
 export const customerPortalUrl = derived(
   [user, organization],
