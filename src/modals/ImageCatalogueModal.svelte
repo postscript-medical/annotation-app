@@ -23,7 +23,7 @@
 </script>
 
 <Modal hideCancelButton hideConfirmButton style="extend" on:close>
-  <svelte:fragment slot="header">Illustration catalog</svelte:fragment>
+  <svelte:fragment slot="header">Illustration catalogue</svelte:fragment>
 
   <div class="body">
     <PsDropdown

@@ -23,7 +23,7 @@
     DEFAULT_COLOR,
     DEFAULT_SHAPE,
     DEFAULT_SIZE,
-    MODAL_CATALOG,
+    MODAL_CATALOGUE,
     MODAL_FEEDBACK,
     MODAL_SHARE,
     TOOL_ERASER,
@@ -32,7 +32,7 @@
     TOOL_TEXT,
   } from "../constants/defaults.js";
   import FeedbackModal from "../modals/FeedbackModal.svelte";
-  import ImageCatalogModal from "../modals/ImageCatalogModal.svelte";
+  import ImageCatalogueModal from "../modals/ImageCatalogueModal.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
   import SketchPadUi from "../components/sketchpad/SketchPadUi.svelte";
   import ShareModal from "../modals/ShareModal.svelte";
@@ -118,7 +118,7 @@
     $activeModal = "";
   }
 
-  function closeCatalogModal() {
+  function closeCatalogueModal() {
     $protectedContent.appState = { ...tempAppState };
 
     $selectedSpecialty = tempAppState.selectedSpecialty;
@@ -147,7 +147,7 @@
     $actions = [];
   }
 
-  function openCatalogModal({ detail: modalName }) {
+  function openCatalogueModal({ detail: modalName }) {
     tempAppState = { ...$protectedContent.appState };
 
     $illustrationSearchQuery = "";
@@ -244,7 +244,7 @@
     on:change-color={changePenColor}
     on:change-shape={changeShapeType}
     on:erase-annotation={eraseAnnotation}
-    on:open-catalog={openCatalogModal}
+    on:open-catalogue={openCatalogueModal}
     on:select-illustration={selectIllustration}
     on:select-tool={selectTool}
   />
@@ -266,9 +266,9 @@
   <FeedbackModal on:close={closeModal} />
 {/if}
 
-{#if $activeModal === MODAL_CATALOG}
-  <ImageCatalogModal
-    on:close={closeCatalogModal}
+{#if $activeModal === MODAL_CATALOGUE}
+  <ImageCatalogueModal
+    on:close={closeCatalogueModal}
     on:select-illustration={selectIllustration}
   />
 {/if}

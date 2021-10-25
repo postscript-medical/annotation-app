@@ -8,7 +8,7 @@
     SHAPES,
   } from "../../constants/sketch-pad.js";
   import {
-    MODAL_CATALOG,
+    MODAL_CATALOGUE,
     TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
@@ -63,8 +63,8 @@
     dispatch("select-tool", toolId);
   }
 
-  function openIllustrationCatalog() {
-    dispatch("open-catalog", MODAL_CATALOG);
+  function openIllustrationCatalogue() {
+    dispatch("open-catalogue", MODAL_CATALOGUE);
   }
 </script>
 
@@ -74,8 +74,8 @@
   <ButtonTool
     primaryValue=""
     toolName={TOOL_SEARCH}
-    tooltip="Image catalog"
-    on:change-primary={openIllustrationCatalog}
+    tooltip="Image catalogue"
+    on:change-primary={openIllustrationCatalogue}
   >
     <IconImages />
   </ButtonTool>
