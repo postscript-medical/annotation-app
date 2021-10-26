@@ -9,30 +9,27 @@
   import { MODAL_SHARE } from "../constants/defaults";
   import PsButton from "./PsButton.svelte";
 
-  function openShareModal() {
-    $annotatedImage = generateAnnotatedImage();
-
-    $activeModal = MODAL_SHARE;
+  function drawTextLine(context, text, x, y) {
+    context.fillText(text, x, y);
   }
 
   function drawTypedText(context, parentBoundingRect) {
     const entries = Array.from(document.querySelectorAll(".typed-annotation"));
-    const fontSize = `${16 * $dpr}px`;
+    const fontSize = 16 * $dpr;
 
-    context.font = `${fontSize} 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
+    context.font = `${fontSize}px 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
     context.textBaseline = "middle";
 
     entries.forEach((entry) => {
       const boundingRect = entry.getBoundingClientRect();
       const x =
         (boundingRect.left - parentBoundingRect.left + 7) *
-        $dpr; /* 7 is the padding in the input */
-      const y =
-        (boundingRect.top - parentBoundingRect.top + boundingRect.height / 2) *
-        $dpr;
+        $dpr; /* 7 is the padding in the input in pixels */
+      const y = (boundingRect.top - parentBoundingRect.top + 7) * $dpr;
 
       context.fillStyle = entry.style.color;
-      context.fillText(entry.value, x, y);
+
+      wrapText(context, entry.value, x, y, boundingRect.width * $dpr, fontSize);
     });
   }
 
@@ -65,6 +62,35 @@
     drawTypedText(context, boundingRect);
 
     return annotatedImage;
+  }
+
+  function openShareModal() {
+    $annotatedImage = generateAnnotatedImage();
+
+    $activeModal = MODAL_SHARE;
+  }
+
+  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    const newLines = words.flatMap((word) => word.split(/([\r\n])/));
+    let line = "";
+    let _y = y;
+
+    for (let index = 0; index < newLines.length; index++) {
+      const testLine = line + newLines[index] + " ";
+      const measure = context.measureText(testLine);
+      const isNewLine = newLines[index] === "\n" || newLines[index] === "\r";
+
+      if (measure.width > maxWidth || isNewLine) {
+        drawTextLine(context, line, x, _y);
+        line = isNewLine ? newLines[index] + " " : "";
+        _y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+
+    drawTextLine(context, line, x, _y);
   }
 </script>
 

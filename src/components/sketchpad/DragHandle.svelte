@@ -41,11 +41,11 @@
   .drag-handle {
     background: white;
     border: 0;
-    text-align: center;
-    cursor: grab;
-    left: 0;
     border-radius: 50%;
-    pointer-events: auto;
+    cursor: grab;
+    font-size: 1.25rem;
+    left: 0;
     padding: 0.75rem;
+    text-align: center;
   }
 </style>

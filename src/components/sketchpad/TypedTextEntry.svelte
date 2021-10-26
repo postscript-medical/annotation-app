@@ -22,12 +22,6 @@
     dispatch("close", { index });
   }
 
-  function checkForEnter(event) {
-    if (event.keyCode === 13) {
-      document.activeElement.blur();
-    }
-  }
-
   function updateContent({ target }) {
     dispatch("input", { index, content: target.value });
   }
@@ -39,15 +33,12 @@
 
 <div bind:this={container} class="typed-text-entry" {style}>
   <!-- svelte-ignore a11y-autofocus -->
-  <input
+  <textarea
     autofocus
-    value={content}
-    type="text"
     class="typed-annotation"
     style={`color: ${color};`}
-    on:input={updateContent}
-    on:keyup|preventDefault={checkForEnter}
-  />
+    on:input={updateContent}>{content}</textarea
+  >
   <DragHandle {boundingRect} {eventType} {index} on:drag />
   <ButtonIcon on:click={closeEntry}>
     <IconClose />
@@ -59,21 +50,33 @@
     position: absolute;
     left: 0;
     top: 0;
+    pointer-events: auto;
   }
 
-  .typed-text-entry > :global(:not(input)) {
+  .typed-text-entry > :global(:not(textarea)) {
     position: absolute;
     opacity: 0;
-    transform: translate(-50%, -50%);
-    top: -25%;
+    top: -1.25rem;
+    left: -1.25rem;
     transition: opacity 100ms linear;
   }
 
-  .typed-text-entry:hover > :global(:not(input)) {
+  .typed-text-entry:hover > :global(:not(textarea)) {
     opacity: 1;
   }
 
   .typed-text-entry > :global(:last-child) {
-    right: -16%;
+    left: auto;
+    right: -1.25rem;
+  }
+
+  .typed-annotation {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: black;
+    border-width: 2px;
+  }
+
+  .typed-annotation:focus {
+    background-color: white;
   }
 </style>

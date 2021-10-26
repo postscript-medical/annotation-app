@@ -56,8 +56,13 @@ textarea {
   border-radius: 0.25rem;
   font-family: inherit;
   font-size: inherit;
-  padding: 0.4em 1.75em 0.4em 0.6em;
+  padding: 0.4em;
   width: 100%;
+}
+
+input,
+select {
+  padding: 0.4em 1.75em 0.4em 0.6em;
 }
 
 input:disabled {

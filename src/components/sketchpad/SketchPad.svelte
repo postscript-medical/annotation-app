@@ -216,6 +216,8 @@
   function onPointerDown(event) {
     event.preventDefault();
 
+    document.activeElement.blur();
+
     toolDrawerOpen.set("");
 
     closeUserSettingsDropdown();
