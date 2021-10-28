@@ -8,6 +8,10 @@ body {
     Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
+main {
+  display: block; /* IE11 */
+}
+
 .ps-app {
   background-color: rgb(55, 154, 70);
   background-position: bottom right;

@@ -87,7 +87,7 @@
   });
 </script>
 
-<div bind:this={wrapper} class="wrapper">
+<div bind:this={wrapper} class="modal-wrapper">
   <article bind:this={modal} class={`modal shadow ${style}`}>
     <form on:submit|preventDefault={confirm}>
       <h2 class="modal-header">
@@ -134,7 +134,8 @@
 </div>
 
 <style>
-  .wrapper {
+  /* Base styling */
+  .modal-wrapper {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.96);
     display: flex;
@@ -149,39 +150,17 @@
   }
 
   .modal {
-    align-content: start;
     background-color: white;
     border-radius: 1rem;
-    display: grid;
-    gap: 2rem 1rem;
-    grid-template-columns: 1rem repeat(6, 1fr) 1rem;
-    grid-template-rows: 1fr;
     padding: 2rem;
     max-height: 90%;
-    overflow: hidden;
     width: 95%;
-  }
-
-  .modal-header {
-    align-items: start;
-    display: grid;
-    gap: 0.5rem;
-    grid-template-columns: 1fr min-content;
   }
 
   .close {
     border: 0;
     background: transparent;
     padding: 0;
-  }
-
-  form {
-    display: grid;
-    gap: 1rem;
-    grid-column: 1 / -1;
-    grid-template-rows: min-content 1fr min-content;
-    height: 100%;
-    overflow: hidden;
   }
 
   /* Temp hack to negate the global style */
@@ -196,7 +175,6 @@
   @media screen and (min-width: 600px) {
     .modal {
       min-width: 30rem;
-      min-height: 20rem;
     }
 
     .normal {
@@ -206,6 +184,63 @@
     .extend {
       width: 90%;
       max-width: 1920px;
+    }
+  }
+
+  /* IE11 */
+  .modal {
+    overflow: auto;
+  }
+  .modal-header {
+    align-items: flex-start;
+    display: flex;
+  }
+
+  .modal-header > :global(:not(:last-child)) {
+    margin-right: 1rem;
+  }
+
+  .modal-header .close {
+    margin-left: auto;
+  }
+
+  form > :global(:not(:last-child)) {
+    margin-bottom: 1rem;
+  }
+
+  /* Modern browsers */
+  @supports (display: grid) {
+    .modal {
+      align-content: start;
+      display: grid;
+      gap: 2rem 1rem;
+      grid-template-columns: 1rem repeat(6, 1fr) 1rem;
+      grid-template-rows: 1fr;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      align-items: start;
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: 1fr min-content;
+    }
+
+    .modal-header > :global(:not(:last-child)) {
+      margin-right: 0;
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+      grid-column: 1 / -1;
+      grid-template-rows: min-content 1fr min-content;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    form > :global(:not(:last-child)) {
+      margin-bottom: 0;
     }
   }
 </style>

@@ -59,15 +59,28 @@
 </Modal>
 
 <style>
-  .body {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 1fr 1fr;
-    overflow-y: auto;
+  /* Base styling */
+  /* IE11 */
+  .body > :global(:not(:last-child)) {
+    margin-bottom: 1rem;
   }
 
-  .body > :global(:nth-child(3)),
-  .body > :global(:nth-child(4)) {
-    grid-column: 1 / -1;
+  /* Modern browsers */
+  @supports (display: grid) {
+    .body {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+      overflow-y: auto;
+    }
+
+    .body > :global(:not(:last-child)) {
+      margin-bottom: 0;
+    }
+
+    .body > :global(:nth-child(3)),
+    .body > :global(:nth-child(4)) {
+      grid-column: 1 / -1;
+    }
   }
 </style>

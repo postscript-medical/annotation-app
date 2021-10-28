@@ -85,6 +85,7 @@ shared wrapper component -->
 
   .vertical {
     flex-direction: column;
+    align-items: flex-start;
   }
   .vertical > :not(:last-child):not(:empty) {
     margin-bottom: 0.25rem;
