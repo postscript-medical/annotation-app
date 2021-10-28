@@ -1,46 +1,37 @@
-const { faunaFetch } = require('./utils/fauna');
+const faunadb = require("faunadb");
+const { Collection, Ref, Update } = faunadb.query;
 
-exports.handler = async ({ body }) => {
-  const { name, teamID } = JSON.parse(body);
+exports.handler = async (event) => {
+  let body;
 
   try {
-    await faunaFetch({
-      query: `
-        mutation (
-          $name: String!
-          $teamID: ID!
-        ) {
-          updateTeam (
-            id: $teamID
-            data: {
-              name: $name
-            }
-          ) {
-            organization {
-              stripeID
-            }
-            members {
-              data {
-                netlifyID
-              }
-            }
-            name
-          }
-        }
-      `,
-      variables: {
-        name,
-        teamID,
-      }
-    });
+    body = JSON.parse(event.body);
+  } catch (error) {
+    console.log("::: ERROR :::", event);
 
     return {
-      statusCode: 204,
-    };
-  } catch (error) {
-    return {
       statusCode: 400,
-      body: `Webhook Error: ${error.message}`,
+      body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
     };
-  };
+  }
+
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SERVER_KEY,
+  });
+
+  return client
+    .query(
+      Update(Ref(Collection("Team"), body.id), {
+        data: {
+          name: body.name,
+        },
+      })
+    )
+    .then((response) => {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response),
+      };
+    })
+    .catch((error) => console.log("::: Update Team property ERROR :::", error));
 };

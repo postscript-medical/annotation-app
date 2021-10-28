@@ -1,57 +1,85 @@
-const fetch = require('node-fetch');
-const { faunaFetch } = require('./utils/fauna');
+const deleteNetlifyUser = require("./utils/delete-netlify-user");
+const faunadb = require("faunadb");
+const { Collection, Delete, Do, Get, Match, Select, Ref } = faunadb.query;
 
-exports.handler = async ({ body }, context) => {
+exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
-  const { netlifyID, userID } = JSON.parse(body);
+  let body;
 
   try {
-    const response = await fetch(`${identity.url}/admin/users/${netlifyID}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${identity.token}` },
-    })
-    .catch(error => {
+    body = JSON.parse(event.body);
+  } catch (error) {
+    console.log("::: ERROR :::", event);
+
+    return {
+      statusCode: 400,
+      body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
+    };
+  }
+
+  try {
+    const response = await deleteNetlifyUser(
+      identity.url,
+      identity.token,
+      body.netlifyID
+    );
+
+    if (!response) {
       return {
         statusCode: 400,
-        body: `Error deleting user: ${error}`,
+        body: JSON.stringify({ message: "No user deleted" }),
       };
-    });
-
-    if (!response) return {
-      statusCode: 400,
-      body: 'No user deleted'
-    };
+    }
 
     const data = await response.json();
 
-    if (`${data.code}`[0] === '4' ) {
+    if (`${data.code}`[0] === "4") {
       return {
-        statusCode: 400,
-        body: 'No user deleted'
-      }
-    };
+        statusCode: data.code,
+        body: JSON.stringify({ message: data.msg }),
+      };
+    }
 
-    // Remove the user from the database
-    await faunaFetch({
-      query: `
-        mutation ($userID: ID!) {
-          deleteUser(id: $userID) {
-            _id
-          }
-        }
-      `,
-      variables: {
-        userID
-      }
+    const client = new faunadb.Client({
+      secret: process.env.FAUNA_SERVER_KEY,
     });
 
-    return {
-      statusCode: 204,
-    };
+    return client
+      .query(
+        Do(
+          /**
+           * Delete the user's AppState
+           */
+          Delete(
+            Ref(
+              Collection("UserAppState"),
+              Select(
+                ["ref", "id"],
+                Get(
+                  Match(
+                    "userAppState_userRef_by_user",
+                    Ref(Collection("User"), body.userID)
+                  )
+                )
+              )
+            )
+          ),
+          /**
+           * Delete the user
+           */
+          Delete(Ref(Collection("User"), body.userID))
+        )
+      )
+      .then(() => {
+        return {
+          statusCode: 204,
+        };
+      })
+      .catch((error) => console.log("::: Delete Team member ERROR :::", error));
   } catch (error) {
     return {
       statusCode: 400,
-      body: `Webhook Error: ${error.message}`,
+      body: JSON.stringify({ message: `Webhook Error: ${error.message}` }),
     };
-  };
+  }
 };

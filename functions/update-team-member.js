@@ -1,77 +1,40 @@
-const fetch = require('node-fetch');
-const { faunaFetch } = require('./utils/fauna');
+const faunadb = require("faunadb");
+const { Collection, Ref, Update } = faunadb.query;
 
-exports.handler = async ({ body }, context) => {
-  const { identity } = context.clientContext;
-  const { email, firstName, lastName, role, netlifyID, userID, teamID } = JSON.parse(body);
+exports.handler = async (event) => {
+  let body;
 
-  const response = await fetch(`${identity.url}/admin/users/${netlifyID}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${identity.token}` },
-    body: JSON.stringify({ app_metadata: { roles: [role] } })
-  })
-  .catch(error => {
+  try {
+    body = JSON.parse(event.body);
+  } catch (error) {
+    console.log("::: ERROR :::", event);
+
     return {
       statusCode: 400,
-      body: `Error updating user: ${error}`,
+      body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
     };
+  }
+
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SERVER_KEY,
   });
 
-  if (!response) return {
-    statusCode: 400,
-    body: JSON.stringify({ message: 'No user updated' }),
-  };
-
-  const data = await response.json();
-
-  if (`${data.code}`[0] === '4' ) {
-    return {
-      statusCode: data.code,
-      body: JSON.stringify({ message: data.msg }),
-    };
-  };
-
-  // TODO: handle error
-  // Update the user in the database
-  await faunaFetch({
-    query: `
-        mutation (
-          $userID: ID!
-          $email: String!
-          $role: String!
-          $netlifyID: ID!
-          $lastName: String
-          $firstName: String
-          $teamID: ID!
-        ) {
-        updateUser(
-          id: $userID
-          data: {
-            email: $email
-            role: $role
-            netlifyID: $netlifyID
-            lastName: $lastName
-            firstName: $firstName
-            team: { connect: $teamID }
-            showTutorial: true
-          }
-        ) {
-          _id
-        }
-      }
-    `,
-    variables: {
-      email,
-      firstName,
-      lastName,
-      role,
-      netlifyID,
-      userID,
-      teamID,
-    }
-  });
-
-  return {
-    statusCode: 204,
-  };
+  return client
+    .query(
+      Update(Ref(Collection("User"), body.userID), {
+        data: {
+          email: body.email,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          role: body.role,
+        },
+      })
+    )
+    .then((response) => {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response),
+      };
+    })
+    .catch((error) => console.log("::: Update Team member ERROR :::", error));
 };

@@ -16,7 +16,7 @@ export default async function (url, user, params) {
     body: JSON.stringify(params.body || {}),
   }).catch((err) => Promise.reject(new Error(`Error ${err.message}`)));
 
-  if (!response.ok) {
+  if (!response || !response.ok) {
     const err = await response.json();
 
     return Promise.reject(new Error(err.message));

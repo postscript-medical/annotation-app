@@ -1,9 +1,10 @@
 <script>
+  /* TODO: Remove the call to get-protected-content-2 from this screen */
   import { onMount, onDestroy } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
-  import { session, user, organization, protectedContent } from "../stores.js";
-  import load_protected_content from "../methods/load-protected-content.js";
-  import netlify_function from "../methods/netlify-function.js";
+  import { session, user } from "../stores.js";
+  import loadManagementData from "../methods/load-management-data.js";
+  import netlifyFunction from "../methods/netlify-function.js";
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
@@ -20,26 +21,24 @@
   let updatingTeamName = false;
   let updatingTeamMember = false;
   let creatingNewTeamMember = false;
+  let maxTeamMembers = 1;
+  let organization;
+  let teamMembers = [];
   let teamMembersTable;
+  let teamName = "";
+  let teamId;
 
-  $: teamMembers =
-    ($protectedContent &&
-      $protectedContent.team.members.filter(
-        ({ role }) => role !== ROLE_OWNER
-      )) ||
-    [];
-  $: teamName = ($protectedContent && $protectedContent.team.name) || "";
   $: totalTeamMembersAssigned = teamMembers.length;
   $: totalTeamMembersLeft = maxTeamMembers - totalTeamMembersAssigned;
   $: disabled =
     totalTeamMembersLeft < 1 || !!(typeof editingTeamMemberIndex === "number");
-  $: maxTeamMembers = ($organization && $organization.maxUsers) || 1;
   $: maxTeamMemberIndex = maxTeamMembers - 1;
 
   function add_team_member() {
     const newTeamMember = {
       email: "",
       firstName: "",
+      id: 0,
       lastName: "",
       role: ROLE_USER,
       toInvite: true,
@@ -47,19 +46,9 @@
 
     editedTeamMemberSrc = newTeamMember;
 
-    $protectedContent.team.members = [
-      ...$protectedContent.team.members,
-      newTeamMember,
-    ];
+    teamMembers = [{ ...newTeamMember }, ...teamMembers];
 
-    editingTeamMemberIndex = totalTeamMembersAssigned;
-
-    /* Wait for the new row to be placed in the DOM */
-    requestAnimationFrame(() => {
-      const { height } = teamMembersTable.getBoundingClientRect();
-
-      teamMembersTable.parentNode.scroll(0, height);
-    });
+    editingTeamMemberIndex = 0;
   }
 
   function cancel_team_member_edit(index) {
@@ -84,8 +73,23 @@
     editingTeamMemberIndex = index;
   }
 
+  function loadPageData() {
+    loadManagementData($user)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("data", data);
+        maxTeamMembers = data.organization.maxUsers;
+        organization = data.organization;
+        teamMembers = data.allMembers.data;
+        teamName = data.team.name;
+        teamId = data.team.id;
+      });
+  }
+
   async function remove_team_member(teamMember) {
-    const { netlifyID, _id: userID } = teamMember;
+    const { netlifyID, id: userID } = teamMember;
 
     if (netlifyID && userID) {
       /**
@@ -104,9 +108,7 @@
       if (!response) return;
     }
 
-    $protectedContent.team.members = [
-      ...$protectedContent.team.members.filter(({ _id }) => _id !== userID),
-    ];
+    teamMembers = [...teamMembers.filter(({ id }) => id !== userID)];
   }
 
   async function save_new_team_member({ email, firstName, lastName, role }) {
@@ -122,9 +124,10 @@
           email,
           firstName,
           lastName,
+          organizationID: organization.id,
           password: "123" /* TODO: generate a random password */,
           role,
-          teamID: $protectedContent.team._id,
+          teamID: teamId,
         },
       }
     ).catch((err) => {
@@ -135,49 +138,71 @@
 
     if (!response) return;
 
-    // send welcome email with a reset password link to the newly created user.
+    /**
+     * Send welcome email with a reset password link to the newly created user.
+     */
     send_email(email, firstName);
 
-    // Reload the data from the server
-    load_protected_content($user);
+    /**
+     * Reload the data
+     */
+    loadPageData();
+  }
+
+  async function save_team_change(url, params) {
+    loading = true;
+
+    clear_errors();
+
+    const response = await netlifyFunction(url, $user, params).catch((err) => {
+      loading = false;
+
+      return Promise.reject(new Error(err.message));
+    });
+
+    loading = false;
+
+    return response;
   }
 
   async function save_updated_team_member({
     email,
     firstName,
+    id: userID,
     lastName,
     role,
-    netlifyID,
-    _id: userID,
   }) {
     updatingTeamMember = true;
 
-    const response = await save_team_change(
-      "/.netlify/functions/update-team-member",
-      {
-        body: {
-          email,
-          firstName,
-          lastName,
-          role,
-          netlifyID,
-          userID,
-          teamID: $protectedContent.team._id,
-        },
-      }
-    ).catch((err) => (errorMessage = err.message));
+    save_team_change("/.netlify/functions/update-team-member", {
+      body: {
+        email,
+        firstName,
+        lastName,
+        role,
+        userID,
+      },
+    }).catch((err) => (errorMessage = err.message));
+  }
 
-    if (!response) return;
+  function save_updated_team_name() {
+    updatingTeamName = true;
 
-    // Reload the data from the server
-    load_protected_content($user);
+    save_team_change("/.netlify/functions/update-team-properties", {
+      body: {
+        name: teamName,
+        id: teamId,
+      },
+    }).catch((err) => {
+      errorMessage = err.message;
+    });
   }
 
   async function send_email(email, firstName) {
     await emailjs.send("5609467", "team_member_welcome", {
       from_email: $user.email,
       from_name: $user.user_metadata.full_name || "Admininstrator",
-      org_name: $organization.name,
+      org_name: organization.name,
       team_name: teamName,
       to_email: email,
       to_name: firstName || "there",
@@ -226,67 +251,26 @@
   }
 
   function update_team_member(teamMember) {
-    const updated_members = [...$protectedContent.team.members];
-    /*
-      This works even when _id is undefined because the only way _id is undefined is when we add a new, unsaved, member to the list.
-      When that happens, both _id and teamMember._id are undefined thus, returning the correct index.
-    */
-    const index = updated_members.findIndex(
-      ({ _id }) => _id === teamMember._id
-    );
+    const updatedTemMembers = [...teamMembers];
 
-    updated_members.splice(index, 1, teamMember);
+    const index = updatedTemMembers.findIndex(({ id }) => id === teamMember.id);
 
-    $protectedContent.team.members = updated_members;
+    updatedTemMembers.splice(index, 1, teamMember);
+
+    teamMembers = updatedTemMembers;
   }
 
   function update_team_name(name) {
-    $protectedContent.team.name = name;
+    teamName = name;
   }
 
-  async function save_team_change(url, params) {
-    loading = true;
-
-    clear_errors();
-
-    const response = await netlify_function(url, $user, params).catch((err) => {
-      loading = false;
-
-      return Promise.reject(new Error(err.message));
-    });
-
-    loading = false;
-
-    return response;
-  }
-
-  async function save_updated_team_name() {
-    updatingTeamName = true;
-
-    const response = await save_team_change(
-      "/.netlify/functions/update-team-properties",
-      {
-        body: {
-          name: teamName,
-          teamID: $protectedContent.team._id,
-        },
-      }
-    ).catch((err) => {
-      errorMessage = err.message;
-    });
-
-    if (!response) return;
-
-    // Reload the data from the server
-    load_protected_content($user);
-  }
-
-  /*
-   * This is hacky as hell but there is no current better alternative as far as I know currently
-   * https://github.com/sveltejs/svelte/issues/3105
-   */
   onMount(() => {
+    /*
+     * This is hacky as hell but there is no current better alternative as far as I know currently
+     * https://github.com/sveltejs/svelte/issues/3105
+     */
     document.body.classList.add("manage-team");
+    loadPageData();
   });
 
   onDestroy(() => {
@@ -380,108 +364,111 @@
         </thead>
         <tbody>
           {#each teamMembers as member, index}
-            <tr>
-              <td>
-                <PsTextInput
-                  readonly={editingTeamMemberIndex !== index}
-                  size="30"
-                  style="inline"
-                  value={member.firstName}
-                  placeholder="First name"
-                  disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) =>
-                    update_team_member_property("firstName", value, index)}
-                />
-              </td>
-              <td>
-                <PsTextInput
-                  readonly={editingTeamMemberIndex !== index}
-                  size="30"
-                  style="inline"
-                  value={member.lastName}
-                  placeholder="Last name"
-                  disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) =>
-                    update_team_member_property("lastName", value, index)}
-                />
-              </td>
-              <td>
-                <PsTextInput
-                  readonly={editingTeamMemberIndex !== index}
-                  size="30"
-                  style="inline"
-                  value={member.email}
-                  placeholder="Email address"
-                  disabled={index > maxTeamMemberIndex}
-                  on:input={({ detail: value }) =>
-                    update_team_member_property("email", value, index)}
-                />
-              </td>
-              <td>
-                <PsDropdown
-                  editable={editingTeamMemberIndex === index}
-                  options={ROLES}
-                  style="inline"
-                  selected={member.role}
-                  disabled={index > maxTeamMemberIndex}
-                  on:change={({ detail: value }) =>
-                    update_team_member_property("role", value, index)}
-                />
-              </td>
-              <td>
-                {#if editingTeamMemberIndex === index}
-                  {#if member.toInvite || creatingNewTeamMember}
+            {#if member.role !== ROLE_OWNER}
+              <tr>
+                <td>
+                  <PsTextInput
+                    readonly={editingTeamMemberIndex !== index}
+                    size="30"
+                    style="inline"
+                    value={member.firstName}
+                    placeholder="First name"
+                    disabled={index > maxTeamMemberIndex}
+                    on:input={({ detail: value }) =>
+                      update_team_member_property("firstName", value, index)}
+                  />
+                </td>
+                <td>
+                  <PsTextInput
+                    readonly={editingTeamMemberIndex !== index}
+                    size="30"
+                    style="inline"
+                    value={member.lastName}
+                    placeholder="Last name"
+                    disabled={index > maxTeamMemberIndex}
+                    on:input={({ detail: value }) =>
+                      update_team_member_property("lastName", value, index)}
+                  />
+                </td>
+                <td>
+                  <PsTextInput
+                    readonly={editingTeamMemberIndex !== index}
+                    size="30"
+                    style="inline"
+                    value={member.email}
+                    placeholder="Email address"
+                    disabled={index > maxTeamMemberIndex}
+                    on:input={({ detail: value }) =>
+                      update_team_member_property("email", value, index)}
+                  />
+                </td>
+                <td>
+                  <PsDropdown
+                    editable={editingTeamMemberIndex === index}
+                    options={ROLES}
+                    style="inline"
+                    selected={member.role}
+                    disabled={index > maxTeamMemberIndex}
+                    on:change={({ detail: value }) =>
+                      update_team_member_property("role", value, index)}
+                  />
+                </td>
+                <td>
+                  {#if editingTeamMemberIndex === index}
+                    {#if member.toInvite || creatingNewTeamMember}
+                      <PsButton
+                        {loading}
+                        style="secondary inline"
+                        on:click={() => save_new_team_member(member)}
+                        on:tween-out-complete={team_member_update_complete}
+                      >
+                        Create
+                      </PsButton>
+                    {:else}
+                      <PsButton
+                        {loading}
+                        style="secondary inline"
+                        on:click={() => save_updated_team_member(member, index)}
+                        on:tween-out-complete={team_member_update_complete}
+                      >
+                        Save
+                      </PsButton>
+                    {/if}
+                    /
                     <PsButton
-                      {loading}
+                      disabled={loading ||
+                        creatingNewTeamMember ||
+                        updatingTeamMember}
                       style="secondary inline"
-                      on:click={() => save_new_team_member(member)}
-                      on:tween-out-complete={team_member_update_complete}
+                      on:click={() => cancel_team_member_edit(index)}
                     >
-                      Create
+                      Cancel
                     </PsButton>
                   {:else}
                     <PsButton
-                      {loading}
+                      disabled={loading ||
+                        creatingNewTeamMember ||
+                        updatingTeamMember}
                       style="secondary inline"
-                      on:click={() => save_updated_team_member(member, index)}
-                      on:tween-out-complete={team_member_update_complete}
+                      on:click={() => edit_team_member(member, index)}
                     >
-                      Save
+                      Edit
+                    </PsButton>
+                    /
+                    <PsButton
+                      disabled={loading ||
+                        creatingNewTeamMember ||
+                        updatingTeamMember ||
+                        member.email === $user.email}
+                      style="secondary inline"
+                      on:click={() => remove_team_member(member)}
+                    >
+                      Remove
                     </PsButton>
                   {/if}
-                  /
-                  <PsButton
-                    disabled={loading ||
-                      creatingNewTeamMember ||
-                      updatingTeamMember}
-                    style="secondary inline"
-                    on:click={() => cancel_team_member_edit(index)}
-                  >
-                    Cancel
-                  </PsButton>
-                {:else}
-                  <PsButton
-                    disabled={loading ||
-                      creatingNewTeamMember ||
-                      updatingTeamMember}
-                    style="secondary inline"
-                    on:click={() => edit_team_member(member, index)}
-                  >
-                    Edit
-                  </PsButton>
-                  /
-                  <PsButton
-                    disabled={loading ||
-                      creatingNewTeamMember ||
-                      updatingTeamMember}
-                    style="secondary inline"
-                    on:click={() => remove_team_member(member)}
-                  >
-                    Remove
-                  </PsButton>
-                {/if}
-              </td>
-            </tr>
+                </td>
+              </tr>
+            {/if}
           {/each}
         </tbody>
       </table>
@@ -495,6 +482,7 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    padding: 1rem;
   }
 
   main > :global(:not(:last-child)) {

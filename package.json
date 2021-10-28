@@ -39,7 +39,7 @@
     "faunadb": "^4.4.1",
     "gotrue-js": "^0.9.29",
     "netlify-cli": "^6.10.4",
-    "node-fetch": "^3.0.0",
+    "node-fetch": "^2.0.0",
     "sirv-cli": "^1.0.14",
     "stripe": "^8.179.0",
     "svelte-portal": "^2.1.2",
