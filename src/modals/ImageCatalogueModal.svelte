@@ -70,6 +70,7 @@
     .body {
       display: grid;
       gap: 1rem;
+      grid-auto-rows: min-content;
       grid-template-columns: 1fr 1fr;
       overflow-y: auto;
     }

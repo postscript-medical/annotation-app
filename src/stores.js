@@ -166,12 +166,44 @@ export const specialties = derived(protectedContent, ($protectedContent) => {
 export const subSpecialties = derived(
   [selectedSpecialty, specialties],
   ([$selectedSpecialty, $specialties]) => {
-    return (
-      $specialties &&
-      $specialties.find(
-        ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
-      ).subSpecialties
+    if (!$specialties || $specialties.length === 0) return [];
+
+    const selectedSpecialty = $specialties.find(
+      ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
     );
+    const subSpecialties = JSON.parse(
+      JSON.stringify(selectedSpecialty.subSpecialties)
+    );
+
+    if (!subSpecialties || subSpecialties.length === 0) return [];
+
+    const allIllustrations = JSON.parse(
+      JSON.stringify(
+        subSpecialties.flatMap(({ illustrations }) => illustrations)
+      )
+    );
+    /**
+     * Filter out duplicates
+     */
+    const dedupedIllustrations = allIllustrations.filter(
+      (illustration, index, self) => {
+        return (
+          index ===
+          self.findIndex((entry) => {
+            return entry.src === illustration.src;
+          })
+        );
+      }
+    );
+
+    const allSubSpecialty = {
+      name: "All",
+      illustrations: dedupedIllustrations,
+    };
+
+    subSpecialties.push(allSubSpecialty);
+
+    return subSpecialties;
   }
 );
 

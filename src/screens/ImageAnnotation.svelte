@@ -275,14 +275,15 @@
 
 <style>
   .main-content {
+    align-items: center;
     background: rgb(250, 250, 250);
     display: flex;
-    align-items: center;
-    justify-content: center;
     height: 100vh;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 0;
+    touch-action: none;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none;
-    overflow-y: auto;
   }
 </style>

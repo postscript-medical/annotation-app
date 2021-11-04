@@ -482,7 +482,6 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-    padding: 1rem;
   }
 
   main > :global(:not(:last-child)) {

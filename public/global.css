@@ -292,6 +292,10 @@ noscript p {
   gap: 1rem;
 }
 
+.main-content {
+  padding: 1rem;
+}
+
 /* Media queries */
 /* 600px, 900px, 1200px, and 1800px */
 @media screen and (min-width: 320px) {

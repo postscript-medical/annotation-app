@@ -144,7 +144,7 @@
 <Modal on:confirm={saveChanges} on:close={close}>
   <svelte:fragment slot="header">Edit sub-specialty</svelte:fragment>
 
-  <div class="stacker">
+  <div class="form-wrapper stacker">
     <h3>Details</h3>
 
     <p>
@@ -214,8 +214,13 @@
 </Modal>
 
 <style>
+  .form-wrapper {
+    overflow: hidden;
+  }
+
   .current-illustrations {
     margin: 0;
+    overflow-y: auto;
     padding: 0;
   }
 
