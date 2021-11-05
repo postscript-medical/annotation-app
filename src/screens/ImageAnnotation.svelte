@@ -129,14 +129,14 @@
 
   function downloadImage() {
     const fileName = "myImage.jpg";
-    // IE11
+    /**
+     * IE11
+     */
     if (window.navigator.msSaveBlob) {
       window.navigator.msSaveBlob($annotatedImage.msToBlob(), fileName);
     } else {
-      const encodedImage = $annotatedImage.toDataURL("image/jpg", 0.7);
       const hiddenLink = document.createElement("a");
-
-      hiddenLink.setAttribute("href", encodedImage);
+      hiddenLink.setAttribute("href", generateAnnotatedImage());
       hiddenLink.setAttribute("download", fileName);
       hiddenLink.click();
     }
@@ -145,6 +145,10 @@
   function eraseAnnotation() {
     $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
     $actions = [];
+  }
+
+  function generateAnnotatedImage() {
+    return $annotatedImage.toDataURL("image/jpg", 0.7);
   }
 
   function openCatalogueModal({ detail: modalName }) {
@@ -157,6 +161,10 @@
 
   function openModal({ detail: modalName }) {
     $activeModal = modalName;
+  }
+
+  function printImage() {
+    window.print();
   }
 
   function selectIllustration({ detail: illustration }) {
@@ -257,8 +265,9 @@
     {errorMessage}
     on:clear-errors={clearErrors}
     on:close={closeModal}
-    on:send-email={sendImageViaEmail}
     on:download-image={downloadImage}
+    on:print-image={printImage}
+    on:send-email={sendImageViaEmail}
   />
 {/if}
 

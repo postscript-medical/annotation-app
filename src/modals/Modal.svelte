@@ -243,4 +243,10 @@
       margin-bottom: 0;
     }
   }
+
+  @media print {
+    .modal-wrapper {
+      display: none;
+    }
+  }
 </style>

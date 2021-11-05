@@ -231,4 +231,10 @@
       top: auto;
     }
   }
+
+  @media print {
+    .ui {
+      display: none;
+    }
+  }
 </style>

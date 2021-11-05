@@ -26,6 +26,10 @@
     dispatch("download-image");
   }
 
+  function printImage() {
+    dispatch("print-image");
+  }
+
   function submitForm() {
     submitAttempted = true;
 
@@ -39,18 +43,16 @@
 </script>
 
 <Modal hideCancelButton hideConfirmButton on:close on:confirm={submitForm}>
-  <span slot="header">
-    {#if emailSent && showThankYou}
-      Your email has been sent
-    {:else}Email the image to someone{/if}
-  </span>
+  <svelte:fragment slot="header">Share the annotated image</svelte:fragment>
 
   <ErrorMessage message={errorMessage} />
 
   <div class="modal-body">
     {#if emailSent && showThankYou}
+      <p>The email has been sent</p>
       <p>You can now close this window.</p>
     {:else}
+      <h3>Via email</h3>
       <input
         bind:this={email}
         disabled={lockInput}
@@ -68,10 +70,13 @@
       </PsButton>
     {/if}
     <hr />
-    <h3>Or save the image to your machine</h3>
+    <h3>Save the image locally</h3>
     <PsButton style="secondary" on:click={downloadImage}>
       Download image
     </PsButton>
+    <hr />
+    <h3>Send to your printer</h3>
+    <PsButton style="secondary" on:click={printImage}>Print image</PsButton>
   </div>
 </Modal>
 
