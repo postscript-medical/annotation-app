@@ -1,4 +1,5 @@
 <script>
+  import { location } from "svelte-spa-router";
   import PsLogo from "./PsLogo.svelte";
   import ButtonShare from "./ButtonShare.svelte";
   import ButtonFeedback from "./ButtonFeedback.svelte";
@@ -11,10 +12,19 @@
 
 <header class:padded={!loggedIn}>
   <h1 class="options">
-    <PsLogo
-      showName={!loggedIn}
-      style={loggedIn ? "small full-color" : "large white"}
-    />
+    {#if $location === "/annotate"}
+      <PsLogo
+        showName={!loggedIn}
+        style={loggedIn ? "small full-color" : "large white"}
+      />
+    {:else}
+      <a href="#/annotate">
+        <PsLogo
+          showName={!loggedIn}
+          style={loggedIn ? "small full-color" : "large white"}
+        />
+      </a>
+    {/if}
   </h1>
   {#if user}
     <div class="options">
