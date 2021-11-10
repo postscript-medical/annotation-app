@@ -121,7 +121,77 @@ export const customerPortalUrl = derived(
 /**
  * Canvas-related stores
  */
-export const actions = writable([]);
+export const actions = (function () {
+  /**
+   * Adapted from Rich Harris svelte-undo
+   * & lihautan Undo/Redo with Svelte store video
+   */
+  const stack = [];
+
+  let index = stack.length;
+
+  const state = writable({
+    first: true,
+    last: true,
+    current: stack,
+    stack,
+    index,
+  });
+
+  function update() {
+    const current = stack[index - 1];
+
+    state.set({
+      first: index === 1,
+      last: index === stack.length,
+      current: current || [],
+      stack,
+      index,
+    });
+  }
+
+  return {
+    jumpTo: (newIndex) => {
+      if (newIndex > 0 && newIndex < stack.length) index = newIndex;
+
+      update();
+    },
+    push: (value) => {
+      stack.length = index;
+      stack[index++] = value;
+
+      update();
+    },
+    redo: () => {
+      if (index < stack.length) index += 1;
+
+      update();
+    },
+    set: (value) => {
+      stack.length = 0;
+
+      if (value) {
+        stack.push(value);
+      }
+
+      index = stack.length;
+
+      update();
+    },
+    subscribe: state.subscribe,
+    undo: () => {
+      if (index > 1) index -= 1;
+
+      update();
+    },
+    update: (value) => {
+      stack.length = index;
+      stack[index - 1] = value;
+
+      update();
+    },
+  };
+})();
 
 export const canvasElement = writable();
 
@@ -139,7 +209,7 @@ export const dpr = readable(1, (set) => {
 export const toolDrawerOpen = writable("");
 
 export const typedTextEntries = derived(actions, ($actions) =>
-  $actions.filter(({ name }) => name === TOOL_TEXT)
+  $actions.current.filter(({ name }) => name === TOOL_TEXT)
 );
 
 /**

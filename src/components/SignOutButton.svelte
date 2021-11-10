@@ -39,7 +39,7 @@
   }
 
   function clearLocalApplicationData() {
-    actions.set([]);
+    actions.set();
     protectedContent.set(null);
     illustrationSearchQuery.set("");
     illustrationLoaded.set(false);

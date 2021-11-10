@@ -12,7 +12,9 @@
 
   $: noImages = images.length === 0;
 
-  // Determine whether to bypass the intersecting check
+  /**
+   * Determine whether to bypass the intersecting check
+   */
   if ("loading" in HTMLImageElement.prototype) {
     nativeLoading = true;
   }

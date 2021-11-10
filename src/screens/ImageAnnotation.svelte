@@ -26,11 +26,13 @@
     MODAL_CATALOGUE,
     MODAL_FEEDBACK,
     MODAL_SHARE,
+    TOOL_CHANGE_IMAGE,
     TOOL_ERASER,
     TOOL_PEN,
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../constants/defaults.js";
+  import clone from "../methods/clone.js";
   import FeedbackModal from "../modals/FeedbackModal.svelte";
   import ImageCatalogueModal from "../modals/ImageCatalogueModal.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
@@ -53,6 +55,7 @@
   };
   let selectedTool;
   let selectedToolId;
+  let sketchPad;
   let shape = {
     name: TOOL_SHAPE,
     lineWidth: PEN_SIZES.find(({ id }) => id === DEFAULT_SIZE).value,
@@ -143,8 +146,7 @@
   }
 
   function eraseAnnotation() {
-    $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
-    $actions = [];
+    sketchPad.clearCanvas();
   }
 
   function generateAnnotatedImage() {
@@ -171,6 +173,14 @@
     updateAppState(illustration.name);
 
     eraseAnnotation();
+
+    actions.push([
+      ...clone($actions.current),
+      {
+        name: TOOL_CHANGE_IMAGE,
+        illustrationTitle: illustration.name,
+      },
+    ]);
 
     if (illustration.name !== $selectedIllustrationTitle) {
       tweenOut(() => {
@@ -230,6 +240,14 @@
     );
   }
 
+  function redoAction() {
+    sketchPad.redo();
+  }
+
+  function undoAction() {
+    sketchPad.undo();
+  }
+
   onMount(() => {
     selectTool({ detail: TOOL_PEN });
   });
@@ -241,6 +259,7 @@
     {shape}
     {selectedTool}
     {selectedToolId}
+    bind:this={sketchPad}
     on:select-tool={selectTool}
   />
   <SketchPadUi
@@ -253,8 +272,10 @@
     on:change-shape={changeShapeType}
     on:erase-annotation={eraseAnnotation}
     on:open-catalogue={openCatalogueModal}
+    on:redo={redoAction}
     on:select-illustration={selectIllustration}
     on:select-tool={selectTool}
+    on:undo={undoAction}
   />
 </div>
 

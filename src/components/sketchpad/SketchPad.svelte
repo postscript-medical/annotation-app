@@ -1,14 +1,16 @@
 <script>
-  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import {
     actions,
     canvasElement,
     context,
     dpr,
     selectedIllustration,
+    selectedIllustrationTitle,
     toolDrawerOpen,
     typedTextEntries,
   } from "../../stores.js";
+  import clone from "../../methods/clone.js";
   import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
   import getPointerLocation from "./helpers/get-pointer-location.js";
   import setupCanvas from "./helpers/setup-canvas.js";
@@ -19,7 +21,9 @@
     LINE_THICKNESS_2,
     RADIAN,
     TOOL_ARROW,
+    TOOL_CHANGE_IMAGE,
     TOOL_ERASER,
+    TOOL_ERASE_ALL,
     TOOL_ELLIPSE,
     TOOL_PEN,
     TOOL_RECTANGLE,
@@ -36,7 +40,6 @@
   export let shape;
 
   const hasPointer = window.PointerEvent;
-  const dispatch = createEventDispatcher();
 
   let actionsIndex = 0;
   let isPointerActive = false;
@@ -104,7 +107,18 @@
     };
   }
 
-  function clearCanvas() {
+  export function clearCanvas() {
+    clearRect();
+
+    actions.push([
+      ...clone($actions.current),
+      {
+        name: TOOL_ERASE_ALL,
+      },
+    ]);
+  }
+
+  function clearRect() {
     $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
   }
 
@@ -202,6 +216,18 @@
     _context.restore();
   }
 
+  function handleKeydown(event) {
+    const isZed = event.key === "z";
+
+    if ((event.metaKey || event.ctrlKey) && isZed) {
+      undo();
+    }
+
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && isZed) {
+      redo();
+    }
+  }
+
   function init() {
     document.body.addEventListener(eventType.up, stopDrawing, false);
     $canvasElement.addEventListener(eventType.down, onPointerDown, false);
@@ -209,6 +235,13 @@
     paper.addEventListener(eventType.move, onPointerMove, false);
 
     $context = setupCanvas($canvasElement);
+
+    actions.set([
+      {
+        name: TOOL_CHANGE_IMAGE,
+        illustrationTitle: $selectedIllustrationTitle,
+      },
+    ]);
 
     resizeCanvas();
   }
@@ -228,21 +261,24 @@
 
     switch (selectedToolId) {
       case TOOL_TEXT:
-        newAction = addTypedText(event);
+        newAction = addTypedText();
         ++actionsIndex;
-        dispatch("select-tool", TOOL_PEN);
         break;
 
       case TOOL_SHAPE:
-        newAction = addShape(selectedToolId, event);
+        newAction = addShape(selectedToolId);
         break;
 
       default:
-        newAction = addStroke(event);
+        newAction = addStroke();
         break;
     }
 
-    $actions = [...$actions, newAction];
+    /**
+     * Only add an entry if we've drawn something or if
+     * we added a typed text entry
+     */
+    actions.push([...clone($actions.current), newAction]);
 
     render();
   }
@@ -273,10 +309,10 @@
     }
 
     if (isPointerActive) {
-      const targetIndex = $actions.findIndex(
+      const targetIndex = $actions.current.findIndex(
         ({ index }) => index === actionsIndex
       );
-      let target = { ...$actions[targetIndex] };
+      let target = clone($actions.current[targetIndex]);
 
       if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
         target.points = [
@@ -314,26 +350,36 @@
         }
       }
 
-      $actions[targetIndex] = target;
-      $actions = [...$actions];
+      /**
+       * Update current action... not add a new entry to the stack
+       */
+      updateCurrentAction(target, targetIndex);
     }
   }
 
   function render() {
-    clearCanvas();
+    clearRect();
 
     $context.lineCap = "round";
     $context.lineJoin = "round";
 
-    $actions.forEach((action) => {
+    $actions.current.forEach((action) => {
       switch (action.name) {
         case TOOL_PEN:
         case TOOL_ERASER:
           drawStroke($context, action);
           break;
 
+        case TOOL_ERASE_ALL:
+          clearRect();
+          break;
+
         case TOOL_SHAPE:
           drawShape($context, action);
+          break;
+
+        case TOOL_CHANGE_IMAGE:
+          $selectedIllustrationTitle = action.illustrationTitle;
           break;
 
         default:
@@ -371,51 +417,77 @@
       height: $canvasElement.height / oldSize.height,
     };
 
-    $actions = $actions.map((action) => {
-      switch (action.name) {
-        case TOOL_PEN:
-        case TOOL_ERASER:
-          return {
-            ...action,
-            points: action.points.map(({ x, y, lineWidth }) => {
-              return {
-                x: x * scaleFactor.width,
-                y: y * scaleFactor.height,
-                lineWidth: lineWidth * scaleFactor.width,
-              };
-            }),
-          };
+    const scaledStack = [];
+    const stackIndex = $actions.index;
 
-        case TOOL_SHAPE: {
-          const scaledShape = {
-            ...action,
-            x: action.x * scaleFactor.width,
-            y: action.y * scaleFactor.height,
-            dx: action.dx * scaleFactor.width,
-            dy: action.dy * scaleFactor.height,
-            lineWidth: action.lineWidth * scaleFactor.width,
-          };
+    $actions.stack.forEach((entries) => {
+      const scaledActions = [];
 
-          if (action.type === TOOL_ARROW) {
-            scaledShape.length = Math.sqrt(
-              scaledShape.dx * scaledShape.dx + scaledShape.dy * scaledShape.dy
-            );
-            scaledShape.angle = Math.atan2(scaledShape.dy, scaledShape.dx);
-          }
+      scaledStack.push(scaledActions);
 
-          return scaledShape;
-        }
-
-        case TOOL_TEXT:
-          return {
-            ...action,
-            x: action.x * scaleFactor.width,
-            y: action.y * scaleFactor.height,
-          };
-      }
+      entries.forEach((entry) => {
+        scaledActions.push(scaleAction(entry, scaleFactor));
+      });
     });
 
+    actions.set();
+
+    scaledStack.forEach((action) => {
+      actions.push(action);
+    });
+
+    actions.jumpTo(stackIndex);
+
     render();
+  }
+
+  // This is very costly. We should rethink how the resizing is handled
+  function scaleAction(action, scaleFactor) {
+    switch (action.name) {
+      case TOOL_PEN:
+      case TOOL_ERASER:
+        return {
+          ...action,
+          points: action.points.map(({ x, y }) => {
+            return {
+              x: x * scaleFactor.width,
+              y: y * scaleFactor.height,
+            };
+          }),
+        };
+
+      case TOOL_SHAPE: {
+        const scaledShape = {
+          ...action,
+          x: action.x * scaleFactor.width,
+          y: action.y * scaleFactor.height,
+          dx: action.dx * scaleFactor.width,
+          dy: action.dy * scaleFactor.height,
+          lineWidth: action.lineWidth * scaleFactor.width,
+        };
+
+        if (action.type === TOOL_ARROW) {
+          scaledShape.length = Math.sqrt(
+            scaledShape.dx * scaledShape.dx + scaledShape.dy * scaledShape.dy
+          );
+          scaledShape.angle = Math.atan2(scaledShape.dy, scaledShape.dx);
+        }
+
+        return scaledShape;
+      }
+
+      case TOOL_TEXT:
+        return {
+          ...action,
+          x: action.x * scaleFactor.width,
+          y: action.y * scaleFactor.height,
+        };
+
+      default:
+        return {
+          ...action,
+        };
+    }
   }
 
   function stopDrawing() {
@@ -424,21 +496,32 @@
     isPointerActive = false;
   }
 
-  function toggleTypedTextDrag({ detail }) {
-    dragTypedText = detail;
+  function toggleTypedTextDrag({ detail: drag }) {
+    dragTypedText = drag;
 
     resetPointerLocationId();
+
+    if (drag.active) {
+      const targetIndex = $actions.current.findIndex(
+        ({ index }) => index === dragTypedText.index
+      );
+      const target = {
+        ...$actions.current[targetIndex],
+      };
+
+      updateActions(target, targetIndex);
+    }
   }
 
   function typedTextDragBox() {
-    const targetIndex = $actions.findIndex(
+    const targetIndex = $actions.current.findIndex(
       ({ index }) => index === dragTypedText.index
     );
     const scaledWidth = $canvasElement.width / $dpr;
     const scaledHeight = $canvasElement.height / $dpr;
     // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
     let target = {
-      ...$actions[targetIndex],
+      ...$actions.current[targetIndex],
       x: pointerLocation.x - offsetLeft,
       y: pointerLocation.y - offsetTop,
     };
@@ -460,38 +543,60 @@
       target.y = scaledHeight - dragTypedText.height;
     }
 
-    $actions[targetIndex] = target;
-    $actions = [...$actions];
+    updateCurrentAction(target, targetIndex);
   }
 
   function typedTexRemovetEntry({ detail }) {
-    const targetIndex = $actions.findIndex(
+    const targetIndex = $actions.current.findIndex(
       ({ index }) => index === detail.index
     );
-    let target = [...$actions];
+    let updatedActions = clone($actions.current);
 
-    target.splice(targetIndex, 1);
+    updatedActions.splice(targetIndex, 1);
 
-    $actions = target;
+    actions.push(updatedActions);
   }
 
   function typedTextUpdateEntryContent({ detail }) {
-    const targetIndex = $actions.findIndex(
+    const targetIndex = $actions.current.findIndex(
       ({ index }) => index === detail.index
     );
-    let target = {
-      ...$actions[targetIndex],
+    let newAction = {
+      ...clone($actions.current[targetIndex]),
       content: detail.content,
     };
 
-    $actions[targetIndex] = target;
-    $actions = [...$actions];
+    updateActions(newAction, targetIndex);
+  }
+
+  function updateActions(updatedAction, index) {
+    const updatedActions = clone($actions.current);
+    updatedActions[index] = updatedAction;
+
+    actions.push(updatedActions);
+  }
+
+  function updateCurrentAction(updatedAction, index) {
+    const updatedActions = clone($actions.current);
+    updatedActions[index] = updatedAction;
+
+    actions.update(updatedActions);
   }
 
   function updateOffset() {
     const boundingRect = $canvasElement.getBoundingClientRect();
     offsetTop = boundingRect.top;
     offsetLeft = boundingRect.left;
+  }
+
+  export function undo() {
+    actions.undo();
+    render();
+  }
+
+  export function redo() {
+    actions.redo();
+    render();
   }
 
   onMount(() => {
@@ -503,10 +608,11 @@
     $canvasElement.removeEventListener(eventType.down, onPointerDown, false);
     $canvasElement.removeEventListener(eventType.up, onPointerUp, false);
     paper.removeEventListener(eventType.move, onPointerMove, false);
+    actions.set();
   });
 </script>
 
-<svelte:window on:resize={resizeCanvas} />
+<svelte:window on:resize={resizeCanvas} on:keydown={handleKeydown} />
 
 <div bind:this={paper} class="paper shadow aspect-ratio-lock">
   {#if src}

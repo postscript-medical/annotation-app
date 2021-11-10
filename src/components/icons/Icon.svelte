@@ -12,10 +12,10 @@
 
 <style>
   svg {
-    width: 1em;
     height: 1em;
     stroke-linejoin: round;
     stroke-linecap: round;
     stroke-width: 2;
+    width: 1em;
   }
 </style>

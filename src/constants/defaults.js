@@ -50,9 +50,11 @@ export const ROLE_OWNER = "owner";
 
 export const TOOL_ARROW = "arrow";
 
+export const TOOL_CHANGE_IMAGE = "change-image";
+
 export const TOOL_ELLIPSE = "ellipse";
 
-export const TOOL_ERASE_ALL = "erase_all";
+export const TOOL_ERASE_ALL = "erase-all";
 
 export const TOOL_ERASER = "eraser";
 

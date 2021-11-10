@@ -16,6 +16,7 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../../constants/defaults.js";
+  import ButtonUndoRedo from "./ButtonUndoRedo.svelte";
   import ButtonTool from "./ButtonTool.svelte";
   import ColorPalette from "./ColorPalette.svelte";
   import IconEraser from "../icons/IconEraser.svelte";
@@ -172,6 +173,8 @@
     tooltip="Colors"
     on:change={({ detail }) => changeColor(detail)}
   />
+
+  <ButtonUndoRedo on:redo on:undo />
 </div>
 
 <style>
@@ -205,6 +208,7 @@
 
   .secondary-tool {
     padding: 0.5rem;
+    cursor: pointer;
   }
 
   @media screen and (min-width: 900px) {
