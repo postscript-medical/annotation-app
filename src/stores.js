@@ -198,8 +198,7 @@ export const canvasElement = writable();
 export const context = writable();
 
 export const dpr = readable(1, (set) => {
-  let pixelRatio = window.devicePixelRatio || 1;
-  pixelRatio = pixelRatio < 1 ? 1 : pixelRatio;
+  let pixelRatio = (window.devicePixelRatio || 1, 2);
 
   set(pixelRatio);
 
