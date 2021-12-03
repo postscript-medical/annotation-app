@@ -4,8 +4,6 @@
     actions,
     activeModal,
     annotatedImage,
-    canvasElement,
-    context,
     illustrationSearchQuery,
     protectedContent,
     selectedIllustrationTitle,
@@ -150,7 +148,7 @@
   }
 
   function generateAnnotatedImage() {
-    return $annotatedImage.toDataURL("image/jpg", 0.7);
+    return $annotatedImage.toDataURL("image/jpeg", 0.9);
   }
 
   function openCatalogueModal({ detail: modalName }) {
@@ -198,7 +196,7 @@
   async function sendImageViaEmail({ detail: email }) {
     loading = true;
 
-    const encodedImage = $annotatedImage.toDataURL();
+    const encodedImage = generateAnnotatedImage();
     const response = await emailjs
       .send("5609467", "annotated_img", {
         image: encodedImage,
