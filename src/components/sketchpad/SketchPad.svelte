@@ -637,6 +637,14 @@
   {#if isPointerActive && selectedTool}
     <StokeCursor position={pointerLocation} size={selectedTool.lineWidth} />
   {/if}
+
+  <img
+    src="images/annotation-app/postscript-logo-raster.png"
+    class="watermark"
+    width="85"
+    height="71"
+    alt=""
+  />
 </div>
 
 <style>
@@ -657,6 +665,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .watermark {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
   }
 
   .typed-text {

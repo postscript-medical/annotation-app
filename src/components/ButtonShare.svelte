@@ -39,6 +39,7 @@
     const boundingRect = $canvasElement.getBoundingClientRect();
     const illustrationBoudingRect =
       $illustrationDisplayed.getBoundingClientRect();
+    const watermark = document.querySelector(".watermark");
 
     annotatedImage.width = $canvasElement.width;
     annotatedImage.height = $canvasElement.height;
@@ -57,6 +58,7 @@
       illustrationBoudingRect.width * $dpr,
       illustrationBoudingRect.height * $dpr
     );
+    context.drawImage(watermark, 16 * $dpr, 16 * $dpr, 85 * $dpr, 71 * $dpr);
     context.drawImage($canvasElement, 0, 0);
 
     drawTypedText(context, boundingRect);
