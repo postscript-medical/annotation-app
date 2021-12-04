@@ -43,12 +43,7 @@
   export function clearCanvas() {
     clearRect();
 
-    actions.push([
-      ...clone($actions.current),
-      {
-        name: TOOL_ERASE_ALL,
-      },
-    ]);
+    return $actions.current.filter(({ name }) => name !== TOOL_TEXT);
   }
 
   const hasPointer = window.PointerEvent;
@@ -379,6 +374,7 @@
           break;
 
         case TOOL_CHANGE_IMAGE:
+          clearRect();
           $selectedIllustrationTitle = action.illustrationTitle;
           break;
 

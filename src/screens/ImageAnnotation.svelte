@@ -25,6 +25,7 @@
     MODAL_FEEDBACK,
     MODAL_SHARE,
     TOOL_CHANGE_IMAGE,
+    TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
     TOOL_SHAPE,
@@ -144,7 +145,12 @@
   }
 
   function eraseAnnotation() {
-    sketchPad.clearCanvas();
+    actions.push([
+      ...sketchPad.clearCanvas(),
+      {
+        name: TOOL_ERASE_ALL,
+      },
+    ]);
   }
 
   function generateAnnotatedImage() {
@@ -170,10 +176,8 @@
   function selectIllustration({ detail: illustration }) {
     updateAppState(illustration.name);
 
-    eraseAnnotation();
-
     actions.push([
-      ...clone($actions.current),
+      ...sketchPad.clearCanvas(),
       {
         name: TOOL_CHANGE_IMAGE,
         illustrationTitle: illustration.name,
