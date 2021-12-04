@@ -4,7 +4,6 @@
     actions,
     canvasElement,
     context,
-    dpr,
     selectedIllustration,
     selectedIllustrationTitle,
     toolDrawerOpen,
@@ -13,7 +12,9 @@
   import clone from "../../methods/clone.js";
   import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
   import getPointerLocation from "./helpers/get-pointer-location.js";
+  import getUpdatedActions from "./helpers/get-updated-actions.js";
   import setupCanvas from "./helpers/setup-canvas.js";
+  import typedText from "./helpers/typed-text.js";
   import { SHAPE_ARROW } from "../../constants/sketch-pad.js";
   import {
     EVENTS_POINTER,
@@ -38,6 +39,17 @@
   export let selectedTool;
   export let selectedToolId;
   export let shape;
+
+  export function clearCanvas() {
+    clearRect();
+
+    actions.push([
+      ...clone($actions.current),
+      {
+        name: TOOL_ERASE_ALL,
+      },
+    ]);
+  }
 
   const hasPointer = window.PointerEvent;
 
@@ -93,29 +105,6 @@
       color: selectedTool.color,
       points: [],
     };
-  }
-
-  function addTypedText() {
-    return {
-      name: TOOL_TEXT,
-      content: "",
-      color: pen.color,
-      eventType,
-      index: actionsIndex,
-      x: pointerLocation.x - offsetLeft,
-      y: pointerLocation.y - offsetTop,
-    };
-  }
-
-  export function clearCanvas() {
-    clearRect();
-
-    actions.push([
-      ...clone($actions.current),
-      {
-        name: TOOL_ERASE_ALL,
-      },
-    ]);
   }
 
   function clearRect() {
@@ -261,7 +250,13 @@
 
     switch (selectedToolId) {
       case TOOL_TEXT:
-        newAction = addTypedText();
+        newAction = typedText.add({
+          color: pen.color,
+          eventType,
+          index: actionsIndex,
+          x: pointerLocation.x - offsetLeft,
+          y: pointerLocation.y - offsetTop,
+        });
         ++actionsIndex;
         break;
 
@@ -295,7 +290,12 @@
     recordPoint(event);
 
     if (dragTypedText.active) {
-      typedTextDragBox();
+      typedText.drag({
+        stack: $actions.current,
+        textbox: dragTypedText,
+        x: pointerLocation.x - offsetLeft,
+        y: pointerLocation.y - offsetTop,
+      });
     }
   }
 
@@ -353,7 +353,7 @@
       /**
        * Update current action... not add a new entry to the stack
        */
-      updateCurrentAction(target, targetIndex);
+      actions.update(getUpdatedActions(target, targetIndex));
     }
   }
 
@@ -509,78 +509,8 @@
         ...$actions.current[targetIndex],
       };
 
-      updateActions(target, targetIndex);
+      actions.push(getUpdatedActions(target, targetIndex));
     }
-  }
-
-  function typedTextDragBox() {
-    const targetIndex = $actions.current.findIndex(
-      ({ index }) => index === dragTypedText.index
-    );
-    const scaledWidth = $canvasElement.width / $dpr;
-    const scaledHeight = $canvasElement.height / $dpr;
-    // TODO: Convert this coordinates to percentages to take advantage of CSS positioning and remove the loop in the resize call
-    let target = {
-      ...$actions.current[targetIndex],
-      x: pointerLocation.x - offsetLeft,
-      y: pointerLocation.y - offsetTop,
-    };
-
-    // work out if box is going to be outside the paper boundaries
-    if (target.x < 0) {
-      target.x = 0;
-    }
-
-    if (target.x + dragTypedText.width > scaledWidth) {
-      target.x = scaledWidth - dragTypedText.width;
-    }
-
-    if (target.y < 0) {
-      target.y = 0;
-    }
-
-    if (target.y + dragTypedText.height > scaledHeight) {
-      target.y = scaledHeight - dragTypedText.height;
-    }
-
-    updateCurrentAction(target, targetIndex);
-  }
-
-  function typedTexRemovetEntry({ detail }) {
-    const targetIndex = $actions.current.findIndex(
-      ({ index }) => index === detail.index
-    );
-    let updatedActions = clone($actions.current);
-
-    updatedActions.splice(targetIndex, 1);
-
-    actions.push(updatedActions);
-  }
-
-  function typedTextUpdateEntryContent({ detail }) {
-    const targetIndex = $actions.current.findIndex(
-      ({ index }) => index === detail.index
-    );
-    let newAction = {
-      ...clone($actions.current[targetIndex]),
-      content: detail.content,
-    };
-
-    updateActions(newAction, targetIndex);
-  }
-
-  function updateActions(updatedAction, index) {
-    const updatedActions = clone($actions.current);
-    updatedActions[index] = updatedAction;
-
-    actions.push(updatedActions);
-  }
-
-  function updateCurrentAction(updatedAction, index) {
-    const updatedActions = clone($actions.current);
-    updatedActions[index] = updatedAction;
-
-    actions.update(updatedActions);
   }
 
   function updateOffset() {
@@ -628,9 +558,18 @@
     {#each $typedTextEntries as entry (entry.index)}
       <TypedTextEntry
         {...entry}
-        on:close={typedTexRemovetEntry}
+        on:close={({ detail }) =>
+          typedText.remove({
+            stack: $actions.current,
+            index: detail.index,
+          })}
         on:drag={toggleTypedTextDrag}
-        on:input={typedTextUpdateEntryContent}
+        on:input={({ detail }) =>
+          typedText.updateContent({
+            stack: $actions.current,
+            index: detail.index,
+            content: detail.content,
+          })}
       />
     {/each}
   </div>
