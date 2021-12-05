@@ -1,78 +1,154 @@
-const { faunaFetch } = require("./utils/fauna");
+const faunadb = require("faunadb");
+const { Get, Index, Lambda, Let, Map, Match, Select, Var } = faunadb.query;
 
-exports.handler = async (_, context) => {
+exports.handler = (_, context) => {
   const { user } = context.clientContext;
 
   try {
-    const result = await faunaFetch({
-      query: `
-        query ($netlifyID: ID!) {
-          findUserByNetlifyID(netlifyID: $netlifyID) {
-            appState {
-              _id
-              selectedSpecialty
-              selectedIllustrationTitle
-              selectedSubSpecialty 
-            }
-            showTutorial
-            role
-            team {
-              _id
-              name
-              members {
-                data {
-                  _id
-                  netlifyID
-                  email
-                  firstName
-                  lastName
-                  role
-                }
-              }
-              organization {
-                maxSpecialties
-                maxUsers
-                name
-                specialties {
-                  data {
-                    name
-                    subSpecialties {
-                      data {
-                        name
-                        illustrations(_size: 500) {
-                          data {
-                            name
-                            src
-                            default_illustration
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                stripeID
-                subscriptionLevel
-              }
-            }
-          }
-        }
-      `,
-      variables: {
-        netlifyID: user.sub,
-      },
+    const client = new faunadb.Client({
+      secret: process.env.FAUNA_SERVER_KEY,
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        ...result.data.findUserByNetlifyID,
-      }),
-    };
+    return client
+      .query(
+        Let(
+          {
+            userDoc: Get(Match(Index("findUserByNetlifyID"), user.sub)),
+            appState: Select(["data", "appState"], Var("userDoc")),
+            team: Select(["data", "team"], Var("userDoc")),
+          },
+          {
+            appState: Let(
+              {
+                appStateDoc: Get(Var("appState")),
+              },
+              {
+                id: Select(["ref", "id"], Var("appStateDoc")),
+                selectedIllustrationTitle: Select(
+                  ["data", "selectedIllustrationTitle"],
+                  Var("appStateDoc")
+                ),
+                selectedSpecialty: Select(
+                  ["data", "selectedSpecialty"],
+                  Var("appStateDoc")
+                ),
+                selectedSubSpecialty: Select(
+                  ["data", "selectedSubSpecialty"],
+                  Var("appStateDoc")
+                ),
+              }
+            ),
+            id: Select(["ref", "id"], Var("userDoc")),
+            role: Select(["data", "role"], Var("userDoc")),
+            team: Let(
+              {
+                teamDoc: Get(Var("team")),
+                specialtiesDoc: Select(["data", "specialties"], Var("teamDoc")),
+              },
+              {
+                name: Select(["data", "name"], Var("teamDoc")),
+                organization: Let(
+                  {
+                    organizationDoc: Get(
+                      Select(["data", "organization"], Var("teamDoc"))
+                    ),
+                  },
+                  {
+                    subscriptionLevel: Select(
+                      ["data", "subscriptionLevel"],
+                      Var("organizationDoc")
+                    ),
+                  }
+                ),
+                specialties: Map(
+                  Var("specialtiesDoc"),
+                  Lambda(
+                    "specialtyRef",
+                    Let(
+                      {
+                        specialtyDoc: Get(Var("specialtyRef")),
+                      },
+                      {
+                        name: Select(["data", "name"], Var("specialtyDoc")),
+                        subSpecialties: Map(
+                          Select(
+                            ["data", "subSpecialties"],
+                            Var("specialtyDoc")
+                          ),
+                          Lambda(
+                            "subSpecialtyRef",
+                            Let(
+                              {
+                                subSpecialtyDoc: Get(Var("subSpecialtyRef")),
+                              },
+                              {
+                                name: Select(
+                                  ["data", "name"],
+                                  Var("subSpecialtyDoc")
+                                ),
+                                illustrations: Map(
+                                  Select(
+                                    ["data", "illustrations"],
+                                    Var("subSpecialtyDoc")
+                                  ),
+                                  Lambda(
+                                    "illustrationRef",
+                                    Let(
+                                      {
+                                        illustrationDoc: Get(
+                                          Var("illustrationRef")
+                                        ),
+                                      },
+                                      {
+                                        name: Select(
+                                          ["data", "name"],
+                                          Var("illustrationDoc")
+                                        ),
+                                        alias: Select(
+                                          ["data", "alias"],
+                                          Var("illustrationDoc")
+                                        ),
+                                        src: Select(
+                                          ["data", "src"],
+                                          Var("illustrationDoc")
+                                        ),
+                                      }
+                                    )
+                                  )
+                                ),
+                              }
+                            )
+                          )
+                        ),
+                      }
+                    )
+                  )
+                ),
+              }
+            ),
+          }
+        )
+      )
+      .then((response) => {
+        return {
+          statusCode: 200,
+          body: JSON.stringify(response),
+        };
+      })
+      .catch((error) => {
+        console.log("::: Get Protected content ERROR :::", error);
+
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: `Webhook: ${error}` }),
+        };
+      });
   } catch (error) {
-    console.log(":: ERROR :: [get-protected-content] >>>", error);
+    console.log("::: Get Protected content TRY/CATCH ERROR :::", error);
+
     return {
       statusCode: 400,
-      body: `Webhook Error: ${error.message}`,
+      body: JSON.stringify({ error: `Webhook: ${error.message}` }),
     };
   }
 };

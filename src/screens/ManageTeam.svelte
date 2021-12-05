@@ -1,5 +1,5 @@
 <script>
-  /* TODO: Remove the call to get-protected-content-2 from this screen */
+  /* TODO: Remove the call to get-protected-content from this screen */
   import { onMount, onDestroy } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
   import { session, user } from "../stores.js";

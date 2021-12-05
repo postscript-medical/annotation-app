@@ -15,21 +15,21 @@ export default async function (user) {
     );
   }
 
-  const response = await fetch("/.netlify/functions/get-protected-content-2", {
+  const response = await fetch("/.netlify/functions/get-protected-content", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  }).catch((error) => {
+    console.log("Load error:", error);
+    throw new Error(error);
   });
 
-  if (!response || !response.ok) {
-    // TODO: clear session storage whenever we hit this error
-    throw new Error(
-      `An error when fetching protected content:\n${response.status}`
-    );
-  }
-
   const data = await response.json();
+
+  if (!response || !response.ok) {
+    throw new Error(data.error);
+  }
 
   /**
    * Netlify identity will return:
@@ -37,11 +37,8 @@ export default async function (user) {
    * whenever if the user requested does not exist.
    */
   if (data.copy) {
-    // TODO: show error that no user could be found
-    return;
+    throw new Error(data.copy);
   }
-
-  console.log("Protected content:", data);
 
   protectedContent.set(data);
   selectedIllustrationTitle.set(data.appState.selectedIllustrationTitle);

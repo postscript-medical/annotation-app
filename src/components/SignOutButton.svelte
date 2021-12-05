@@ -1,22 +1,7 @@
 <script>
   import { push } from "svelte-spa-router";
-  import {
-    DEFAULT_SELECTED_SPECIALTY,
-    DEFAULT_SELECTED_SUB_SPECIALTY,
-  } from "../constants/defaults.js";
-  import {
-    actions,
-    isLoading,
-    illustrationSearchQuery,
-    illustrationLoaded,
-    protectedContent,
-    selectedIllustrationTitle,
-    selectedSpecialty,
-    selectedSubSpecialty,
-    user,
-  } from "../stores.js";
-  import { STORAGE_KEY } from "../constants/session.js";
-  import closeUserSettingsDropdown from "../methods/closeUserSettingsDropdown.js";
+  import { isLoading, user } from "../stores.js";
+  import clearLocalApplicationData from "../methods/clear-local-application-data.js";
   import PsButton from "./PsButton.svelte";
 
   export let inline = false;
@@ -36,21 +21,6 @@
       .catch((error) => {
         console.error("Error:", error);
       });
-  }
-
-  function clearLocalApplicationData() {
-    actions.set();
-    protectedContent.set(null);
-    illustrationSearchQuery.set("");
-    illustrationLoaded.set(false);
-    selectedIllustrationTitle.set(null);
-    selectedSpecialty.set(DEFAULT_SELECTED_SPECIALTY);
-    selectedSubSpecialty.set(DEFAULT_SELECTED_SUB_SPECIALTY);
-    user.set(null);
-
-    closeUserSettingsDropdown();
-
-    window.sessionStorage.removeItem(STORAGE_KEY);
   }
 </script>
 

@@ -10,7 +10,7 @@
     typedTextEntries,
   } from "../../stores.js";
   import clone from "../../methods/clone.js";
-  import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
+  import closeUserSettingsDropdown from "../../methods/close-user-settings-dropdown.js";
   import getPointerLocation from "./helpers/get-pointer-location.js";
   import getUpdatedActions from "./helpers/get-updated-actions.js";
   import setupCanvas from "./helpers/setup-canvas.js";

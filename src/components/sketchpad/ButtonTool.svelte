@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { toolDrawerOpen, viewportType } from "../../stores.js";
   import { VIEWPORT_PHONE, VIEWPORT_TABLET } from "../../constants/defaults.js";
-  import closeUserSettingsDropdown from "../../methods/closeUserSettingsDropdown.js";
+  import closeUserSettingsDropdown from "../../methods/close-user-settings-dropdown.js";
   import ButtonIcon from "./ButtonIcon.svelte";
   import PsTooltip from "../PsTooltip.svelte";
 
