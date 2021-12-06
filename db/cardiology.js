@@ -11,7 +11,7 @@
       data: {
         name: Select(["name"], Var("entry")),
         src: Select(["src"], Var("entry")),
-        alias: Select(["alias"], Var("alias"))
+        alias: Select(["alias"], Var("entry")),
       }
     })
   )

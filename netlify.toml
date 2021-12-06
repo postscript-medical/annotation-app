@@ -3,6 +3,16 @@
   [headers.values]
     Permissions-Policy = "interest-cohort=()"
 
+[[redirects]]
+  from = 'images/*'
+  to = 'https://res.cloudinary.com/postscript-medical/image/upload/q_auto:eco/:splat'
+  status = 200
+
+[[redirects]]
+  from = 'api/*'
+  to = '.netlify/functions/:splat'
+  status = 200
+
 [build]
   command = "npm run build"
   publish = "public"
@@ -11,8 +21,11 @@
 [dev]
   command = "npm run dev"
 
-[[redirects]]
-  from = 'images/*'
-  to = 'https://res.cloudinary.com/postscript-medical/image/upload/q_auto:eco/:splat'
-  status = 200
-  
+[context.production]
+  environment = { ENV_PREFIX = "PROD_" }
+
+[context.branch-deploy]
+  environment = { ENV_PREFIX = "DEV_" }
+
+[context.staging]
+  environment = { ENV_PREFIX = "DEV_" }

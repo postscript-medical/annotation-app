@@ -11,6 +11,10 @@
   import Modal from "./Modal.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
 
+  $: hasSpecialties = $specialties && $specialties.length;
+  $: hasSubSpecialties =
+    hasSpecialties && $subSpecialties && $subSpecialties.length;
+
   function selectSpecialty({ detail: specialty }) {
     $selectedSpecialty = specialty;
 
@@ -26,26 +30,30 @@
   <svelte:fragment slot="header">Illustration catalogue</svelte:fragment>
 
   <div class="body">
-    <PsDropdown
-      options={$specialties}
-      optionKey="name"
-      selected={$selectedSpecialty}
-      style="vertical"
-      on:change={selectSpecialty}
-    >
-      Specialty
-    </PsDropdown>
+    {#if hasSpecialties}
+      <PsDropdown
+        options={$specialties}
+        optionKey="name"
+        selected={$selectedSpecialty}
+        style="vertical"
+        on:change={selectSpecialty}
+      >
+        Specialty
+      </PsDropdown>
+    {/if}
 
-    <PsDropdown
-      disabled={$subSpecialties.length === 0}
-      options={$subSpecialties}
-      optionKey="name"
-      selected={$selectedSubSpecialty}
-      style="vertical"
-      on:change={selectSubSpecialty}
-    >
-      Sub-specialty
-    </PsDropdown>
+    {#if hasSubSpecialties}
+      <PsDropdown
+        disabled={$subSpecialties.length === 0}
+        options={$subSpecialties}
+        optionKey="name"
+        selected={$selectedSubSpecialty}
+        style="vertical"
+        on:change={selectSubSpecialty}
+      >
+        Sub-specialty
+      </PsDropdown>
+    {/if}
 
     <input
       type="text"

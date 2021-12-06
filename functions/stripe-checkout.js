@@ -1,4 +1,4 @@
-const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const { getEnvironmentKey } = require("./utils/get-environment-key");
 const STRIPE_PUBLIC_KEY = getEnvironmentKey("STRIPE_PUBLIC_KEY", process.env);
 const STRIPE_SECRET_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
 const stripe = require("stripe")(process.env[STRIPE_SECRET_KEY]);

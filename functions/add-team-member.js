@@ -1,8 +1,10 @@
 const fetch = require("node-fetch");
-const deleteNetlifyUser = require("./utils/delete-netlify-user");
 const faunadb = require("faunadb");
 const { Collection, Create, Do, Get, Match, Ref, Select, Update } =
   faunadb.query;
+const deleteNetlifyUser = require("./utils/delete-netlify-user");
+const { getEnvironmentKey } = require("./utils/get-environment-key");
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
@@ -30,6 +32,7 @@ exports.handler = async (event, context) => {
       teamID,
     } = body;
 
+    /* This function only works when deployed to a server */
     const response = await fetch(`${identity.url}/admin/users`, {
       method: "POST",
       headers: { Authorization: `Bearer ${identity.token}` },
@@ -55,6 +58,7 @@ exports.handler = async (event, context) => {
     const data = await response.json();
 
     if (`${data.code}`[0] === "4") {
+      console.log(`Error in data object :::`, data);
       return {
         statusCode: data.code,
         body: JSON.stringify({ message: data.msg }),
@@ -62,9 +66,9 @@ exports.handler = async (event, context) => {
     }
 
     const client = new faunadb.Client({
-      secret: process.env.FAUNA_SERVER_KEY,
+      secret: process.env[FAUNA_KEY],
     });
-    const newUserRef = "new-user";
+    const newUserRef = "new-user-" + Date.now();
 
     /**
      * TODO: If FQL fails, delete the Netlify user
@@ -101,7 +105,7 @@ exports.handler = async (event, context) => {
               firstName,
               lastName,
               netlifyID: data.id,
-              organization: organizationID,
+              organization: Ref(Collection("Organization"), organizationID),
               role,
               showTutorial: true,
               team: Ref(Collection("Team"), teamID),
@@ -152,7 +156,7 @@ exports.handler = async (event, context) => {
   } catch (error) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: `Webhook Error: ${error.message}` }),
+      body: JSON.stringify({ message: `Add team member: ${error.message}` }),
     };
   }
 };

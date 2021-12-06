@@ -1,12 +1,30 @@
 const faunadb = require("faunadb");
-const { Get, Index, Lambda, Let, Map, Match, Select, Var } = faunadb.query;
+const {
+  ContainsPath,
+  Get,
+  If,
+  Index,
+  IsNull,
+  Lambda,
+  Let,
+  Map,
+  Match,
+  Select,
+  Var,
+} = faunadb.query;
+const { getEnvironmentKey } = require("./utils/get-environment-key");
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
 
 exports.handler = (_, context) => {
   const { user } = context.clientContext;
 
+  console.log("KEY", process.env.ENV_PREFIX);
+
+  console.log("user::::", user);
+
   try {
     const client = new faunadb.Client({
-      secret: process.env.FAUNA_SERVER_KEY,
+      secret: process.env[FAUNA_KEY],
     });
 
     return client
@@ -43,7 +61,11 @@ exports.handler = (_, context) => {
             team: Let(
               {
                 teamDoc: Get(Var("team")),
-                specialtiesDoc: Select(["data", "specialties"], Var("teamDoc")),
+                specialtiesDoc: If(
+                  ContainsPath(["data", "specialties"], Var("teamDoc")),
+                  Select(["data", "specialties"], Var("teamDoc")),
+                  null
+                ),
               },
               {
                 name: Select(["data", "name"], Var("teamDoc")),
@@ -58,69 +80,77 @@ exports.handler = (_, context) => {
                       ["data", "subscriptionLevel"],
                       Var("organizationDoc")
                     ),
+                    stripeID: Select(
+                      ["data", "stripeID"],
+                      Var("organizationDoc")
+                    ),
                   }
                 ),
-                specialties: Map(
-                  Var("specialtiesDoc"),
-                  Lambda(
-                    "specialtyRef",
-                    Let(
-                      {
-                        specialtyDoc: Get(Var("specialtyRef")),
-                      },
-                      {
-                        name: Select(["data", "name"], Var("specialtyDoc")),
-                        subSpecialties: Map(
-                          Select(
-                            ["data", "subSpecialties"],
-                            Var("specialtyDoc")
-                          ),
-                          Lambda(
-                            "subSpecialtyRef",
-                            Let(
-                              {
-                                subSpecialtyDoc: Get(Var("subSpecialtyRef")),
-                              },
-                              {
-                                name: Select(
-                                  ["data", "name"],
-                                  Var("subSpecialtyDoc")
-                                ),
-                                illustrations: Map(
-                                  Select(
-                                    ["data", "illustrations"],
+                specialties: If(
+                  IsNull(Var("specialtiesDoc")),
+                  null,
+                  Map(
+                    Var("specialtiesDoc"),
+                    Lambda(
+                      "specialtyRef",
+                      Let(
+                        {
+                          specialtyDoc: Get(Var("specialtyRef")),
+                        },
+                        {
+                          name: Select(["data", "name"], Var("specialtyDoc")),
+                          subSpecialties: Map(
+                            Select(
+                              ["data", "subSpecialties"],
+                              Var("specialtyDoc")
+                            ),
+                            Lambda(
+                              "subSpecialtyRef",
+                              Let(
+                                {
+                                  subSpecialtyDoc: Get(Var("subSpecialtyRef")),
+                                },
+                                {
+                                  name: Select(
+                                    ["data", "name"],
                                     Var("subSpecialtyDoc")
                                   ),
-                                  Lambda(
-                                    "illustrationRef",
-                                    Let(
-                                      {
-                                        illustrationDoc: Get(
-                                          Var("illustrationRef")
-                                        ),
-                                      },
-                                      {
-                                        name: Select(
-                                          ["data", "name"],
-                                          Var("illustrationDoc")
-                                        ),
-                                        alias: Select(
-                                          ["data", "alias"],
-                                          Var("illustrationDoc")
-                                        ),
-                                        src: Select(
-                                          ["data", "src"],
-                                          Var("illustrationDoc")
-                                        ),
-                                      }
+                                  illustrations: Map(
+                                    Select(
+                                      ["data", "illustrations"],
+                                      Var("subSpecialtyDoc")
+                                    ),
+                                    Lambda(
+                                      "illustrationRef",
+                                      Let(
+                                        {
+                                          illustrationDoc: Get(
+                                            Var("illustrationRef")
+                                          ),
+                                        },
+                                        {
+                                          name: Select(
+                                            ["data", "name"],
+                                            Var("illustrationDoc")
+                                          ),
+                                          alias: Select(
+                                            ["data", "alias"],
+                                            Var("illustrationDoc")
+                                          ),
+                                          src: Select(
+                                            ["data", "src"],
+                                            Var("illustrationDoc")
+                                          ),
+                                        }
+                                      )
                                     )
-                                  )
-                                ),
-                              }
+                                  ),
+                                }
+                              )
                             )
-                          )
-                        ),
-                      }
+                          ),
+                        }
+                      )
                     )
                   )
                 ),
@@ -136,11 +166,11 @@ exports.handler = (_, context) => {
         };
       })
       .catch((error) => {
-        console.log("::: Get Protected content ERROR :::", error);
+        console.log("::: Get protected content ERROR :::", error);
 
         return {
           statusCode: 400,
-          body: JSON.stringify({ error: `Webhook: ${error}` }),
+          body: JSON.stringify({ error: `Get protected content: ${error}` }),
         };
       });
   } catch (error) {

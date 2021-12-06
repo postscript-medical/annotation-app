@@ -16,7 +16,7 @@ type Team {
 }
 
 type User {
-  appState: UserAppState @unique
+  appState: UserAppState!
   email: String! @unique
   firstName: String
   lastName: String
@@ -30,7 +30,7 @@ type UserAppState {
   selectedIllustrationTitle: String
   selectedSpecialty: String
   selectedSubSpecialty: String
-  userRef: User! @unique
+  userRef: User!
 }
 
 type Specialty {

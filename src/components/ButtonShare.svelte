@@ -96,4 +96,8 @@
   }
 </script>
 
-<PsButton style="tertiary" on:click={openShareModal}>Share</PsButton>
+<PsButton
+  style="tertiary"
+  on:click={openShareModal}
+  disabled={!$illustrationDisplayed}>Share</PsButton
+>

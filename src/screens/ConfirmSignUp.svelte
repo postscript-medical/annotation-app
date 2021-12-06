@@ -7,8 +7,6 @@
   import PsHeader from "../components/PsHeader.svelte";
   import PsLink from "../components/PsLink.svelte";
 
-  // TODO: We need to make sure all third party scripts are loaded before runing our code. There seems to be a condition where confirmation fails if that does not happen.
-
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
   const duration = 0.15;
@@ -19,11 +17,16 @@
 
   async function confirm_user_sign_up(token) {
     if (token) {
-      let response = "";
+      let response;
 
+      /**
+       * NOTE: Confirm sign up is always called from the main deployed
+       * site. We need to find a way to trigger it via a localhost or staging
+       * option
+       */
       try {
         response = await $session.confirm(token).catch((err) => {
-          // .catch() does not work on IE11
+          /* .catch() does not work on IE11 */
           errorMessage = err.json.msg;
         });
       } catch {
@@ -60,7 +63,10 @@
       return;
     }
 
-    // Stripe is a Global object
+    /**
+     * Stripe is a Global object
+     * NOTE: This key needs to be changed based on production or development environments
+     */
     const stripe = Stripe(
       "pk_test_51HRFNnApFf30oe2K3dr1r6nLyYkJfisTDUzVAQ8uCh3SGIcHwY49wndXzVLpnuu5B0WX4QFW9lmFaQYUhcsKW09900IiYkkBpQ"
     );

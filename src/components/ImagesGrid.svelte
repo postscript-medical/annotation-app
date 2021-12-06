@@ -97,6 +97,7 @@
     .scrollable-container {
       overflow: auto;
     }
+
     .images-grid {
       align-items: start;
       display: grid;
@@ -107,6 +108,10 @@
     .card {
       width: auto;
       max-width: none;
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
     }
 
     @media screen and (min-width: 1200px) {

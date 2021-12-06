@@ -1,7 +1,6 @@
-const { ContainsPath } = require("faunadb");
 const faunadb = require("faunadb");
 const {
-  Collection,
+  ContainsPath,
   Get,
   If,
   Index,
@@ -11,17 +10,18 @@ const {
   Map,
   Match,
   Paginate,
-  Ref,
   Select,
   Var,
 } = faunadb.query;
+const { getEnvironmentKey } = require("./utils/get-environment-key");
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
 
 exports.handler = (_, context) => {
   const { user } = context.clientContext;
 
   try {
     const client = new faunadb.Client({
-      secret: process.env.FAUNA_SERVER_KEY,
+      secret: process.env[FAUNA_KEY],
     });
 
     return client
@@ -31,9 +31,7 @@ exports.handler = (_, context) => {
             userDoc: Get(Match(Index("findUserByNetlifyID"), user.sub)),
             teamDoc: Get(Select(["data", "team"], Var("userDoc"))),
             organizationId: Select(["data", "organization"], Var("userDoc")),
-            organizationDoc: Get(
-              Ref(Collection("Organization"), Var("organizationId"))
-            ),
+            organizationDoc: Get(Var("organizationId")),
           },
           {
             allMembers: Map(

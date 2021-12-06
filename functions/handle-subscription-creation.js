@@ -1,5 +1,5 @@
 const { faunaFetch } = require("./utils/fauna");
-const { getEnvironmentKey } = require("./utils/getEnvironmentKey");
+const { getEnvironmentKey } = require("./utils/get-environment-key");
 const { SUBSCRIPTIONS } = require("./constants");
 const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
 const STRIPE_WEBHOOK_SUBSCRIPTION_CREATION = getEnvironmentKey(
