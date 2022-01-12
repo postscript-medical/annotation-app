@@ -201,6 +201,7 @@
 
   .ui > :global(:first-child) {
     z-index: 10;
+    padding: 0;
     position: absolute;
     left: 0;
     top: 0;

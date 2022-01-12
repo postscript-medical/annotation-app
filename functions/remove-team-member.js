@@ -2,7 +2,7 @@ const deleteNetlifyUser = require("./utils/delete-netlify-user");
 const faunadb = require("faunadb");
 const { Collection, Delete, Do, Get, Match, Select, Ref } = faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;

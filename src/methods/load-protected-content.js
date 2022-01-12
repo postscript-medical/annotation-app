@@ -41,7 +41,17 @@ export default async function (user) {
   }
 
   protectedContent.set(data);
-  selectedIllustrationTitle.set(data.appState.selectedIllustrationTitle);
-  selectedSpecialty.set(data.appState.selectedSpecialty);
-  selectedSubSpecialty.set(data.appState.selectedSubSpecialty);
+  selectedIllustrationTitle.set(
+    data.appState.selectedIllustrationTitle || "Graph"
+  );
+  selectedSpecialty.set(
+    data.appState.selectedSpecialty || data.specialties
+      ? data.specialties[0].name
+      : ""
+  );
+  selectedSubSpecialty.set(
+    data.appState.selectedSubSpecialty || data.specialties
+      ? data.specialties[0].subSpecialties[0].name
+      : ""
+  );
 }

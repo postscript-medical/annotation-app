@@ -14,7 +14,7 @@ const {
   Var,
 } = faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = (_, context) => {
   const { user } = context.clientContext;
@@ -28,7 +28,7 @@ exports.handler = (_, context) => {
       .query(
         Let(
           {
-            userDoc: Get(Match(Index("findUserByNetlifyID"), user.sub)),
+            userDoc: Get(Match(Index("user_by_netlifyId"), user.sub)),
             teamDoc: Get(Select(["data", "team"], Var("userDoc"))),
             organizationId: Select(["data", "organization"], Var("userDoc")),
             organizationDoc: Get(Var("organizationId")),
@@ -73,10 +73,6 @@ exports.handler = (_, context) => {
             organization: {
               id: Select(["ref", "id"], Var("organizationDoc")),
               maxUsers: Select(["data", "maxUsers"], Var("organizationDoc")),
-              maxSpecialties: Select(
-                ["data", "maxSpecialties"],
-                Var("organizationDoc")
-              ),
               name: Select(["data", "name"], Var("organizationDoc")),
               subscriptionLevel: Select(
                 ["data", "subscriptionLevel"],

@@ -5,7 +5,6 @@
   let someValue = "Some value";
 
   function updateInput({ detail }) {
-    console.log("Update", detail);
     someValue = detail;
   }
 </script>

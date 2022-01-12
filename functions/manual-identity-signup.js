@@ -15,7 +15,13 @@ const {
   Var,
 } = faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
+const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
+const STRIPE_DEFAULT_PRICE_PLAN = getEnvironmentKey(
+  "STRIPE_DEFAULT_PRICE_PLAN",
+  process.env.CONTEXT
+);
+const stripe = require("stripe")(process.env[STRIPE_KEY]);
 
 exports.handler = async (event) => {
   let body;
@@ -35,17 +41,28 @@ exports.handler = async (event) => {
     const { user, organization = {}, team = {} } = body;
     const { id = null, email = null, firstName = null, lastName = null } = user;
     const {
-      maxSpecialties = 1,
       maxUsers = 1,
       name: orgName = "My Organization",
-      stripeID = "",
       subscriptionLevel = "inactive",
-      specialties = null /* "TODO: Add specialties to the DB" */,
+      specialties = null,
     } = organization;
     const { name: teamName = "My team" } = team;
     const role = "owner";
     const newUserRef = "new-user-" + Date.now();
-    const newTeamName = teamName + Date.now();
+    const tempTeamName = teamName + Date.now();
+
+    /**
+     * Create a customer in Stripe
+     * and subscript it to the free plan
+     *
+     * TO DO: Handle failure
+     */
+    const customer = await stripe.customers.create({ email });
+
+    await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: process.env[STRIPE_DEFAULT_PRICE_PLAN] }],
+    });
 
     const client = new faunadb.Client({
       secret: process.env[FAUNA_KEY],
@@ -59,8 +76,7 @@ exports.handler = async (event) => {
            */
           Create(Collection("Team"), {
             data: {
-              name: newTeamName,
-              specialties,
+              name: tempTeamName,
             },
           }),
           /**
@@ -69,13 +85,12 @@ exports.handler = async (event) => {
           Create(Collection("Organization"), {
             data: {
               email,
-              maxSpecialties,
               maxUsers,
               name: orgName,
               specialties,
-              stripeID,
+              stripeID: customer.id,
               subscriptionLevel,
-              teams: Paginate(Match(Index("findTeamByName"), newTeamName)),
+              teams: Paginate(Match(Index("findTeamByName"), tempTeamName)),
             },
           }),
           /**
@@ -84,9 +99,9 @@ exports.handler = async (event) => {
            */
           Create(Collection("UserAppState"), {
             data: {
-              selectedIllustrationTitle: "Graph",
-              selectedSpecialty: "Gastroenterology",
-              selectedSubSpecialty: "Hepatology",
+              selectedIllustrationTitle: "",
+              selectedSpecialty: "",
+              selectedSubSpecialty: "",
               userRef: newUserRef,
             },
           }),
@@ -120,7 +135,7 @@ exports.handler = async (event) => {
                 Collection("Team"),
                 Select(
                   ["ref", "id"],
-                  Get(Match(Index("findTeamByName"), newTeamName))
+                  Get(Match(Index("findTeamByName"), tempTeamName))
                 )
               ),
             },
@@ -150,7 +165,7 @@ exports.handler = async (event) => {
            * add a reference to the organization
            */
           Map(
-            Paginate(Match(Index("findTeamByName"), newTeamName)),
+            Paginate(Match(Index("findTeamByName"), tempTeamName)),
             Lambda(
               "ref",
               Update(Var("ref"), {

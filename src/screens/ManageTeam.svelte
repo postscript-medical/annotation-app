@@ -1,6 +1,6 @@
 <script>
   /* TODO: Remove the call to get-protected-content from this screen */
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { ROLE_OWNER, ROLE_USER } from "../constants/defaults.js";
   import { session, user } from "../stores.js";
   import loadManagementData from "../methods/load-management-data.js";
@@ -73,18 +73,28 @@
     editingTeamMemberIndex = index;
   }
 
+  function is_remove_disabled({ email }) {
+    if (!$user) return true;
+
+    return (
+      loading ||
+      creatingNewTeamMember ||
+      updatingTeamMember ||
+      email === $user.email
+    );
+  }
+
   function loadPageData() {
     loadManagementData($user)
       .then((response) => {
         return response.json();
       })
-      .then((data) => {
-        console.log("data", data);
-        maxTeamMembers = data.organization.maxUsers;
-        organization = data.organization;
-        teamMembers = data.allMembers.data;
-        teamName = data.team.name;
-        teamId = data.team.id;
+      .then(({ organization, allMembers, team }) => {
+        maxTeamMembers = organization.maxUsers;
+        organization = organization;
+        teamMembers = allMembers.data;
+        teamName = team.name;
+        teamId = team.id;
       });
   }
 
@@ -265,29 +275,28 @@
   }
 
   onMount(() => {
-    /*
-     * This is hacky as hell but there is no current better alternative as far as I know currently
-     * https://github.com/sveltejs/svelte/issues/3105
-     */
-    document.body.classList.add("manage-team");
     loadPageData();
-  });
-
-  onDestroy(() => {
-    document.body.classList.remove("manage-team");
   });
 </script>
 
-<main class="main-content central-align">
-  <PsHeader user={$user} loggedIn hideButtons />
+<svelte:head>
+  <style>
+    body.ps-app {
+      background-color: rgb(250, 250, 250);
+    }
+  </style>
+</svelte:head>
 
-  <h2>Edit team</h2>
+<PsHeader user={$user} loggedIn hideButtons />
+
+<main class="main-content central-align">
+  <h1>Edit team</h1>
 
   <ErrorMessage message={errorMessage} />
 
   <section class="entry">
     <header>
-      <h3>Team details</h3>
+      <h2>Team details</h2>
     </header>
 
     <div class="team-name">
@@ -340,7 +349,7 @@
 
   <section class="team-members">
     <header>
-      <h3>Team members</h3>
+      <h2>Team members</h2>
 
       <PsButton
         disabled={loading || disabled}
@@ -456,10 +465,7 @@
                     </PsButton>
                     /
                     <PsButton
-                      disabled={loading ||
-                        creatingNewTeamMember ||
-                        updatingTeamMember ||
-                        member.email === $user.email}
+                      disabled={() => is_remove_disabled(member)}
                       style="secondary inline"
                       on:click={() => remove_team_member(member)}
                     >
@@ -477,16 +483,6 @@
 </main>
 
 <style>
-  main {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  main > :global(:not(:last-child)) {
-    margin-bottom: 2rem;
-  }
   .team-name {
     display: flex;
     align-items: baseline;
@@ -549,9 +545,4 @@
   section > :global(:not(:last-child)) {
     margin-bottom: 0.5rem;
   }
-
-  /* .entry {
-    border-bottom: 1px solid rgba(42,41,41, 0.15);
-    padding-bottom: 1rem;
-  } */
 </style>

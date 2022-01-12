@@ -142,17 +142,6 @@
 <style>
   main {
     max-width: 30rem;
-    padding-top: 1rem;
     color: #fff;
-  }
-
-  main > :global(:not(:last-child)) {
-    margin-bottom: 2rem;
-  }
-
-  @media screen and (min-width: 600px) {
-    main {
-      padding-top: 2rem;
-    }
   }
 </style>

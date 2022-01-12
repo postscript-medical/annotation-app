@@ -4,7 +4,7 @@ const { Collection, Create, Do, Get, Match, Ref, Select, Update } =
   faunadb.query;
 const deleteNetlifyUser = require("./utils/delete-netlify-user");
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
@@ -82,9 +82,9 @@ exports.handler = async (event, context) => {
            */
           Create(Collection("UserAppState"), {
             data: {
-              selectedIllustrationTitle: "Graph",
-              selectedSpecialty: "Gastroenterology",
-              selectedSubSpecialty: "Hepatology",
+              selectedIllustrationTitle: "",
+              selectedSpecialty: "",
+              selectedSubSpecialty: "",
               userRef: newUserRef,
             },
           }),

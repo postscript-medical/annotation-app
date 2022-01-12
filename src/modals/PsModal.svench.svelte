@@ -9,7 +9,6 @@
   let modalToOpen = "";
 
   function confirmAction(modalName) {
-    console.log("Confirmed:", modalName);
     closeModal();
   }
 

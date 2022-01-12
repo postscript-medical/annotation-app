@@ -1,7 +1,7 @@
 const faunadb = require("faunadb");
 const { Collection, Ref, Update } = faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = (event) => {
   let body;

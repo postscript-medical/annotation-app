@@ -1,5 +1,5 @@
 <script>
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { user } from "../stores.js";
   import loadSpecialties from "../methods/load-specialties.js";
   import EditSubSpecialtyModal from "../modals/EditSubSpecialtyModal.svelte";
@@ -10,12 +10,6 @@
   let editCardIndex = null;
   let editCardData = null;
   let specialties;
-
-  /*
-   * This is hacky as hell but there is no current better alternative as far as I know currently
-   * https://github.com/sveltejs/svelte/issues/3105
-   */
-  document.body.classList.add("manage-team");
 
   function addIllustration({ detail: illustration }) {
     const isDuplicate = editCardData.illustrations.find(
@@ -68,21 +62,25 @@
   onMount(() => {
     loadData();
   });
-
-  onDestroy(() => {
-    document.body.classList.remove("manage-team");
-  });
 </script>
 
-<main class="ui-content central-align">
-  <PsHeader user={$user} loggedIn hideButtons />
+<svelte:head>
+  <style>
+    body.ps-app {
+      background-color: rgb(250, 250, 250);
+    }
+  </style>
+</svelte:head>
 
+<PsHeader user={$user} loggedIn hideButtons />
+
+<main class="ui-content central-align">
   <h1>Sub-specialty management</h1>
 
   <NavBar />
 
   {#if specialties}
-    <ul class="specialties-list wrapper" role="list">
+    <ul class="specialties-list wrapper plain">
       {#each specialties.data as specialty}
         <li class="card stacker shadow">
           <p>
@@ -91,7 +89,7 @@
             </strong>
           </p>
 
-          <ul class="sub-specialty-list stacker" role="list">
+          <ul class="sub-specialty-list stacker plain">
             {#each specialty.subSpecialties as subSpecialty, index}
               <li>
                 <PsButton

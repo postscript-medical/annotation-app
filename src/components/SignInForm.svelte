@@ -29,7 +29,9 @@
     const response = await $session
       .login(email, password, stayLogged)
       .catch((error) => {
-        errorMessage = error.json.error_description;
+        errorMessage = "Error validating your credentials";
+
+        console.error("SignInForm:", error);
 
         isLoading.set(false);
       });

@@ -3,7 +3,7 @@
   import PsLink from "../PsLink.svelte";
 </script>
 
-<ul class="wrapper" role="list">
+<ul class="wrapper plain">
   <li>
     {#if $location === "/admin"}
       Admin panel

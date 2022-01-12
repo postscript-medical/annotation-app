@@ -5,7 +5,6 @@
   import Router, { push } from "svelte-spa-router";
   import { user, isLoading, session, protectedContent } from "./stores";
   import { STORAGE_KEY } from "./constants/session.js";
-  import { PLAN_0 } from "../functions/constants.js";
   import clearLocalApplicationData from "./methods/clear-local-application-data.js";
   import loadProtectedContent from "./methods/load-protected-content.js";
   import AdminPanel from "./screens/AdminPanel.svelte";
@@ -173,7 +172,6 @@
     if ($user) {
       await loadProtectedContent($user).catch(async function (error) {
         await $user.logout().catch((err) => {
-          console.log("ops:", err);
           errorMessage = err;
         });
 
@@ -197,7 +195,7 @@
       return redirectTo("#/");
     }
 
-    if ($protectedContent.team.organization.subscriptionLevel === PLAN_0) {
+    if ($protectedContent.organization.subscriptionLevel === "inactive") {
       return redirectTo("#/inactive-account");
     }
 

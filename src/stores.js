@@ -1,8 +1,6 @@
 import "whatwg-fetch";
 import { derived, readable, writable, get } from "svelte/store";
 import {
-  DEFAULT_SELECTED_SPECIALTY,
-  DEFAULT_SELECTED_SUB_SPECIALTY,
   TOOL_TEXT,
   VIEWPORT_PHONE,
   VIEWPORT_TABLET,
@@ -87,8 +85,7 @@ export const viewportType = readable(VIEWPORT_PHONE, (set) => {
 
 export const organization = derived(
   protectedContent,
-  ($protectedContent) =>
-    $protectedContent && $protectedContent.team.organization
+  ($protectedContent) => $protectedContent && $protectedContent.organization
 );
 
 /**
@@ -224,22 +221,25 @@ export const illustrationDisplayed = writable();
 
 export const selectedIllustrationTitle = writable("");
 
-export const selectedSpecialty = writable(DEFAULT_SELECTED_SPECIALTY);
+export const selectedSpecialty = writable("");
 
-export const selectedSubSpecialty = writable(DEFAULT_SELECTED_SUB_SPECIALTY);
+export const selectedSubSpecialty = writable("");
 
 export const specialties = derived(protectedContent, ($protectedContent) => {
-  return $protectedContent ? $protectedContent.team.specialties : false;
+  return $protectedContent.specialties ? $protectedContent.specialties : [];
 });
 
 export const subSpecialties = derived(
   [selectedSpecialty, specialties],
   ([$selectedSpecialty, $specialties]) => {
-    if (!$specialties || $specialties.length === 0) return [];
+    if (!$specialties || !$specialties.length) return [];
 
-    const selectedSpecialty = $specialties.find(
+    let selectedSpecialty = $specialties.find(
       ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
     );
+
+    if (!selectedSpecialty) selectedSpecialty = $specialties[0];
+
     const subSpecialties = JSON.parse(
       JSON.stringify(selectedSpecialty.subSpecialties)
     );

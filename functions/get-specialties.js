@@ -2,7 +2,7 @@ const faunadb = require("faunadb");
 const { Get, Index, Lambda, Let, Map, Match, Paginate, Select, Var } =
   faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = () => {
   const client = new faunadb.Client({
@@ -69,5 +69,5 @@ exports.handler = () => {
         body: JSON.stringify(response),
       };
     })
-    .catch((error) => console.log(":: Get Admin panel ERROR ::", error));
+    .catch((error) => console.log(":: Get specialties ERROR ::", error));
 };

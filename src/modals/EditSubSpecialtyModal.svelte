@@ -162,7 +162,7 @@
         on:focus={searchForTerms}
       />
 
-      <ul class="search-widget__options" role="list">
+      <ul class="search-widget__options plain">
         {#if serverWaiting}
           <li class="entry">Searching...</li>
         {:else if serverResponse && serverResponse.data}
@@ -192,8 +192,7 @@
 
     <ul
       bind:this={currentIllustrationsList}
-      class="current-illustrations stacker--small"
-      role="list"
+      class="current-illustrations stacker--small plain"
     >
       {#each data.illustrations as illustration, index}
         <li class="current-illustrations__entry">

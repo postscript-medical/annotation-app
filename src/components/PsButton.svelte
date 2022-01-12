@@ -106,8 +106,6 @@
         }
       );
   });
-
-  onDestroy(() => {});
 </script>
 
 <button class={style} disabled={isDisabled} {type} on:click>

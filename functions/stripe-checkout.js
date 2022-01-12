@@ -1,10 +1,19 @@
+const faunadb = require("faunadb");
+const { Collection, Get, Index, Lambda, Map, Match, Ref, Select, Update, Var } =
+  faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const STRIPE_PUBLIC_KEY = getEnvironmentKey("STRIPE_PUBLIC_KEY", process.env);
-const STRIPE_SECRET_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env);
-const stripe = require("stripe")(process.env[STRIPE_SECRET_KEY]);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
+const STRIPE_PUBLIC_KEY = getEnvironmentKey(
+  "STRIPE_PUBLIC_KEY",
+  process.env.CONTEXT
+);
+const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
+const stripe = require("stripe")(process.env[STRIPE_KEY]);
 
 exports.handler = async (event) => {
-  const { priceId, email, fromConfirmationPage } = JSON.parse(event.body);
+  const { email, priceId, fromConfirmationPage, specialties } = JSON.parse(
+    event.body
+  );
 
   const sessionParams = {
     customer_email: email,
@@ -22,11 +31,43 @@ exports.handler = async (event) => {
      * is redirected to the success page.
      */
     success_url: `${process.env.URL}/#/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.URL}/#/inactive-account`,
+    cancel_url: `${process.env.URL}`,
   };
 
   if (fromConfirmationPage) {
-    sessionParams.cancel_url = `${process.env.URL}/#/confirm-signup?show-plans=true`;
+    const specialtiesArray = Array.isArray(specialties)
+      ? specialties
+      : [specialties];
+
+    const client = new faunadb.Client({
+      secret: process.env[FAUNA_KEY],
+    });
+
+    await client
+      .query(
+        Update(
+          Select(
+            ["data", "teams", "data", 0],
+            Get(Match(Index("findOrganizationByEmail"), email))
+          ),
+          {
+            data: {
+              specialties: Map(
+                specialtiesArray,
+                Lambda("id", Ref(Collection("Specialty"), Var("id")))
+              ),
+            },
+          }
+        )
+      )
+      .catch((err) =>
+        console.error(
+          "Error: [%s] %s: %s",
+          err.name,
+          err.message,
+          err.errors()[0].description
+        )
+      );
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams);

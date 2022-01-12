@@ -13,14 +13,10 @@ const {
   Var,
 } = faunadb.query;
 const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env);
+const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = (_, context) => {
   const { user } = context.clientContext;
-
-  console.log("KEY", process.env.ENV_PREFIX);
-
-  console.log("user::::", user);
 
   try {
     const client = new faunadb.Client({
@@ -31,9 +27,17 @@ exports.handler = (_, context) => {
       .query(
         Let(
           {
-            userDoc: Get(Match(Index("findUserByNetlifyID"), user.sub)),
+            userDoc: Get(Match(Index("user_by_netlifyId"), user.sub)),
             appState: Select(["data", "appState"], Var("userDoc")),
-            team: Select(["data", "team"], Var("userDoc")),
+            teamDoc: Select(["data", "team"], Var("userDoc")),
+            organizationDoc: Get(
+              Select(["data", "organization"], Get(Var("teamDoc")))
+            ),
+            specialtiesDoc: If(
+              ContainsPath(["data", "specialties"], Var("organizationDoc")),
+              Select(["data", "specialties", "data"], Var("organizationDoc")),
+              null
+            ),
           },
           {
             appState: Let(
@@ -58,103 +62,84 @@ exports.handler = (_, context) => {
             ),
             id: Select(["ref", "id"], Var("userDoc")),
             role: Select(["data", "role"], Var("userDoc")),
-            team: Let(
-              {
-                teamDoc: Get(Var("team")),
-                specialtiesDoc: If(
-                  ContainsPath(["data", "specialties"], Var("teamDoc")),
-                  Select(["data", "specialties"], Var("teamDoc")),
-                  null
-                ),
-              },
-              {
-                name: Select(["data", "name"], Var("teamDoc")),
-                organization: Let(
-                  {
-                    organizationDoc: Get(
-                      Select(["data", "organization"], Var("teamDoc"))
-                    ),
-                  },
-                  {
-                    subscriptionLevel: Select(
-                      ["data", "subscriptionLevel"],
-                      Var("organizationDoc")
-                    ),
-                    stripeID: Select(
-                      ["data", "stripeID"],
-                      Var("organizationDoc")
-                    ),
-                  }
-                ),
-                specialties: If(
-                  IsNull(Var("specialtiesDoc")),
-                  null,
-                  Map(
-                    Var("specialtiesDoc"),
-                    Lambda(
-                      "specialtyRef",
-                      Let(
-                        {
-                          specialtyDoc: Get(Var("specialtyRef")),
-                        },
-                        {
-                          name: Select(["data", "name"], Var("specialtyDoc")),
-                          subSpecialties: Map(
-                            Select(
-                              ["data", "subSpecialties"],
-                              Var("specialtyDoc")
-                            ),
-                            Lambda(
-                              "subSpecialtyRef",
-                              Let(
-                                {
-                                  subSpecialtyDoc: Get(Var("subSpecialtyRef")),
-                                },
-                                {
-                                  name: Select(
-                                    ["data", "name"],
-                                    Var("subSpecialtyDoc")
-                                  ),
-                                  illustrations: Map(
-                                    Select(
-                                      ["data", "illustrations"],
-                                      Var("subSpecialtyDoc")
-                                    ),
-                                    Lambda(
-                                      "illustrationRef",
-                                      Let(
-                                        {
-                                          illustrationDoc: Get(
-                                            Var("illustrationRef")
-                                          ),
-                                        },
-                                        {
-                                          name: Select(
-                                            ["data", "name"],
-                                            Var("illustrationDoc")
-                                          ),
-                                          alias: Select(
-                                            ["data", "alias"],
-                                            Var("illustrationDoc")
-                                          ),
-                                          src: Select(
-                                            ["data", "src"],
-                                            Var("illustrationDoc")
-                                          ),
-                                        }
-                                      )
-                                    )
-                                  ),
-                                }
-                              )
-                            )
-                          ),
-                        }
-                      )
-                    )
+            team: {
+              name: Select(["data", "name"], Get(Var("teamDoc"))),
+            },
+            organization: {
+              subscriptionLevel: Select(
+                ["data", "subscriptionLevel"],
+                Var("organizationDoc")
+              ),
+              stripeID: If(
+                ContainsPath(["data", "stripeID"], Var("organizationDoc")),
+                Select(["data", "stripeID"], Var("organizationDoc")),
+                ""
+              ),
+            },
+            specialties: If(
+              IsNull(Var("specialtiesDoc")),
+              null,
+              Map(
+                Var("specialtiesDoc"),
+                Lambda(
+                  "specialtyRef",
+                  Let(
+                    {
+                      specialtyDoc: Get(Var("specialtyRef")),
+                    },
+                    {
+                      name: Select(["data", "name"], Var("specialtyDoc")),
+                      subSpecialties: Map(
+                        Select(["data", "subSpecialties"], Var("specialtyDoc")),
+                        Lambda(
+                          "subSpecialtyRef",
+                          Let(
+                            {
+                              subSpecialtyDoc: Get(Var("subSpecialtyRef")),
+                            },
+                            {
+                              name: Select(
+                                ["data", "name"],
+                                Var("subSpecialtyDoc")
+                              ),
+                              illustrations: Map(
+                                Select(
+                                  ["data", "illustrations"],
+                                  Var("subSpecialtyDoc")
+                                ),
+                                Lambda(
+                                  "illustrationRef",
+                                  Let(
+                                    {
+                                      illustrationDoc: Get(
+                                        Var("illustrationRef")
+                                      ),
+                                    },
+                                    {
+                                      name: Select(
+                                        ["data", "name"],
+                                        Var("illustrationDoc")
+                                      ),
+                                      alias: Select(
+                                        ["data", "alias"],
+                                        Var("illustrationDoc")
+                                      ),
+                                      src: Select(
+                                        ["data", "src"],
+                                        Var("illustrationDoc")
+                                      ),
+                                    }
+                                  )
+                                )
+                              ),
+                            }
+                          )
+                        )
+                      ),
+                    }
                   )
-                ),
-              }
+                )
+              )
             ),
           }
         )

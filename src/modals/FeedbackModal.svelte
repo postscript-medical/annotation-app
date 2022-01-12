@@ -32,7 +32,6 @@
   }
 
   function tweenOutComplete() {
-    console.log("tweenOut");
     tweenComplete = true;
   }
 </script>

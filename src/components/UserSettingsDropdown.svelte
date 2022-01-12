@@ -10,6 +10,10 @@
 
   export let user;
 
+  $: subscriptionLevel =
+    $protectedContent && $protectedContent.organization.subscriptionLevel;
+  $: subscriptionActive = subscriptionLevel !== "inactive";
+
   function toggleDrawer() {
     $userSettingsDropdownDrawerOpen = !$userSettingsDropdownDrawerOpen;
   }
@@ -50,17 +54,22 @@
   </button>
   {#if $userSettingsDropdownDrawerOpen}
     <div class="dropdown shadow" transition:tween>
-      <PsLink href="#/annotate" style="on-dark">Annotate image</PsLink>
-      {#if $protectedContent.role === ROLE_OWNER}
-        <ManageSubscription onDark />
-      {/if}
-      {#if [ROLE_OWNER, ROLE_DM].includes($protectedContent.role)}
-        <PsLink href="#/manage-team" style="on-dark">
-          Manage team members
-        </PsLink>
-      {/if}
-      {#if $protectedContent.role === ROLE_DM}
-        <PsLink href="#/admin" style="on-dark">Admin panel</PsLink>
+      {#if subscriptionActive}
+        <PsLink href="#/annotate" style="on-dark">Annotate image</PsLink>
+
+        {#if $protectedContent.role === ROLE_OWNER}
+          <ManageSubscription onDark />
+        {/if}
+
+        {#if subscriptionLevel !== "individual" && [ROLE_OWNER, ROLE_DM].includes($protectedContent.role)}
+          <PsLink href="#/manage-team" style="on-dark">
+            Manage team members
+          </PsLink>
+        {/if}
+
+        {#if $protectedContent.role === ROLE_DM}
+          <PsLink href="#/admin" style="on-dark">Admin panel</PsLink>
+        {/if}
       {/if}
       <SignOutButton inline />
     </div>

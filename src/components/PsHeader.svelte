@@ -10,7 +10,7 @@
   export let hideButtons = false;
 </script>
 
-<header class:padded={!loggedIn}>
+<header>
   <h1 class="options">
     {#if $location === "/annotate"}
       <PsLogo
@@ -41,9 +41,10 @@
 
 <style>
   header {
+    align-items: center;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    padding: 1rem 1rem 0 1rem;
     width: 100%;
   }
 
@@ -65,9 +66,5 @@
     .options > :global(*) {
       margin-right: 0;
     }
-  }
-
-  .padded {
-    padding: 1rem 1rem 0 1rem;
   }
 </style>

@@ -1,5 +1,5 @@
 <script>
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { isLoading, user } from "../stores.js";
   import {
     ILLUSTRATION_ADMIN_THUMBNAIL_PATH,
@@ -23,12 +23,6 @@
   if ("loading" in HTMLImageElement.prototype) {
     nativeLoading = true;
   }
-
-  /*
-   * This is hacky as hell but there is no current better alternative as far as I know currently
-   * https://github.com/sveltejs/svelte/issues/3105
-   */
-  document.body.classList.add("manage-team");
 
   function editCard(index, srcData) {
     editCardIndex = index;
@@ -139,21 +133,25 @@
   onMount(() => {
     fetchIllustrations();
   });
-
-  onDestroy(() => {
-    document.body.classList.remove("manage-team");
-  });
 </script>
 
-<div class="ui-content central-align">
-  <PsHeader user={$user} loggedIn hideButtons />
+<svelte:head>
+  <style>
+    body.ps-app {
+      background-color: rgb(250, 250, 250);
+    }
+  </style>
+</svelte:head>
 
+<PsHeader user={$user} loggedIn hideButtons />
+
+<div class="ui-content central-align">
   <h1>Illustration management</h1>
 
   <NavBar />
 
   {#if illustrations}
-    <ul class="illustration-list wrapper" role="list">
+    <ul class="illustration-list wrapper plain">
       {#each illustrations.data as illustration, index}
         <li class="card stacker shadow">
           <IntersectionObserver once let:intersecting>
