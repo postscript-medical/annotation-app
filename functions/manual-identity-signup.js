@@ -1,3 +1,4 @@
+const postmark = require("postmark");
 const faunadb = require("faunadb");
 const {
   Collection,
@@ -22,6 +23,8 @@ const STRIPE_DEFAULT_PRICE_PLAN = getEnvironmentKey(
   process.env.CONTEXT
 );
 const stripe = require("stripe")(process.env[STRIPE_KEY]);
+const POSTMARK_TOKEN = getEnvironmentKey("POSTMARK_TOKEN", process.env.CONTEXT);
+const emailClient = new postmark.ServerClient(process.env[POSTMARK_TOKEN]);
 
 exports.handler = async (event) => {
   let body;
@@ -195,6 +198,14 @@ exports.handler = async (event) => {
     if (fromFauna.statusCode && fromFauna.statusCode === 400) {
       return fromFauna;
     }
+
+    await emailClient.sendEmail({
+      From: "accounts@postscriptmedical.com",
+      To: "accounts@postscriptmedical.com",
+      Subject: "[POSTSCRIPT] New user signup",
+      HtmlBody: `Heads up new user: ${email}`,
+      MessageStream: "netlify-identity",
+    });
 
     return {
       statusCode: 200,

@@ -43,6 +43,7 @@
     "gotrue-js": "^0.9.29",
     "netlify-cli": "^6.10.4",
     "node-fetch": "^2.0.0",
+    "postmark": "^3.0.1",
     "sirv-cli": "^1.0.14",
     "stripe": "^8.179.0"
   },
