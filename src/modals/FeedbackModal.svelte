@@ -11,24 +11,24 @@
     loading = true;
     tweenComplete = false;
 
-    await emailjs
-      .send("5609467", "feedback_form", {
+    const response = await fetch("/.netlify/functions/send-feedback-email", {
+      method: "POST",
+      body: JSON.stringify({
         from_email: $user.email,
-        from_name: $user.user_metadata.full_name || "Admininstrator",
+        from_name: $user.user_metadata.full_name || "Unknown",
         org_name: $organization.name,
         message: feedback,
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          feedbackSent = true;
-        }
+      }),
+    }).catch((err) => {
+      console.log(err);
+      loading = false;
+    });
 
-        loading = false;
-      })
-      .catch((err) => {
-        console.log(err);
-        loading = false;
-      });
+    if (response.status === 200) {
+      feedbackSent = true;
+    }
+
+    loading = false;
   }
 
   function tweenOutComplete() {

@@ -75,6 +75,7 @@ exports.handler = (_, context) => {
                 Select(["data", "stripeID"], Var("organizationDoc")),
                 ""
               ),
+              name: Select(["data", "name"], Var("organizationDoc")),
             },
             specialties: If(
               IsNull(Var("specialtiesDoc")),
