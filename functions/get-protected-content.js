@@ -164,7 +164,7 @@ exports.handler = (_, context) => {
 
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: `Webhook: ${error.message}` }),
+      body: JSON.stringify({ error: `Webhook: ${error}` }),
     };
   }
 };

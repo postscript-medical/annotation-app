@@ -137,7 +137,7 @@
     $isLoading = true;
 
     const response = await new GoTrue({
-      APIUrl: "https://app.postscriptmedical.com/.netlify/identity",
+      APIUrl: "/.netlify/identity",
       setCookie: true,
     });
 
