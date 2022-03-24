@@ -1,6 +1,4 @@
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
-const stripe = require("stripe")(process.env[STRIPE_KEY]);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
   const body = JSON.parse(event.body);

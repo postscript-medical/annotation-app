@@ -15,14 +15,7 @@ const {
   Update,
   Var,
 } = faunadb.query;
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
-const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
-const STRIPE_DEFAULT_PRICE_PLAN = getEnvironmentKey(
-  "STRIPE_DEFAULT_PRICE_PLAN",
-  process.env.CONTEXT
-);
-const stripe = require("stripe")(process.env[STRIPE_KEY]);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const emailClient = new postmark.ServerClient(process.env.POSTMARK_TOKEN);
 
 exports.handler = async (event) => {
@@ -63,11 +56,11 @@ exports.handler = async (event) => {
 
     await stripe.subscriptions.create({
       customer: customer.id,
-      items: [{ price: process.env[STRIPE_DEFAULT_PRICE_PLAN] }],
+      items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
     });
 
     const client = new faunadb.Client({
-      secret: process.env[FAUNA_KEY],
+      secret: process.env.FAUNA_KEY,
     });
 
     const fromFauna = await client

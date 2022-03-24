@@ -3,8 +3,6 @@ const faunadb = require("faunadb");
 const { Collection, Create, Do, Get, Match, Ref, Select, Update } =
   faunadb.query;
 const deleteNetlifyUser = require("./utils/delete-netlify-user");
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
@@ -66,7 +64,7 @@ exports.handler = async (event, context) => {
     }
 
     const client = new faunadb.Client({
-      secret: process.env[FAUNA_KEY],
+      secret: process.env.FAUNA_KEY,
     });
     const newUserRef = "new-user-" + Date.now();
 

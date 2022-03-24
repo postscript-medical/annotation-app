@@ -1,13 +1,6 @@
 const faunadb = require("faunadb");
 const { Get, Index, Let, Match, Select, Update, Var } = faunadb.query;
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
-const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
-const STRIPE_WEBHOOK_SECRET = getEnvironmentKey(
-  "STRIPE_WEBHOOK_SECRET",
-  process.env.CONTEXT
-);
-const stripe = require("stripe")(process.env[STRIPE_KEY]);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -17,7 +10,7 @@ exports.handler = async ({ body, headers }) => {
     const stripeEvent = stripe.webhooks.constructEvent(
       body,
       headers["stripe-signature"],
-      process.env[STRIPE_WEBHOOK_SECRET]
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
     const subscription = stripeEvent.data.object;
@@ -39,7 +32,7 @@ exports.handler = async ({ body, headers }) => {
     }
 
     const client = new faunadb.Client({
-      secret: process.env[FAUNA_KEY],
+      secret: process.env.FAUNA_KEY,
     });
     const productId = subscription.items.data[0].plan.product;
 

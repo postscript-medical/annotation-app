@@ -12,8 +12,6 @@ const {
   Select,
   Var,
 } = faunadb.query;
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
 
 exports.handler = (event) => {
   let body;
@@ -30,7 +28,7 @@ exports.handler = (event) => {
   }
 
   const client = new faunadb.Client({
-    secret: process.env[FAUNA_KEY],
+    secret: process.env.FAUNA_KEY,
   });
 
   let before;

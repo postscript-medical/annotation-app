@@ -1,10 +1,7 @@
 const faunadb = require("faunadb");
 const { Collection, Get, Index, Lambda, Map, Match, Ref, Select, Update, Var } =
   faunadb.query;
-const { getEnvironmentKey } = require("./utils/get-environment-key");
-const FAUNA_KEY = getEnvironmentKey("FAUNA_SERVER_KEY", process.env.CONTEXT);
-const STRIPE_KEY = getEnvironmentKey("STRIPE_SECRET_KEY", process.env.CONTEXT);
-const stripe = require("stripe")(process.env[STRIPE_KEY]);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
   const { email, specialties, stripeId, updateDb } = JSON.parse(event.body);
@@ -15,7 +12,7 @@ exports.handler = async (event) => {
       : [specialties];
 
     const client = new faunadb.Client({
-      secret: process.env[FAUNA_KEY],
+      secret: process.env.FAUNA_KEY,
     });
 
     await client
