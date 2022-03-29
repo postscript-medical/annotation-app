@@ -6,6 +6,7 @@
 
   export let cancelBtCopy = "Cancel";
   export let confirmBtCopy = "Confirm";
+  export let disableConfirmButton = false;
   export let hideCancelButton = false;
   export let hideCloseButton = false;
   export let hideConfirmButton = false;
@@ -124,7 +125,12 @@
         {/if}
 
         {#if !hideConfirmButton}
-          <PsButton {loading} on:tween-out-complete type="submit">
+          <PsButton
+            disabled={disableConfirmButton}
+            {loading}
+            on:tween-out-complete
+            type="submit"
+          >
             {confirmBtCopy}
           </PsButton>
         {/if}

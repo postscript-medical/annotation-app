@@ -106,7 +106,7 @@
        * NOTE: This call ALWAYS fails when in localhost!
        */
       const response = await save_team_change(
-        "/.netlify/functions/remove-team-member",
+        "/.netlify/functions/delete-team-member",
         {
           body: {
             userID,
@@ -218,16 +218,11 @@
       to_name: firstName || "there",
     });
 
-    $session
-      .requestPasswordRecovery(email)
-      .then(() => {
-        console.log("Recovery email sent.");
-      })
-      .catch((err) => {
-        console.log("Error sending email:", err);
+    $session.requestPasswordRecovery(email).catch((err) => {
+      console.log("Error sending email:", err);
 
-        errorMessage = `Error sending invitation email ${err.message}`;
-      });
+      errorMessage = `Error sending invitation email ${err.message}`;
+    });
   }
 
   function team_member_update_complete() {

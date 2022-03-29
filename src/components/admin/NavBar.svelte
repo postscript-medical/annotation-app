@@ -1,30 +1,39 @@
 <script>
   import { location } from "svelte-spa-router";
   import PsLink from "../PsLink.svelte";
+
+  const links = [
+    {
+      label: "Admin panel",
+      url: "/admin",
+    },
+    {
+      label: "Edit illustrations",
+      url: "/admin/illustrations",
+    },
+    {
+      label: "Edit sup-specialties",
+      url: "/admin/sub-specialties",
+    },
+    {
+      label: "Manage organizations",
+      url: "/admin/organizations",
+    },
+  ];
 </script>
 
 <ul class="wrapper plain">
-  <li>
-    {#if $location === "/admin"}
-      Admin panel
-    {:else}
-      <PsLink href="#/admin">Admin panel</PsLink>
-    {/if} |
-  </li>
-  <li>
-    {#if $location === "/admin/illustrations"}
-      Edit illustrations
-    {:else}
-      <PsLink href="#/admin/illustrations">Edit illustrations</PsLink>
-    {/if} |
-  </li>
-  <li>
-    {#if $location === "/admin/sub-specialties"}
-      Edit sup-specialties
-    {:else}
-      <PsLink href="#/admin/sub-specialties">Edit Sub-specialties</PsLink>
-    {/if}
-  </li>
+  {#each links as { label, url }}
+    <li>
+      {#if $location === url}
+        {label}
+      {:else}
+        <PsLink href={`#${url}`}>
+          {label}
+        </PsLink>
+      {/if}
+    </li>
+  {/each}
 </ul>
 
 <style>

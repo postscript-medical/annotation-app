@@ -16,7 +16,6 @@ export default async function (user) {
     },
   }).catch((error) => {
     console.error("::: Error getting specialties :::", error);
-    error = true;
   });
 
   return request;

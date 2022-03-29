@@ -9,6 +9,7 @@
   import loadProtectedContent from "./methods/load-protected-content.js";
   import AdminPanel from "./screens/AdminPanel.svelte";
   import AdminIllustrations from "./screens/AdminIllustrations.svelte";
+  import AdminManageOrganizations from "./screens/AdminManageOrganizations.svelte";
   import AdminSubSpecialties from "./screens/AdminSubSpecialties.svelte";
   import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
   import ErrorModal from "./modals/ErrorModal.svelte";
@@ -43,6 +44,10 @@
     }),
     "/admin/illustrations": wrap({
       component: AdminIllustrations,
+      conditions: [isUserLoggedIn, isUserDm],
+    }),
+    "/admin/organizations": wrap({
+      component: AdminManageOrganizations,
       conditions: [isUserLoggedIn, isUserDm],
     }),
     "/admin/sub-specialties": wrap({
