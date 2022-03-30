@@ -57,6 +57,7 @@ exports.handler = async (event) => {
     await stripe.subscriptions.create({
       customer: customer.id,
       items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
+      coupon: process.env.STRIPE_DISCOUNT_COUPON,
     });
 
     const client = new faunadb.Client({
