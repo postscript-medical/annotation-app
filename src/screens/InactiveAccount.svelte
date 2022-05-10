@@ -26,13 +26,8 @@
   </p>
 
   <p>
-    You will be redirect to Stripe, where you be asked to provide your card
-    details.
-  </p>
-
-  <p>
     Once your payment is complete, you will be able to access the resources
-    whitin your selected membership level.
+    within your selected membership level.
   </p>
 </main>
 
