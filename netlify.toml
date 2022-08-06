@@ -5,6 +5,7 @@
 
 [dev]
   command = "npm run dev"
+  targetPort = 8080
 
 [[headers]]
   for = "/*"
