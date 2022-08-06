@@ -237,9 +237,18 @@
         selectedSpecialty: $selectedSpecialty,
         selectedSubSpecialty: $selectedSubSpecialty,
       }),
-    }).catch((error) =>
-      console.error("::: Error updating app state :::", error)
-    );
+    })
+      .then((response) => response.json())
+      .then(({ data }) => {
+        $protectedContent.appState.selectedIllustrationTitle =
+          data.selectedIllustrationTitle;
+        $protectedContent.appState.selectedSpecialty = data.selectedSpecialty;
+        $protectedContent.appState.selectedSubSpecialty =
+          data.selectedSubSpecialty;
+      })
+      .catch((error) =>
+        console.error("::: Error updating app state :::", error)
+      );
   }
 
   function redoAction() {

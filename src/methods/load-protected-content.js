@@ -40,18 +40,17 @@ export default async function (user) {
     throw new Error(data.copy);
   }
 
+  const state = data.appState;
+  const illustration = state.selectedIllustrationTitle || "Graph";
+  const specialty = state.selectedSpecialty
+    ? state.selectedSpecialty
+    : data.specialties[0].name;
+  const subSpecialy = state.selectedSubSpecialty
+    ? state.selectedSubSpecialty
+    : data.specialties[0].subSpecialties[0].name;
+
   protectedContent.set(data);
-  selectedIllustrationTitle.set(
-    data.appState.selectedIllustrationTitle || "Graph"
-  );
-  selectedSpecialty.set(
-    data.appState.selectedSpecialty || data.specialties
-      ? data.specialties[0].name
-      : ""
-  );
-  selectedSubSpecialty.set(
-    data.appState.selectedSubSpecialty || data.specialties
-      ? data.specialties[0].subSpecialties[0].name
-      : ""
-  );
+  selectedIllustrationTitle.set(illustration);
+  selectedSpecialty.set(specialty);
+  selectedSubSpecialty.set(subSpecialy);
 }
