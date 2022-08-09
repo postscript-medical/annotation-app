@@ -42,12 +42,17 @@ export default async function (user) {
 
   const state = data.appState;
   const illustration = state.selectedIllustrationTitle || "Graph";
-  const specialty = state.selectedSpecialty
-    ? state.selectedSpecialty
-    : data.specialties[0].name;
-  const subSpecialy = state.selectedSubSpecialty
-    ? state.selectedSubSpecialty
-    : data.specialties[0].subSpecialties[0].name;
+  let specialty = "";
+  let subSpecialy = "";
+
+  if (data.organization.subscriptionLevel !== "inactive") {
+    specialty = state.selectedSpecialty
+      ? state.selectedSpecialty
+      : data.specialties[0].name;
+    subSpecialy = state.selectedSubSpecialty
+      ? state.selectedSubSpecialty
+      : data.specialties[0].subSpecialties[0].name;
+  }
 
   protectedContent.set(data);
   selectedIllustrationTitle.set(illustration);
