@@ -18,7 +18,7 @@ exports.handler = async (event) => {
 
   const { from_email, from_name, message } = body;
   /* TODO: Handle errors */
-  client.sendEmail({
+  const response = await client.sendEmail({
     From: "accounts@postscriptmedical.com",
     To: "accounts@postscriptmedical.com",
     Subject: `[POSTSCRIPT] Feedback from: ${from_email}`,
@@ -30,6 +30,13 @@ exports.handler = async (event) => {
     `,
     MessageStream: "feedback-form",
   });
+
+  if (response.ErrorCode !== 0) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: `Postmark error - ${response.Message}` }),
+    };
+  }
 
   return {
     statusCode: 200,
