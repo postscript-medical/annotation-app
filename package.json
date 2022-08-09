@@ -42,7 +42,7 @@
     "faunadb": "^4.6.0",
     "gotrue-js": "^0.9.29",
     "netlify-cli": "^10.15.0",
-    "node-fetch": "^3.2.10",
+    "node-fetch": "^2.6.7",
     "postmark": "^3.0.12",
     "sirv-cli": "^2.0.2",
     "stripe": "^10.0.0"
