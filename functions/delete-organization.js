@@ -1,4 +1,4 @@
-const deleteNetlifyUser = require("./utils/delete-netlify-user");
+const deleteNetlifyUser = require("./methods/delete-netlify-user");
 const faunadb = require("faunadb");
 const {
   Collection,

@@ -16,14 +16,10 @@ const {
 exports.handler = (_, context) => {
   const { user } = context.clientContext;
 
-  console.log("FAUNA_KEY:", process.env.FAUNA_KEY);
-
   try {
     const client = new faunadb.Client({
       secret: process.env.FAUNA_KEY,
     });
-
-    console.log("CLIENT:", client);
 
     return client
       .query(

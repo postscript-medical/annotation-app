@@ -1,6 +1,8 @@
-const faunadb = require("faunadb");
-const { Get, Index, Let, Match, Select, Update, Var } = faunadb.query;
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const updateOrgSubscriptionDetails = require("./methods/update-org-subscription-details");
+
+const faunaKey = process.env.FAUNA_KEY;
+const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -15,73 +17,58 @@ exports.handler = async ({ body, headers }) => {
 
     const subscription = stripeEvent.data.object;
 
-    /**
-     * Bail if this is not the desired update event
-     * TODO: payment fail, subscription cancelled
-     */
-    if (
-      stripeEvent.type !== "customer.subscription.updated" ||
-      !subscription ||
-      !subscription.customer
-    ) {
+    if (!subscription || !subscription.customer) {
       return {
-        statusCode: 200,
+        statusCode: 406,
         headers,
-        body: "{ message: Not the desired event }",
+        body: "{ message: No valid subscription or customer }",
       };
     }
 
-    const client = new faunadb.Client({
-      secret: process.env.FAUNA_KEY,
-    });
     const productId = subscription.items.data[0].plan.product;
 
-    /**
-     * Update the organization subscription details
-     */
-    await client
-      .query(
-        Let(
-          {
-            subscriptionPlan: Get(
-              Match(Index("subscriptionPlan_by_productId"), productId)
-            ),
-          },
-          Update(
-            Select(
-              "ref",
-              Get(
-                Match(Index("organization_by_stripeId"), subscription.customer)
-              )
-            ),
-            {
-              data: {
-                maxUsers: Select(["data", "maxUsers"], Var("subscriptionPlan")),
-                specialties: Select(
-                  ["data", "specialties"],
-                  Var("subscriptionPlan")
-                ),
-                subscriptionLevel: Select(
-                  ["data", "level"],
-                  Var("subscriptionPlan")
-                ),
-              },
-            }
-          )
-        )
-      )
-      .catch((error) => {
-        console.log("::: Handle subscription change error :::", error);
+    switch (stripeEvent.type) {
+      case "customer.subscription.updated":
+        await updateOrgSubscriptionDetails(
+          faunaKey,
+          productId,
+          subscription.customer
+        ).catch((error) => {
+          console.log("::: Handle subscription updated error :::", error);
 
+          return {
+            statusCode: 400,
+            body: `{ error: Handle subscription updated: ${error} }`,
+          };
+        });
+        break;
+
+      case "customer.subscription.deleted":
+        await updateOrgSubscriptionDetails(
+          faunaKey,
+          inactiveId,
+          subscription.customer
+        ).catch((error) => {
+          console.log("::: Handle subscription delete error :::", error);
+
+          return {
+            statusCode: 400,
+            body: `{ error: Handle subscription delete: ${error} }`,
+          };
+        });
+        break;
+
+      default:
         return {
-          statusCode: 400,
-          body: `{ error: Handle subscription change: ${error} }`,
+          statusCode: 406,
+          headers,
+          body: "{ message: Not the desired event }",
         };
-      });
+    }
 
     return {
       statusCode: 200,
-      body: `{ success: true }`,
+      body: "{ success: true }",
     };
   } catch (error) {
     console.log(`[ERROR] Stripe webhook failed with ${error}`);

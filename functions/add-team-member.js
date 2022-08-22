@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const faunadb = require("faunadb");
 const { Collection, Create, Do, Get, Match, Ref, Select, Update } =
   faunadb.query;
-const deleteNetlifyUser = require("./utils/delete-netlify-user");
+const deleteNetlifyUser = require("./methods/delete-netlify-user");
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
