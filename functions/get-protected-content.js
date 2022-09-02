@@ -74,6 +74,7 @@ exports.handler = (_, context) => {
                 ""
               ),
               name: Select(["data", "name"], Var("organizationDoc")),
+              email: Select(["data", "email"], Var("organizationDoc")),
             },
             specialties: If(
               IsNull(Var("specialtiesDoc")),

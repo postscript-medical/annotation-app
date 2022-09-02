@@ -23,11 +23,11 @@ exports.handler = async (event, context) => {
   try {
     body = JSON.parse(event.body);
   } catch (error) {
-    console.log("::: ERROR :::", event);
+    console.log("::: [delete-organization] ERROR :::", event);
 
     return {
       statusCode: 400,
-      body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
+      body: JSON.stringify({ message: `Invalid JSON body - ${error.message}` }),
     };
   }
 
@@ -45,16 +45,21 @@ exports.handler = async (event, context) => {
       };
     }
 
-    if (`${netlifyUser.statusCode}`[0] === "4") {
+    if (`${netlifyUser.status}`[0] === "4") {
       return {
-        statusCode: netlifyUser.statusCode,
-        body: netlifyUser.body,
+        statusCode: netlifyUser.status,
+        body: JSON.stringify({
+          message: netlifyUser.statusText + " - are you in localhost?",
+        }),
       };
     }
 
-    await stripe.customers.del(body.stripeID).catch((error) => {
-      console.log("::: ERROR - Stripe - :::", error);
-    });
+    /*
+      No need to .catch() when deleting a Stripe user.
+      If the .del() method fails, it will be caught
+      by the encompassing try/catch
+    */
+    await stripe.customers.del(body.stripeID);
 
     const client = new faunadb.Client({
       secret: process.env.FAUNA_KEY,
@@ -109,12 +114,22 @@ exports.handler = async (event, context) => {
       .then(() => {
         return {
           statusCode: 204,
+          body: JSON.stringify({ message: "Organization and users deleted" }),
         };
       })
-      .catch((error) => console.log("::: Delete Team member ERROR :::", error));
+      .catch((error) => {
+        console.log("::: [delete-organization] ERROR :::", error);
+
+        return {
+          statusCode: error.requestResult.statusCode,
+          body: JSON.stringify({ message: error.message }),
+        };
+      });
   } catch (error) {
+    console.log("::: [delete-organization] CATCH :::", error);
+
     return {
-      statusCode: 400,
+      statusCode: 500,
       body: JSON.stringify({ message: `Webhook Error: ${error.message}` }),
     };
   }

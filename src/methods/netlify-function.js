@@ -1,12 +1,10 @@
 import "whatwg-fetch";
 
 export default async function (url, user, params) {
-  const token = user ? await user.jwt() : false;
+  const token = user && user.jwt ? await user.jwt() : false;
 
   if (!token) {
-    return Promise.reject(
-      new Error("Could not validate your token. Please contact support.")
-    );
+    throw new Error("Could not validate your token. Please contact support.");
   }
 
   const response = await fetch(url, {
@@ -14,13 +12,17 @@ export default async function (url, user, params) {
     headers: { Authorization: `Bearer ${token}` },
     credentials: "include",
     body: JSON.stringify(params.body || {}),
-  }).catch((err) => Promise.reject(new Error(`Error ${err.message}`)));
+  }).catch((err) => {
+    /* Not sure this is catching, need to investigate */
+    console.log("[netlify-function] Catching error:", err);
+    throw new Error(`Server Error - ${err.message}`);
+  });
 
-  if (!response || !response.ok) {
-    const err = await response.json();
-
-    return Promise.reject(new Error(err.message));
+  if (response.ok) {
+    return response;
   }
 
-  return response;
+  const error = await response.json();
+
+  throw new Error(`Server error - ${error.message}`);
 }

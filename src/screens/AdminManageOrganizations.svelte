@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { user } from "../stores.js";
+  import { user, organization } from "../stores.js";
   import loadOrganizations from "../methods/load-organizations.js";
   import netlifyFunction from "../methods/netlify-function";
   import NavBar from "../components/admin/NavBar.svelte";
@@ -8,10 +8,14 @@
   import PsButton from "../components/PsButton.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
   import Modal from "../modals/Modal.svelte";
+  import ErrorMessage from "../components/ErrorMessage.svelte";
 
   let organizations;
   let confirmation = "";
   let selectedRow = "";
+  let loading = false;
+  let error = "";
+  let saveComplete = false;
 
   $: disableConfirmButton =
     selectedOrganization && selectedOrganization.owner !== confirmation;
@@ -28,24 +32,26 @@
   }
 
   async function handleModalConfirm() {
-    /**
-     * NOTE: This call ALWAYS fails when in localhost!
-     */
-    const response = await netlifyFunction(
-      "/.netlify/functions/delete-organization",
-      $user,
-      {
-        body: {
-          netlifyID: selectedOrganization.netlifyID,
-          orgID: selectedOrganization.id,
-          stripeID: selectedOrganization.stripeID,
-        },
-      }
-    );
+    error = "";
+    loading = true;
+    saveComplete = false;
 
-    handleModalClose();
-
-    loadData();
+    netlifyFunction("/.netlify/functions/delete-organization", $user, {
+      body: {
+        netlifyID: selectedOrganization.netlifyID,
+        orgID: selectedOrganization.id,
+        stripeID: selectedOrganization.stripeID,
+      },
+    })
+      .then(() => {
+        saveComplete = true;
+      })
+      .catch((err) => {
+        error = err;
+      })
+      .finally(() => {
+        loading = false;
+      });
   }
 
   function loadData() {
@@ -56,6 +62,14 @@
       .then((payload) => {
         organizations = payload;
       });
+  }
+
+  function tweenOutComplete() {
+    if (saveComplete) {
+      handleModalClose();
+
+      loadData();
+    }
   }
 
   onMount(() => {
@@ -79,15 +93,19 @@
   <NavBar />
 
   {#if organizations}
-    <ul class="plain">
+    <ul class="plain stacker--small">
       {#if organizations.data.length}
         {#each organizations.data as { owner, id }}
-          <li>
+          <li class="card shadow">
             <p>
               {owner}
             </p>
 
-            <PsButton style="secondary" on:click={() => deleteOrganization(id)}>
+            <PsButton
+              disabled={$organization.email === owner}
+              style="secondary"
+              on:click={() => deleteOrganization(id)}
+            >
               Delete
             </PsButton>
           </li>
@@ -105,11 +123,19 @@
 
 {#if selectedOrganization}
   <Modal
+    {loading}
     {disableConfirmButton}
     on:close={handleModalClose}
     on:confirm={handleModalConfirm}
+    on:tween-out-complete={tweenOutComplete}
   >
-    <span slot="header"> Confirm organization delete </span>
+    <svelte:fragment slot="header">
+      Confirm organization deletion
+    </svelte:fragment>
+
+    {#if error}
+      <ErrorMessage message={error} />
+    {/if}
 
     <p>Warning this action is irreversibe!</p>
 
@@ -131,5 +157,6 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    padding: 1rem;
   }
 </style>
