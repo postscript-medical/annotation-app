@@ -7,11 +7,8 @@
   import netlifyFunction from "../methods/netlify-function.js";
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
-  import PsDropdown from "../components/PsDropdown.svelte";
   import PsHeader from "../components/PsHeader.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
-
-  const ROLES = [ROLE_USER];
 
   let editingTeamMemberIndex = null;
   let editedTeamMemberSrc;
@@ -22,7 +19,7 @@
   let updatingTeamMember = false;
   let creatingNewTeamMember = false;
   let maxTeamMembers = 1;
-  let organization;
+  let org;
   let teamMembers = [];
   let teamMembersTable;
   let teamName = "";
@@ -91,7 +88,7 @@
       })
       .then(({ organization, allMembers, team }) => {
         maxTeamMembers = organization.maxUsers;
-        organization = organization;
+        org = organization;
         teamMembers = allMembers.data;
         teamName = team.name;
         teamId = team.id;
@@ -134,7 +131,7 @@
           email,
           firstName,
           lastName,
-          organizationID: organization.id,
+          organizationID: org.id,
           password: "123" /* TODO: generate a random password */,
           role,
           teamID: teamId,
@@ -212,7 +209,7 @@
     await emailjs.send("5609467", "team_member_welcome", {
       from_email: $user.email,
       from_name: $user.user_metadata.full_name || "Admininstrator",
-      org_name: organization.name,
+      org_name: org.name,
       team_name: teamName,
       to_email: email,
       to_name: firstName || "there",
@@ -362,7 +359,6 @@
             <th>First name</th>
             <th>Last name</th>
             <th>Email</th>
-            <th>Role</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -404,17 +400,6 @@
                     disabled={index > maxTeamMemberIndex}
                     on:input={({ detail: value }) =>
                       update_team_member_property("email", value, index)}
-                  />
-                </td>
-                <td>
-                  <PsDropdown
-                    editable={editingTeamMemberIndex === index}
-                    options={ROLES}
-                    style="inline"
-                    selected={member.role}
-                    disabled={index > maxTeamMemberIndex}
-                    on:change={({ detail: value }) =>
-                      update_team_member_property("role", value, index)}
                   />
                 </td>
                 <td>
@@ -460,7 +445,7 @@
                     </PsButton>
                     /
                     <PsButton
-                      disabled={() => is_remove_disabled(member)}
+                      disabled={is_remove_disabled(member)}
                       style="secondary inline"
                       on:click={() => remove_team_member(member)}
                     >
