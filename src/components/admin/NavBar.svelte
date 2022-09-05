@@ -12,7 +12,7 @@
       url: "/admin/illustrations",
     },
     {
-      label: "Edit sup-specialties",
+      label: "Edit sub-specialties",
       url: "/admin/sub-specialties",
     },
     {

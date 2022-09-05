@@ -62,15 +62,14 @@
   </header>
 
   {#if created}
-    <p>
-      Your account has been created. Please check your email for the
-      confirmation link.
-    </p>
+    <p>Your account has been created.</p>
 
     <p>
-      Once your accounts is confirmed, you will be able to choose your
-      subscription level.
+      Please check your email for the the confirmation link (including your Junk
+      folder).
     </p>
+
+    <p>Once your account is confirmed, you will be able to select your plan.</p>
   {:else}
     <ErrorMessage message={errorMessage} />
 
@@ -117,16 +116,14 @@
         <PsLink
           style="on-dark"
           href="https://www.postscriptmedical.com/terms-of-use"
+          >terms of use</PsLink
         >
-          terms of use
-        </PsLink>
         and
         <PsLink
           style="on-dark"
           href="https://www.postscriptmedical.com/privacy-policy"
+          >privacy policy.</PsLink
         >
-          privacy policy
-        </PsLink>.
       </p>
 
       <PsButton type="submit" style="on-dark">Create account</PsButton>
@@ -135,6 +132,19 @@
     <p>
       Already have an account?
       <PsLink href="/" style="on-dark">Sign in</PsLink>.
+    </p>
+
+    <p>
+      Please note we only support modern browsers such as <PsLink
+        style="on-dark"
+        href="https://www.microsoft.com/en-us/edge">Microsoft Edge</PsLink
+      >, <PsLink
+        style="on-dark"
+        href="https://www.mozilla.org/en-GB/firefox/new/"
+        >Mozilla Firefox</PsLink
+      >, <PsLink style="on-dark" href="https://www.google.com/chrome/"
+        >Google Chrome</PsLink
+      >.
     </p>
   {/if}
 </main>
