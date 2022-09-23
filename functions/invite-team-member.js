@@ -20,25 +20,13 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const {
-      email,
-      firstName,
-      lastName,
-      organizationID,
-      password,
-      role,
-      teamID,
-    } = body;
+    const { email, firstName, lastName, organizationID, role, teamID } = body;
 
     /* This function only works when deployed to a server */
-    const response = await fetch(`${identity.url}/admin/users`, {
+    const response = await fetch(`${identity.url}/invite`, {
       method: "POST",
       headers: { Authorization: `Bearer ${identity.token}` },
-      body: JSON.stringify({
-        email,
-        password,
-        confirm: true,
-      }),
+      body: JSON.stringify({ email }),
     }).catch((error) => {
       return {
         statusCode: 400,
@@ -101,6 +89,7 @@ exports.handler = async (event, context) => {
               ),
               email,
               firstName,
+              invitationStatus: "Pending",
               lastName,
               netlifyID: data.id,
               organization: Ref(Collection("Organization"), organizationID),

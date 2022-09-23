@@ -4,7 +4,9 @@ const {
   Collection,
   Create,
   Do,
+  Exists,
   Get,
+  If,
   Index,
   Lambda,
   Map,
@@ -20,6 +22,8 @@ const emailClient = new postmark.ServerClient(process.env.POSTMARK_TOKEN);
 
 exports.handler = async (event) => {
   let body;
+
+  console.log(">>>> Identity Sign-up <<<<<");
 
   try {
     body = JSON.parse(event.body);
@@ -45,6 +49,51 @@ exports.handler = async (event) => {
     const role = "owner";
     const newUserRef = "new-user-" + Date.now();
     const tempTeamName = teamName + Date.now();
+    const client = new faunadb.Client({
+      secret: process.env.FAUNA_KEY,
+    });
+
+    console.log(">>>>>>>>>>>> Hello?");
+
+    const existingUser = await client.query(
+      If(
+        Exists(Match(Index("findUserByEmail"), email)),
+        Get(Match(Index("findUserByEmail"), email)),
+        false
+      )
+    );
+
+    console.log(">>>> Existing user:", existingUser);
+    /**
+     * If the use already exists all we need to do is update
+     * their invitationStatus to "Confirmed"
+     */
+    if (existingUser) {
+      await client.query(
+        Update(
+          Ref(
+            Collection("User"),
+            Select(["ref", "id"], Get(Match(Index("findUserByEmail"), email)))
+          ),
+          {
+            data: {
+              invitationStatus: "Confirmed",
+            },
+          }
+        )
+      );
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          app_metadata: {
+            roles: ["team-member"],
+          },
+        }),
+      };
+    }
+
+    console.log(">>>>>>>>>>>>>> Create a brand new organization");
 
     /**
      * Create a customer in Stripe
@@ -58,10 +107,6 @@ exports.handler = async (event) => {
       customer: customer.id,
       items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
       coupon: process.env.STRIPE_DISCOUNT_COUPON,
-    });
-
-    const client = new faunadb.Client({
-      secret: process.env.FAUNA_KEY,
     });
 
     const fromFauna = await client
@@ -116,6 +161,7 @@ exports.handler = async (event) => {
               ),
               email,
               firstName,
+              invitationStatus: "Confirmed",
               lastName,
               netlifyID: id,
               organization: Ref(
@@ -209,6 +255,8 @@ exports.handler = async (event) => {
       }),
     };
   } catch (error) {
+    console.log("::: IDENTITY SIGNUP CATCH :::", error);
+
     return {
       statusCode: 400,
       body: JSON.stringify({ message: `Identity signup: ${error.message}` }),

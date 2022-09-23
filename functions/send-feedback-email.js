@@ -19,6 +19,7 @@ exports.handler = async (event) => {
   const { from_email, from_name, message } = body;
   /* TODO: Handle errors */
   const response = await client.sendEmail({
+    MessageStream: "feedback-form",
     From: "accounts@postscriptmedical.com",
     To: "accounts@postscriptmedical.com",
     Subject: `[POSTSCRIPT] Feedback from: ${from_email}`,
@@ -28,7 +29,6 @@ exports.handler = async (event) => {
       <p>Message:</p>
       <p>${message}</p>
     `,
-    MessageStream: "feedback-form",
   });
 
   if (response.ErrorCode !== 0) {

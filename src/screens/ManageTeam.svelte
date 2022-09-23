@@ -102,7 +102,7 @@
       /**
        * NOTE: This call ALWAYS fails when in localhost!
        */
-      const response = await save_team_change(
+      const response = await saveTeamChange(
         "/.netlify/functions/delete-team-member",
         {
           body: {
@@ -118,21 +118,20 @@
     teamMembers = [...teamMembers.filter(({ id }) => id !== userID)];
   }
 
-  async function save_new_team_member({ email, firstName, lastName, role }) {
+  async function saveNewTeamMember({ email, firstName, lastName, role }) {
     creatingNewTeamMember = true;
 
     /**
      * NOTE: This call ALWAYS fails when in localhost!
      */
-    const response = await save_team_change(
-      "/.netlify/functions/add-team-member",
+    const response = await saveTeamChange(
+      "/.netlify/functions/invite-team-member",
       {
         body: {
           email,
           firstName,
           lastName,
           organizationID: org.id,
-          password: "123" /* TODO: generate a random password */,
           role,
           teamID: teamId,
         },
@@ -146,17 +145,12 @@
     if (!response) return;
 
     /**
-     * Send welcome email with a reset password link to the newly created user.
-     */
-    send_email(email, firstName);
-
-    /**
      * Reload the data
      */
     loadPageData();
   }
 
-  async function save_team_change(url, params) {
+  async function saveTeamChange(url, params) {
     loading = true;
 
     clear_errors();
@@ -181,7 +175,7 @@
   }) {
     updatingTeamMember = true;
 
-    save_team_change("/.netlify/functions/update-team-member", {
+    saveTeamChange("/.netlify/functions/update-team-member", {
       body: {
         email,
         firstName,
@@ -195,30 +189,13 @@
   function save_updated_team_name() {
     updatingTeamName = true;
 
-    save_team_change("/.netlify/functions/update-team-properties", {
+    saveTeamChange("/.netlify/functions/update-team-properties", {
       body: {
         name: teamName,
         id: teamId,
       },
     }).catch((err) => {
       errorMessage = err.message;
-    });
-  }
-
-  async function send_email(email, firstName) {
-    await emailjs.send("5609467", "team_member_welcome", {
-      from_email: $user.email,
-      from_name: $user.user_metadata.full_name || "Admininstrator",
-      org_name: org.name,
-      team_name: teamName,
-      to_email: email,
-      to_name: firstName || "there",
-    });
-
-    $session.requestPasswordRecovery(email).catch((err) => {
-      console.log("Error sending email:", err);
-
-      errorMessage = `Error sending invitation email ${err.message}`;
     });
   }
 
@@ -408,7 +385,7 @@
                       <PsButton
                         {loading}
                         style="secondary inline"
-                        on:click={() => save_new_team_member(member)}
+                        on:click={() => saveNewTeamMember(member)}
                         on:tween-out-complete={team_member_update_complete}
                       >
                         Create

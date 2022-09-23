@@ -201,17 +201,21 @@
     loading = true;
 
     const encodedImage = generateAnnotatedImage();
-    const response = await emailjs
-      .send("5609467", "annotated_img", {
+    const response = await fetch("/.netlify/functions/send-annotation-email", {
+      method: "POST",
+      body: JSON.stringify({
         image: encodedImage,
         to_email: email,
-      })
-      .catch((err) => {
-        errorMessage = err.text;
-      });
+      }),
+    }).catch((err) => {
+      errorMessage = err;
+    });
 
     if (response && response.status === 200) {
       emailSent = true;
+    } else {
+      errorMessage =
+        "Error sending email. Verify the address and if the problem persists, contact us.";
     }
 
     loading = false;

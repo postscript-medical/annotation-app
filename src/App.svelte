@@ -1,5 +1,4 @@
 <script>
-  /*global emailjs*/
   import GoTrue from "gotrue-js";
   import { wrap } from "svelte-spa-router/wrap";
   import Router, { push } from "svelte-spa-router";
@@ -7,6 +6,7 @@
   import { STORAGE_KEY } from "./constants/session.js";
   import clearLocalApplicationData from "./methods/clear-local-application-data.js";
   import loadProtectedContent from "./methods/load-protected-content.js";
+  import AcceptTeamInvitation from "./screens/AcceptTeamInvitation.svelte";
   import AdminPanel from "./screens/AdminPanel.svelte";
   import AdminIllustrations from "./screens/AdminIllustrations.svelte";
   import AdminManageOrganizations from "./screens/AdminManageOrganizations.svelte";
@@ -35,6 +35,23 @@
           if (!$user) return confirmNavigation();
 
           return redirectTo("#/annotate");
+        },
+      ],
+    }),
+    "/accept-team-invitation": wrap({
+      component: AcceptTeamInvitation,
+      conditions: [
+        async ({ querystring }) => {
+          if (!hasAuthenticated) await initAuthentication();
+
+          const searchParams = new URLSearchParams(querystring);
+          const token = searchParams.get("token");
+
+          if (token) {
+            return confirmNavigation();
+          }
+
+          redirectTo("#/");
         },
       ],
     }),
@@ -155,8 +172,6 @@
     $session = response;
 
     $user = await (getUserFromSessionStorage() || $session.currentUser());
-
-    emailjs.init("user_pIX50wPynL3SZeFTG0Zqn");
 
     hasAuthenticated = true;
   }
