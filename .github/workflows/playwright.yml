@@ -4,8 +4,7 @@ on:
     branches: [ develop, staging ]
 
 env:
-  PLAYWRIGHT_TEST_BASE_URL: "https://deploy-preview-${{github.event.pull_request.number}}--pull-request.netlify.app/"
-  DEBUG: pw:api
+  PLAYWRIGHT_TEST_BASE_URL: "https://deploy-preview-${{github.event.pull_request.number}}--staging-app-postscriptmedical.netlify.app"
 
 jobs:
   test_netlify_prepare:
