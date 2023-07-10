@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
 
 test.describe('Login page', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,7 +9,7 @@ test.describe('Login page', () => {
   test('has title', async ({ page }) => {
     await expect(page).toHaveTitle(/PostScript Medical/);
 
-    await expect(page).toHaveScreenshot('login.png');
+    await percySnapshot(page, 'Login page');
   });
   
   test('T&Cs link', async ({ page }) => {
