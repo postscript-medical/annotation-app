@@ -1,5 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
+console.log("Playwright config:")
+console.log("CI:", process.env.CI);
+console.log("BASE_URL:", process.env.PLAYWRIGHT_TEST_BASE_URL)
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
