@@ -7,6 +7,8 @@ test.describe('Login page', () => {
 
   test('has title', async ({ page }) => {
     await expect(page).toHaveTitle(/PostScript Medical/);
+
+    await expect(page).toHaveScreenshot('login.png');
   });
   
   test('T&Cs link', async ({ page }) => {
