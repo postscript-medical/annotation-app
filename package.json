@@ -7,7 +7,7 @@
     "start": "sirv public --host",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "test": "npx playwright test",
+    "test": "percy exec -- npx playwright test",
     "test:dev": "npx playwright test --ui"
   },
   "devDependencies": {
