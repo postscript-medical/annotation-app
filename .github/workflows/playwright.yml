@@ -4,7 +4,8 @@ on:
     branches: [ develop, staging ]
 
 env:
-  GITHUB_PR_NUMBER: ${{github.event.pull_request.number}}
+  PLAYWRIGHT_TEST_BASE_URL: "https://deploy-preview-${{github.event.pull_request.number}}--pull-request.netlify.app/"
+  DEBUG: pw:api
 
 jobs:
   test_netlify_prepare:
@@ -15,7 +16,7 @@ jobs:
       uses: jakepartusch/wait-for-netlify-action@v1.4
       id: wait-for-netflify-preview
       with:
-        site_name: "pull-request"
+        site_name: "staging-app-postscriptmedical"
         max_timeout: 180
 
   tests_netlify:
@@ -40,6 +41,3 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
-      env:
-        PLAYWRIGHT_TEST_BASE_URL: "https://deploy-preview-${{env.GITHUB_PR_NUMBER}}--pull-request.netlify.app/"
-        DEBUG: pw:api
