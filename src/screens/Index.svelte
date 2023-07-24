@@ -8,6 +8,7 @@
   import PsHeader from "../components/PsHeader.svelte";
   import ResetPasswordModal from "../modals/ResetPasswordModal.svelte";
   import SignInForm from "../components/SignInForm.svelte";
+  import Modal from "../modals/Modal.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -17,6 +18,7 @@
   let showEmailConfirmed = false;
   let showForgotPasswordModal = false;
   let showResetPasswordModal = false;
+  let showPleaseWaitModal = false;
 
   function clear_errors() {
     errorMessage = "";
@@ -52,6 +54,8 @@
   }
 
   async function recover_user_account(token) {
+    showPleaseWaitModal = true;
+
     const response = await $session.recover(token, true).catch((err) => {
       dispatch("routeEvent", { errorMessage: err.json.msg });
     });
@@ -61,6 +65,8 @@
 
       showResetPasswordModal = true;
     }
+
+    showPleaseWaitModal = false;
   }
 
   async function request_reset_password({ detail: email }) {
@@ -152,6 +158,12 @@
     on:close={close_forgotten_password_modal}
     on:request-reset-password={request_reset_password}
   />
+{:else if showPleaseWaitModal}
+  <Modal hideCancelButton hideCloseButton hideConfirmButton>
+    <svelte:fragment slot="header">Verifying your details</svelte:fragment>
+
+    <p>Please wait...</p>
+  </Modal>
 {/if}
 
 <style>

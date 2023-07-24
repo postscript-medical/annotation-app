@@ -6,7 +6,7 @@ test.describe('Login page', () => {
     await page.goto('/');
   });
 
-  test('has title', async ({ page }) => {
+  test('Verify page elements', async ({ page }) => {
     await expect(page).toHaveTitle(/PostScript Medical/);
 
     await percySnapshot(page, 'Login page');
