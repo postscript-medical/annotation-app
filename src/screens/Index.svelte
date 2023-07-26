@@ -1,14 +1,11 @@
 <script>
   import { createEventDispatcher, onMount } from "svelte";
   import { push } from "svelte-spa-router";
-  import { session, user } from "../stores";
-  import checkPasswordRequirements from "../methods/check-password-requirements.js";
+  import { session } from "../stores";
   import EmailConfirmedModal from "../modals/EmailConfirmedModal.svelte";
   import ForgotPasswordModal from "../modals/ForgotPasswordModal.svelte";
   import PsHeader from "../components/PsHeader.svelte";
-  import ResetPasswordModal from "../modals/ResetPasswordModal.svelte";
   import SignInForm from "../components/SignInForm.svelte";
-  import Modal from "../modals/Modal.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -17,12 +14,6 @@
   let loading = false;
   let showEmailConfirmed = false;
   let showForgotPasswordModal = false;
-  let showResetPasswordModal = false;
-  let showPleaseWaitModal = false;
-
-  function clear_errors() {
-    errorMessage = "";
-  }
 
   async function confirm_user_sign_up(token) {
     const response = await $session.confirm(token).catch((err) => {
@@ -38,12 +29,6 @@
     showForgotPasswordModal = false;
   }
 
-  function close_reset_password_modal() {
-    showResetPasswordModal = false;
-
-    navigate_home();
-  }
-
   function navigate_home() {
     push("/");
   }
@@ -51,22 +36,6 @@
   function open_forgot_password_modal() {
     emailSent = false;
     showForgotPasswordModal = true;
-  }
-
-  async function recover_user_account(token) {
-    showPleaseWaitModal = true;
-
-    const response = await $session.recover(token, true).catch((err) => {
-      dispatch("routeEvent", { errorMessage: err.json.msg });
-    });
-
-    if (response) {
-      $user = response;
-
-      showResetPasswordModal = true;
-    }
-
-    showPleaseWaitModal = false;
   }
 
   async function request_reset_password({ detail: email }) {
@@ -84,37 +53,6 @@
     loading = false;
   }
 
-  async function reset_user_password({ detail: password }) {
-    const is_passwordGood = checkPasswordRequirements(password);
-
-    clear_errors();
-
-    if (!is_passwordGood) {
-      errorMessage = "Password does not meet criteria.";
-
-      return;
-    }
-
-    if (!$user) {
-      errorMessage = "Invalid user. Please contact support.";
-
-      return;
-    }
-
-    loading = true;
-
-    $user
-      .update({ password })
-      .then((updated_user) => {
-        $user = updated_user;
-
-        loading = false;
-      })
-      .catch((err) => {
-        errorMessage = `Failed to update user: ${err.message}`;
-      });
-  }
-
   onMount(() => {
     const hash = window.location.hash;
 
@@ -124,10 +62,6 @@
       switch (hashId) {
         case "#confirmation_token":
           confirm_user_sign_up(token);
-          break;
-
-        case "#recovery_token":
-          recover_user_account(token);
           break;
       }
     }
@@ -142,14 +76,6 @@
 
 {#if showEmailConfirmed}
   <EmailConfirmedModal on:close={navigate_home} />
-{:else if showResetPasswordModal}
-  <ResetPasswordModal
-    {errorMessage}
-    {loading}
-    on:clear-errors={clear_errors}
-    on:close={close_reset_password_modal}
-    on:reset-password={reset_user_password}
-  />
 {:else if showForgotPasswordModal}
   <ForgotPasswordModal
     {errorMessage}
@@ -158,12 +84,6 @@
     on:close={close_forgotten_password_modal}
     on:request-reset-password={request_reset_password}
   />
-{:else if showPleaseWaitModal}
-  <Modal hideCancelButton hideCloseButton hideConfirmButton>
-    <svelte:fragment slot="header">Verifying your details</svelte:fragment>
-
-    <p>Please wait...</p>
-  </Modal>
 {/if}
 
 <style>

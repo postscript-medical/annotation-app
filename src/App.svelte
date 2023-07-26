@@ -19,6 +19,7 @@
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
   import ManageTeam from "./screens/ManageTeam.svelte";
   import NotFound from "./screens/NotFound.svelte";
+  import ResetPassword from "./screens/ResetPassword.svelte";
   import SignUp from "./screens/SignUp.svelte";
   import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
@@ -40,20 +41,7 @@
     }),
     "/accept-team-invitation": wrap({
       component: AcceptTeamInvitation,
-      conditions: [
-        async ({ querystring }) => {
-          if (!hasAuthenticated) await initAuthentication();
-
-          const searchParams = new URLSearchParams(querystring);
-          const token = searchParams.get("token");
-
-          if (token) {
-            return confirmNavigation();
-          }
-
-          redirectTo("#/");
-        },
-      ],
+      conditions: [hasToken],
     }),
     "/admin": wrap({
       component: AdminPanel,
@@ -77,20 +65,7 @@
     }),
     "/confirm-signup": wrap({
       component: ConfirmSignUp,
-      conditions: [
-        async ({ querystring }) => {
-          if (!hasAuthenticated) await initAuthentication();
-
-          const searchParams = new URLSearchParams(querystring);
-          const token = searchParams.get("token");
-
-          if (token) {
-            return confirmNavigation();
-          }
-
-          redirectTo("#/");
-        },
-      ],
+      conditions: [hasToken],
     }),
     "/inactive-account": wrap({
       component: InactiveAccount,
@@ -99,6 +74,10 @@
     "/manage-team": wrap({
       component: ManageTeam,
       conditions: [isUserLoggedIn],
+    }),
+    "/reset-password": wrap({
+      component: ResetPassword,
+      conditions: [hasToken],
     }),
     "/sign-up": wrap({
       component: SignUp,
@@ -155,6 +134,19 @@
     }
   }
 
+  async function hasToken({ querystring }) {
+    if (!hasAuthenticated) await initAuthentication();
+
+    const searchParams = new URLSearchParams(querystring);
+    const token = searchParams.get("token");
+
+    if (token) {
+      return confirmNavigation();
+    }
+
+    return redirectTo("#/");
+  }
+
   async function initAuthentication() {
     $isLoading = true;
 
@@ -199,7 +191,7 @@
 
         errorMessage = error;
 
-        redirectTo("#/");
+        return redirectTo("#/");
       });
 
       if ($protectedContent) {
