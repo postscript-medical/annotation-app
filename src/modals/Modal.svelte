@@ -1,5 +1,6 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
   import IconClose from "../components/icons/IconClose.svelte";
   import PsButton from "../components/PsButton.svelte";
   import PsTooltip from "../components/PsTooltip.svelte";
@@ -24,36 +25,8 @@
     dispatch("confirm");
   }
 
-  // TODO: Different animation for confirm/cancel
   function close(isConfirm) {
-    const tl = gsap.timeline({
-      onComplete: () => {
-        if (isConfirm) dispatch("confirm");
-        else dispatch("close");
-      },
-    });
-
-    if (isConfirm) {
-      tl.to(modal, {
-        duration: 0.15,
-        scale: 0.9,
-        autoAlpha: 0,
-        ease: "circ.in",
-      });
-    } else {
-      tl.to(modal, {
-        duration: 0.5,
-        ease: "circ.in",
-        y: 50,
-        autoAlpha: 0,
-      });
-    }
-
-    tl.to(wrapper, {
-      duration: 0.15,
-      autoAlpha: 0,
-      ease: "none",
-    });
+    isConfirm ? dispatch("confirm") : dispatch("close");
   }
 
   function handleEnter() {
@@ -70,25 +43,9 @@
   function handleLeave() {
     showTooltip = false;
   }
-
-  onMount(() => {
-    gsap
-      .timeline()
-      .from(wrapper, {
-        duration: 0.075,
-        ease: "none",
-        autoAlpha: 0,
-      })
-      .from(modal, {
-        duration: 0.5,
-        ease: "circ.out",
-        y: 50,
-        autoAlpha: 0,
-      });
-  });
 </script>
 
-<div bind:this={wrapper} class="modal-wrapper">
+<div bind:this={wrapper} class="modal-wrapper" transition:fade>
   <article bind:this={modal} class={`modal shadow ${style}`}>
     <form on:submit|preventDefault={confirm}>
       <h2 class="modal-header">

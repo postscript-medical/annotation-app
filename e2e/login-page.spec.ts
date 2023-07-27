@@ -19,4 +19,14 @@ test.describe('Login page', () => {
   test('Privacy link', async ({ page }) => {
     await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute("href", "https://www.postscriptmedical.com/privacy-policy/");
   });
+
+  test('Verify the reset password modal', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'Forgot your password?'}).click();
+
+    await expect(page.getByText('Request a recovery password email')).toBeVisible();
+
+    await percySnapshot(page, 'Forgot your password modal');
+  });
 });

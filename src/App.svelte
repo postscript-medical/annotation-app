@@ -144,7 +144,7 @@
       return confirmNavigation();
     }
 
-    return redirectTo("#/");
+    return redirectTo("/");
   }
 
   async function initAuthentication() {
@@ -173,7 +173,7 @@
       return confirmNavigation();
     }
 
-    return redirectTo("#/");
+    return redirectTo("/");
   }
 
   async function isUserLoggedIn() {
@@ -191,7 +191,7 @@
 
         errorMessage = error;
 
-        return redirectTo("#/");
+        return redirectTo("/");
       });
 
       if ($protectedContent) {
@@ -199,12 +199,12 @@
       }
     }
 
-    return redirectTo("#/");
+    return redirectTo("/");
   }
 
   function isSubscriptionValid() {
     if (!$protectedContent) {
-      return redirectTo("#/");
+      return redirectTo("/");
     }
 
     if ($protectedContent.organization.subscriptionLevel === "inactive") {
