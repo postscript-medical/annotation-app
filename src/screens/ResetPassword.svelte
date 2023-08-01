@@ -4,17 +4,19 @@
   import { querystring } from "svelte-spa-router";
   import { session, user } from "../stores";
   import checkPasswordRequirements from "../methods/check-password-requirements.js";
-  import PsHeader from "../components/PsHeader.svelte";
   import ErrorMessage from "../components/ErrorMessage.svelte";
+  import PsHeader from "../components/PsHeader.svelte";
+  import PsLink from "../components/PsLink.svelte";
 
+  const ACCOUNT_RECOVERED = "account-recovered";
+  const RESET_COMPLETE = "reset-complete";
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
 
-  let accountRecovered = false;
   let errorMessage = "";
   let loading = false;
-  let resetComplete = false;
   let password;
+  let state = "unverified";
 
   $: lockInput = !errorMessage && loading;
 
@@ -31,7 +33,7 @@
       if (response) {
         $user = response;
 
-        accountRecovered = true;
+        state = ACCOUNT_RECOVERED;
       }
     } else {
       errorMessage = "Token not found.";
@@ -62,7 +64,7 @@
       .then((updatedUser) => {
         $user = updatedUser;
 
-        resetComplete = true;
+        state = RESET_COMPLETE;
       })
       .catch((err) => {
         errorMessage = `Failed to update user: ${err.message}`;
@@ -84,7 +86,7 @@
 
   <ErrorMessage message={errorMessage} />
 
-  {#if accountRecovered}
+  {#if state === ACCOUNT_RECOVERED}
     <p>Validation successfull.</p>
 
     <form on:submit|preventDefault={resetUserPassword}>
@@ -106,11 +108,11 @@
 
       <button type="submit" disabled={lockInput}> Reset password </button>
     </form>
-  {:else if resetComplete}
+  {:else if state === RESET_COMPLETE}
     <p>Password reset successful.</p>
 
     <p>
-      You are now able to <a href="#/">login</a>.
+      You are now able to <PsLink href="/#" style="on-dark">login</PsLink>.
     </p>
   {:else if !errorMessage}
     <p>Please wait, validating your reset token.</p>
