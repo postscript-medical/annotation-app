@@ -26,7 +26,7 @@
   }
 
   async function fetchIllustrationsByName(name) {
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       return Promise.reject(
@@ -92,7 +92,7 @@
   }
 
   async function saveChanges() {
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       return Promise.reject(

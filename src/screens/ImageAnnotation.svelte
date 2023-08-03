@@ -222,7 +222,7 @@
   }
 
   async function updateAppState(illustrationTitle) {
-    const token = $user ? await $user.jwt(true) : false;
+    const token = $user ? await $user.jwt() : false;
 
     if (!token) {
       return Promise.reject(
