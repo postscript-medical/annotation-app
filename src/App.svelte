@@ -17,6 +17,7 @@
   import ImageAnnotation from "./screens/ImageAnnotation.svelte";
   import InactiveAccount from "./screens/InactiveAccount.svelte";
   import LoadingOverlay from "./components/LoadingOverlay.svelte";
+  import LogOut from "./screens/LogOut.svelte";
   import ManageTeam from "./screens/ManageTeam.svelte";
   import NotFound from "./screens/NotFound.svelte";
   import ResetPassword from "./screens/ResetPassword.svelte";
@@ -70,6 +71,9 @@
     "/inactive-account": wrap({
       component: InactiveAccount,
       conditions: [isUserLoggedIn],
+    }),
+    "/log-out": wrap({
+      component: LogOut,
     }),
     "/manage-team": wrap({
       component: ManageTeam,

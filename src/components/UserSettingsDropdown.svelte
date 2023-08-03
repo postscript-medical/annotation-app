@@ -4,7 +4,6 @@
     protectedContent,
     userSettingsDropdownDrawerOpen,
   } from "../stores.js";
-  import SignOutButton from "./SignOutButton.svelte";
   import ManageSubscription from "./ManageSubscription.svelte";
   import PsLink from "./PsLink.svelte";
 
@@ -71,7 +70,7 @@
           <PsLink href="#/admin" style="on-dark">Admin panel</PsLink>
         {/if}
       {/if}
-      <SignOutButton inline />
+      <PsLink href="#/log-out" style="on-dark">Log out</PsLink>
     </div>
   {/if}
 </div>
