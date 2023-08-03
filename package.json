@@ -1,6 +1,6 @@
 {
   "name": "postscript-annotation-app",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -8,7 +8,8 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "test": "percy exec -- npx playwright test",
-    "test:dev": "npx playwright test --ui"
+    "test:dev": "npx playwright test --ui",
+    "test:components": "playwright test --ui -c playwright-ct.config.ts"
   },
   "devDependencies": {
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
@@ -17,6 +18,7 @@
     "@babel/runtime": "^7.18.9",
     "@percy/cli": "^1.26.2",
     "@percy/playwright": "^1.0.4",
+    "@playwright/experimental-ct-svelte": "^1.36.2",
     "@playwright/test": "^1.35.1",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.2",
@@ -41,7 +43,6 @@
     "svelte-portal": "^2.2.0",
     "svelte-spa-router": "^3.3.0",
     "svelte-undo": "^1.0.2",
-    "svench": "^0.3.0-1",
     "whatwg-fetch": "^3.6.2"
   },
   "dependencies": {

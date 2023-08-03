@@ -1,28 +1,45 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import {
-    filteredIllustrations,
     illustrationSearchQuery,
-    selectedSpecialty,
-    selectedSubSpecialty,
+    protectedContent,
     specialties,
     subSpecialties,
   } from "../stores.js";
+  import findIllustrations from "../methods/find-illustrations.js";
+  import filterSortIllustrations from "../methods/filter-sort-illustrations.js";
   import ImagesGrid from "../components/ImagesGrid.svelte";
   import Modal from "./Modal.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
 
+  const dispatch = createEventDispatcher();
+
+  let specialty = $protectedContent.appState.selectedSpecialty;
+  let subSpecialty = $protectedContent.appState.selectedSubSpecialty;
+  let _subSpecialties = $subSpecialties;
+
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
-    hasSpecialties && $subSpecialties && $subSpecialties.length;
+    hasSpecialties && _subSpecialties && _subSpecialties.length;
+  $: illustrations = findIllustrations(_subSpecialties, subSpecialty);
+  $: filteredIllustrations = filterSortIllustrations(
+    illustrations,
+    $illustrationSearchQuery
+  );
 
-  function selectSpecialty({ detail: specialty }) {
-    $selectedSpecialty = specialty;
-
-    selectSubSpecialty({ detail: $subSpecialties[0].name });
+  function updateSubSpecialties() {
+    _subSpecialties = $specialties.find(
+      ({ name }) => specialty === name
+    ).subSpecialties;
+    subSpecialty = _subSpecialties[0].name;
   }
 
-  function selectSubSpecialty({ detail: subSpecialty }) {
-    $selectedSubSpecialty = subSpecialty;
+  function selectIllustration({ detail: illustration }) {
+    dispatch("select-illustration", {
+      illustration,
+      specialty,
+      subSpecialty,
+    });
   }
 </script>
 
@@ -34,9 +51,9 @@
       <PsDropdown
         options={$specialties}
         optionKey="name"
-        selected={$selectedSpecialty}
+        bind:selected={specialty}
         style="vertical"
-        on:change={selectSpecialty}
+        on:change={updateSubSpecialties}
       >
         Specialty
       </PsDropdown>
@@ -44,12 +61,11 @@
 
     {#if hasSubSpecialties}
       <PsDropdown
-        disabled={$subSpecialties.length === 0}
-        options={$subSpecialties}
+        disabled={_subSpecialties.length === 0}
+        options={_subSpecialties}
         optionKey="name"
-        selected={$selectedSubSpecialty}
+        bind:selected={subSpecialty}
         style="vertical"
-        on:change={selectSubSpecialty}
       >
         Sub-specialty
       </PsDropdown>
@@ -62,7 +78,10 @@
       bind:value={$illustrationSearchQuery}
     />
 
-    <ImagesGrid images={$filteredIllustrations} on:select-illustration />
+    <ImagesGrid
+      images={filteredIllustrations}
+      on:select-illustration={selectIllustration}
+    />
   </div>
 </Modal>
 

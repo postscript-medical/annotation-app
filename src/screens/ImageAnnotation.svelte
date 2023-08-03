@@ -6,9 +6,6 @@
     annotatedImage,
     illustrationSearchQuery,
     protectedContent,
-    selectedIllustrationTitle,
-    selectedSpecialty,
-    selectedSubSpecialty,
     user,
   } from "../stores.js";
   import {
@@ -31,13 +28,16 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../constants/defaults.js";
-  import clone from "../methods/clone.js";
+  import loadProtectedContent from "../methods/load-protected-content.js";
+  import updateAppState from "../methods/update-app-state.js";
+  import ChooseSpecialtyModal from "../modals/ChooseSpecialtyModal.svelte";
   import FeedbackModal from "../modals/FeedbackModal.svelte";
   import ImageCatalogueModal from "../modals/ImageCatalogueModal.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
   import SketchPadUi from "../components/sketchpad/SketchPadUi.svelte";
   import ShareModal from "../modals/ShareModal.svelte";
-  import { tweenOut } from "../components/sketchpad/Illustration.svelte";
+
+  const CHOOSE_A_SPECIALTY = "chooseASpecialty";
 
   let emailSent = false;
   let eraser = {
@@ -61,7 +61,6 @@
     color: PEN_COLORS.find(({ id }) => id === DEFAULT_COLOR).value,
     type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE).id,
   };
-  let tempAppState = {};
 
   $: {
     switch (selectedToolId) {
@@ -121,11 +120,6 @@
   }
 
   function closeCatalogueModal() {
-    $protectedContent.appState = { ...tempAppState };
-
-    $selectedSpecialty = tempAppState.selectedSpecialty;
-    $selectedSubSpecialty = tempAppState.selectedSubSpecialty;
-
     closeModal();
   }
 
@@ -158,8 +152,6 @@
   }
 
   function openCatalogueModal({ detail: modalName }) {
-    tempAppState = { ...$protectedContent.appState };
-
     $illustrationSearchQuery = "";
 
     openModal({ detail: modalName });
@@ -173,22 +165,22 @@
     window.print();
   }
 
-  function selectIllustration({ detail: illustration }) {
-    updateAppState(illustration.name);
+  function selectIllustration({ detail }) {
+    updateAppState({
+      id: $protectedContent.appState.id,
+      selectedIllustrationTitle: detail.illustration.name,
+      selectedSpecialty: detail.specialty,
+      selectedSubSpecialty: detail.subSpecialty,
+      user: $user,
+    });
 
     actions.push([
       ...sketchPad.clearCanvas(),
       {
         name: TOOL_CHANGE_IMAGE,
-        illustrationTitle: illustration.name,
+        illustrationTitle: detail.illustration.name,
       },
     ]);
-
-    if (illustration.name !== $selectedIllustrationTitle) {
-      tweenOut(() => {
-        $selectedIllustrationTitle = illustration.name;
-      });
-    }
 
     closeModal();
   }
@@ -221,7 +213,8 @@
     loading = false;
   }
 
-  async function updateAppState(illustrationTitle) {
+  async function updateChosenSpecialty({ detail }) {
+    const { id, specialtyId } = detail;
     const token = $user ? await $user.jwt() : false;
 
     if (!token) {
@@ -230,28 +223,42 @@
       );
     }
 
-    await fetch("/.netlify/functions/update-app-state", {
+    await fetch("/.netlify/functions/update-chosen-specialty", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        id: $protectedContent.appState.id,
-        selectedIllustrationTitle: illustrationTitle,
-        selectedSpecialty: $selectedSpecialty,
-        selectedSubSpecialty: $selectedSubSpecialty,
-      }),
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id, specialtyId }),
     })
       .then((response) => response.json())
-      .then(({ data }) => {
-        $protectedContent.appState.selectedIllustrationTitle =
-          data.selectedIllustrationTitle;
-        $protectedContent.appState.selectedSpecialty = data.selectedSpecialty;
-        $protectedContent.appState.selectedSubSpecialty =
-          data.selectedSubSpecialty;
+      .then(async () => {
+        await loadProtectedContent($user);
+
+        /**
+         * Force a refresh of the derived stores
+         */
+        protectedContent.update((content) => {
+          content.appState = {
+            ...content.appState,
+            selectedIllustrationTitle: "Graph",
+            selectedSpecialty: content.specialties[0].name,
+            selectedSubSpecialty: content.specialties[0].subSpecialties[0].name,
+          };
+
+          return content;
+        });
+
+        updateAppState({
+          id: $protectedContent.appState.id,
+          selectedIllustrationTitle:
+            $protectedContent.appState.selectedIllustrationTitle,
+          selectedSpecialty: $protectedContent.appState.selectedSpecialty,
+          selectedSubSpecialty: $protectedContent.appState.selectedSubSpecialty,
+          user: $user,
+        });
+
+        closeModal();
       })
       .catch((error) =>
-        console.error("::: Error updating app state :::", error)
+        console.error("::: Error updating chosen specialty :::", error)
       );
   }
 
@@ -265,6 +272,10 @@
 
   onMount(() => {
     selectTool({ detail: TOOL_PEN });
+
+    if ($protectedContent.organization.chosenSpecialty === "") {
+      $activeModal = CHOOSE_A_SPECIALTY;
+    }
   });
 </script>
 
@@ -315,6 +326,14 @@
   <ImageCatalogueModal
     on:close={closeCatalogueModal}
     on:select-illustration={selectIllustration}
+  />
+{/if}
+
+{#if $activeModal === CHOOSE_A_SPECIALTY}
+  <ChooseSpecialtyModal
+    user={$user}
+    orgId={$protectedContent.organization.id}
+    on:specialty-updated={updateChosenSpecialty}
   />
 {/if}
 

@@ -219,11 +219,32 @@ export const illustrationLoaded = writable(false);
 
 export const illustrationDisplayed = writable();
 
-export const selectedIllustrationTitle = writable("");
+export const selectedIllustrationTitle = derived(
+  protectedContent,
+  ($protectedContent) => {
+    return $protectedContent.appState
+      ? $protectedContent.appState.selectedIllustrationTitle
+      : "";
+  }
+);
 
-export const selectedSpecialty = writable("");
+export const selectedSpecialty = derived(
+  protectedContent,
+  ($protectedContent) => {
+    return $protectedContent.appState
+      ? $protectedContent.appState.selectedSpecialty
+      : "";
+  }
+);
 
-export const selectedSubSpecialty = writable("");
+export const selectedSubSpecialty = derived(
+  protectedContent,
+  ($protectedContent) => {
+    return $protectedContent.appState
+      ? $protectedContent.appState.selectedSubSpecialty
+      : "";
+  }
+);
 
 export const specialties = derived(protectedContent, ($protectedContent) => {
   return $protectedContent.specialties ? $protectedContent.specialties : [];
@@ -234,21 +255,21 @@ export const subSpecialties = derived(
   ([$selectedSpecialty, $specialties]) => {
     if (!$specialties || !$specialties.length) return [];
 
-    let selectedSpecialty = $specialties.find(
+    let _selectedSpecialty = $specialties.find(
       ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
     );
 
-    if (!selectedSpecialty) selectedSpecialty = $specialties[0];
+    if (!_selectedSpecialty) _selectedSpecialty = $specialties[0];
 
-    const subSpecialties = JSON.parse(
-      JSON.stringify(selectedSpecialty.subSpecialties)
+    const _subSpecialties = JSON.parse(
+      JSON.stringify(_selectedSpecialty.subSpecialties)
     );
 
-    if (!subSpecialties || subSpecialties.length === 0) return [];
+    if (!_subSpecialties || _subSpecialties.length === 0) return [];
 
     const allIllustrations = JSON.parse(
       JSON.stringify(
-        subSpecialties.flatMap(({ illustrations }) => illustrations)
+        _subSpecialties.flatMap(({ illustrations }) => illustrations)
       )
     );
     /**
@@ -270,56 +291,22 @@ export const subSpecialties = derived(
       illustrations: dedupedIllustrations,
     };
 
-    subSpecialties.push(allSubSpecialty);
+    _subSpecialties.push(allSubSpecialty);
 
-    return subSpecialties;
+    return _subSpecialties;
   }
 );
 
 export const illustrations = derived(
   [subSpecialties, selectedSubSpecialty],
   ([$subSpecialties, $selectedSubSpecialty]) => {
-    const subSpecialty =
+    const _subSpecialty =
       $subSpecialties &&
       $subSpecialties.find(
         ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
       );
 
-    return subSpecialty ? subSpecialty.illustrations : [];
-  }
-);
-
-export const filteredIllustrations = derived(
-  [illustrations, illustrationSearchQuery],
-  ([$illustrations, $illustrationSearchQuery]) => {
-    const filtered = $illustrationSearchQuery
-      ? $illustrations.filter(({ name, alias }) => {
-          return (
-            name
-              .toLowerCase()
-              .includes($illustrationSearchQuery.toLowerCase()) ||
-            alias.find((entry) =>
-              entry
-                .toLowerCase()
-                .includes($illustrationSearchQuery.toLowerCase())
-            )
-          );
-        })
-      : $illustrations;
-
-    const sorted = JSON.parse(JSON.stringify(filtered));
-
-    sorted.sort((el1, el2) => {
-      const name1 = el1.name.toLowerCase();
-      const name2 = el2.name.toLowerCase();
-
-      if (name1 < name2) return -1;
-      if (name1 > name2) return 1;
-
-      return 0;
-    });
-
-    return sorted;
+    return _subSpecialty ? _subSpecialty.illustrations : [];
   }
 );
 

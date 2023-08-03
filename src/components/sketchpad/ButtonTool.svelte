@@ -109,7 +109,7 @@
   }
 </script>
 
-<div class="primary-tool ">
+<div class="primary-tool">
   <ButtonIcon
     on:click={changePrimary}
     on:enter={handleEnter}
