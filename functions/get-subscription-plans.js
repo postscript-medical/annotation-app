@@ -1,4 +1,3 @@
-const { If, ContainsPath } = require("faunadb");
 const faunadb = require("faunadb");
 const {
   Documents,
@@ -38,30 +37,13 @@ exports.handler = () => {
                   subscriptionPlanDoc: Get(Var("ref")),
                 },
                 {
-                  is_premium: If(
-                    ContainsPath(
-                      ["data", "is_premium"],
-                      Var("subscriptionPlanDoc")
-                    ),
-                    Select(["data", "is_premium"], Var("subscriptionPlanDoc")),
-                    false
-                  ),
-                  max_users: Select(
-                    ["data", "max_users"],
-                    Var("subscriptionPlanDoc")
-                  ),
-                  max_specialties: Select(
-                    ["data", "max_specialties"],
+                  maxTeams: Select(
+                    ["data", "maxTeams"],
                     Var("subscriptionPlanDoc")
                   ),
                   name: Select(["data", "name"], Var("subscriptionPlanDoc")),
-                  price: Select(["data", "price"], Var("subscriptionPlanDoc")),
-                  priceId_monthly: Select(
-                    ["data", "priceId_monthly"],
-                    Var("subscriptionPlanDoc")
-                  ),
-                  priceId_yearly: Select(
-                    ["data", "priceId_yearly"],
+                  products: Select(
+                    ["data", "products"],
                     Var("subscriptionPlanDoc")
                   ),
                 }

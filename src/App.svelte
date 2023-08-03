@@ -64,7 +64,7 @@
       component: ImageAnnotation,
       conditions: [isUserLoggedIn, isSubscriptionValid],
     }),
-    "/confirm-signup": wrap({
+    "/confirm-sign-up": wrap({
       component: ConfirmSignUp,
       conditions: [hasToken],
     }),
@@ -119,18 +119,24 @@
   }
 
   async function getUserFromSessionStorage() {
-    const sessionStorage = window.sessionStorage.getItem(STORAGE_KEY);
+    const localStorage = window.localStorage.getItem(STORAGE_KEY);
 
-    if (!sessionStorage) return false;
+    console.log("Session:", localStorage);
 
-    const { email, password } = JSON.parse(sessionStorage);
+    if (!localStorage) return false;
+
+    // const { email, password } = JSON.parse(localStorage);
+    const goTrueUser = JSON.parse(localStorage);
+
+    console.log("goTrueUser:", goTrueUser);
 
     try {
-      const user = await $session.login(email, password);
+      // const user = await $session.login(email, password);
+      const user = $session.currentUser();
 
       return user;
     } catch (err) {
-      window.sessionStorage.removeItem(STORAGE_KEY);
+      // window.localStorage.removeItem(STORAGE_KEY);
 
       $isLoading = false;
 

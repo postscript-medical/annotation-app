@@ -1,76 +1,55 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  export let showYearlyPlans = false;
   export let plan;
-  export let specialties = [];
 
   const dispatch = createEventDispatcher();
 
-  let selectedSpecialties = plan.is_premium
-    ? specialties.map(({ id }) => id)
-    : specialties[0].id;
+  let locale = "gbp";
 
-  $: priceId = showYearlyPlans ? plan.priceId_yearly : plan.priceId_monthly;
+  function handleSubmit() {
+    const formData = new FormData(this);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    dispatch("submit", { specialties: selectedSpecialties, priceId });
+    dispatch("submit", { priceId: formData.get("price_id") });
   }
 </script>
 
-<form action="" on:submit={handleSubmit}>
-  <p class="plan-name">{plan.name}</p>
+<p class="plan-name">{plan.name}</p>
 
-  <p class="price">
-    £{showYearlyPlans ? plan.price * 10 : plan.price}<span
-      class="billing-frequency"
-    >
-      /{showYearlyPlans ? "Per year" : "Per month"}</span
-    >
-  </p>
+<div class="products">
+  {#each plan.products as product}
+    {@const price = product.price.currencies.find(
+      (currency) => currency.locale === locale
+    )}
 
-  <input type="hidden" name="priceId" bind:value={priceId} />
+    <form on:submit|preventDefault={handleSubmit}>
+      <p>
+        <strong>
+          {product.name}
+        </strong>
+      </p>
 
-  <fieldset>
-    <legend>
-      {#if plan.is_premium}
-        Included specialties:
-      {:else}
-        Choose a specialty:
-      {/if}
-    </legend>
+      <p>
+        <span class="price"
+          >£{price.amount}<span class="billing-frequency">/per month</span
+          ></span
+        ><br />or £{price.amount * 10}/per year
+      </p>
 
-    {#each specialties as { id, name }, index}
-      {#if plan.is_premium}
-        <label class="inactive">
-          <input
-            type="checkbox"
-            name="specialties"
-            value={id}
-            bind:group={selectedSpecialties}
-          />
+      <p>Includes:</p>
 
-          {name}
-        </label>
-      {:else}
-        <label>
-          <input
-            type="radio"
-            name="specialties"
-            value={id}
-            bind:group={selectedSpecialties}
-          />
+      <ul>
+        {#each product.features as feature}
+          <li>{feature}</li>
+        {/each}
+      </ul>
 
-          {name}
-        </label>
-      {/if}
-    {/each}
-  </fieldset>
+      <input type="hidden" name="price_id" value={product.price.id} />
 
-  <button type="submit"> Choose </button>
-</form>
+      <button type="submit">Choose</button>
+    </form>
+  {/each}
+</div>
 
 <style>
   button {
@@ -85,25 +64,10 @@
     margin-bottom: 1rem;
   }
 
-  fieldset {
-    border: none;
+  .products {
     display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    text-align: left;
-  }
-
-  input[type="radio"] {
-    height: auto;
-    opacity: 1;
-    position: static;
-    width: auto;
-  }
-
-  label.inactive,
-  input[type="checkbox"] {
-    pointer-events: none;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .plan-name {

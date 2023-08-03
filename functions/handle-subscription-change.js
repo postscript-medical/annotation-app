@@ -1,5 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const updateOrgSubscriptionDetails = require("./methods/update-org-subscription-details");
+const updateOrgStipeId = require("./methods/update-org-stripe-id");
 
 const faunaKey = process.env.FAUNA_KEY;
 const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
@@ -27,7 +28,17 @@ exports.handler = async ({ body, headers }) => {
 
     const productId = subscription.items.data[0].plan.product;
 
+    console.log("::: Handle subscription change :::", subscription);
+
     switch (stripeEvent.type) {
+      case "customer.subscription.created":
+        await updateOrgStipeId(
+          faunaKey,
+          subscription.metadata.email,
+          subscription.customer
+        );
+        break;
+
       case "customer.subscription.updated":
         await updateOrgSubscriptionDetails(
           faunaKey,
@@ -71,7 +82,9 @@ exports.handler = async ({ body, headers }) => {
       body: "{ success: true }",
     };
   } catch (error) {
-    console.log(`[ERROR] Stripe webhook failed with ${error}`);
+    console.log(
+      `[ERROR] Stripe webhook subscription change failed with ${error}`
+    );
 
     return {
       statusCode: 400,

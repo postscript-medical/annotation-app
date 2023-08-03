@@ -2,7 +2,6 @@
   import { createEventDispatcher } from "svelte";
   import { push } from "svelte-spa-router";
   import { isLoading, session, user } from "../stores.js";
-  import { STORAGE_KEY } from "../constants/session.js";
   import CredentialsForm from "./CredentialsForm.svelte";
   import PsButton from "./PsButton.svelte";
 
@@ -37,13 +36,6 @@
       });
 
     if (!response) return;
-
-    if (!stayLogged) {
-      window.sessionStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ email, password })
-      );
-    }
 
     $user = response;
 

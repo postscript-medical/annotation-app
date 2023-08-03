@@ -17,13 +17,10 @@ const {
   Update,
   Var,
 } = faunadb.query;
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const emailClient = new postmark.ServerClient(process.env.POSTMARK_TOKEN);
 
 exports.handler = async (event) => {
   let body;
-
-  console.log(">>>> Identity Sign-up <<<<<");
 
   try {
     body = JSON.parse(event.body);
@@ -52,8 +49,6 @@ exports.handler = async (event) => {
     const client = new faunadb.Client({
       secret: process.env.FAUNA_KEY,
     });
-
-    console.log(">>>>>>>>>>>> Hello?");
 
     const existingUser = await client.query(
       If(
@@ -93,22 +88,6 @@ exports.handler = async (event) => {
       };
     }
 
-    console.log(">>>>>>>>>>>>>> Create a brand new organization");
-
-    /**
-     * Create a customer in Stripe
-     * and subscript it to the free plan
-     *
-     * TO DO: Handle failure
-     */
-    const customer = await stripe.customers.create({ email });
-
-    await stripe.subscriptions.create({
-      customer: customer.id,
-      items: [{ price: process.env.STRIPE_DEFAULT_PRICE_PLAN }],
-      coupon: process.env.STRIPE_DISCOUNT_COUPON,
-    });
-
     const fromFauna = await client
       .query(
         Do(
@@ -129,7 +108,7 @@ exports.handler = async (event) => {
               maxUsers,
               name: orgName,
               specialties,
-              stripeID: customer.id,
+              stripeID: "",
               subscriptionLevel,
               teams: Paginate(Match(Index("findTeamByName"), tempTeamName)),
             },

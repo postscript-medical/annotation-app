@@ -17,7 +17,7 @@
 
   let email;
   let password;
-  let stayLogged = false;
+  let stayLogged = true;
 
   function submitForm() {
     if (!hidePasswordRequirements) {
@@ -65,7 +65,7 @@
     </PsTextInput>
     {#if showStayLogged}
       <label class="stay-logged">
-        <input type="checkbox" />
+        <input type="checkbox" bind:checked={stayLogged} />
         &nbsp;
         <span> Stay logged in </span>
       </label>
