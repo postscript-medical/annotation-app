@@ -32,11 +32,19 @@ exports.handler = async ({ body, headers }) => {
 
     switch (stripeEvent.type) {
       case "customer.subscription.created":
+        console.log(">>>>>>>>>> Subscription created");
         await updateOrgStipeId(
           faunaKey,
-          subscription.metadata.email,
+          subscription.subscription_data.email,
           subscription.customer
-        );
+        ).catch((error) => {
+          console.log("::: Handle subscription updated error :::", error);
+
+          return {
+            statusCode: 400,
+            body: `{ error: Handle subscription updated: ${error} }`,
+          };
+        });
         break;
 
       case "customer.subscription.updated":
@@ -88,7 +96,7 @@ exports.handler = async ({ body, headers }) => {
 
     return {
       statusCode: 400,
-      body: `{ error: Webhook Error: ${error.message}}`,
+      body: `{ error: Webhook subscription change Error: ${error.message}}`,
     };
   }
 };

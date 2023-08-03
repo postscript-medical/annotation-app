@@ -15,8 +15,10 @@ exports.handler = async (event) => {
         quantity: 1,
       },
     ],
-    metadata: {
-      email,
+    subscription_data: {
+      metadata: {
+        email,
+      },
     },
     mode: "subscription",
     payment_method_types: ["card"],
