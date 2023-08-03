@@ -375,7 +375,7 @@
 
         case TOOL_CHANGE_IMAGE:
           clearRect();
-          $selectedIllustrationTitle = action.illustrationTitle;
+          // $selectedIllustrationTitle = action.illustrationTitle;
           break;
 
         default:

@@ -59,7 +59,9 @@ exports.handler = async (event, context) => {
       If the .del() method fails, it will be caught
       by the encompassing try/catch
     */
-    await stripe.customers.del(body.stripeID);
+    if (body.stripeID) {
+      await stripe.customers.del(body.stripeID);
+    }
 
     const client = new faunadb.Client({
       secret: process.env.FAUNA_KEY,

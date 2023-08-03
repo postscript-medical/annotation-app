@@ -1,6 +1,9 @@
 const faunadb = require("faunadb");
 const {
+  Collection,
   ContainsPath,
+  Documents,
+  Equals,
   Get,
   If,
   Index,
@@ -9,6 +12,8 @@ const {
   Let,
   Map,
   Match,
+  Paginate,
+  Ref,
   Select,
   Var,
 } = faunadb.query;
@@ -32,9 +37,34 @@ exports.handler = (_, context) => {
               Select(["data", "organization"], Get(Var("teamDoc")))
             ),
             specialtiesDoc: If(
-              ContainsPath(["data", "specialties"], Var("organizationDoc")),
-              Select(["data", "specialties", "data"], Var("organizationDoc")),
-              null
+              Equals(
+                Select(["data", "chosenSpecialty"], Var("organizationDoc")),
+                "all"
+              ),
+              Map(
+                Paginate(Documents(Collection("Specialty"))),
+                Lambda("ref", Get(Var("ref")))
+              ),
+              If(
+                Equals(
+                  Select(["data", "chosenSpecialty"], Var("organizationDoc")),
+                  ""
+                ),
+                null,
+                {
+                  data: [
+                    Get(
+                      Ref(
+                        Collection("Specialty"),
+                        Select(
+                          ["data", "chosenSpecialty"],
+                          Var("organizationDoc")
+                        )
+                      )
+                    ),
+                  ],
+                }
+              )
             ),
           },
           {
@@ -64,33 +94,38 @@ exports.handler = (_, context) => {
               name: Select(["data", "name"], Get(Var("teamDoc"))),
             },
             organization: {
-              subscriptionLevel: Select(
-                ["data", "subscriptionLevel"],
+              id: Select(["ref", "id"], Var("organizationDoc")),
+              email: Select(["data", "email"], Var("organizationDoc")),
+              chosenSpecialty: Select(
+                ["data", "chosenSpecialty"],
                 Var("organizationDoc")
               ),
+              name: Select(["data", "name"], Var("organizationDoc")),
               stripeID: If(
                 ContainsPath(["data", "stripeID"], Var("organizationDoc")),
                 Select(["data", "stripeID"], Var("organizationDoc")),
                 ""
               ),
-              name: Select(["data", "name"], Var("organizationDoc")),
-              email: Select(["data", "email"], Var("organizationDoc")),
+              subscriptionLevel: Select(
+                ["data", "subscriptionLevel"],
+                Var("organizationDoc")
+              ),
             },
             specialties: If(
               IsNull(Var("specialtiesDoc")),
               null,
               Map(
-                Var("specialtiesDoc"),
+                Select(["data"], Var("specialtiesDoc")),
                 Lambda(
-                  "specialtyRef",
+                  "specialty",
                   Let(
                     {
-                      specialtyDoc: Get(Var("specialtyRef")),
+                      specialtyDoc: Select(["data"], Var("specialty")),
                     },
                     {
-                      name: Select(["data", "name"], Var("specialtyDoc")),
+                      name: Select(["name"], Var("specialtyDoc")),
                       subSpecialties: Map(
-                        Select(["data", "subSpecialties"], Var("specialtyDoc")),
+                        Select(["subSpecialties"], Var("specialtyDoc")),
                         Lambda(
                           "subSpecialtyRef",
                           Let(

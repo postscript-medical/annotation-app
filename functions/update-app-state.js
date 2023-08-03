@@ -30,6 +30,8 @@ exports.handler = (event) => {
       })
     )
     .then((response) => {
+      response.data.id = body.id;
+
       return {
         statusCode: 200,
         body: JSON.stringify(response),

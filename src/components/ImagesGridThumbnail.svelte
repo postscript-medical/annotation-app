@@ -23,6 +23,8 @@
   class:loaded
   loading="lazy"
   {src}
+  height="220"
+  width="180"
 />
 
 <style>

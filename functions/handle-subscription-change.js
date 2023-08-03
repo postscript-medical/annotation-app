@@ -1,8 +1,11 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const updateOrgSubscriptionCreated = require("./methods/update-org-subscription-created");
+const updateOrgSubscriptionInactive = require("./methods/update-org-subscription-inactive");
 const updateOrgSubscriptionDetails = require("./methods/update-org-subscription-details");
 
 const faunaKey = process.env.FAUNA_KEY;
-const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
+// TODO: Delete STRIPE_INACTIVE_PRODUCT
+// const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -25,14 +28,32 @@ exports.handler = async ({ body, headers }) => {
       };
     }
 
-    const productId = subscription.items.data[0].plan.product;
+    const productId = subscription.plan.product;
 
     switch (stripeEvent.type) {
+      case "customer.subscription.created":
+        console.log(">>>>>>>>>> Subscription created");
+        await updateOrgSubscriptionCreated(
+          faunaKey,
+          subscription.customer,
+          productId,
+          subscription.metadata.email
+        ).catch((error) => {
+          console.log("::: Handle subscription created error :::", error);
+
+          return {
+            statusCode: 400,
+            body: `{ error: Handle subscription created: ${error} }`,
+          };
+        });
+        break;
+
       case "customer.subscription.updated":
+        console.log(">>>>>>>>>> Subscription changed");
         await updateOrgSubscriptionDetails(
           faunaKey,
-          productId,
-          subscription.customer
+          subscription.customer,
+          productId
         ).catch((error) => {
           console.log("::: Handle subscription updated error :::", error);
 
@@ -44,9 +65,9 @@ exports.handler = async ({ body, headers }) => {
         break;
 
       case "customer.subscription.deleted":
-        await updateOrgSubscriptionDetails(
+        console.log(">>>>>>>>>> Subscription deleted");
+        await updateOrgSubscriptionInactive(
           faunaKey,
-          inactiveId,
           subscription.customer
         ).catch((error) => {
           console.log("::: Handle subscription delete error :::", error);
@@ -71,11 +92,13 @@ exports.handler = async ({ body, headers }) => {
       body: "{ success: true }",
     };
   } catch (error) {
-    console.log(`[ERROR] Stripe webhook failed with ${error}`);
+    console.log(
+      `[ERROR] Stripe webhook subscription change failed with ${error}`
+    );
 
     return {
       statusCode: 400,
-      body: `{ error: Webhook Error: ${error.message}}`,
+      body: `{ error: Webhook subscription change Error: ${error.message}}`,
     };
   }
 };

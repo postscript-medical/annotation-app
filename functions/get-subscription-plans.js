@@ -1,4 +1,3 @@
-const { If, ContainsPath } = require("faunadb");
 const faunadb = require("faunadb");
 const {
   Documents,
@@ -36,33 +35,36 @@ exports.handler = () => {
               Let(
                 {
                   subscriptionPlanDoc: Get(Var("ref")),
-                },
-                {
-                  is_premium: If(
-                    ContainsPath(
-                      ["data", "is_premium"],
-                      Var("subscriptionPlanDoc")
-                    ),
-                    Select(["data", "is_premium"], Var("subscriptionPlanDoc")),
-                    false
-                  ),
-                  max_users: Select(
-                    ["data", "max_users"],
+                  productsDoc: Select(
+                    ["data", "products"],
                     Var("subscriptionPlanDoc")
                   ),
-                  max_specialties: Select(
-                    ["data", "max_specialties"],
+                },
+                {
+                  maxTeams: Select(
+                    ["data", "maxTeams"],
                     Var("subscriptionPlanDoc")
                   ),
                   name: Select(["data", "name"], Var("subscriptionPlanDoc")),
-                  price: Select(["data", "price"], Var("subscriptionPlanDoc")),
-                  priceId_monthly: Select(
-                    ["data", "priceId_monthly"],
-                    Var("subscriptionPlanDoc")
-                  ),
-                  priceId_yearly: Select(
-                    ["data", "priceId_yearly"],
-                    Var("subscriptionPlanDoc")
+                  products: Map(
+                    Var("productsDoc"),
+                    Lambda(
+                      "productRef",
+                      Let(
+                        {
+                          productDoc: Get(Var("productRef")),
+                        },
+                        {
+                          name: Select(["data", "name"], Var("productDoc")),
+                          id: Select(["data", "id"], Var("productDoc")),
+                          price: Select(["data", "price"], Var("productDoc")),
+                          features: Select(
+                            ["data", "features"],
+                            Var("productDoc")
+                          ),
+                        }
+                      )
+                    )
                   ),
                 }
               )
