@@ -35,7 +35,7 @@ exports.handler = async ({ body, headers }) => {
         console.log(">>>>>>>>>> Subscription created");
         await updateOrgStipeId(
           faunaKey,
-          subscription.subscription_data.email,
+          subscription.metadata.email,
           subscription.customer
         ).catch((error) => {
           console.log("::: Handle subscription updated error :::", error);
