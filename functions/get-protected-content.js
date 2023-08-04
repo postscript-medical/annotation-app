@@ -64,17 +64,22 @@ exports.handler = (_, context) => {
               name: Select(["data", "name"], Get(Var("teamDoc"))),
             },
             organization: {
-              subscriptionLevel: Select(
-                ["data", "subscriptionLevel"],
+              id: Select(["ref", "id"], Var("organizationDoc")),
+              email: Select(["data", "email"], Var("organizationDoc")),
+              chosenSpecialty: Select(
+                ["data", "chosenSpecialty"],
                 Var("organizationDoc")
               ),
+              name: Select(["data", "name"], Var("organizationDoc")),
               stripeID: If(
                 ContainsPath(["data", "stripeID"], Var("organizationDoc")),
                 Select(["data", "stripeID"], Var("organizationDoc")),
                 ""
               ),
-              name: Select(["data", "name"], Var("organizationDoc")),
-              email: Select(["data", "email"], Var("organizationDoc")),
+              subscriptionLevel: Select(
+                ["data", "subscriptionLevel"],
+                Var("organizationDoc")
+              ),
             },
             specialties: If(
               IsNull(Var("specialtiesDoc")),

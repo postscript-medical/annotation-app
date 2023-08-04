@@ -1,9 +1,8 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import {
-    filteredIllustrations,
     illustrationSearchQuery,
-    selectedSpecialty,
-    selectedSubSpecialty,
+    protectedContent,
     specialties,
     subSpecialties,
   } from "../stores.js";
@@ -11,18 +10,59 @@
   import Modal from "./Modal.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
 
+  const dispatch = createEventDispatcher();
+
+  let specialty = $protectedContent.appState.selectedSpecialty;
+  let subSpecialty = $protectedContent.appState.selectedSubSpecialty;
+
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
     hasSpecialties && $subSpecialties && $subSpecialties.length;
+  $: illustrations = findIllustrations($subSpecialties, subSpecialty);
+  $: filteredIllustrations = getIllustrations(
+    illustrations,
+    $illustrationSearchQuery
+  );
 
-  function selectSpecialty({ detail: specialty }) {
-    $selectedSpecialty = specialty;
-
-    selectSubSpecialty({ detail: $subSpecialties[0].name });
+  function findIllustrations(_subSpecialties, _subSpecialty) {
+    return _subSpecialties.find(
+      ({ name }) => name.toLowerCase() === _subSpecialty.toLowerCase()
+    ).illustrations;
   }
 
-  function selectSubSpecialty({ detail: subSpecialty }) {
-    $selectedSubSpecialty = subSpecialty;
+  function getIllustrations(array, query) {
+    const filtered = query ? filterIllustrations(array, query) : array;
+
+    return filtered.sort((el1, el2) => {
+      const name1 = el1.name.toLowerCase();
+      const name2 = el2.name.toLowerCase();
+
+      if (name1 < name2) return -1;
+      if (name1 > name2) return 1;
+
+      return 0;
+    });
+  }
+
+  function filterIllustrations(array, query) {
+    return array.filter(({ name, alias }) => {
+      return (
+        name.toLowerCase().includes(query.toLowerCase()) ||
+        alias.find((entry) => entry.toLowerCase().includes(query.toLowerCase()))
+      );
+    });
+  }
+
+  function updateSubSpecialty() {
+    subSpecialty = $subSpecialties[0].name;
+  }
+
+  function selectIllustration({ detail: illustration }) {
+    dispatch("select-illustration", {
+      illustration,
+      specialty,
+      subSpecialty,
+    });
   }
 </script>
 
@@ -34,9 +74,9 @@
       <PsDropdown
         options={$specialties}
         optionKey="name"
-        selected={$selectedSpecialty}
+        bind:selected={specialty}
         style="vertical"
-        on:change={selectSpecialty}
+        on:change={updateSubSpecialty}
       >
         Specialty
       </PsDropdown>
@@ -47,9 +87,8 @@
         disabled={$subSpecialties.length === 0}
         options={$subSpecialties}
         optionKey="name"
-        selected={$selectedSubSpecialty}
+        bind:selected={subSpecialty}
         style="vertical"
-        on:change={selectSubSpecialty}
       >
         Sub-specialty
       </PsDropdown>
@@ -62,7 +101,10 @@
       bind:value={$illustrationSearchQuery}
     />
 
-    <ImagesGrid images={$filteredIllustrations} on:select-illustration />
+    <ImagesGrid
+      images={filteredIllustrations}
+      on:select-illustration={selectIllustration}
+    />
   </div>
 </Modal>
 

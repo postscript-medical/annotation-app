@@ -39,11 +39,11 @@ exports.handler = async ({ body, headers }) => {
           productId,
           subscription.metadata.email
         ).catch((error) => {
-          console.log("::: Handle subscription updated error :::", error);
+          console.log("::: Handle subscription created error :::", error);
 
           return {
             statusCode: 400,
-            body: `{ error: Handle subscription updated: ${error} }`,
+            body: `{ error: Handle subscription created: ${error} }`,
           };
         });
         break;

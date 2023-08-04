@@ -121,22 +121,14 @@
   async function getUserFromSessionStorage() {
     const localStorage = window.localStorage.getItem(STORAGE_KEY);
 
-    console.log("Session:", localStorage);
-
     if (!localStorage) return false;
 
-    // const { email, password } = JSON.parse(localStorage);
-    const goTrueUser = JSON.parse(localStorage);
-
-    console.log("goTrueUser:", goTrueUser);
-
     try {
-      // const user = await $session.login(email, password);
       const user = $session.currentUser();
 
       return user;
     } catch (err) {
-      // window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(STORAGE_KEY);
 
       $isLoading = false;
 

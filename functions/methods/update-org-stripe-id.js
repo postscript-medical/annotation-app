@@ -1,5 +1,6 @@
 const faunadb = require("faunadb");
-const { Get, Index, Let, Match, Select, Update, Var } = faunadb.query;
+const { Equals, Get, If, Index, Let, Match, Select, Update, Var } =
+  faunadb.query;
 
 module.exports = function updateOrgStipeId(
   secret,
@@ -12,14 +13,19 @@ module.exports = function updateOrgStipeId(
   return client.query(
     Let(
       {
-        subscriptionPlan: Get(
-          Match(Index("subscriptionPlan_by_productId"), productId)
-        ),
+        product: Get(Match(Index("product_by_id"), productId)),
+        subscriptionPlan: Get(Select(["data", "plan"], Var("product"))),
       },
       Update(
         Select("ref", Get(Match(Index("findOrganizationByEmail"), email))),
         {
           data: {
+            chosenSpecialty: If(
+              Equals(Select(["data", "type"], Var("product")), "single"),
+              "",
+              "all"
+            ),
+            productId,
             stripeID: customerId,
             subscriptionLevel: Select(
               ["data", "level"],
