@@ -35,6 +35,10 @@ exports.handler = () => {
               Let(
                 {
                   subscriptionPlanDoc: Get(Var("ref")),
+                  productsDoc: Select(
+                    ["data", "products"],
+                    Var("subscriptionPlanDoc")
+                  ),
                 },
                 {
                   maxTeams: Select(
@@ -42,9 +46,25 @@ exports.handler = () => {
                     Var("subscriptionPlanDoc")
                   ),
                   name: Select(["data", "name"], Var("subscriptionPlanDoc")),
-                  products: Select(
-                    ["data", "products"],
-                    Var("subscriptionPlanDoc")
+                  products: Map(
+                    Var("productsDoc"),
+                    Lambda(
+                      "productRef",
+                      Let(
+                        {
+                          productDoc: Get(Var("productRef")),
+                        },
+                        {
+                          name: Select(["data", "name"], Var("productDoc")),
+                          id: Select(["data", "id"], Var("productDoc")),
+                          price: Select(["data", "price"], Var("productDoc")),
+                          features: Select(
+                            ["data", "features"],
+                            Var("productDoc")
+                          ),
+                        }
+                      )
+                    )
                   ),
                 }
               )

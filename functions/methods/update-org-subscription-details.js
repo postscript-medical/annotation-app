@@ -23,8 +23,9 @@ module.exports = function updateOrgSubscriptionDetails(
         {
           data: {
             maxUsers: Select(["data", "maxUsers"], Var("subscriptionPlan")),
-            specialties: Select(
-              ["data", "specialties"],
+            maxTeams: Select(["data", "maxTeams"], Var("subscriptionPlan")),
+            maxSpecialties: Select(
+              ["data", "maxSpecialties"],
               Var("subscriptionPlan")
             ),
             subscriptionLevel: Select(

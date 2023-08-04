@@ -26,7 +26,7 @@ exports.handler = async ({ body, headers }) => {
       };
     }
 
-    const productId = subscription.items.data[0].plan.product;
+    const productId = subscription.plan.product;
 
     console.log("::: Handle subscription change :::", subscription);
 
@@ -48,6 +48,7 @@ exports.handler = async ({ body, headers }) => {
         break;
 
       case "customer.subscription.updated":
+        console.log(">>>>>>>>>> Subscription changed");
         await updateOrgSubscriptionDetails(
           faunaKey,
           productId,
@@ -63,6 +64,7 @@ exports.handler = async ({ body, headers }) => {
         break;
 
       case "customer.subscription.deleted":
+        console.log(">>>>>>>>>> Subscription deleted");
         await updateOrgSubscriptionDetails(
           faunaKey,
           inactiveId,
