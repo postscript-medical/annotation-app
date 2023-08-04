@@ -35,8 +35,9 @@ exports.handler = async ({ body, headers }) => {
         console.log(">>>>>>>>>> Subscription created");
         await updateOrgStipeId(
           faunaKey,
-          subscription.metadata.email,
-          subscription.customer
+          subscription.customer,
+          productId,
+          subscription.metadata.email
         ).catch((error) => {
           console.log("::: Handle subscription updated error :::", error);
 
@@ -51,8 +52,8 @@ exports.handler = async ({ body, headers }) => {
         console.log(">>>>>>>>>> Subscription changed");
         await updateOrgSubscriptionDetails(
           faunaKey,
-          productId,
-          subscription.customer
+          subscription.customer,
+          productId
         ).catch((error) => {
           console.log("::: Handle subscription updated error :::", error);
 
@@ -67,8 +68,8 @@ exports.handler = async ({ body, headers }) => {
         console.log(">>>>>>>>>> Subscription deleted");
         await updateOrgSubscriptionDetails(
           faunaKey,
-          inactiveId,
-          subscription.customer
+          subscription.customer,
+          inactiveId
         ).catch((error) => {
           console.log("::: Handle subscription delete error :::", error);
 

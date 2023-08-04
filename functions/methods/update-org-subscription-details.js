@@ -3,8 +3,8 @@ const { Get, Index, Let, Match, Select, Update, Var } = faunadb.query;
 
 module.exports = function updateOrgSubscriptionDetails(
   secret,
-  productId,
-  customerId
+  customerId,
+  productId
 ) {
   const client = new faunadb.Client({ secret });
 
