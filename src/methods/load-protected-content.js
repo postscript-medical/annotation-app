@@ -35,13 +35,15 @@ export default async function (user) {
     throw new Error(data.copy);
   }
 
-  if (data.appState.selectedSpecialty === "") {
-    data.appState.selectedSpecialty = data.specialties[0].name;
-  }
+  if (data.specialties) {
+    if (data.appState.selectedSpecialty === "") {
+      data.appState.selectedSpecialty = data.specialties[0].name;
+    }
 
-  if (data.appState.selectedSubSpecialty === "") {
-    data.appState.selectedSubSpecialty =
-      data.specialties[0].subSpecialties[0].name;
+    if (data.appState.selectedSubSpecialty === "") {
+      data.appState.selectedSubSpecialty =
+        data.specialties[0].subSpecialties[0].name;
+    }
   }
 
   protectedContent.set(data);

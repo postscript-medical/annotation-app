@@ -45,19 +45,26 @@ exports.handler = (_, context) => {
                 Paginate(Documents(Collection("Specialty"))),
                 Lambda("ref", Get(Var("ref")))
               ),
-              {
-                data: [
-                  Get(
-                    Ref(
-                      Collection("Specialty"),
-                      Select(
-                        ["data", "chosenSpecialty"],
-                        Var("organizationDoc")
+              If(
+                Equals(
+                  Select(["data", "chosenSpecialty"], Var("organizationDoc")),
+                  ""
+                ),
+                null,
+                {
+                  data: [
+                    Get(
+                      Ref(
+                        Collection("Specialty"),
+                        Select(
+                          ["data", "chosenSpecialty"],
+                          Var("organizationDoc")
+                        )
                       )
-                    )
-                  ),
-                ],
-              }
+                    ),
+                  ],
+                }
+              )
             ),
           },
           {
