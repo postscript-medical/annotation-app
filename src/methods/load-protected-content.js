@@ -35,5 +35,7 @@ export default async function (user) {
     throw new Error(data.copy);
   }
 
+  // if (data.appState.selectedSpecialty === "") {}
+
   protectedContent.set(data);
 }

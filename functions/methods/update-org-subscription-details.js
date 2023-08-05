@@ -11,9 +11,8 @@ module.exports = function updateOrgSubscriptionDetails(
   return client.query(
     Let(
       {
-        subscriptionPlan: Get(
-          Match(Index("subscriptionPlan_by_productId"), productId)
-        ),
+        product: Get(Match(Index("product_by_id"), productId)),
+        subscriptionPlan: Get(Select(["data", "plan"], Var("product"))),
       },
       Update(
         Select(
@@ -24,10 +23,6 @@ module.exports = function updateOrgSubscriptionDetails(
           data: {
             maxUsers: Select(["data", "maxUsers"], Var("subscriptionPlan")),
             maxTeams: Select(["data", "maxTeams"], Var("subscriptionPlan")),
-            maxSpecialties: Select(
-              ["data", "maxSpecialties"],
-              Var("subscriptionPlan")
-            ),
             subscriptionLevel: Select(
               ["data", "level"],
               Var("subscriptionPlan")
