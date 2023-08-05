@@ -1,6 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const updateOrgSubscriptionCreated = require("./methods/update-org-subscription-created");
 const updateOrgSubscriptionDetails = require("./methods/update-org-subscription-details");
-const updateOrgStipeId = require("./methods/update-org-stripe-id");
 
 const faunaKey = process.env.FAUNA_KEY;
 const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
@@ -33,7 +33,7 @@ exports.handler = async ({ body, headers }) => {
     switch (stripeEvent.type) {
       case "customer.subscription.created":
         console.log(">>>>>>>>>> Subscription created");
-        await updateOrgStipeId(
+        await updateOrgSubscriptionCreated(
           faunaKey,
           subscription.customer,
           productId,

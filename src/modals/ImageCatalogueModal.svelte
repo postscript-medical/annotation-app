@@ -6,6 +6,8 @@
     specialties,
     subSpecialties,
   } from "../stores.js";
+  import findIllustrations from "../methods/find-illustrations.js";
+  import filterSortIllustrations from "../methods/filter-sort-illustrations.js";
   import ImagesGrid from "../components/ImagesGrid.svelte";
   import Modal from "./Modal.svelte";
   import PsDropdown from "../components/PsDropdown.svelte";
@@ -14,47 +16,22 @@
 
   let specialty = $protectedContent.appState.selectedSpecialty;
   let subSpecialty = $protectedContent.appState.selectedSubSpecialty;
+  let _subSpecialties = $subSpecialties;
 
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
-    hasSpecialties && $subSpecialties && $subSpecialties.length;
-  $: illustrations = findIllustrations($subSpecialties, subSpecialty);
-  $: filteredIllustrations = getIllustrations(
+    hasSpecialties && _subSpecialties && _subSpecialties.length;
+  $: illustrations = findIllustrations(_subSpecialties, subSpecialty);
+  $: filteredIllustrations = filterSortIllustrations(
     illustrations,
     $illustrationSearchQuery
   );
 
-  function findIllustrations(_subSpecialties, _subSpecialty) {
-    return _subSpecialties.find(
-      ({ name }) => name.toLowerCase() === _subSpecialty.toLowerCase()
-    ).illustrations;
-  }
-
-  function getIllustrations(array, query) {
-    const filtered = query ? filterIllustrations(array, query) : array;
-
-    return filtered.sort((el1, el2) => {
-      const name1 = el1.name.toLowerCase();
-      const name2 = el2.name.toLowerCase();
-
-      if (name1 < name2) return -1;
-      if (name1 > name2) return 1;
-
-      return 0;
-    });
-  }
-
-  function filterIllustrations(array, query) {
-    return array.filter(({ name, alias }) => {
-      return (
-        name.toLowerCase().includes(query.toLowerCase()) ||
-        alias.find((entry) => entry.toLowerCase().includes(query.toLowerCase()))
-      );
-    });
-  }
-
-  function updateSubSpecialty() {
-    subSpecialty = $subSpecialties[0].name;
+  function updateSubSpecialties() {
+    _subSpecialties = $specialties.find(
+      ({ name }) => specialty === name
+    ).subSpecialties;
+    subSpecialty = _subSpecialties[0].name;
   }
 
   function selectIllustration({ detail: illustration }) {
@@ -76,7 +53,7 @@
         optionKey="name"
         bind:selected={specialty}
         style="vertical"
-        on:change={updateSubSpecialty}
+        on:change={updateSubSpecialties}
       >
         Specialty
       </PsDropdown>
@@ -84,8 +61,8 @@
 
     {#if hasSubSpecialties}
       <PsDropdown
-        disabled={$subSpecialties.length === 0}
-        options={$subSpecialties}
+        disabled={_subSpecialties.length === 0}
+        options={_subSpecialties}
         optionKey="name"
         bind:selected={subSpecialty}
         style="vertical"

@@ -1,6 +1,9 @@
 const faunadb = require("faunadb");
 const {
+  Collection,
   ContainsPath,
+  Documents,
+  Equals,
   Get,
   If,
   Index,
@@ -9,6 +12,8 @@ const {
   Let,
   Map,
   Match,
+  Paginate,
+  Ref,
   Select,
   Var,
 } = faunadb.query;
@@ -33,7 +38,29 @@ exports.handler = (_, context) => {
             ),
             specialtiesDoc: If(
               ContainsPath(["data", "specialties"], Var("organizationDoc")),
-              Select(["data", "specialties", "data"], Var("organizationDoc")),
+              If(
+                Equals(
+                  Select(["data", "chosenSpecialty"], Var("organizationDoc")),
+                  "all"
+                ),
+                Map(
+                  Paginate(Documents(Collection("Specialty"))),
+                  Lambda("ref", Get(Var("ref")))
+                ),
+                {
+                  data: [
+                    Get(
+                      Ref(
+                        Collection("Specialty"),
+                        Select(
+                          ["data", "chosenSpecialty"],
+                          Var("organizationDoc")
+                        )
+                      )
+                    ),
+                  ],
+                }
+              ),
               null
             ),
           },
@@ -85,17 +112,17 @@ exports.handler = (_, context) => {
               IsNull(Var("specialtiesDoc")),
               null,
               Map(
-                Var("specialtiesDoc"),
+                Select(["data"], Var("specialtiesDoc")),
                 Lambda(
-                  "specialtyRef",
+                  "specialty",
                   Let(
                     {
-                      specialtyDoc: Get(Var("specialtyRef")),
+                      specialtyDoc: Select(["data"], Var("specialty")),
                     },
                     {
-                      name: Select(["data", "name"], Var("specialtyDoc")),
+                      name: Select(["name"], Var("specialtyDoc")),
                       subSpecialties: Map(
-                        Select(["data", "subSpecialties"], Var("specialtyDoc")),
+                        Select(["subSpecialties"], Var("specialtyDoc")),
                         Lambda(
                           "subSpecialtyRef",
                           Let(
