@@ -37,31 +37,27 @@ exports.handler = (_, context) => {
               Select(["data", "organization"], Get(Var("teamDoc")))
             ),
             specialtiesDoc: If(
-              ContainsPath(["data", "specialties"], Var("organizationDoc")),
-              If(
-                Equals(
-                  Select(["data", "chosenSpecialty"], Var("organizationDoc")),
-                  "all"
-                ),
-                Map(
-                  Paginate(Documents(Collection("Specialty"))),
-                  Lambda("ref", Get(Var("ref")))
-                ),
-                {
-                  data: [
-                    Get(
-                      Ref(
-                        Collection("Specialty"),
-                        Select(
-                          ["data", "chosenSpecialty"],
-                          Var("organizationDoc")
-                        )
-                      )
-                    ),
-                  ],
-                }
+              Equals(
+                Select(["data", "chosenSpecialty"], Var("organizationDoc")),
+                "all"
               ),
-              null
+              Map(
+                Paginate(Documents(Collection("Specialty"))),
+                Lambda("ref", Get(Var("ref")))
+              ),
+              {
+                data: [
+                  Get(
+                    Ref(
+                      Collection("Specialty"),
+                      Select(
+                        ["data", "chosenSpecialty"],
+                        Var("organizationDoc")
+                      )
+                    )
+                  ),
+                ],
+              }
             ),
           },
           {
