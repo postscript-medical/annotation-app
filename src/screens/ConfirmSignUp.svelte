@@ -46,12 +46,20 @@
 <PsHeader />
 
 <main class="central-align main-content">
-  <h1>Confirm email address</h1>
+  <h1>
+    {#if $user}
+      Email confirmed
+    {:else}
+      Confirm email address
+    {/if}
+  </h1>
 
   <ErrorMessage message={errorMessage} />
 
   {#if $user}
-    <p>Thank you, your email is confirmed.</p>
+    <p>Thank you.</p>
+
+    <p>Please choose a subscription type:</p>
 
     <SignUpPlans email={$user.email} />
   {:else if errorMessage}
@@ -70,5 +78,6 @@
   main {
     color: #fff;
     max-width: 40rem;
+    padding-bottom: 5rem;
   }
 </style>

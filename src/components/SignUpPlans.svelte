@@ -47,13 +47,15 @@
 
 <ErrorMessage message={errorMessage} />
 
-<ul class="plain">
-  {#each subscriptionPlans as plan}
-    <li data-theme={theme}>
-      <SignUpPlanCard {plan} on:submit={createCheckoutSession} />
-    </li>
-  {/each}
-</ul>
+<div>
+  <ul class="plain">
+    {#each subscriptionPlans as plan}
+      <li class="plan" data-theme={theme}>
+        <SignUpPlanCard {plan} on:submit={createCheckoutSession} />
+      </li>
+    {/each}
+  </ul>
+</div>
 
 <p>
   On choosing one of the plans above you will be redirect to Stripe, where you
@@ -76,7 +78,8 @@
     color: #000;
     border-radius: 0.25em;
     box-shadow: 0 0.125rem 0.25rem #a1a1a1;
-    padding: 0.75rem 1.33rem;
+    padding: 1.33rem;
+    padding-bottom: 2.5rem;
     max-width: 50rem;
   }
 

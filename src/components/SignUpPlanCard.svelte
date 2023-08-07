@@ -38,7 +38,7 @@
 
       <p>Includes:</p>
 
-      <ul>
+      <ul class="plain">
         {#each product.features as feature}
           <li>{feature}</li>
         {/each}
@@ -67,7 +67,15 @@
   .products {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     gap: 1rem;
+  }
+
+  .products > * {
+    border: 1px solid black;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    max-width: 17rem;
   }
 
   .plan-name {

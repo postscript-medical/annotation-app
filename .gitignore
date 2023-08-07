@@ -5,7 +5,6 @@
 
 # Local Netlify folder
 .netlify
-.svench
 .svelte-kit
 
 .eslintcache
