@@ -72,7 +72,7 @@
   }
 
   .products > * {
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 0.25rem;
     padding: 1rem;
     max-width: 17rem;

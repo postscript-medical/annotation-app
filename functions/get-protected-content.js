@@ -71,17 +71,12 @@ exports.handler = (_, context) => {
             appState: Let(
               {
                 appStateDoc: Get(Var("appState")),
-                illustrationTitle: Select(
-                  ["data", "selectedIllustrationTitle"],
-                  Var("appStateDoc")
-                ),
               },
               {
                 id: Select(["ref", "id"], Var("appStateDoc")),
-                selectedIllustrationTitle: If(
-                  Equals(Var("illustrationTitle"), ""),
-                  "Graph",
-                  Var("illustrationTitle")
+                selectedIllustrationTitle: Select(
+                  ["data", "selectedIllustrationTitle"],
+                  Var("appStateDoc")
                 ),
                 selectedSpecialty: Select(
                   ["data", "selectedSpecialty"],

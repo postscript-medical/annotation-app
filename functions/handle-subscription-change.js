@@ -30,8 +30,6 @@ exports.handler = async ({ body, headers }) => {
 
     const productId = subscription.plan.product;
 
-    console.log("::: Handle subscription change :::", subscription);
-
     switch (stripeEvent.type) {
       case "customer.subscription.created":
         console.log(">>>>>>>>>> Subscription created");
