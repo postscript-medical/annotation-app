@@ -21,7 +21,7 @@ module.exports = function updateOrgStipeId(
         {
           data: {
             chosenSpecialty: If(
-              Equals(Select(["data", "type"], Var("product")), "single"),
+              Equals(Select(["data", "type"], Var("product")), "specialty"),
               "",
               "all"
             ),

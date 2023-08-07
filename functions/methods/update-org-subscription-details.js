@@ -1,5 +1,6 @@
 const faunadb = require("faunadb");
-const { Get, Index, Let, Match, Select, Update, Var } = faunadb.query;
+const { Equals, Get, If, Index, Let, Match, Select, Update, Var } =
+  faunadb.query;
 
 module.exports = function updateOrgSubscriptionDetails(
   secret,
@@ -21,6 +22,11 @@ module.exports = function updateOrgSubscriptionDetails(
         ),
         {
           data: {
+            chosenSpecialty: If(
+              Equals(Select(["data", "type"], Var("product")), "specialty"),
+              "",
+              "all"
+            ),
             maxUsers: Select(["data", "maxUsers"], Var("subscriptionPlan")),
             maxTeams: Select(["data", "maxTeams"], Var("subscriptionPlan")),
             subscriptionLevel: Select(
