@@ -37,10 +37,12 @@ exports.handler = async (event) => {
     const { user, organization = {}, team = {} } = body;
     const { id = null, email = null, firstName = null, lastName = null } = user;
     const {
+      chosenSpecialty = "",
       maxUsers = 1,
       name: orgName = "My Organization",
       subscriptionLevel = "inactive",
       specialties = null,
+      stripeID = "",
     } = organization;
     const { name: teamName = "My team" } = team;
     const role = "owner";
@@ -104,11 +106,12 @@ exports.handler = async (event) => {
            */
           Create(Collection("Organization"), {
             data: {
+              chosenSpecialty,
               email,
               maxUsers,
               name: orgName,
               specialties,
-              stripeID: "",
+              stripeID,
               subscriptionLevel,
               teams: Paginate(Match(Index("findTeamByName"), tempTeamName)),
             },

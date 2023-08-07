@@ -31,7 +31,7 @@
       within your selected membership level.
     </p>
   {:else}
-    <p>Choose your subscription level.</p>
+    <p>Choose your subscription level:</p>
 
     <SignUpPlans />
   {/if}
@@ -47,7 +47,7 @@
 
 <style>
   main {
-    max-width: 90%;
+    max-width: 40rem;
     display: flex;
     flex-direction: column;
   }
