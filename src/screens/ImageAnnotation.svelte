@@ -18,7 +18,7 @@
     DEFAULT_COLOR,
     DEFAULT_SHAPE,
     DEFAULT_SIZE,
-    MODAL_CATALOGUE,
+    IMAGE_CATALOGUE,
     MODAL_FEEDBACK,
     MODAL_SHARE,
     TOOL_CHANGE_IMAGE,
@@ -32,7 +32,7 @@
   import updateAppState from "../methods/update-app-state.js";
   import ChooseSpecialtyModal from "../modals/ChooseSpecialtyModal.svelte";
   import FeedbackModal from "../modals/FeedbackModal.svelte";
-  import ImageCatalogueModal from "../modals/ImageCatalogueModal.svelte";
+  import ImageCatalogue from "../components/ImageCatalogue.svelte";
   import SketchPad from "../components/sketchpad/SketchPad.svelte";
   import SketchPadUi from "../components/sketchpad/SketchPadUi.svelte";
   import ShareModal from "../modals/ShareModal.svelte";
@@ -322,8 +322,8 @@
   <FeedbackModal on:close={closeModal} />
 {/if}
 
-{#if $activeModal === MODAL_CATALOGUE}
-  <ImageCatalogueModal
+{#if $activeModal === IMAGE_CATALOGUE}
+  <ImageCatalogue
     on:close={closeCatalogueModal}
     on:select-illustration={selectIllustration}
   />
