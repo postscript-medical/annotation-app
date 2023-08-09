@@ -84,7 +84,7 @@ export const EVENTS_POINTER = {
   up: "pointerup",
 };
 
-export const MODAL_CATALOGUE = "modal-catalogue";
+export const IMAGE_CATALOGUE = "image-catalogue";
 
 export const MODAL_SHARE = "modal-share";
 

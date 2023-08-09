@@ -8,7 +8,7 @@
     SHAPES,
   } from "../../constants/sketch-pad.js";
   import {
-    MODAL_CATALOGUE,
+    IMAGE_CATALOGUE,
     TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
@@ -65,7 +65,7 @@
   }
 
   function openIllustrationCatalogue() {
-    dispatch("open-catalogue", MODAL_CATALOGUE);
+    dispatch("open-catalogue", IMAGE_CATALOGUE);
   }
 </script>
 
