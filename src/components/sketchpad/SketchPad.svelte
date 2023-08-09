@@ -4,6 +4,7 @@
     actions,
     canvasElement,
     context,
+    protectedContent,
     selectedIllustration,
     selectedIllustrationTitle,
     toolDrawerOpen,
@@ -375,7 +376,8 @@
 
         case TOOL_CHANGE_IMAGE:
           clearRect();
-          // $selectedIllustrationTitle = action.illustrationTitle;
+          $protectedContent.appState.selectedIllustrationTitle =
+            action.illustrationTitle;
           break;
 
         default:
