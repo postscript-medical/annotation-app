@@ -24,7 +24,6 @@
   import IconText from "../icons/IconText.svelte";
   import IconImages from "../icons/IconImages.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
-  import ColorWheel from "../ColorWheel.svelte";
   import PsHeader from "../PsHeader.svelte";
 
   export let pen;
@@ -161,16 +160,10 @@
     <IconText />
   </ButtonTool>
 
-  <!-- If IE11 -->
   <ColorPalette
     colors={PEN_COLORS}
     tooltip="Colors"
     selected={pen.color}
-    on:change={({ detail }) => changeColor(detail)}
-  />
-  <!-- Else -->
-  <ColorWheel
-    tooltip="Colors"
     on:change={({ detail }) => changeColor(detail)}
   />
 
