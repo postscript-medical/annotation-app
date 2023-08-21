@@ -59,7 +59,7 @@
 
 <p>
   On choosing one of the plans above you will be redirect to Stripe, where you
-  be asked to provide your card details.
+  will be asked to provide your card details.
 </p>
 
 <style>

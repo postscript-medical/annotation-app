@@ -3,6 +3,8 @@ const {
   Paginate,
   Documents,
   Collection,
+  ContainsPath,
+  If,
   Index,
   Lambda,
   Let,
@@ -39,7 +41,11 @@ exports.handler = () => {
                 id: Select(["ref", "id"], Var("organization")),
                 owner: Select(["data", "email"], Var("owner")),
                 netlifyID: Select(["data", "netlifyID"], Var("owner")),
-                stripeID: Select(["data", "stripeID"], Var("organization")),
+                stripeID: If(
+                  ContainsPath(["data", "stripeID"], Var("organization")),
+                  Select(["data", "stripeID"], Var("organization")),
+                  ""
+                ),
               }
             )
           )
