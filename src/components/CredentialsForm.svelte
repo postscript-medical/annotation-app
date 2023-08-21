@@ -4,6 +4,7 @@
   import CredentialsTerms from "./CredentialsTerms.svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
   import PsButton from "./PsButton.svelte";
+  import PsLink from "./PsLink.svelte";
   import PsTextInput from "./PsTextInput.svelte";
 
   const dispatch = createEventDispatcher();
@@ -75,6 +76,11 @@
       <slot name="footer" />
     </div>
   </form>
+  <p>
+    Don't have an account? <PsLink href="#/sign-up" style="on-dark"
+      >Sign up</PsLink
+    >.
+  </p>
   {#if !hideTerms}
     <CredentialsTerms {style} />
   {/if}
