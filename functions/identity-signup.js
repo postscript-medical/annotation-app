@@ -42,7 +42,7 @@ exports.handler = async (event) => {
       name: orgName = "My Organization",
       subscriptionLevel = "inactive",
       specialties = null,
-      stripeID = "",
+      stripeID = null,
     } = organization;
     const { name: teamName = "My team" } = team;
     const role = "owner";
