@@ -122,7 +122,7 @@ exports.handler = async (event) => {
            */
           Create(Collection("UserAppState"), {
             data: {
-              selectedIllustrationTitle: "",
+              selectedIllustrationTitle: "Graph",
               selectedSpecialty: "",
               selectedSubSpecialty: "",
               userRef: newUserRef,

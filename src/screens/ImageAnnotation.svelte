@@ -238,7 +238,6 @@
         protectedContent.update((content) => {
           content.appState = {
             ...content.appState,
-            selectedIllustrationTitle: "Graph",
             selectedSpecialty: content.specialties[0].name,
             selectedSubSpecialty: content.specialties[0].subSpecialties[0].name,
           };
