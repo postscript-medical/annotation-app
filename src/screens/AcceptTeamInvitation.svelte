@@ -1,7 +1,7 @@
 <script>
   import "whatwg-fetch";
-  import { querystring } from "svelte-spa-router";
-  import { session } from "../stores";
+  import { push, querystring } from "svelte-spa-router";
+  import { session, user } from "../stores";
   import checkPasswordRequirements from "../methods/check-password-requirements";
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
@@ -44,9 +44,10 @@
 
     $session
       .acceptInvite(token, password, true)
-      .then((user) => {
-        console.log("User:", user);
-        // navigate to the annotation page
+      .then((response) => {
+        $user = response;
+
+        push("/");
       })
       .catch((error) => {
         console.log("Failed to login", error);
