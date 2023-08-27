@@ -99,5 +99,5 @@
 <PsButton
   style="tertiary"
   on:click={openShareModal}
-  disabled={!$illustrationDisplayed}>Share</PsButton
+  disabled={!$illustrationDisplayed}>Share annotation</PsButton
 >
