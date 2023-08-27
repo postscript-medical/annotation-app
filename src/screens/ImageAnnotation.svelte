@@ -111,6 +111,12 @@
     };
   }
 
+  function checkIfIllustrationSelected() {
+    if ($protectedContent.appState.selectedIllustrationTitle === "") {
+      $activeModal = IMAGE_CATALOGUE;
+    }
+  }
+
   function clearErrors() {
     errorMessage = "";
   }
@@ -255,6 +261,8 @@
         });
 
         closeModal();
+
+        checkIfIllustrationSelected();
       })
       .catch((error) =>
         console.error("::: Error updating chosen specialty :::", error)
@@ -274,6 +282,8 @@
 
     if ($protectedContent.organization.chosenSpecialty === "") {
       $activeModal = CHOOSE_A_SPECIALTY;
+    } else {
+      checkIfIllustrationSelected();
     }
   });
 </script>

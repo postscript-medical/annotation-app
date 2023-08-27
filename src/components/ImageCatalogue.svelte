@@ -40,7 +40,7 @@
     const { left, top, width, height } = this.getBoundingClientRect();
 
     position = {
-      x: left + width,
+      x: left - width * 4,
       y: top + height * 0.5,
     };
 
@@ -147,12 +147,11 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 100vw;
     padding: 2rem;
     position: absolute;
     right: 0;
     top: 0;
-    width: 75%;
+    width: 100vw;
   }
 
   .image-catalogue > :first-child {

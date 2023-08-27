@@ -22,7 +22,7 @@
   import IconEraser from "../icons/IconEraser.svelte";
   import IconPen from "../icons/IconPen.svelte";
   import IconText from "../icons/IconText.svelte";
-  import IconImages from "../icons/IconImages.svelte";
+  import IconHome from "../icons/IconHome.svelte";
   import IconShapes from "../icons/IconShapes.svelte";
   import PsHeader from "../PsHeader.svelte";
 
@@ -77,7 +77,7 @@
     tooltip="Image catalogue"
     on:change-primary={openIllustrationCatalogue}
   >
-    <IconImages />
+    <IconHome />
   </ButtonTool>
 
   <ButtonTool
