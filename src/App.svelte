@@ -34,9 +34,7 @@
         async () => {
           if (!hasAuthenticated) await initAuthentication();
 
-          if (!$user) return confirmNavigation();
-
-          return redirectTo("#/annotate");
+          return confirmNavigation();
         },
       ],
     }),

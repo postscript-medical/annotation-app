@@ -50,7 +50,7 @@
 
   .options {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: flex-end;
     flex-wrap: wrap;
   }
