@@ -4,7 +4,7 @@
 
 <Icon>
   <title>Icon: home</title>
-  <path d="M1,11 L12,3 L23,11 M5,11 v11 h14 v-11 M18,7 v-4 M12,20 v-4" />
+  <path d="M1,11 L12,3 L23,11 M5,11 v11 h14 v-11 M18,7 v-4" />
 </Icon>
 
 <style>
