@@ -47,7 +47,7 @@
       .then((response) => {
         $user = response;
 
-        push("/");
+        push("/annotate");
       })
       .catch((error) => {
         console.log("Failed to login", error);
