@@ -3,7 +3,6 @@
   import {
     actions,
     activeModal,
-    annotatedImage,
     illustrationSearchQuery,
     protectedContent,
     user,
@@ -28,6 +27,7 @@
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../constants/defaults.js";
+  import generateAnnotatedImage from "../methods/generate-annotated-image.js";
   import loadProtectedContent from "../methods/load-protected-content.js";
   import updateAppState from "../methods/update-app-state.js";
   import ChooseSpecialtyModal from "../modals/ChooseSpecialtyModal.svelte";
@@ -129,16 +129,17 @@
     closeModal();
   }
 
-  function downloadImage() {
+  async function downloadImage() {
     const fileName = "myImage.jpg";
+    const generatedImage = await getGeneratedImage();
     /**
      * IE11
      */
     if (window.navigator.msSaveBlob) {
-      window.navigator.msSaveBlob($annotatedImage.msToBlob(), fileName);
+      window.navigator.msSaveBlob(generatedImage, fileName);
     } else {
       const hiddenLink = document.createElement("a");
-      hiddenLink.setAttribute("href", generateAnnotatedImage());
+      hiddenLink.setAttribute("href", generatedImage);
       hiddenLink.setAttribute("download", fileName);
       hiddenLink.click();
     }
@@ -153,8 +154,14 @@
     ]);
   }
 
-  function generateAnnotatedImage() {
-    return $annotatedImage.toDataURL("image/jpeg", 0.9);
+  async function getGeneratedImage() {
+    const generatedImage = await generateAnnotatedImage();
+
+    if (window.navigator.msSaveBlob) {
+      return generatedImage.msToBlob();
+    } else {
+      return generatedImage.toDataURL("image/jpeg", 0.9);
+    }
   }
 
   function openCatalogueModal({ detail: modalName }) {
@@ -198,7 +205,7 @@
   async function sendImageViaEmail({ detail: email }) {
     loading = true;
 
-    const encodedImage = generateAnnotatedImage();
+    const encodedImage = await getGeneratedImage();
     const response = await fetch("/.netlify/functions/send-annotation-email", {
       method: "POST",
       body: JSON.stringify({

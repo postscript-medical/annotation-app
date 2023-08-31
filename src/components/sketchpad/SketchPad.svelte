@@ -605,6 +605,7 @@
   }
 
   .watermark {
+    display: none;
     position: absolute;
     left: 1rem;
     top: 1rem;
@@ -617,5 +618,15 @@
     pointer-events: none;
     left: 0;
     top: 0;
+  }
+
+  @media print {
+    .watermark {
+      display: block;
+    }
+
+    .paper {
+      box-shadow: none;
+    }
   }
 </style>

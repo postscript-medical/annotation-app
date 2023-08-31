@@ -211,8 +211,6 @@ export const typedTextEntries = derived(actions, ($actions) =>
 /**
  * Illustrations-related stores
  */
-export const annotatedImage = writable();
-
 export const illustrationSearchQuery = writable("");
 
 export const illustrationLoaded = writable(false);
