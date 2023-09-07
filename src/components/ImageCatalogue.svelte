@@ -191,5 +191,10 @@
     .body > :global(:nth-child(4)) {
       grid-column: 1 / -1;
     }
+
+    .image-catalogue > :first-child {
+      display: grid;
+      grid-template-columns: 1fr min-content;
+    }
   }
 </style>
