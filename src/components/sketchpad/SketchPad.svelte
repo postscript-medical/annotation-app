@@ -55,6 +55,7 @@
   let offsetTop = 0;
   let offsetLeft = 0;
   let paper;
+  let pendingResize = false;
   let pointerLocation = { x: 0, y: 0 };
   let rafID;
 
@@ -105,6 +106,21 @@
 
   function clearRect() {
     $context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
+  }
+
+  function dragText(event) {
+    event.preventDefault();
+
+    recordPoint(event);
+
+    if (dragTypedText.active) {
+      typedText.drag({
+        stack: $actions.current,
+        textbox: dragTypedText,
+        x: pointerLocation.x - offsetLeft,
+        y: pointerLocation.y - offsetTop,
+      });
+    }
   }
 
   function drawStroke(_context, { name, lineWidth, color, points }) {
@@ -214,10 +230,10 @@
   }
 
   function init() {
+    window.visualViewport.addEventListener("resize", resizeCanvas);
     document.body.addEventListener(eventType.up, stopDrawing, false);
     $canvasElement.addEventListener(eventType.down, onPointerDown, false);
     $canvasElement.addEventListener(eventType.up, onPointerUp, false);
-    paper.addEventListener(eventType.move, onPointerMove, false);
 
     $context = setupCanvas($canvasElement);
 
@@ -257,10 +273,14 @@
         break;
 
       case TOOL_SHAPE:
+        paper.addEventListener(eventType.move, onPointerMove, false);
+
         newAction = addShape(selectedToolId);
         break;
 
       default:
+        paper.addEventListener(eventType.move, onPointerMove, false);
+
         newAction = addStroke();
         break;
     }
@@ -284,15 +304,6 @@
     event.preventDefault();
 
     recordPoint(event);
-
-    if (dragTypedText.active) {
-      typedText.drag({
-        stack: $actions.current,
-        textbox: dragTypedText,
-        x: pointerLocation.x - offsetLeft,
-        y: pointerLocation.y - offsetTop,
-      });
-    }
   }
 
   function recordPoint(event) {
@@ -400,43 +411,51 @@
   }
 
   function resizeCanvas() {
-    // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
-    const oldSize = {
-      width: $canvasElement.width,
-      height: $canvasElement.height,
-    };
+    if (pendingResize) return;
 
-    $context = setupCanvas($canvasElement);
+    pendingResize = true;
 
-    updateOffset();
+    requestAnimationFrame(() => {
+      // TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
+      const oldSize = {
+        width: $canvasElement.width,
+        height: $canvasElement.height,
+      };
 
-    const scaleFactor = {
-      width: $canvasElement.width / oldSize.width,
-      height: $canvasElement.height / oldSize.height,
-    };
+      $context = setupCanvas($canvasElement);
 
-    const scaledStack = [];
-    const stackIndex = $actions.index;
+      updateOffset();
 
-    $actions.stack.forEach((entries) => {
-      const scaledActions = [];
+      const scaleFactor = {
+        width: $canvasElement.width / oldSize.width,
+        height: $canvasElement.height / oldSize.height,
+      };
 
-      scaledStack.push(scaledActions);
+      const scaledStack = [];
+      const stackIndex = $actions.index;
 
-      entries.forEach((entry) => {
-        scaledActions.push(scaleAction(entry, scaleFactor));
+      $actions.stack.forEach((entries) => {
+        const scaledActions = [];
+
+        scaledStack.push(scaledActions);
+
+        entries.forEach((entry) => {
+          scaledActions.push(scaleAction(entry, scaleFactor));
+        });
       });
+
+      actions.set();
+
+      scaledStack.forEach((action) => {
+        actions.push(action);
+      });
+
+      actions.jumpTo(stackIndex);
+
+      pendingResize = false;
+
+      render();
     });
-
-    actions.set();
-
-    scaledStack.forEach((action) => {
-      actions.push(action);
-    });
-
-    actions.jumpTo(stackIndex);
-
-    render();
   }
 
   // This is very costly. We should rethink how the resizing is handled
@@ -489,6 +508,8 @@
   }
 
   function stopDrawing() {
+    paper.removeEventListener(eventType.move, onPointerMove, false);
+
     if (isPointerActive) ++actionsIndex;
 
     isPointerActive = false;
@@ -500,6 +521,8 @@
     resetPointerLocationId();
 
     if (drag.active) {
+      paper.addEventListener(eventType.move, dragText);
+
       const targetIndex = $actions.current.findIndex(
         ({ index }) => index === dragTypedText.index
       );
@@ -508,6 +531,8 @@
       };
 
       actions.push(getUpdatedActions(target, targetIndex));
+    } else {
+      paper.removeEventListener(eventType.move, dragText);
     }
   }
 
@@ -537,10 +562,12 @@
     $canvasElement.removeEventListener(eventType.up, onPointerUp, false);
     paper.removeEventListener(eventType.move, onPointerMove, false);
     actions.set();
+
+    window.visualViewport.removeEventListener("resize", resizeCanvas);
   });
 </script>
 
-<svelte:window on:resize={resizeCanvas} on:keydown={handleKeydown} />
+<svelte:window on:keydown={handleKeydown} />
 
 <div bind:this={paper} class="paper shadow aspect-ratio-lock">
   {#if src}
