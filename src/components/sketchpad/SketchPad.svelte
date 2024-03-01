@@ -217,7 +217,6 @@
     document.body.addEventListener(eventType.up, stopDrawing, false);
     $canvasElement.addEventListener(eventType.down, onPointerDown, false);
     $canvasElement.addEventListener(eventType.up, onPointerUp, false);
-    paper.addEventListener(eventType.move, onPointerMove, false);
 
     $context = setupCanvas($canvasElement);
 
@@ -271,10 +270,14 @@
      */
     actions.push([...clone($actions.current), newAction]);
 
+    paper.addEventListener(eventType.move, onPointerMove, false);
+
     render();
   }
 
   function onPointerUp() {
+    paper.removeEventListener(eventType.move, onPointerMove, false);
+
     resetPointerLocationId();
 
     stopDrawing();
