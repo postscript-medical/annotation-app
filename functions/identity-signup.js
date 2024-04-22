@@ -35,7 +35,6 @@ exports.handler = async (event) => {
       )
     );
 
-    console.log(">>>> Existing user:", existingUser);
     /**
      * If the use already exists all we need to do is update
      * their invitationStatus to "Confirmed"
