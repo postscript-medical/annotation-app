@@ -9,6 +9,7 @@
   import PsTextInput from "../components/PsTextInput.svelte";
   import Modal from "../modals/Modal.svelte";
   import ErrorMessage from "../components/ErrorMessage.svelte";
+  import InviteNewOrgModal from "../modals/InviteNewOrgModal.svelte";
 
   let organizations;
   let confirmation = "";
@@ -16,6 +17,7 @@
   let loading = false;
   let error = "";
   let saveComplete = false;
+  let inviteOrgModal = false;
 
   $: disableConfirmButton =
     selectedOrganization && selectedOrganization.owner !== confirmation;
@@ -29,6 +31,7 @@
   function handleModalClose() {
     selectedRow = "";
     confirmation = "";
+    inviteOrgModal = false;
   }
 
   async function handleModalConfirm() {
@@ -52,6 +55,12 @@
       .finally(() => {
         loading = false;
       });
+  }
+
+  function inviteOrgComplete() {
+    inviteOrgModal = false;
+
+    loadData();
   }
 
   function loadData() {
@@ -91,6 +100,12 @@
   <h1>Manage organizations</h1>
 
   <NavBar />
+
+  <div class="invite-wrapper">
+    <PsButton on:click={() => (inviteOrgModal = true)}>
+      Invite new organization
+    </PsButton>
+  </div>
 
   {#if organizations}
     <ul class="plain stacker--small">
@@ -152,11 +167,27 @@
   </Modal>
 {/if}
 
+{#if inviteOrgModal}
+  <InviteNewOrgModal
+    on:close={handleModalClose}
+    on:invitation-complete={inviteOrgComplete}
+  />
+{/if}
+
 <style>
   li {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     padding: 1rem;
+  }
+
+  .invite-wrapper {
+    margin-bottom: 1rem;
+  }
+
+  .invite-wrapper > :global(*) {
+    display: block;
+    margin-left: auto;
   }
 </style>

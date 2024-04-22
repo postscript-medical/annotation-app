@@ -1,8 +1,8 @@
-const fetch = require("node-fetch");
 const faunadb = require("faunadb");
 const { Collection, Create, Do, Get, Match, Ref, Select, Update } =
   faunadb.query;
 const deleteNetlifyUser = require("./methods/delete-netlify-user");
+const netlifyInviteUser = require("./methods/netlify-invite-user");
 
 exports.handler = async (event, context) => {
   const { identity } = context.clientContext;
@@ -22,17 +22,11 @@ exports.handler = async (event, context) => {
   try {
     const { email, firstName, lastName, organizationID, role, teamID } = body;
 
-    /* This function only works when deployed to a server */
-    const response = await fetch(`${identity.url}/invite`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${identity.token}` },
-      body: JSON.stringify({ email }),
-    }).catch((error) => {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: `Error creating user: ${error}` }),
-      };
-    });
+    const response = await netlifyInviteUser(
+      identity.url,
+      identity.token,
+      email
+    );
 
     if (!response) {
       return {
