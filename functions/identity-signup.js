@@ -36,7 +36,7 @@ exports.handler = async (event) => {
     );
 
     /**
-     * If the use already exists all we need to do is update
+     * If the user already exists all we need to do is update
      * their invitationStatus to "Confirmed"
      */
     if (existingUser) {

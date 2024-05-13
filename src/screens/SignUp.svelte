@@ -34,6 +34,7 @@
 
     if (password !== password_confirmation) {
       errorMessage = "Password do not match. Try again.";
+
       $isLoading = false;
 
       return;
@@ -42,11 +43,12 @@
     $session
       .signup(email, password)
       .then(() => {
-        $isLoading = false;
         created = true;
       })
       .catch((error) => {
         errorMessage = error.json.msg;
+      })
+      .finally(() => {
         $isLoading = false;
       });
   }

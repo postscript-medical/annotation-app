@@ -22,7 +22,13 @@ module.exports = function createOrganization({
   role,
   user,
 }) {
-  const { id = null, email = null, firstName = null, lastName = null } = user;
+  const {
+    id,
+    email,
+    firstName,
+    lastName,
+    invitationStatus = "Confirmed",
+  } = user;
   const {
     chosenSpecialty = "",
     maxUsers = 1,
@@ -88,7 +94,7 @@ module.exports = function createOrganization({
             ),
             email,
             firstName,
-            invitationStatus: "Confirmed",
+            invitationStatus,
             lastName,
             netlifyID: id,
             organization: Ref(
