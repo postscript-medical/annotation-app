@@ -12,6 +12,7 @@
   import AdminManageOrganizations from "./screens/AdminManageOrganizations.svelte";
   import AdminSubSpecialties from "./screens/AdminSubSpecialties.svelte";
   import ConfirmSignUp from "./screens/ConfirmSignUp.svelte";
+  import DrFalk from "./screens/DrFalk.svelte";
   import ErrorModal from "./modals/ErrorModal.svelte";
   import Index from "./screens/Index.svelte";
   import ImageAnnotation from "./screens/ImageAnnotation.svelte";
@@ -65,6 +66,16 @@
     "/confirm-sign-up": wrap({
       component: ConfirmSignUp,
       conditions: [hasToken],
+    }),
+    "/dr-falk": wrap({
+      component: DrFalk,
+      conditions: [
+        async () => {
+          if (!hasAuthenticated) await initAuthentication();
+
+          return confirmNavigation();
+        },
+      ],
     }),
     "/inactive-account": wrap({
       component: InactiveAccount,

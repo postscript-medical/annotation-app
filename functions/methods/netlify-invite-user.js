@@ -9,7 +9,7 @@ module.exports = async function netlifyInviteUser(url, token, email) {
   }).catch((error) => {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: `Error creating user: ${error}` }),
+      body: JSON.stringify({ message: `Error invinting user: ${error}` }),
     };
   });
 };
