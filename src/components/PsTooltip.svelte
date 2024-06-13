@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import Portal from "svelte-portal";
+  import Portal from "./Portal.svelte";
 
   export let x = 0;
   export let y = 0;
