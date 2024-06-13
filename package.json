@@ -24,6 +24,7 @@
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "core-js": "^3.37.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-plugin-svelte3": "^4.0.0",
     "husky": "^8.0.3",
