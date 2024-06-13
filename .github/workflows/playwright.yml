@@ -3,16 +3,17 @@ on:
   push:
     branches: [ staging ]
   pull_request:
-    branches: [ staging ]
+    branches: [ staging, main ]
 
 jobs:
   test:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
@@ -27,6 +28,8 @@ jobs:
         env:
           PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait-for-netflify.outputs.url }}
           PERCY_TOKEN: ${{secrets.PERCY_TOKEN}}
+          TEST_USERNAME: ${{secrets.TEST_USERNAME}}
+          TEST_PASSWORD: ${{secrets.TEST_PASSWORD}}
       - uses: actions/upload-artifact@v3
         if: always()
         with:
