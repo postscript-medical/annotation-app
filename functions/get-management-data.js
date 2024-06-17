@@ -40,7 +40,10 @@ exports.handler = (_, context) => {
                     Var("organizationId")
                   ),
                   Index("members_sort_by_first_name_asc")
-                )
+                ),
+                {
+                  size: 300,
+                }
               ),
               Lambda(
                 ["firstName", "ref"],
