@@ -7,6 +7,9 @@
   command = "npm run dev"
   targetPort = 8080
 
+[dev.environment]
+  DEVELOPMENT_CONTEXT = "true"
+
 [[headers]]
   for = "/*"
   [headers.values]

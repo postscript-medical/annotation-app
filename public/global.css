@@ -92,6 +92,7 @@ main > :not(:last-child) {
   background-size: contain;
   background-repeat: no-repeat;
   background-image: url("/images/annotation-app/bg_logo.svg");
+  min-height: 100vh;
 }
 
 h2 {

@@ -25,6 +25,8 @@
   import SignUp from "./screens/SignUp.svelte";
   import SignUpSuccess from "./screens/SignUpSuccess.svelte";
 
+  import { accept_team_invitation } from "./constants/urls";
+
   let hasAuthenticated = false;
   let errorMessage = "";
 
@@ -39,7 +41,7 @@
         },
       ],
     }),
-    "/accept-team-invitation": wrap({
+    [`/${accept_team_invitation}`]: wrap({
       component: AcceptTeamInvitation,
       conditions: [hasToken],
     }),

@@ -38,7 +38,7 @@
 </script>
 
 {#if loading}
-  <div class="wrapper" transition:tween>
+  <div class="wrapper" transition:tween data-testid="loading-overlay">
     <PsLogo showName style="large full-color" />
     <div bind:this={copy}>loading</div>
   </div>

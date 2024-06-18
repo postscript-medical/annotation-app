@@ -4,6 +4,7 @@
 
   import { isLoading, session } from "../stores.js";
   import checkPasswordRequirements from "../methods/check-password-requirements.js";
+  import { privacy_policy, terms_and_conditions } from "../constants/urls.js";
 
   import ErrorMessage from "../components/ErrorMessage.svelte";
   import PsButton from "../components/PsButton.svelte";
@@ -149,13 +150,10 @@
       <p>
         By creating an account with us you will be agreeing to our <PsLink
           style="on-dark"
-          href="https://www.postscriptmedical.com/terms-of-use"
-          >terms of use</PsLink
-        > and <PsLink
-          style="on-dark"
-          href="https://www.postscriptmedical.com/privacy-policy"
-          >privacy policy.</PsLink
-        >
+          href={terms_and_conditions}>terms of use</PsLink
+        > and <PsLink style="on-dark" href={privacy_policy}
+          >privacy policy</PsLink
+        >.
       </p>
 
       <PsButton type="submit" style="on-dark">Create account</PsButton>
