@@ -1,22 +1,12 @@
 <script>
   import { onDestroy, onMount } from "svelte";
 
-  export let target = document.body;
+  export let target = undefined;
 
   let ref;
 
   onMount(() => {
-    if (target) {
-      target.appendChild(ref);
-    }
-  });
-
-  onDestroy(() => {
-    setTimeout(() => {
-      if (ref.parentNode) {
-        ref.parentNode.removeChild(ref);
-      }
-    });
+    (document.querySelector(target) || document.body).appendChild(ref);
   });
 </script>
 

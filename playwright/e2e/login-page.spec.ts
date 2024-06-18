@@ -1,32 +1,40 @@
 import { test, expect } from '@playwright/test';
 import percySnapshot from '@percy/playwright';
 
-test.describe('Login page', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
+import { LegalLinks } from './shared/legal-links';
 
-  test('Verify page elements', async ({ page }) => {
-    await expect(page).toHaveTitle(/PostScript Medical/);
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+});
 
-    await percySnapshot(page, 'Login page');
-  });
-  
-  test('T&Cs link', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute("href", "https://www.postscriptmedical.com/terms-of-use/");
-  });
+test('Verify page elements', async ({ page }) => {
+  const legalLinks = new LegalLinks(page);
 
-  test('Privacy link', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute("href", "https://www.postscriptmedical.com/privacy-policy/");
-  });
+  await expect(page).toHaveTitle(/PostScript Medical/);
 
-  test('Verify the reset password modal', async ({ page }) => {
-    await page.goto('/');
+  await legalLinks.verifyLinks();
 
-    await page.getByRole('button', { name: 'Forgot your password?'}).click();
+  await percySnapshot(page, 'Login page');
+});
 
-    await expect(page.getByText('Request a recovery password email')).toBeVisible();
+test('Verify the reset password modal', async ({ page }) => {
+  await page.getByRole('button', { name: 'Forgot your password?'}).click();
 
-    await percySnapshot(page, 'Forgot your password modal');
-  });
+  await expect(page.getByText('Request a recovery password email')).toBeVisible();
+
+  await percySnapshot(page, 'Forgot your password modal');
+});
+
+test('Login with credentials', async ({ page, baseURL }) => {
+  await page.getByLabel('Email').fill(process.env.TEST_USERNAME || '');
+
+  await page.getByLabel('Password').fill(process.env.TEST_PASSWORD || '');
+
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  await expect(page).toHaveURL(baseURL + '#/annotate');
+
+  await expect(page.getByText('loading')).not.toBeVisible();
+
+  await percySnapshot(page, 'Login using UI');
 });

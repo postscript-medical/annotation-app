@@ -9,6 +9,8 @@
   import PsLink from "../components/PsLink.svelte";
   import PsTextInput from "../components/PsTextInput.svelte";
 
+  import { privacy_policy, terms_and_conditions } from "../constants/urls";
+
   /* TODO: See if this can be passed down as props */
   const searchParams = new URLSearchParams($querystring);
   const token = searchParams.get("token");
@@ -102,17 +104,9 @@
 
     <p>
       By subscribing, you agree to our
-      <PsLink
-        style="on-dark"
-        href="https://www.postscriptmedical.com/terms-of-use"
-        >terms of use</PsLink
-      >
+      <PsLink style="on-dark" href={terms_and_conditions}>terms of use</PsLink>
       and
-      <PsLink
-        style="on-dark"
-        href="https://www.postscriptmedical.com/privacy-policy"
-        >privacy policy.</PsLink
-      >
+      <PsLink style="on-dark" href={privacy_policy}>privacy policy</PsLink>.
     </p>
 
     <PsButton type="submit" style="on-dark" {loading}>
