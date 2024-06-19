@@ -111,6 +111,7 @@
 
 <div class="primary-tool">
   <ButtonIcon
+    testId={toolName}
     on:click={changePrimary}
     on:enter={handleEnter}
     on:leave={handleLeave}
