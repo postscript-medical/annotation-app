@@ -37,6 +37,7 @@
     bind:clientWidth={w}
     class="tooltip shadow"
     style="transform:translate({posX}px, {posY}px);"
+    data-testid="tooltip"
   >
     <slot>Tooltip copy missing</slot>
   </p>

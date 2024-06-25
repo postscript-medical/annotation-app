@@ -1,20 +1,18 @@
 import { test, expect } from "@playwright/test";
 import percySnapshot from "@percy/playwright";
 
-import { annotate } from "../../src/constants/urls";
-import { TOOL_SHAPE, TOOL_TEXT } from "../../src/constants/defaults";
+import { TOOL_SHAPE, TOOL_TEXT } from "../../../src/constants/defaults";
+import { ImageAnnotationPage } from "../shared/image-annotation-page";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`/#/${annotate}`);
+  const imageAnnotationPage = new ImageAnnotationPage(page);
 
-  const illustration = page.waitForResponse("**/images/annotation-app/illustrations/**/*");
-
-  await illustration;
-
-  await expect(page.getByTestId("loading-overlay")).not.toBeVisible();
+  await imageAnnotationPage.load();
 });
 
 test("Load", async ({ page }) => {
+  await page.waitForLoadState('networkidle');
+
   await percySnapshot(page, "Image annotation page");
 });
 

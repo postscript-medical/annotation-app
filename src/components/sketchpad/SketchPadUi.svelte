@@ -12,7 +12,7 @@
     TOOL_ERASE_ALL,
     TOOL_ERASER,
     TOOL_PEN,
-    TOOL_SEARCH,
+    TOOL_CATALOGUE,
     TOOL_SHAPE,
     TOOL_TEXT,
   } from "../../constants/defaults.js";
@@ -73,7 +73,7 @@
 
   <ButtonTool
     primaryValue=""
-    toolName={TOOL_SEARCH}
+    toolName={TOOL_CATALOGUE}
     tooltip="Image catalogue"
     on:change-primary={openIllustrationCatalogue}
   >
