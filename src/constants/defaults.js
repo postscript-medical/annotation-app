@@ -58,7 +58,7 @@ export const TOOL_PEN = "pen";
 
 export const TOOL_RECTANGLE = DEFAULT_SHAPE;
 
-export const TOOL_SEARCH = "search";
+export const TOOL_CATALOGUE = "catalogue";
 
 export const TOOL_SHAPE = "shape";
 

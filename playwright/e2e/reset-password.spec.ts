@@ -10,6 +10,8 @@ test('No token provided', async ({ page, baseURL }) => {
   await page.goto(resetUrl);
 
   await expect(page).toHaveURL(url);
+
+  await page.waitForLoadState('networkidle');
 });
 
 test('Invalid token', async ({ page }) => {

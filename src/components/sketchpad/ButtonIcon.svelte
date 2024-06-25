@@ -5,6 +5,7 @@
 
   export let value = null;
   export let onDark = false;
+  export let testId = "";
 
   function changeTool() {
     dispatch("click", value);
@@ -22,6 +23,7 @@
 <button
   class:on-dark={onDark}
   class="shadow"
+  data-testid={testId}
   on:click={changeTool(value)}
   on:pointerenter={handleEnter}
   on:pointerleave={handleLeave}
