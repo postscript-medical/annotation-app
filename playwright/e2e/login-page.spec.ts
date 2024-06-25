@@ -5,6 +5,8 @@ import { LegalLinks } from './shared/legal-links';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
+
+  await page.waitForLoadState('networkidle');
 });
 
 test('Verify page elements', async ({ page }) => {

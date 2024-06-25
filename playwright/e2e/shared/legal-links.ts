@@ -10,7 +10,7 @@ export class LegalLinks {
   readonly termsLink: Locator;
   readonly privacyLink: Locator;
 
-  constructor(page: Page) {
+  constructor (page: Page) {
     this.page = page;
     this.termsLink = page.locator('a', { hasText: 'terms of use' });
     this.privacyLink = page.locator('a', { hasText: 'privacy policy' });
