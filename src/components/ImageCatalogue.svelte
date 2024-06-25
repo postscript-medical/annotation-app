@@ -33,6 +33,8 @@
   );
 
   function close() {
+    showTooltip = false;
+
     dispatch("close");
   }
 
@@ -78,6 +80,7 @@
       <button
         class="close"
         type="button"
+        data-testid="close-catalogue"
         on:click={close}
         on:pointerenter={handleEnter}
         on:pointerleave={handleLeave}
