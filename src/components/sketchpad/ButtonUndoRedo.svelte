@@ -27,10 +27,14 @@
   }
 
   function redo() {
+    tooltip = "";
+
     dispatch("redo");
   }
 
   function undo() {
+    tooltip = "";
+
     dispatch("undo");
   }
 </script>
