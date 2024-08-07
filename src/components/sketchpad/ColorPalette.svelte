@@ -12,6 +12,8 @@
   let position = { x: 0, y: 0 };
 
   function changeColor() {
+    showTooltip = false;
+
     dispatch("change", this.value);
   }
 

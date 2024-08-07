@@ -27,6 +27,8 @@
 
     closeUserSettingsDropdown();
 
+    showTooltip = false;
+
     if (secondaryTools.length < 1) {
       dispatch("change-primary", newTool);
 
