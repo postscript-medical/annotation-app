@@ -26,6 +26,8 @@
   }
 
   function close(isConfirm) {
+    showTooltip = false;
+
     isConfirm ? dispatch("confirm") : dispatch("close");
   }
 

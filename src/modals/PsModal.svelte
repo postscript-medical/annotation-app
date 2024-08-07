@@ -25,6 +25,8 @@
 
   // TODO: Different animation for confirm/cancel
   function close(isConfirm) {
+    showTooltip = false;
+
     const tl = gsap.timeline({
       onComplete: () => {
         if (isConfirm) dispatch("confirm");
