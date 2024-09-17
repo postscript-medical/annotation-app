@@ -4,6 +4,7 @@ exports.handler = async (event) => {
   const { email, priceId } = JSON.parse(event.body);
 
   const sessionParams = {
+    allow_promotion_codes: true,
     cancel_url: `${process.env.URL}`,
     customer_email: email,
     line_items: [
