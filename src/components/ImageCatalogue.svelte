@@ -108,7 +108,7 @@
 
       {#if hasSubSpecialties}
         <PsDropdown
-          disabled={_subSpecialties.length === 0}
+          disabled={_subSpecialties.length <= 1}
           options={_subSpecialties}
           optionKey="name"
           bind:selected={subSpecialty}
