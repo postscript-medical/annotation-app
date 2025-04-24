@@ -1,71 +1,38 @@
-# PostScript Medical Annotation App
+# sv
 
-## Project installation and setup
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-Install Netlify's CLI globally:
+## Creating a project
 
-```bash
-npm install netlify-cli -g
-```
-
-Install Stipe's CLI globally (for MacOS):
+If you're seeing this, you've probably already done this step. Congrats!
 
 ```bash
-brew install stripe/stripe-cli/stripe
+# create a new project in the current directory
+npx sv create
+
+# create a new project in my-app
+npx sv create my-app
 ```
 
-> For further options and documentation [see Stripe's CLI documentation](https://stripe.com/docs/stripe-cli).
+## Developing
 
-After that install the project's dependencies:
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
-npm install
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
 ```
 
-Link the cloned repository to the Netlify ID:
+## Building
+
+To create a production version of your app:
 
 ```bash
-netlify link
+npm run build
 ```
 
-Login with the project's Stripe account:
+You can preview the production build with `npm run preview`.
 
-```bash
-stripe login
-```
-
-## Running locally
-
-Use the following command to start the local development server using Netlify's CLI so we can have access to Netlify's functions in the localhost environment.
-
-```bash
-netlify dev
-```
-
-Svelte will be running on `localhost:5000`.
-
-And Netlify will run a server on `localhost:8888`.
-
-Point your browser to Netlify's server to check your work as you develop.
-
-### Testing Stripe's webhooks
-
-Use Stripe's CLI to listen and forward events to the localhost environment:
-
-```bash
-stripe listen --forward-to http://localhost:8888/.netlify/functions/[netlify-function-name]
-```
-
-The command above will list a test webhook secret:
-
-```bash
-> Ready! Your webhook signing secret is [TEST_WEBHOOK_SECRET] (^C to quit)
-```
-
-Copy this secret and add it to a `.env` file at the root of the project alongside `package.json`. Double check this `.env` file is included in the `.gitignore` as it is not meant to be included in the repository.
-
-You can trigger a local event using a second terminal a the following command:
-
-```bash
-stripe trigger checkout.session.completed
-```
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

@@ -1,11 +1,6 @@
-/node_modules/
-/public/build/
-
-.DS_Store
-
-# Local Netlify folder
-.netlify
-.svench
-.husky
-
-/db
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+bun.lockb
