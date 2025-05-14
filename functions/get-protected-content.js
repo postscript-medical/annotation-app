@@ -3,14 +3,10 @@ const { SUPABASE_DATABASE_URL, SUPABASE_ANON_KEY } = process.env;
 const { createClient } = require("@supabase/supabase-js");
 const supabase = createClient(SUPABASE_DATABASE_URL, SUPABASE_ANON_KEY);
 
-exports.handler = async (_, context) => {
-  const { user } = context.clientContext;
+exports.handler = async () => {
+  // exports.handler = async (_, context) => {
+  // const { user } = context.clientContext;
 
-  console.log(">>>>> USER <<<<<<<<<<:", user);
-
-  // let { data: user_raw, error } = await supabase
-  //   .from('user_raw')
-  //   .select(`netlify_id: data->data->netlifyID`)
   let error;
 
   const { data: user_raw, error: userError } = await supabase
@@ -21,15 +17,12 @@ exports.handler = async (_, context) => {
     })
     // .contains('data', { data: { netlifyID: user.sub } })
     .single();
-  console.log("user:", user_raw.data);
 
   const userData = {
     ...user_raw.data.data,
   };
 
   if (userError) error = userError;
-
-  console.log("appStateRef:", userData.appState["@ref"].id);
 
   const { data: appState, error: appStateError } = await supabase
     .from("user_app_state_raw")
@@ -39,14 +32,100 @@ exports.handler = async (_, context) => {
     })
     .single();
 
-  console.log("appState:", appState.data);
   if (appStateError) error = appStateError;
 
   userData.appState = appState.data.data;
 
+  const { data: team, error: teamError } = await supabase
+    .from("team_raw")
+    .select("data")
+    .contains("data", {
+      ref: { ["@ref"]: { id: userData.team["@ref"].id } },
+    })
+    .single();
+
+  if (teamError) error = teamError;
+
+  userData.team = team.data.data;
+
+  const { data: org, error: orgError } = await supabase
+    .from("organization_raw")
+    .select("data")
+    .contains("data", {
+      ref: { ["@ref"]: { id: userData.organization["@ref"].id } },
+    })
+    .single();
+
+  if (orgError) error = orgError;
+
+  userData.organization = org.data.data;
+
+  const { data: illustrationsRaw, error: illustrationsError } = await supabase
+    .from("illustration_raw")
+    .select("data");
+
+  if (illustrationsError) error = illustrationsError;
+
+  const illustrations = illustrationsRaw.map(({ data }) => {
+    const { name, src, alias, defaultIllustration } = data.data;
+    return {
+      name,
+      src,
+      alias,
+      defaultIllustration,
+      ref: data.ref["@ref"].id,
+    };
+  });
+
+  const { data: subSpecialtiesRaw, error: subSpecialtiesError } = await supabase
+    .from("sub_specialty_raw")
+    .select("data");
+
+  const subSpecialties = subSpecialtiesRaw.map(({ data }) => {
+    return {
+      name: data.data.name,
+      illustrations: data.data.illustrations.map((entry) => {
+        const illustration = illustrations.find(({ ref }) => {
+          return ref === entry["@ref"].id;
+        });
+
+        return illustration;
+      }),
+      ref: data.ref["@ref"].id,
+    };
+  });
+
+  if (subSpecialtiesError) error = subSpecialtiesError;
+
+  const { data: specialties, error: specialtiesError } = await supabase
+    .from("specialty_raw")
+    .select("data");
+
+  if (specialtiesError) error = specialtiesError;
+
+  userData.specialties = specialties.map(({ data }) => {
+    return {
+      name: data.data.name,
+      subSpecialties: data.data.subSpecialties.map((entry) => {
+        const subSpecialty = subSpecialties.find(({ ref }) => {
+          return ref === entry["@ref"].id;
+        });
+
+        return subSpecialty;
+      }),
+    };
+  });
+
+  if (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error }),
+    };
+  }
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: `Get protected content`, userData, error }),
+    body: JSON.stringify({ ...userData }),
   };
 };
 
