@@ -20,7 +20,11 @@ export default async function (user) {
     throw new Error(error);
   });
 
+  console.log("Response:", response);
+
   const data = await response.json();
+
+  console.log("Data:", data);
 
   if (!response || !response.ok) {
     throw new Error(data.error);

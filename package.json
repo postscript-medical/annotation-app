@@ -45,6 +45,7 @@
     "whatwg-fetch": "^3.6.20"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "faunadb": "^4.8.0",
     "gotrue-js": "^0.9.29",
     "netlify-cli": "^10.18.0",
