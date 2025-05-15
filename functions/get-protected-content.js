@@ -3,19 +3,19 @@ const { SUPABASE_DATABASE_URL, SUPABASE_ANON_KEY } = process.env;
 const { createClient } = require("@supabase/supabase-js");
 const supabase = createClient(SUPABASE_DATABASE_URL, SUPABASE_ANON_KEY);
 
-exports.handler = async () => {
-  // exports.handler = async (_, context) => {
-  // const { user } = context.clientContext;
+// exports.handler = async () => {
+exports.handler = async (_, context) => {
+  const { user } = context.clientContext;
 
   let error;
 
   const { data: user_raw, error: userError } = await supabase
     .from("user_raw")
     .select("data")
-    .contains("data", {
-      data: { netlifyID: "a6a53bb8-763e-4207-8974-bcb3d9d9e919" },
-    })
-    // .contains('data', { data: { netlifyID: user.sub } })
+    // .contains("data", {
+    //   data: { netlifyID: "a6a53bb8-763e-4207-8974-bcb3d9d9e919" },
+    // })
+    .contains("data", { data: { netlifyID: user.sub } })
     .single();
 
   const userData = {
