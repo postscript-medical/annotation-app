@@ -94,16 +94,16 @@
       component: ResetPassword,
       conditions: [hasToken],
     }),
-    "/sign-up": wrap({
-      component: SignUp,
-      conditions: [
-        async () => {
-          if (!hasAuthenticated) await initAuthentication();
+    // "/sign-up": wrap({
+    //   component: SignUp,
+    //   conditions: [
+    //     async () => {
+    //       if (!hasAuthenticated) await initAuthentication();
 
-          return confirmNavigation();
-        },
-      ],
-    }),
+    //       return confirmNavigation();
+    //     },
+    //   ],
+    // }),
     "/success": wrap({
       component: SignUpSuccess,
       conditions: [

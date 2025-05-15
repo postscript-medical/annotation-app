@@ -57,7 +57,7 @@
         <PsLink href="#/annotate" style="on-dark">Annotate image</PsLink>
 
         {#if $protectedContent.role === ROLE_OWNER}
-          <ManageSubscription onDark />
+          <!-- <ManageSubscription onDark /> -->
         {/if}
 
         {#if subscriptionLevel !== "individual" && [ROLE_OWNER, ROLE_DM].includes($protectedContent.role)}
