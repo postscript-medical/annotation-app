@@ -24,7 +24,7 @@ exports.handler = async () => {
 
   if (userError) error = userError;
 
-  const { data: appState, error: appStateError } = await supabase
+  const { data: appStateRaw, error: appStateError } = await supabase
     .from("user_app_state_raw")
     .select("data")
     .contains("data", {
@@ -34,7 +34,21 @@ exports.handler = async () => {
 
   if (appStateError) error = appStateError;
 
-  userData.appState = appState.data.data;
+  console.log("What have we got:", appStateRaw.data.data);
+
+  const { selectedIllustrationTitle, selectedSpecialty, selectedSubSpecialty } =
+    appStateRaw.data.data;
+
+  const appState = {
+    selectedIllustrationTitle,
+    selectedSpecialty,
+    selectedSubSpecialty,
+    id: userData.appState["@ref"].id,
+  };
+
+  userData.appState = appState;
+  console.log("-------------------");
+  console.log("AppState:", userData);
 
   const { data: team, error: teamError } = await supabase
     .from("team_raw")
