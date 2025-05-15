@@ -28,7 +28,8 @@ export default async function updateAppState({
     }),
   })
     .then((response) => response.json())
-    .then(({ data }) => {
+    .then((data) => {
+      console.log("We have got back:", data);
       protectedContent.update((content) => {
         content.appState = data;
 
