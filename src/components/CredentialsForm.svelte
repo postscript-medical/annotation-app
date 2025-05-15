@@ -76,11 +76,11 @@
       <slot name="footer" />
     </div>
   </form>
-  <p>
+  <!-- <p>
     Don't have an account? <PsLink href="#/sign-up" style="on-dark"
       >Sign up</PsLink
     >.
-  </p>
+  </p> -->
   {#if !hideTerms}
     <CredentialsTerms {style} />
   {/if}
