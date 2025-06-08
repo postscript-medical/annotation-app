@@ -215,8 +215,6 @@ export const illustrationSearchQuery = writable("");
 
 export const illustrationLoaded = writable(false);
 
-export const illustrationDisplayed = writable();
-
 export const selectedIllustrationTitle = derived(
   protectedContent,
   ($protectedContent) => {
@@ -230,7 +228,7 @@ export const selectedSpecialty = derived(
   protectedContent,
   ($protectedContent) => {
     return $protectedContent.appState
-      ? $protectedContent.appState.selectedSpecialty
+      ? $protectedContent.appState.specialty.name
       : "";
   }
 );
@@ -239,7 +237,7 @@ export const selectedSubSpecialty = derived(
   protectedContent,
   ($protectedContent) => {
     return $protectedContent.appState
-      ? $protectedContent.appState.selectedSubSpecialty
+      ? $protectedContent.appState.subSpecialty.name
       : "";
   }
 );
