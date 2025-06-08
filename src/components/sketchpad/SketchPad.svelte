@@ -60,7 +60,6 @@
   let rafID;
 
   $: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
-  $: src = $selectedIllustration ? $selectedIllustration.src : false;
 
   function addShape(shapeId) {
     const { x, y } = pointerLocation;
@@ -574,9 +573,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div bind:this={paper} class="paper shadow aspect-ratio-lock">
-  {#if src}
-    <Illustration {src} />
-  {/if}
+  <Illustration name={$protectedContent.appState.illustration.src} />
 
   <canvas
     bind:this={$canvasElement}

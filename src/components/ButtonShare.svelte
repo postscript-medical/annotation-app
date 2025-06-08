@@ -1,5 +1,5 @@
 <script>
-  import { activeModal, illustrationDisplayed } from "../stores.js";
+  import { activeModal } from "../stores.js";
   import { MODAL_SHARE } from "../constants/defaults";
   import PsButton from "./PsButton.svelte";
 
@@ -8,8 +8,4 @@
   }
 </script>
 
-<PsButton
-  style="tertiary"
-  on:click={openShareModal}
-  disabled={!$illustrationDisplayed}>Share annotation</PsButton
->
+<PsButton style="tertiary" on:click={openShareModal}>Share annotation</PsButton>

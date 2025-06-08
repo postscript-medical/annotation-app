@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { canvasElement, dpr, illustrationDisplayed } from "../stores.js";
+import { canvasElement, dpr } from "../stores.js";
 
 function drawTextLine(context, text, x, y) {
   context.fillText(text, x, y);
@@ -57,7 +57,7 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 
 export default async function generateAnnotatedImage() {
   const srcCanvas = get(canvasElement);
-  const srcIllustration = get(illustrationDisplayed);
+  const srcIllustration = document.getElementById("source-illustration");
   const _dpr = get(dpr);
   const annotatedImage = document.createElement("canvas");
   const context = annotatedImage.getContext("2d");
