@@ -19,8 +19,8 @@
 
   let position = { x: 0, y: 0 };
   let showTooltip = false;
-  let specialty = $protectedContent.appState.selectedSpecialty;
-  let subSpecialty = $protectedContent.appState.selectedSubSpecialty;
+  let specialty = $protectedContent.appState.specialty.name;
+  let subSpecialty = $protectedContent.appState.subSpecialty.name;
   let _subSpecialties = $subSpecialties;
 
   $: hasSpecialties = $specialties && $specialties.length;
