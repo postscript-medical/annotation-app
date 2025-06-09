@@ -1,7 +1,5 @@
-export default function findIllustrations(subSpecialties, subSpecialty) {
-  const found = subSpecialties.find(
-    ({ name }) => name.toLowerCase() === subSpecialty.toLowerCase()
-  );
+export default function findIllustrations(subSpecialties, subSpecialtyId) {
+  const found = subSpecialties.find(({ id }) => id === subSpecialtyId);
 
   return found.illustrations || [];
 }

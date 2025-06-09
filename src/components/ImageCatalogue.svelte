@@ -19,14 +19,14 @@
 
   let position = { x: 0, y: 0 };
   let showTooltip = false;
-  let specialty = $protectedContent.appState.specialty.name;
-  let subSpecialty = $protectedContent.appState.subSpecialty.name;
+  let specialtyId = $protectedContent.appState.specialty.id;
+  let subSpecialtyId = $protectedContent.appState.subSpecialty.id;
   let _subSpecialties = $subSpecialties;
 
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
     hasSpecialties && _subSpecialties && _subSpecialties.length;
-  $: illustrations = findIllustrations(_subSpecialties, subSpecialty);
+  $: illustrations = findIllustrations(_subSpecialties, subSpecialtyId);
   $: filteredIllustrations = filterSortIllustrations(
     illustrations,
     $illustrationSearchQuery
@@ -55,16 +55,17 @@
 
   function updateSubSpecialties() {
     _subSpecialties = $specialties.find(
-      ({ name }) => specialty === name
+      ({ id }) => specialtyId === id
     ).subSpecialties;
-    subSpecialty = _subSpecialties[0].name;
+
+    subSpecialtyId = _subSpecialties[0].id;
   }
 
   function selectIllustration({ detail: illustration }) {
     dispatch("select-illustration", {
       illustration,
-      specialty,
-      subSpecialty,
+      specialtyId,
+      subSpecialtyId,
     });
   }
 </script>
@@ -96,9 +97,11 @@
     <div class="body">
       {#if hasSpecialties}
         <PsDropdown
-          options={$specialties}
-          optionKey="name"
-          bind:selected={specialty}
+          options={$specialties.map(({ id: value, name: label }) => ({
+            label,
+            value,
+          }))}
+          bind:value={specialtyId}
           style="vertical"
           on:change={updateSubSpecialties}
         >
@@ -109,9 +112,11 @@
       {#if hasSubSpecialties}
         <PsDropdown
           disabled={_subSpecialties.length <= 1}
-          options={_subSpecialties}
-          optionKey="name"
-          bind:selected={subSpecialty}
+          options={_subSpecialties.map(({ id: value, name: label }) => ({
+            label,
+            value,
+          }))}
+          bind:value={subSpecialtyId}
           style="vertical"
         >
           Sub-specialty
@@ -126,6 +131,7 @@
       />
 
       <ImagesGrid
+        activeImage={$protectedContent.appState.illustration}
         images={filteredIllustrations}
         on:select-illustration={selectIllustration}
       />

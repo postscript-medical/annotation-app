@@ -8,9 +8,7 @@ shared wrapper component -->
   export let disabled = false;
   export let editable = true;
   export let options = [];
-  export let optionKey = null;
-  // TODO: change the below to 'value'
-  export let selected = null;
+  export let value = null;
   export let style = ""; /* options: ['inline', 'horizontal'|'vertical'] */
 
   const dispatch = createEventDispatcher();
@@ -34,10 +32,10 @@ shared wrapper component -->
       <slot />
     </span>
     <!-- svelte-ignore a11y-no-onchange -->
-    <select {disabled} bind:value={selected} on:change={onChange}>
-      {#each options as option}
-        <option value={optionKey ? option[optionKey] : option}>
-          {optionKey ? option[optionKey] : option}
+    <select {disabled} bind:value on:change={onChange}>
+      {#each options as { label, value }}
+        <option {value}>
+          {label}
         </option>
       {/each}
     </select>
@@ -47,7 +45,9 @@ shared wrapper component -->
     <span>
       <slot />
     </span>
-    <span> {selected} </span>
+    <span>
+      {value}
+    </span>
   </span>
 {/if}
 
