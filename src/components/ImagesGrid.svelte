@@ -1,10 +1,11 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { selectedIllustrationTitle } from "../stores.js";
   import IntersectionObserver from "./IntersectionObserver.svelte";
   import ImagesGridThumbnail from "./ImagesGridThumbnail.svelte";
 
+  export let activeImage;
   export let images = [];
+
   let nativeLoading = false;
 
   const URL_PATH = "images/c_thumb,h_220,w_180/annotation-app/illustrations/";
@@ -37,7 +38,7 @@
             <ImagesGridThumbnail
               src={URL_PATH + image.src}
               alt={image.name}
-              selected={$selectedIllustrationTitle === image.name}
+              selected={activeImage.id === image.id}
             />
             <!-- {/if} -->
           </IntersectionObserver>

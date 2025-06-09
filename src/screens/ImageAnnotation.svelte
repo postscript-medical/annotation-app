@@ -179,11 +179,15 @@
   }
 
   function selectIllustration({ detail }) {
+    const specialtyId = detail.specialtyId;
+    const subSpecialtyId = detail.subSpecialtyId;
+    const illustrationId = detail.illustration.id;
+
     updateAppState({
       id: $protectedContent.appState.id,
-      selectedIllustrationTitle: detail.illustration.name,
-      selectedSpecialty: detail.specialty,
-      selectedSubSpecialty: detail.subSpecialty,
+      illustrationId: illustrationId,
+      specialtyId: specialtyId,
+      subSpecialtyId: subSpecialtyId,
       user: $user,
     });
 
@@ -194,6 +198,26 @@
         illustrationTitle: detail.illustration.name,
       },
     ]);
+
+    const specialty = $protectedContent.specialties.find(
+      ({ id }) => id === specialtyId
+    );
+    const subSpecialty = specialty.subSpecialties.find(
+      ({ id }) => id === subSpecialtyId
+    );
+    const illustration = subSpecialty.illustrations.find(
+      ({ id }) => id === illustrationId
+    );
+
+    $protectedContent.appState.specialty = {
+      id: specialty.id,
+      name: specialty.name,
+    };
+    $protectedContent.appState.subSpecialty = {
+      id: subSpecialty.id,
+      name: subSpecialty.name,
+    };
+    $protectedContent.appState.illustration = illustration;
 
     closeModal();
   }

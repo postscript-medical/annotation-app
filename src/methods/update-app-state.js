@@ -1,10 +1,8 @@
-import { protectedContent } from "../stores";
-
 export default async function updateAppState({
   id,
-  selectedIllustrationTitle,
-  selectedSpecialty,
-  selectedSubSpecialty,
+  illustrationId,
+  specialtyId,
+  subSpecialtyId,
   user,
 }) {
   const token = user ? await user.jwt() : false;
@@ -22,19 +20,9 @@ export default async function updateAppState({
     },
     body: JSON.stringify({
       id,
-      selectedIllustrationTitle,
-      selectedSpecialty,
-      selectedSubSpecialty,
+      illustrationId,
+      specialtyId,
+      subSpecialtyId,
     }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("We have got back:", data);
-      protectedContent.update((content) => {
-        content.appState = data;
-
-        return content;
-      });
-    })
-    .catch((error) => console.error("::: Error updating app state :::", error));
+  }).catch((error) => console.error("::: Error updating app state :::", error));
 }
