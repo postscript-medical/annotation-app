@@ -1,5 +1,3 @@
-import { UPDATE_APP_STATE_URL } from "../constants/api.js";
-
 export default async function updateAppState({
   id,
   illustrationTitle,
@@ -15,7 +13,7 @@ export default async function updateAppState({
     );
   }
 
-  await fetch(UPDATE_APP_STATE_URL(), {
+  await fetch("/.netlify/functions/update-app-state", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
