@@ -1,28 +1,30 @@
+import { UPDATE_APP_STATE_URL } from "../constants/api.js";
+
 export default async function updateAppState({
   id,
-  illustrationId,
-  specialtyId,
-  subSpecialtyId,
+  illustrationTitle,
+  specialtyName,
+  subSpecialtyName,
   user,
 }) {
   const token = user ? await user.jwt() : false;
 
   if (!token) {
     return Promise.reject(
-      new Error("Could not validate your token. Please contact support.")
+      Error("Could not validate your token. Please contact support.")
     );
   }
 
-  await fetch("/.netlify/functions/update-app-state", {
+  await fetch(UPDATE_APP_STATE_URL(), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       id,
-      illustrationId,
-      specialtyId,
-      subSpecialtyId,
+      illustrationTitle,
+      specialtyName,
+      subSpecialtyName,
     }),
   }).catch((error) => console.error("::: Error updating app state :::", error));
 }

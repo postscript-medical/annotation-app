@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { canvasElement, dpr } from "../stores.js";
+import { canvasElement, dpr, selectedIllustration } from "../stores.js";
 
 function drawTextLine(context, text, x, y) {
   context.fillText(text, x, y);
@@ -13,6 +13,11 @@ function drawTypedText(context, parentBoundingRect, dpr) {
   context.textBaseline = "middle";
 
   entries.forEach((entry) => {
+    // Skip if entry is null or doesn't exist
+    if (!entry || !entry.getBoundingClientRect) {
+      return;
+    }
+
     const boundingRect = entry.getBoundingClientRect();
     const x =
       (boundingRect.left - parentBoundingRect.left + 7) *
@@ -56,39 +61,72 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 }
 
 export default async function generateAnnotatedImage() {
-  const srcCanvas = get(canvasElement);
-  const srcIllustration = document.getElementById("source-illustration");
-  const _dpr = get(dpr);
-  const annotatedImage = document.createElement("canvas");
-  const context = annotatedImage.getContext("2d");
-  const canvasBoundingRect = srcCanvas.getBoundingClientRect();
-  const illustrationBoundingRect = srcIllustration.getBoundingClientRect();
-  const imageBlob = await fetchBlob(
-    "images/annotation-app/postscript-logo-raster.png"
-  );
-  const watermark = await createImageBitmap(imageBlob);
+  try {
+    const srcCanvas = get(canvasElement);
+    const currentIllustration = get(selectedIllustration);
+    const _dpr = get(dpr);
 
-  annotatedImage.width = srcCanvas.width;
-  annotatedImage.height = srcCanvas.height;
+    if (!currentIllustration || !currentIllustration.src) {
+      throw new Error(
+        "No illustration selected or illustration source is missing"
+      );
+    }
 
-  context.fillStyle = "white";
-  context.fillRect(
-    0,
-    0,
-    canvasBoundingRect.width * _dpr,
-    canvasBoundingRect.height * _dpr
-  );
-  context.drawImage(
-    srcIllustration,
-    (illustrationBoundingRect.left - canvasBoundingRect.left) * _dpr,
-    (illustrationBoundingRect.top - canvasBoundingRect.top) * _dpr,
-    illustrationBoundingRect.width * _dpr,
-    illustrationBoundingRect.height * _dpr
-  );
-  context.drawImage(watermark, 16 * _dpr, 16 * _dpr, 85 * _dpr, 71 * _dpr);
-  context.drawImage(srcCanvas, 0, 0);
+    const annotatedImage = document.createElement("canvas");
+    const context = annotatedImage.getContext("2d");
+    const canvasBoundingRect = srcCanvas.getBoundingClientRect();
 
-  drawTypedText(context, canvasBoundingRect, _dpr);
+    // Fetch the illustration image and create an ImageBitmap
+    const imageUrl =
+      "/images/annotation-app/illustrations/" + currentIllustration.src;
 
-  return annotatedImage;
+    let illustrationImage;
+    try {
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(
+          `Image not accessible: ${response.status} ${response.statusText}`
+        );
+      }
+      const imageBlob = await response.blob();
+      illustrationImage = await createImageBitmap(imageBlob);
+    } catch (fetchError) {
+      console.error("Failed to fetch image:", fetchError);
+      throw fetchError;
+    }
+
+    // Load watermark
+    const imageBlob = await fetchBlob(
+      "/images/annotation-app/postscript-logo-raster.png"
+    );
+    const watermark = await createImageBitmap(imageBlob);
+
+    annotatedImage.width = srcCanvas.width;
+    annotatedImage.height = srcCanvas.height;
+
+    context.fillStyle = "white";
+    context.fillRect(
+      0,
+      0,
+      canvasBoundingRect.width * _dpr,
+      canvasBoundingRect.height * _dpr
+    );
+
+    // Draw the illustration centered on the canvas
+    const imgWidth = illustrationImage.width * _dpr;
+    const imgHeight = illustrationImage.height * _dpr;
+    const x = (srcCanvas.width - imgWidth) / 2;
+    const y = (srcCanvas.height - imgHeight) / 2;
+
+    context.drawImage(illustrationImage, x, y, imgWidth, imgHeight);
+    context.drawImage(watermark, 16 * _dpr, 16 * _dpr, 85 * _dpr, 71 * _dpr);
+    context.drawImage(srcCanvas, 0, 0);
+
+    drawTypedText(context, canvasBoundingRect, _dpr);
+
+    return annotatedImage;
+  } catch (error) {
+    console.error("Error generating annotated image:", error);
+    throw error;
+  }
 }

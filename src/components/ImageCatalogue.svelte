@@ -4,9 +4,11 @@
   import { expoInOut } from "svelte/easing";
   import {
     illustrationSearchQuery,
-    protectedContent,
     specialties,
     subSpecialties,
+    selectedIllustration,
+    selectedSpecialty,
+    selectedSubSpecialty,
   } from "../stores.js";
   import findIllustrations from "../methods/find-illustrations.js";
   import filterSortIllustrations from "../methods/filter-sort-illustrations.js";
@@ -19,17 +21,30 @@
 
   let position = { x: 0, y: 0 };
   let showTooltip = false;
-  let specialtyId = $protectedContent.appState.specialty.id;
-  let subSpecialtyId = $protectedContent.appState.subSpecialty.id;
+  let selectedSpecialtyName = $selectedSpecialty;
+  let selectedSubSpecialtyName = $selectedSubSpecialty;
   let _subSpecialties = $subSpecialties;
 
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
     hasSpecialties && _subSpecialties && _subSpecialties.length;
-  $: illustrations = findIllustrations(_subSpecialties, subSpecialtyId);
+  $: localIllustrations = findIllustrations(
+    _subSpecialties,
+    selectedSubSpecialtyName
+  );
   $: filteredIllustrations = filterSortIllustrations(
-    illustrations,
+    localIllustrations,
     $illustrationSearchQuery
+  );
+
+  // Ensure we only pass valid illustrations to ImagesGrid
+  $: validFilteredIllustrations = filteredIllustrations.filter(
+    (illustration) =>
+      illustration &&
+      typeof illustration === "object" &&
+      illustration.name &&
+      illustration.src &&
+      illustration.id
   );
 
   function close() {
@@ -55,17 +70,17 @@
 
   function updateSubSpecialties() {
     _subSpecialties = $specialties.find(
-      ({ id }) => specialtyId === id
+      ({ name }) => name === selectedSpecialtyName
     ).subSpecialties;
 
-    subSpecialtyId = _subSpecialties[0].id;
+    selectedSubSpecialtyName = _subSpecialties[0].name;
   }
 
   function selectIllustration({ detail: illustration }) {
     dispatch("select-illustration", {
       illustration,
-      specialtyId,
-      subSpecialtyId,
+      specialtyName: selectedSpecialtyName,
+      subSpecialtyName: selectedSubSpecialtyName,
     });
   }
 </script>
@@ -97,11 +112,11 @@
     <div class="body">
       {#if hasSpecialties}
         <PsDropdown
-          options={$specialties.map(({ id: value, name: label }) => ({
+          options={$specialties.map(({ name: label }) => ({
             label,
-            value,
+            value: label,
           }))}
-          bind:value={specialtyId}
+          bind:value={selectedSpecialtyName}
           style="vertical"
           on:change={updateSubSpecialties}
         >
@@ -112,11 +127,11 @@
       {#if hasSubSpecialties}
         <PsDropdown
           disabled={_subSpecialties.length <= 1}
-          options={_subSpecialties.map(({ id: value, name: label }) => ({
+          options={_subSpecialties.map(({ name: label }) => ({
             label,
-            value,
+            value: label,
           }))}
-          bind:value={subSpecialtyId}
+          bind:value={selectedSubSpecialtyName}
           style="vertical"
         >
           Sub-specialty
@@ -131,8 +146,8 @@
       />
 
       <ImagesGrid
-        activeImage={$protectedContent.appState.illustration}
-        images={filteredIllustrations}
+        activeImage={$selectedIllustration}
+        images={validFilteredIllustrations}
         on:select-illustration={selectIllustration}
       />
     </div>

@@ -1,11 +1,21 @@
 export default function sortIllustrations(illustrations) {
-  return illustrations.sort((el1, el2) => {
-    const name1 = el1.name.toLowerCase();
-    const name2 = el2.name.toLowerCase();
+  if (!illustrations || !Array.isArray(illustrations)) return [];
 
-    if (name1 < name2) return -1;
-    if (name1 > name2) return 1;
+  return illustrations
+    .filter(
+      (illustration) =>
+        illustration &&
+        typeof illustration === "object" &&
+        illustration.name &&
+        typeof illustration.name === "string"
+    )
+    .sort((el1, el2) => {
+      const name1 = el1.name.toLowerCase();
+      const name2 = el2.name.toLowerCase();
 
-    return 0;
-  });
+      if (name1 < name2) return -1;
+      if (name1 > name2) return 1;
+
+      return 0;
+    });
 }

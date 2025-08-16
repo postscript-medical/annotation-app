@@ -573,7 +573,9 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div bind:this={paper} class="paper shadow aspect-ratio-lock">
-  <Illustration name={$protectedContent.appState.illustration.src} />
+  {#if $selectedIllustration}
+    <Illustration name={$selectedIllustration.src} />
+  {/if}
 
   <canvas
     bind:this={$canvasElement}
@@ -604,7 +606,7 @@
   {/if}
 
   <img
-    src="images/annotation-app/postscript-logo-raster.png"
+    src="/images/annotation-app/postscript-logo-raster.png"
     class="watermark"
     width="85"
     height="71"

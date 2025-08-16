@@ -1,5 +1,5 @@
 import "whatwg-fetch";
-import { derived, readable, writable, get } from "svelte/store";
+import { derived, readable, writable } from "svelte/store";
 import {
   TOOL_TEXT,
   VIEWPORT_PHONE,
@@ -218,27 +218,24 @@ export const illustrationLoaded = writable(false);
 export const selectedIllustrationTitle = derived(
   protectedContent,
   ($protectedContent) => {
-    return $protectedContent.appState
-      ? $protectedContent.appState.selectedIllustrationTitle
-      : "";
+    if (!$protectedContent || !$protectedContent.appState) return "";
+    return $protectedContent.appState.selectedIllustrationTitle || "";
   }
 );
 
 export const selectedSpecialty = derived(
   protectedContent,
   ($protectedContent) => {
-    return $protectedContent.appState
-      ? $protectedContent.appState.specialty.name
-      : "";
+    if (!$protectedContent || !$protectedContent.appState) return "";
+    return $protectedContent.appState.selectedSpecialty || "";
   }
 );
 
 export const selectedSubSpecialty = derived(
   protectedContent,
   ($protectedContent) => {
-    return $protectedContent.appState
-      ? $protectedContent.appState.subSpecialty.name
-      : "";
+    if (!$protectedContent || !$protectedContent.appState) return "";
+    return $protectedContent.appState.selectedSubSpecialty || "";
   }
 );
 
@@ -250,6 +247,7 @@ export const subSpecialties = derived(
   [selectedSpecialty, specialties],
   ([$selectedSpecialty, $specialties]) => {
     if (!$specialties || !$specialties.length) return [];
+    if (!$selectedSpecialty) return [];
 
     let _selectedSpecialty = $specialties.find(
       ({ name }) => name.toLowerCase() === $selectedSpecialty.toLowerCase()
@@ -296,41 +294,46 @@ export const subSpecialties = derived(
 export const illustrations = derived(
   [subSpecialties, selectedSubSpecialty],
   ([$subSpecialties, $selectedSubSpecialty]) => {
-    const _subSpecialty =
-      $subSpecialties &&
-      $subSpecialties.find(
-        ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
-      );
+    if (!$subSpecialties || !$subSpecialties.length) return [];
+    if (!$selectedSubSpecialty) return [];
+
+    const _subSpecialty = $subSpecialties.find(
+      ({ name }) => name.toLowerCase() === $selectedSubSpecialty.toLowerCase()
+    );
 
     return _subSpecialty ? _subSpecialty.illustrations : [];
   }
 );
 
+// Store to get the selected illustration object for use in components
 export const selectedIllustration = derived(
-  [selectedIllustrationTitle],
-  ([$selectedIllustrationTitle]) => {
-    const _illustrations = get(illustrations);
+  [protectedContent, selectedIllustrationTitle, illustrations],
+  ([$protectedContent, $selectedIllustrationTitle, $illustrations]) => {
+    // First, check if there's an illustration directly in the app state
+    if (
+      $protectedContent &&
+      $protectedContent.appState &&
+      $protectedContent.appState.illustration
+    ) {
+      return $protectedContent.appState.illustration;
+    }
+
+    // Fall back to the specialties structure
+    if (!$illustrations || !$illustrations.length) return null;
 
     let _illustration;
 
     if ($selectedIllustrationTitle) {
-      _illustration =
-        _illustrations &&
-        _illustrations.find(
-          ({ name }) =>
-            name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
-        );
+      _illustration = $illustrations.find(
+        ({ name }) =>
+          name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
+      );
     } else {
-      _illustration =
-        _illustrations &&
-        _illustrations.find(({ default_illustration }) => default_illustration);
+      _illustration = $illustrations.find(
+        ({ default_illustration }) => default_illustration
+      );
     }
 
-    return _illustration
-      ? {
-          ..._illustration,
-          src: "images/annotation-app/illustrations/" + _illustration.src,
-        }
-      : undefined;
+    return _illustration || null;
   }
 );

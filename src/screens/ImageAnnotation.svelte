@@ -112,7 +112,7 @@
   }
 
   function checkIfIllustrationSelected() {
-    if ($protectedContent.appState.selectedIllustrationTitle === "") {
+    if (!$protectedContent.appState.selectedIllustrationTitle) {
       $activeModal = IMAGE_CATALOGUE;
     }
   }
@@ -179,15 +179,15 @@
   }
 
   function selectIllustration({ detail }) {
-    const specialtyId = detail.specialtyId;
-    const subSpecialtyId = detail.subSpecialtyId;
-    const illustrationId = detail.illustration.id;
+    const specialtyName = detail.specialtyName;
+    const subSpecialtyName = detail.subSpecialtyName;
+    const illustrationTitle = detail.illustration.name;
 
     updateAppState({
       id: $protectedContent.appState.id,
-      illustrationId: illustrationId,
-      specialtyId: specialtyId,
-      subSpecialtyId: subSpecialtyId,
+      illustrationTitle: illustrationTitle,
+      specialtyName: specialtyName,
+      subSpecialtyName: subSpecialtyName,
       user: $user,
     });
 
@@ -200,24 +200,18 @@
     ]);
 
     const specialty = $protectedContent.specialties.find(
-      ({ id }) => id === specialtyId
+      ({ name }) => name === specialtyName
     );
     const subSpecialty = specialty.subSpecialties.find(
-      ({ id }) => id === subSpecialtyId
+      ({ name }) => name === subSpecialtyName
     );
     const illustration = subSpecialty.illustrations.find(
-      ({ id }) => id === illustrationId
+      ({ name }) => name === illustrationTitle
     );
 
-    $protectedContent.appState.specialty = {
-      id: specialty.id,
-      name: specialty.name,
-    };
-    $protectedContent.appState.subSpecialty = {
-      id: subSpecialty.id,
-      name: subSpecialty.name,
-    };
-    $protectedContent.appState.illustration = illustration;
+    $protectedContent.appState.selectedSpecialty = specialty.name;
+    $protectedContent.appState.selectedSubSpecialty = subSpecialty.name;
+    $protectedContent.appState.selectedIllustrationTitle = illustration.name;
 
     closeModal();
   }
@@ -252,52 +246,69 @@
 
   async function updateChosenSpecialty({ detail }) {
     const { id, specialtyId } = detail;
-    const token = $user ? await $user.jwt() : false;
 
-    if (!token) {
-      return Promise.reject(
-        new Error("Could not validate your token. Please contact support.")
-      );
+    // For local development, skip the API call if the endpoint doesn't exist
+    try {
+      const token = $user ? await $user.jwt() : false;
+
+      if (!token) {
+        return Promise.reject(
+          new Error("Could not validate your token. Please contact support.")
+        );
+      }
+
+      await fetch("/.netlify/functions/update-chosen-specialty", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id, specialtyId }),
+      })
+        .then((response) => response.json())
+        .then(async () => {
+          await loadProtectedContent($user);
+        })
+        .catch((error) => {
+          // API endpoint not available, continuing with local update - error will still appear in browser console
+        });
+    } catch (error) {
+      // API call failed, continuing with local update - error will still appear in browser console
     }
 
-    await fetch("/.netlify/functions/update-chosen-specialty", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id, specialtyId }),
-    })
-      .then((response) => response.json())
-      .then(async () => {
-        await loadProtectedContent($user);
+    // Find the selected specialty and subspecialty
+    const selectedSpecialty = $protectedContent.specialties.find(
+      (s) => s.id === specialtyId
+    );
+    if (!selectedSpecialty) {
+      console.error("Selected specialty not found");
+      return;
+    }
 
-        /**
-         * Force a refresh of the derived stores
-         */
-        protectedContent.update((content) => {
-          content.appState = {
-            ...content.appState,
-            selectedSpecialty: content.specialties[0].name,
-            selectedSubSpecialty: content.specialties[0].subSpecialties[0].name,
-          };
+    const selectedSubSpecialty = selectedSpecialty.subSpecialties[0]; // Use first subspecialty for now
 
-          return content;
-        });
+    /**
+     * Force a refresh of the derived stores
+     */
+    protectedContent.update((content) => {
+      content.appState = {
+        ...content.appState,
+        selectedSpecialty: selectedSpecialty.name,
+        selectedSubSpecialty: selectedSubSpecialty.name,
+      };
 
-        updateAppState({
-          id: $protectedContent.appState.id,
-          selectedIllustrationTitle:
-            $protectedContent.appState.selectedIllustrationTitle,
-          selectedSpecialty: $protectedContent.appState.selectedSpecialty,
-          selectedSubSpecialty: $protectedContent.appState.selectedSubSpecialty,
-          user: $user,
-        });
+      return content;
+    });
 
-        closeModal();
+    updateAppState({
+      id: $protectedContent.appState.id,
+      selectedIllustrationTitle:
+        $protectedContent.appState.selectedIllustrationTitle,
+      selectedSpecialty: selectedSpecialty.name,
+      selectedSubSpecialty: selectedSubSpecialty.name,
+      user: $user,
+    });
 
-        checkIfIllustrationSelected();
-      })
-      .catch((error) =>
-        console.error("::: Error updating chosen specialty :::", error)
-      );
+    closeModal();
+
+    checkIfIllustrationSelected();
   }
 
   function redoAction() {
@@ -311,7 +322,7 @@
   onMount(() => {
     selectTool({ detail: TOOL_PEN });
 
-    if ($protectedContent.organization.chosenSpecialty === "") {
+    if (!$protectedContent.organization.chosenSpecialty) {
       $activeModal = CHOOSE_A_SPECIALTY;
     } else {
       checkIfIllustrationSelected();

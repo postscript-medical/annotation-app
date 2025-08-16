@@ -20,11 +20,7 @@ export default async function (user) {
     throw new Error(error);
   });
 
-  console.log("Response:", response);
-
   const data = await response.json();
-
-  console.log("Data:", data);
 
   if (!response || !response.ok) {
     throw new Error(data.error);
@@ -40,14 +36,23 @@ export default async function (user) {
   }
 
   if (data.specialties) {
-    if (data.appState.selectedSpecialty === "") {
+    if (!data.appState.selectedSpecialty) {
       data.appState.selectedSpecialty = data.specialties[0].name;
     }
 
-    if (data.appState.selectedSubSpecialty === "") {
+    if (!data.appState.selectedSubSpecialty) {
       data.appState.selectedSubSpecialty =
         data.specialties[0].subSpecialties[0].name;
     }
+  }
+
+  // Set the selectedIllustrationTitle from the loaded app state
+  if (
+    data.appState &&
+    data.appState.illustration &&
+    data.appState.illustration.name
+  ) {
+    data.appState.selectedIllustrationTitle = data.appState.illustration.name;
   }
 
   protectedContent.set(data);

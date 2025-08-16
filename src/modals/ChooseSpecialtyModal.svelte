@@ -1,26 +1,18 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import Modal from "./Modal.svelte";
-  import loadSpecialties from "../methods/load-specialties";
+  import { specialties } from "../stores.js";
 
   export let user;
   export let orgId;
 
   const dispatch = createEventDispatcher();
 
-  let promise;
   let specialtyId;
-
-  async function load() {
-    let response = await loadSpecialties(user);
-    promise = await response.json();
-  }
 
   async function saveChosenSpecialty() {
     dispatch("specialty-updated", { id: orgId, specialtyId });
   }
-
-  load();
 </script>
 
 <Modal
@@ -33,9 +25,9 @@
 
   <p>Please choose your desired specialty:</p>
 
-  {#if promise && promise.data}
+  {#if $specialties && $specialties.length > 0}
     <ul class="plain">
-      {#each promise.data as specialty}
+      {#each $specialties as specialty}
         <li>
           <input
             id={specialty.id}
@@ -50,6 +42,8 @@
         </li>
       {/each}
     </ul>
+  {:else}
+    <p>Loading specialties...</p>
   {/if}
 </Modal>
 
