@@ -8,10 +8,16 @@
 
   let nativeLoading = false;
 
-  const URL_PATH = "images/c_thumb,h_220,w_180/annotation-app/illustrations/";
+  const URL_PATH = "/images/c_thumb,h_220,w_180/annotation-app/illustrations/";
   const dispatch = createEventDispatcher();
 
-  $: noImages = images.length === 0;
+  // Filter out invalid images and ensure they have required properties
+  $: validImages = images.filter(
+    (image) =>
+      image && typeof image === "object" && image.name && image.src && image.id
+  );
+
+  $: noImages = validImages.length === 0;
 
   /**
    * Determine whether to bypass the intersecting check
@@ -21,7 +27,9 @@
   }
 
   function selectIllustration(illustration) {
-    dispatch("select-illustration", illustration);
+    if (illustration && illustration.id) {
+      dispatch("select-illustration", illustration);
+    }
   }
 </script>
 
@@ -30,7 +38,7 @@
 {:else}
   <div class="scrollable-container">
     <div class="images-grid">
-      {#each images as image (image.name)}
+      {#each validImages as image (image.id)}
         <button class="card" on:click={selectIllustration(image)}>
           <IntersectionObserver once let:intersecting>
             <!-- This is not triggering on IE -->
@@ -38,7 +46,9 @@
             <ImagesGridThumbnail
               src={URL_PATH + image.src}
               alt={image.name}
-              selected={activeImage.id === image.id}
+              selected={activeImage && activeImage.id
+                ? activeImage.id === image.id
+                : false}
             />
             <!-- {/if} -->
           </IntersectionObserver>
