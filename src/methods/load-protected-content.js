@@ -55,5 +55,28 @@ export default async function (user) {
     data.appState.selectedIllustrationTitle = data.appState.illustration.name;
   }
 
+  // Also set the illustration object directly for the selectedIllustration store
+  if (
+    data.appState &&
+    data.appState.illustration &&
+    data.appState.illustration.name
+  ) {
+    // Find the illustration in the specialties structure to get the full object
+    for (const specialty of data.specialties || []) {
+      for (const subSpecialty of specialty.subSpecialties || []) {
+        const foundIllustration = subSpecialty.illustrations.find(
+          (ill) => ill.name === data.appState.illustration.name
+        );
+        if (foundIllustration) {
+          data.appState.illustration = foundIllustration;
+          break;
+        }
+      }
+      if (data.appState.illustration && data.appState.illustration.src) {
+        break;
+      }
+    }
+  }
+
   protectedContent.set(data);
 }

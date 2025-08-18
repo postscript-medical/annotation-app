@@ -21,9 +21,31 @@
 
   let position = { x: 0, y: 0 };
   let showTooltip = false;
-  let selectedSpecialtyName = $selectedSpecialty;
-  let selectedSubSpecialtyName = $selectedSubSpecialty;
-  let _subSpecialties = $subSpecialties;
+
+  // Make these reactive to store changes
+  $: selectedSpecialtyName = $selectedSpecialty;
+  $: selectedSubSpecialtyName = $selectedSubSpecialty;
+  $: _subSpecialties = $subSpecialties;
+
+  // Ensure sub-specialties are updated when specialty changes
+  $: if (selectedSpecialtyName && $specialties) {
+    const specialty = $specialties.find(
+      ({ name }) => name === selectedSpecialtyName
+    );
+    if (specialty && specialty.subSpecialties) {
+      _subSpecialties = specialty.subSpecialties;
+
+      // Try to preserve the current sub-specialty selection if it's valid
+      const currentSubSpecialty = _subSpecialties.find(
+        ({ name }) => name === selectedSubSpecialtyName
+      );
+
+      if (!currentSubSpecialty && _subSpecialties.length > 0) {
+        // If current selection is invalid, use the first available
+        selectedSubSpecialtyName = _subSpecialties[0].name;
+      }
+    }
+  }
 
   $: hasSpecialties = $specialties && $specialties.length;
   $: hasSubSpecialties =
@@ -73,7 +95,18 @@
       ({ name }) => name === selectedSpecialtyName
     ).subSpecialties;
 
-    selectedSubSpecialtyName = _subSpecialties[0].name;
+    // Try to preserve the currently selected sub-specialty if it exists in the new specialty
+    const currentSubSpecialty = _subSpecialties.find(
+      ({ name }) => name === selectedSubSpecialtyName
+    );
+
+    if (currentSubSpecialty) {
+      // Keep the current selection if it's valid for the new specialty
+      selectedSubSpecialtyName = currentSubSpecialty.name;
+    } else {
+      // Fall back to the first sub-specialty if the current one doesn't exist
+      selectedSubSpecialtyName = _subSpecialties[0].name;
+    }
   }
 
   function selectIllustration({ detail: illustration }) {

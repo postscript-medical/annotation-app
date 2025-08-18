@@ -306,34 +306,12 @@ export const illustrations = derived(
 );
 
 // Store to get the selected illustration object for use in components
-export const selectedIllustration = derived(
-  [protectedContent, selectedIllustrationTitle, illustrations],
-  ([$protectedContent, $selectedIllustrationTitle, $illustrations]) => {
-    // First, check if there's an illustration directly in the app state
-    if (
-      $protectedContent &&
-      $protectedContent.appState &&
-      $protectedContent.appState.illustration
-    ) {
-      return $protectedContent.appState.illustration;
-    }
+// Simple writable store for selected illustration - more direct and reliable
+export const selectedIllustration = writable(null);
 
-    // Fall back to the specialties structure
-    if (!$illustrations || !$illustrations.length) return null;
-
-    let _illustration;
-
-    if ($selectedIllustrationTitle) {
-      _illustration = $illustrations.find(
-        ({ name }) =>
-          name.toLowerCase() === $selectedIllustrationTitle.toLowerCase()
-      );
-    } else {
-      _illustration = $illustrations.find(
-        ({ default_illustration }) => default_illustration
-      );
-    }
-
-    return _illustration || null;
+// Initialize the selectedIllustration store when protectedContent is loaded
+protectedContent.subscribe((content) => {
+  if (content && content.appState && content.appState.illustration) {
+    selectedIllustration.set(content.appState.illustration);
   }
-);
+});

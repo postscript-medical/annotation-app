@@ -39,7 +39,7 @@
   <div class="scrollable-container">
     <div class="images-grid">
       {#each validImages as image (image.id)}
-        <button class="card" on:click={selectIllustration(image)}>
+        <button class="card" on:click={() => selectIllustration(image)}>
           <IntersectionObserver once let:intersecting>
             <!-- This is not triggering on IE -->
             <!-- {#if nativeLoading || intersecting} -->

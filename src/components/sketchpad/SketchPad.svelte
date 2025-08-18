@@ -390,8 +390,12 @@
 
         case TOOL_CHANGE_IMAGE:
           clearRect();
-          $protectedContent.appState.selectedIllustrationTitle =
-            action.illustrationTitle;
+          // Use the proper store update method to ensure reactivity
+          protectedContent.update((content) => {
+            content.appState.selectedIllustrationTitle =
+              action.illustrationTitle;
+            return content;
+          });
           break;
 
         default:

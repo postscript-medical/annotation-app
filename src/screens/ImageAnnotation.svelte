@@ -5,6 +5,7 @@
     activeModal,
     illustrationSearchQuery,
     protectedContent,
+    selectedIllustration,
     user,
   } from "../stores.js";
   import {
@@ -209,9 +210,17 @@
       ({ name }) => name === illustrationTitle
     );
 
-    $protectedContent.appState.selectedSpecialty = specialty.name;
-    $protectedContent.appState.selectedSubSpecialty = subSpecialty.name;
-    $protectedContent.appState.selectedIllustrationTitle = illustration.name;
+    // Use the proper store update method to ensure reactivity
+    protectedContent.update((content) => {
+      content.appState.selectedSpecialty = specialty.name;
+      content.appState.selectedSubSpecialty = subSpecialty.name;
+      content.appState.selectedIllustrationTitle = illustration.name;
+      content.appState.illustration = illustration;
+      return content;
+    });
+
+    // Directly update the selectedIllustration store for immediate reactivity
+    selectedIllustration.set(illustration);
 
     closeModal();
   }
