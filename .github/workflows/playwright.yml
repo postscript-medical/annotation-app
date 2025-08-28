@@ -30,7 +30,7 @@ jobs:
           PERCY_TOKEN: ${{secrets.PERCY_TOKEN}}
           TEST_USERNAME: ${{secrets.TEST_USERNAME}}
           TEST_PASSWORD: ${{secrets.TEST_PASSWORD}}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
