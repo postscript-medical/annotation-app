@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { canvasElement, dpr, selectedIllustration } from "../stores.js";
+import { canvasElement, selectedIllustration } from "../stores.js";
 
 function drawTextLine(context, text, x, y) {
   context.fillText(text, x, y);
@@ -64,7 +64,6 @@ export default async function generateAnnotatedImage() {
   try {
     const srcCanvas = get(canvasElement);
     const currentIllustration = get(selectedIllustration);
-    const _dpr = get(dpr);
 
     if (!currentIllustration || !currentIllustration.src) {
       throw new Error(
@@ -101,28 +100,49 @@ export default async function generateAnnotatedImage() {
     );
     const watermark = await createImageBitmap(imageBlob);
 
-    annotatedImage.width = srcCanvas.width;
-    annotatedImage.height = srcCanvas.height;
+    // Use the visual display dimensions (what users actually see)
+    annotatedImage.width = canvasBoundingRect.width;
+    annotatedImage.height = canvasBoundingRect.height;
 
     context.fillStyle = "white";
-    context.fillRect(
-      0,
-      0,
-      canvasBoundingRect.width * _dpr,
-      canvasBoundingRect.height * _dpr
-    );
+    context.fillRect(0, 0, canvasBoundingRect.width, canvasBoundingRect.height);
 
-    // Draw the illustration centered on the canvas
-    const imgWidth = illustrationImage.width * _dpr;
-    const imgHeight = illustrationImage.height * _dpr;
-    const x = (srcCanvas.width - imgWidth) / 2;
-    const y = (srcCanvas.height - imgHeight) / 2;
+    // Calculate the scale factor between visual display and canvas
+    const scaleX = canvasBoundingRect.width / srcCanvas.width;
+    const scaleY = canvasBoundingRect.height / srcCanvas.height;
+
+    // Draw the illustration at the correct scale
+    const imgWidth = illustrationImage.width * scaleX;
+    const imgHeight = illustrationImage.height * scaleY;
+    const x = (annotatedImage.width - imgWidth) / 2;
+    const y = (annotatedImage.height - imgHeight) / 2;
 
     context.drawImage(illustrationImage, x, y, imgWidth, imgHeight);
-    context.drawImage(watermark, 16 * _dpr, 16 * _dpr, 85 * _dpr, 71 * _dpr);
-    context.drawImage(srcCanvas, 0, 0);
 
-    drawTypedText(context, canvasBoundingRect, _dpr);
+    // Draw watermark at the correct scale
+    context.drawImage(
+      watermark,
+      16 * scaleX,
+      16 * scaleY,
+      85 * scaleX,
+      71 * scaleY
+    );
+
+    // Draw the canvas content scaled to match the visual display
+    context.drawImage(
+      srcCanvas,
+      0,
+      0,
+      srcCanvas.width,
+      srcCanvas.height,
+      0,
+      0,
+      annotatedImage.width,
+      annotatedImage.height
+    );
+
+    // Draw typed text at the correct scale
+    drawTypedText(context, canvasBoundingRect, 1);
 
     return annotatedImage;
   } catch (error) {
