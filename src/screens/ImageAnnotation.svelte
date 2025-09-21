@@ -254,7 +254,7 @@
   }
 
   async function updateChosenSpecialty({ detail }) {
-    const { id, specialtyId } = detail;
+    const { specialtyId } = detail;
 
     // For local development, skip the API call if the endpoint doesn't exist
     try {
@@ -269,7 +269,7 @@
       await fetch("/.netlify/functions/update-chosen-specialty", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ id, specialtyId }),
+        body: JSON.stringify({ userId: $protectedContent.id, specialtyId }),
       })
         .then((response) => response.json())
         .then(async () => {
@@ -299,6 +299,7 @@
     protectedContent.update((content) => {
       content.appState = {
         ...content.appState,
+        selected_specialty_id: specialtyId,
         selectedSpecialty: selectedSpecialty.name,
         selectedSubSpecialty: selectedSubSpecialty.name,
       };
@@ -331,10 +332,13 @@
   onMount(() => {
     selectTool({ detail: TOOL_PEN });
 
-    if (!$protectedContent.organization.chosenSpecialty) {
-      $activeModal = CHOOSE_A_SPECIALTY;
-    } else {
+    // Check if user has actually chosen a specialty (check database field)
+    if ($protectedContent.appState.selected_specialty_id) {
+      // User has already chosen a specialty - proceed normally
       checkIfIllustrationSelected();
+    } else {
+      // User hasn't chosen a specialty yet - show modal
+      $activeModal = CHOOSE_A_SPECIALTY;
     }
   });
 </script>
@@ -392,7 +396,6 @@
 {#if $activeModal === CHOOSE_A_SPECIALTY}
   <ChooseSpecialtyModal
     user={$user}
-    orgId={$protectedContent.organization.id}
     on:specialty-updated={updateChosenSpecialty}
   />
 {/if}

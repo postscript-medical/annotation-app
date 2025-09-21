@@ -40,21 +40,22 @@ exports.handler = async (event) => {
       throw new Error("Either specialtyName or specialtyId must be provided");
     }
 
-    // Update the organizations table with the chosen specialty
-    const { error } = await supabase
-      .from("organizations")
-      .update({ chosen_specialty: specialtyId })
-      .eq("id", body.id)
-      .select()
-      .single();
+    // Update the user's app state with the selected specialty
+    const { error: updateError } = await supabase
+      .from("user_app_states")
+      .update({ selected_specialty_id: specialtyId })
+      .eq("user_id", body.userId);
 
-    if (error) {
-      throw error;
+    if (updateError) {
+      throw updateError;
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, chosen_specialty: specialtyId }),
+      body: JSON.stringify({
+        success: true,
+        selected_specialty_id: specialtyId,
+      }),
     };
   } catch (error) {
     console.error("::: Update chosen specialty ERROR :::", error);
