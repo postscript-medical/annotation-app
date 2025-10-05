@@ -36,25 +36,25 @@ export default async function (user) {
   }
 
   if (data.specialties) {
-    // Only set default values if user hasn't actually chosen a specialty
-    // Check if selected_specialty_id exists in the app state (from database)
-    const hasChosenSpecialty = data.appState.selected_specialty_id;
+    // Check if user has chosen a specialty by looking at the specialty object
+    const hasChosenSpecialty =
+      data.appState.specialty && data.appState.specialty.id;
 
     if (!hasChosenSpecialty) {
       // User hasn't chosen a specialty yet - don't set defaults
       // The modal will handle the specialty selection
       data.appState.selectedSpecialty = null;
       data.appState.selectedSubSpecialty = null;
+      data.appState.selected_specialty_id = null;
+      data.appState.selected_sub_specialty_id = null;
+      data.appState.selected_illustration_id = null;
     } else {
-      // User has chosen a specialty - set the values from the database
-      if (!data.appState.selectedSpecialty) {
-        data.appState.selectedSpecialty = data.specialties[0].name;
-      }
-
-      if (!data.appState.selectedSubSpecialty) {
-        data.appState.selectedSubSpecialty =
-          data.specialties[0].subSpecialties[0].name;
-      }
+      // User has chosen a specialty - set the values from the database objects
+      data.appState.selectedSpecialty = data.appState.specialty.name;
+      data.appState.selectedSubSpecialty = data.appState.subSpecialty.name;
+      data.appState.selected_specialty_id = data.appState.specialty.id;
+      data.appState.selected_sub_specialty_id = data.appState.subSpecialty.id;
+      data.appState.selected_illustration_id = data.appState.illustration.id;
     }
   }
 
