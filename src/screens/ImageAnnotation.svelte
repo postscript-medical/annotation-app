@@ -187,8 +187,8 @@
     updateAppState({
       id: $protectedContent.appState.id,
       illustrationTitle: illustrationTitle,
-      specialtyName: specialtyName,
-      subSpecialtyName: subSpecialtyName,
+      specialtyId: $protectedContent.appState.selected_specialty_id,
+      subSpecialtyId: $protectedContent.appState.selected_sub_specialty_id,
       user: $user,
     });
 
@@ -300,6 +300,8 @@
       content.appState = {
         ...content.appState,
         selected_specialty_id: specialtyId,
+        selected_sub_specialty_id: selectedSubSpecialty.id,
+        selected_illustration_id: selectedSubSpecialty.illustrations[0].id,
         selectedSpecialty: selectedSpecialty.name,
         selectedSubSpecialty: selectedSubSpecialty.name,
       };
@@ -309,10 +311,9 @@
 
     updateAppState({
       id: $protectedContent.appState.id,
-      selectedIllustrationTitle:
-        $protectedContent.appState.selectedIllustrationTitle,
-      selectedSpecialty: selectedSpecialty.name,
-      selectedSubSpecialty: selectedSubSpecialty.name,
+      illustrationTitle: $protectedContent.appState.selectedIllustrationTitle,
+      specialtyId: selectedSpecialty.id,
+      subSpecialtyId: selectedSubSpecialty.id,
       user: $user,
     });
 
@@ -396,6 +397,7 @@
 {#if $activeModal === CHOOSE_A_SPECIALTY}
   <ChooseSpecialtyModal
     user={$user}
+    orgId={$protectedContent.appState.id}
     on:specialty-updated={updateChosenSpecialty}
   />
 {/if}

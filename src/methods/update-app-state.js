@@ -1,8 +1,11 @@
 export default async function updateAppState({
   id,
   illustrationTitle,
+  illustrationId,
   specialtyName,
+  specialtyId,
   subSpecialtyName,
+  subSpecialtyId,
   user,
 }) {
   const token = user ? await user.jwt() : false;
@@ -21,8 +24,11 @@ export default async function updateAppState({
     body: JSON.stringify({
       id,
       illustrationTitle,
+      illustrationId,
       specialtyName,
+      specialtyId,
       subSpecialtyName,
+      subSpecialtyId,
     }),
   }).catch((error) => console.error("::: Error updating app state :::", error));
 }
