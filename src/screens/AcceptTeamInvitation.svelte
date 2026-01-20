@@ -44,21 +44,38 @@
 
     loading = true;
 
-    $session
-      .acceptInvite(token, password, true)
-      .then((response) => {
-        $user = response;
+    try {
+      // TODO: Replace with Supabase team invitation acceptance
+      // For now, this needs a backend function to handle team invitation acceptance
+      const response = await fetch(
+        "/.netlify/functions/accept-team-invitation",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token,
+            password,
+          }),
+        }
+      );
 
+      if (response.ok) {
+        const data = await response.json();
+        // Update user store with the response
+        $user = data.user;
         push("/annotate");
-      })
-      .catch((error) => {
-        console.log("Failed to login", error);
-
-        errorMessage = error;
-      })
-      .finally(() => {
-        loading = false;
-      });
+      } else {
+        const errorData = await response.json();
+        errorMessage = errorData.message || "Failed to accept invitation";
+      }
+    } catch (error) {
+      console.error("Error accepting invitation:", error);
+      errorMessage = "Something went wrong. Please try again.";
+    } finally {
+      loading = false;
+    }
   }
 </script>
 

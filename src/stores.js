@@ -94,14 +94,14 @@ export const organization = derived(
 export const userSettingsDropdownDrawerOpen = writable(false);
 
 export const customerPortalUrl = derived(
-  [user, organization],
-  ([$user, $organization], set) => {
-    if (!$user || !$organization) return;
+  [user, organization, session],
+  ([$user, $organization, $session], set) => {
+    if (!$user || !$organization || !$session) return;
 
     fetch("/.netlify/functions/create-manage-link", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${$user.token.access_token}`,
+        Authorization: `Bearer ${$session.access_token}`,
       },
       body: JSON.stringify({
         stripeID: $organization.stripeID,

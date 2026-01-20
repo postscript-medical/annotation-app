@@ -32,13 +32,8 @@
       return;
     }
 
-    if (!$session) {
-      console.error("No $session object!");
-      errorMessage =
-        "Something went wrong. Try reloading the page. Or if the problem persists, get in touch.";
-
-      return;
-    }
+    // Note: $session check removed - create-invited-account function doesn't require session
+    // The function handles authentication internally
 
     if (password !== passwordConfirmation) {
       errorMessage = "Passwords do not match. Try again.";

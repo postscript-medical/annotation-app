@@ -15,44 +15,44 @@
   let password;
   let password_confirmation;
 
-  function create_account() {
+  async function create_account() {
     errorMessage = null;
 
     if (!checkPasswordRequirements(password)) {
       errorMessage = "Password does not meet criteria";
-
       return;
     }
 
-    if (!$session) {
-      console.error("No $session object!");
-      errorMessage =
-        "Something went wrong. Try reloading the page. Or if the problem persists, get in touch.";
-
+    if (password !== password_confirmation) {
+      errorMessage = "Password do not match. Try again.";
       return;
     }
 
     $isLoading = true;
 
-    if (password !== password_confirmation) {
-      errorMessage = "Password do not match. Try again.";
-
-      $isLoading = false;
-
-      return;
-    }
-
-    $session
-      .signup(email, password)
-      .then(() => {
-        created = true;
-      })
-      .catch((error) => {
-        errorMessage = error.json.msg;
-      })
-      .finally(() => {
-        $isLoading = false;
+    try {
+      // Use Supabase backend function for signup
+      const response = await fetch("/.netlify/functions/auth/supabase-signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        created = true;
+      } else {
+        errorMessage = data.error || data.message || "Failed to create account";
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      errorMessage = "Failed to create account. Please try again.";
+    } finally {
+      $isLoading = false;
+    }
   }
 </script>
 

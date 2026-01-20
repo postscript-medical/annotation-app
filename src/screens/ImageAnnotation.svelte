@@ -7,6 +7,7 @@
     protectedContent,
     selectedIllustration,
     user,
+    session,
   } from "../stores.js";
   import {
     ERASER_SIZES,
@@ -189,7 +190,6 @@
       illustrationTitle: illustrationTitle,
       specialtyId: $protectedContent.appState.selected_specialty_id,
       subSpecialtyId: $protectedContent.appState.selected_sub_specialty_id,
-      user: $user,
     });
 
     actions.push([
@@ -258,7 +258,7 @@
 
     // For local development, skip the API call if the endpoint doesn't exist
     try {
-      const token = $user ? await $user.jwt() : false;
+      const token = $session ? $session.access_token : false;
 
       if (!token) {
         return Promise.reject(
@@ -273,7 +273,7 @@
       })
         .then((response) => response.json())
         .then(async () => {
-          await loadProtectedContent($user);
+          await loadProtectedContent();
         })
         .catch((error) => {
           // API endpoint not available, continuing with local update - error will still appear in browser console
@@ -314,7 +314,6 @@
       illustrationTitle: $protectedContent.appState.selectedIllustrationTitle,
       specialtyId: selectedSpecialty.id,
       subSpecialtyId: selectedSubSpecialty.id,
-      user: $user,
     });
 
     closeModal();

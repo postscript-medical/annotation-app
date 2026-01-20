@@ -4,8 +4,6 @@ const updateOrgSubscriptionInactive = require("./methods/update-org-subscription
 const updateOrgSubscriptionDetails = require("./methods/update-org-subscription-details");
 
 const faunaKey = process.env.FAUNA_KEY;
-// TODO: Delete STRIPE_INACTIVE_PRODUCT
-// const inactiveId = process.env.STRIPE_INACTIVE_PRODUCT;
 
 exports.handler = async ({ body, headers }) => {
   try {
@@ -30,19 +28,14 @@ exports.handler = async ({ body, headers }) => {
 
     const productId = subscription.plan.product;
 
-    console.log("::: Handle subscription change :::", subscription);
-
     switch (stripeEvent.type) {
       case "customer.subscription.created":
-        console.log(">>>>>>>>>> Subscription created");
         await updateOrgSubscriptionCreated(
           faunaKey,
           subscription.customer,
           productId,
           subscription.metadata.email
         ).catch((error) => {
-          console.log("::: Handle subscription created error :::", error);
-
           return {
             statusCode: 400,
             body: `{ error: Handle subscription created: ${error} }`,

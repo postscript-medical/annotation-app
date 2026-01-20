@@ -19,15 +19,34 @@
   }
 
   async function requestResetPassword({ detail: email }) {
-    if (!$session) return;
-
     loading = true;
+    errorMessage = null;
 
-    await $session.requestPasswordRecovery(email).catch((error) => {
-      errorMessage = error.json.msg;
-    });
+    try {
+      const response = await fetch(
+        "/.netlify/functions/auth/auth-password-reset-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+          }),
+        }
+      );
 
-    if (!errorMessage) emailSent = true;
+      const data = await response.json();
+
+      if (!response.ok) {
+        errorMessage = data.error || "Error sending password reset email";
+      } else {
+        emailSent = true;
+      }
+    } catch (error) {
+      errorMessage = "Error sending password reset email";
+      console.error("Password reset request error:", error);
+    }
 
     loading = false;
   }

@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { isLoading, user } from "../stores.js";
+  import { isLoading, user, session } from "../stores.js";
   import {
     ILLUSTRATION_ADMIN_THUMBNAIL_PATH,
     ILLUSTRATION_ADMIN_PREVIEW_PATH,
@@ -30,7 +30,7 @@
   }
 
   async function fetchIllustrations(params) {
-    const token = $user ? await $user.jwt() : false;
+    const token = $session ? $session.access_token : false;
 
     if (!token) {
       return Promise.reject(
@@ -67,7 +67,7 @@
   }
 
   async function saveChanges() {
-    const token = $user ? await $user.jwt() : false;
+    const token = $session ? $session.access_token : false;
 
     if (!token) {
       return Promise.reject(

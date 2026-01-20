@@ -1,30 +1,44 @@
-const faunadb = require("faunadb");
+const { createClient } = require("@supabase/supabase-js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const createOrganization = require("./methods/create-organization");
-const netlifyCreateUser = require("./methods/netlify-create-user");
-const netlifyUpdateUserRole = require("./methods/netlify-update-user-role");
+const supabaseCreateOrganization = require("./methods/supabase-create-organization");
+const { supabaseCreateUser } = require("./methods/supabase-create-user");
+const {
+  supabaseUpdateUserRole,
+} = require("./methods/supabase-update-user-role");
+const {
+  ERROR_CODES,
+  createAndLogError,
+  createSimpleError,
+} = require("./utils/error-handler");
 
-exports.handler = async (event, context) => {
-  const { identity } = context.clientContext;
-
+exports.handler = async (event) => {
   let body;
   let customer;
 
   try {
     body = JSON.parse(event.body);
   } catch (error) {
-    console.log("::: [create-invited-account] ERROR :::", event);
-
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: `Invalid JSON body - ${error.message}` }),
-    };
+    return createSimpleError(
+      400,
+      ERROR_CODES.VALIDATION_INVALID_JSON,
+      "Invalid JSON body"
+    );
   }
 
   try {
     const { coupon, email, password, product: price } = body;
     const role = "owner";
+
+    // Validate Supabase environment variables
+    if (
+      !process.env.SUPABASE_DATABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      throw new Error(
+        "Missing SUPABASE_DATABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables"
+      );
+    }
 
     customer = await stripe.customers.create({ email });
 
@@ -34,68 +48,107 @@ exports.handler = async (event, context) => {
       discounts: [{ coupon }],
     });
 
-    if (!identity) throw new Error("No identity token - are you in localhost?");
-
-    const response = await netlifyCreateUser(
-      identity.url,
-      identity.token,
+    // Create user in Supabase Auth
+    const createUserResult = await supabaseCreateUser(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
       email,
       password,
-      true
+      true // confirm email
     );
 
-    if (!response) throw new Error("Failed to create user account.");
-
-    console.log("Netlify response:", response);
-
-    const data = await response.json();
-
-    if (`${data.code}`[0] === "4") {
+    if (createUserResult.message) {
+      // Error creating user
       return {
-        statusCode: data.code,
-        body: JSON.stringify({ message: data.msg }),
+        statusCode: 400,
+        body: JSON.stringify({ message: createUserResult.message }),
       };
     }
 
-    await netlifyUpdateUserRole(identity.url, identity.token, data.id, role);
+    if (!createUserResult.user || !createUserResult.user.id) {
+      throw new Error("Failed to create user account - no user data returned");
+    }
+
+    const userId = createUserResult.user.id;
+    const userEmail = createUserResult.user.email;
+
+    // Update user role in Supabase Auth
+    const updateRoleResult = await supabaseUpdateUserRole(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      userId,
+      role
+    );
+
+    if (updateRoleResult.message) {
+      // Error updating role - cleanup Stripe customer
+      await stripe.customers.del(customer.id);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: updateRoleResult.message }),
+      };
+    }
+
+    // Create Supabase client for database operations with SERVICE_ROLE_KEY
+    const supabaseClient = createClient(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      }
+    );
 
     const organization = {
-      chosenSpecialty: "all",
       maxUsers: 1,
       name: "My organization",
       subscriptionLevel: "individual",
-      specialties: null,
       stripeID: customer.id,
     };
     const team = {
       name: "My team",
     };
     const user = {
-      id: data.id,
-      email: data.email,
+      id: userId,
+      email: userEmail,
       firstName: null,
       lastName: null,
     };
-    const faunaClient = new faunadb.Client({ secret: process.env.FAUNA_KEY });
-    const newOrg = await createOrganization({
-      faunaClient,
+
+    const newOrg = await supabaseCreateOrganization({
+      supabaseClient,
       organization,
       team,
       role,
       user,
     });
 
-    if (newOrg.statusCode && `${newOrg.statusCode}`[0] === 4) return newOrg;
+    if (newOrg.statusCode && `${newOrg.statusCode}`[0] === "4") {
+      // Error creating organization - cleanup Stripe customer
+      await stripe.customers.del(customer.id);
+      return newOrg;
+    }
 
     return { statusCode: 204 };
   } catch (error) {
-    console.log("::: [create-invited-account] CATCH :::", error);
+    // Cleanup Stripe customer on error
+    if (customer) {
+      try {
+        await stripe.customers.del(customer.id);
+      } catch (cleanupError) {
+        console.error("Error cleaning up Stripe customer:", cleanupError);
+      }
+    }
 
-    if (customer) await stripe.customers.del(customer.id);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: `Webhook Error: ${error.message}` }),
-    };
+    return createAndLogError(
+      500,
+      ERROR_CODES.SERVER_ERROR,
+      "Internal server error",
+      error,
+      { function: "create-invited-account", email: body?.email }
+    );
   }
 };

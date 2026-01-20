@@ -14,27 +14,37 @@
   let errorMessage;
 
   async function confirmUserSignUp() {
-    if (token) {
-      let response;
-
-      /**
-       * NOTE: Confirm sign up is always called from the main deployed
-       * site.
-       */
-      try {
-        response = await $session.confirm(token, true).catch((err) => {
-          /* .catch() does not seem to work on IE11 */
-          errorMessage = err.json.msg;
-        });
-      } catch {
-        errorMessage = "There was an unknown error";
-      }
-
-      if (!response) return;
-
-      $user = response;
-    } else {
+    if (!token) {
       errorMessage = "Token not found.";
+      return;
+    }
+
+    try {
+      // Use Supabase backend function to confirm signup
+      const response = await fetch(
+        "/.netlify/functions/auth/supabase-confirm-signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        $user = data.user;
+      } else {
+        const errorData = await response.json();
+        errorMessage =
+          errorData.error ||
+          errorData.message ||
+          "Failed to confirm email address";
+      }
+    } catch (err) {
+      console.error("Error confirming signup:", err);
+      errorMessage = "There was an unknown error. Please try again.";
     }
   }
 

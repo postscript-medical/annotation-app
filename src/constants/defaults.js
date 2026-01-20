@@ -4,13 +4,13 @@
 export const redirectPath = "/images/";
 
 export const ILLUSTRATION_THUMBNAIL_PATH =
-  "images/c_thumb,h_220,w_180/annotation-app/illustrations/";
+  "/c_thumb,h_220,w_180/annotation-app/illustrations/";
 
 export const ILLUSTRATION_ADMIN_THUMBNAIL_PATH =
-  "images/c_scale,w_180/annotation-app/illustrations/";
+  "/c_scale,w_180/annotation-app/illustrations/";
 
 export const ILLUSTRATION_ADMIN_PREVIEW_PATH =
-  "images/c_scale,w_320/annotation-app/illustrations/";
+  "/c_scale,w_320/annotation-app/illustrations/";
 
 export const SIZE_SMALL = "small";
 

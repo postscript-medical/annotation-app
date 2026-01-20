@@ -11,8 +11,6 @@ exports.handler = async (event) => {
   try {
     body = JSON.parse(event.body);
   } catch (error) {
-    console.log("::: ERROR :::", event);
-
     return {
       statusCode: 400,
       body: `::: ERROR - Invalid JSON - ::: ${error.message}`,
@@ -81,7 +79,7 @@ exports.handler = async (event) => {
       To: "accounts@postscriptmedical.com",
       Subject: "[POSTSCRIPT] New user signup",
       HtmlBody: `Heads up new user: ${email}`,
-      MessageStream: "netlify-identity",
+      MessageStream: "supabase-auth",
     });
 
     return {
@@ -93,8 +91,6 @@ exports.handler = async (event) => {
       }),
     };
   } catch (error) {
-    console.log("::: IDENTITY SIGNUP CATCH :::", error);
-
     return {
       statusCode: 400,
       body: JSON.stringify({ message: `Identity signup: ${error.message}` }),

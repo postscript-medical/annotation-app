@@ -20,7 +20,7 @@
         message: feedback,
       }),
     }).catch((err) => {
-      console.log(err);
+      // Error sending feedback - error will still appear in browser console
       loading = false;
     });
 

@@ -1,5 +1,5 @@
 <script>
-  import { user } from "../stores";
+  import { user, session } from "../stores";
   import SignUpPlanCard from "./SignUpPlanCard.svelte";
   import ErrorMessage from "./ErrorMessage.svelte";
 
@@ -23,10 +23,14 @@
 
   async function createCheckoutSession({ detail }) {
     const { priceId } = detail;
+    if (!$session || !$session.access_token) {
+      errorMessage = "Could not validate your token. Please log in again.";
+      return;
+    }
     const response = await fetch("/.netlify/functions/stripe-checkout", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${$user.token.access_token}`,
+        Authorization: `Bearer ${$session.access_token}`,
       },
       body: JSON.stringify({
         email: $user.email,

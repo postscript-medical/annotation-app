@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { isLoading, user } from "../stores.js";
+  import { isLoading, user, session } from "../stores.js";
   import debounce from "../methods/debouncer.js";
   import Modal from "./Modal.svelte";
   import PsButton from "../components/PsButton.svelte";
@@ -26,7 +26,7 @@
   }
 
   async function fetchIllustrationsByName(name) {
-    const token = $user ? await $user.jwt() : false;
+    const token = $session ? $session.access_token : false;
 
     if (!token) {
       return Promise.reject(
@@ -92,7 +92,7 @@
   }
 
   async function saveChanges() {
-    const token = $user ? await $user.jwt() : false;
+    const token = $session ? $session.access_token : false;
 
     if (!token) {
       return Promise.reject(

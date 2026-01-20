@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { push } from "svelte-spa-router";
   import { isLoading, session, user } from "../stores.js";
+  import { STORAGE_KEY } from "../constants/session.js";
   import CredentialsForm from "./CredentialsForm.svelte";
   import PsButton from "./PsButton.svelte";
 
@@ -14,32 +15,44 @@
   }
 
   async function submit({ detail }) {
-    if (!$session) {
-      console.warn("No $session object!");
-      return;
-    }
-
     const { email, password, stayLogged } = detail;
 
     errorMessage = null;
-
     isLoading.set(true);
 
-    const response = await $session
-      .login(email, password, stayLogged)
-      .catch((error) => {
-        errorMessage = "Error validating your credentials";
-
-        console.error("SignInForm:", error);
-
-        isLoading.set(false);
+    try {
+      const response = await fetch("/.netlify/functions/auth/auth-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-    if (!response) return;
+      const data = await response.json();
 
-    $user = response;
+      if (!response.ok) {
+        errorMessage = data.error || "Error validating your credentials";
+        isLoading.set(false);
+        return;
+      }
 
-    push("/annotate");
+      // Store the session in localStorage
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+      // Update stores
+      $user = data.user;
+      $session = data;
+
+      push("/annotate");
+    } catch (error) {
+      errorMessage = "Error validating your credentials";
+      console.error("SignInForm:", error);
+      isLoading.set(false);
+    }
   }
 </script>
 

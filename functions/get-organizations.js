@@ -1,76 +1,109 @@
-const faunadb = require("faunadb");
-const {
-  Paginate,
-  Documents,
-  Collection,
-  ContainsPath,
-  If,
-  Index,
-  Lambda,
-  Let,
-  Match,
-  Get,
-  Var,
-  Map,
-  Select,
-} = require("faunadb");
+const { createClient } = require("@supabase/supabase-js");
+const { ERROR_CODES, createAndLogError } = require("./utils/error-handler");
 
-exports.handler = () => {
+exports.handler = async () => {
   try {
-    const client = new faunadb.Client({
-      secret: process.env.FAUNA_KEY,
-    });
+    // Validate Supabase environment variables
+    if (
+      !process.env.SUPABASE_DATABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      throw new Error(
+        "Missing SUPABASE_DATABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables"
+      );
+    }
 
-    return client
-      .query(
-        Map(
-          Paginate(Documents(Collection("Organization"))),
-          Lambda(
-            "ref",
-            Let(
-              {
-                organization: Get(Var("ref")),
-                owner: Get(
-                  Match(
-                    Index("findUserByEmail"),
-                    Select(["data", "email"], Var("organization"))
-                  )
-                ),
-              },
-              {
-                id: Select(["ref", "id"], Var("organization")),
-                owner: Select(["data", "email"], Var("owner")),
-                netlifyID: Select(["data", "netlifyID"], Var("owner")),
-                stripeID: If(
-                  ContainsPath(["data", "stripeID"], Var("organization")),
-                  Select(["data", "stripeID"], Var("organization")),
-                  ""
-                ),
-              }
+    // Create Supabase client with SERVICE_ROLE_KEY
+    const supabase = createClient(
+      process.env.SUPABASE_DATABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      }
+    );
+
+    // Get all organizations
+    const { data: organizations, error: orgError } = await supabase
+      .from("organizations")
+      .select("id, name, email, stripe_id");
+
+    if (orgError) {
+      return createAndLogError(
+        500,
+        ERROR_CODES.FETCH_FAILED,
+        "Failed to fetch organizations",
+        orgError,
+        { function: "get-organizations" }
+      );
+    }
+
+    // For each organization, find the owner user
+    // The owner is the user with role='owner' whose email matches the organization's email
+    // and whose team belongs to this organization
+    const result = await Promise.all(
+      organizations.map(async (org) => {
+        // Find owner user: email matches org.email, role is 'owner', and team belongs to org
+        const { data: ownerUsers, error: userError } = await supabase
+          .from("users")
+          .select(
+            `
+            id,
+            email,
+            netlify_id,
+            auth_id,
+            teams!inner (
+              id,
+              organization_id
             )
+          `
           )
-        )
-      )
-      .then((response) => {
+          .eq("email", org.email || "")
+          .eq("role", "owner")
+          .eq("teams.organization_id", org.id)
+          .limit(1);
+
+        if (userError || !ownerUsers || ownerUsers.length === 0) {
+          // If no owner found, return org with email as owner (fallback)
+          return {
+            id: org.id,
+            owner: org.email || "",
+            netlifyID: null,
+            stripeID: org.stripe_id || "",
+          };
+        }
+
+        const ownerUser = ownerUsers[0];
+
+        // Use auth_id if available, otherwise fall back to netlify_id
+        const authId = ownerUser.auth_id || ownerUser.netlify_id || null;
+
         return {
-          statusCode: 200,
-          body: JSON.stringify(response),
+          id: org.id,
+          owner: ownerUser.email,
+          netlifyID: authId,
+          stripeID: org.stripe_id || "",
         };
       })
-      .catch((error) => {
-        console.log("::: Get Organizations ERROR :::", error);
+    );
 
-        return {
-          statusCode: 400,
-          body: `Webhook Error: ${error}`,
-        };
-      });
-  } catch (error) {
-    console.log(":: ERROR :: [get-organizations] >>> ", error);
-
+    // Format response to match original FaunaDB structure
     return {
-      statusCode: 400,
-      body: `Webhook Error: ${error.message}`,
+      statusCode: 200,
+      body: JSON.stringify({
+        data: result,
+      }),
     };
+  } catch (error) {
+    return createAndLogError(
+      500,
+      ERROR_CODES.SERVER_ERROR,
+      "Internal server error",
+      error,
+      { function: "get-organizations" }
+    );
   }
 };

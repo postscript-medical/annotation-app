@@ -1,5 +1,4 @@
 <script>
-  import GoTrue from "gotrue-js";
   import { wrap } from "svelte-spa-router/wrap";
   import Router, { push } from "svelte-spa-router";
   import { user, isLoading, session, protectedContent } from "./stores";
@@ -29,6 +28,11 @@
 
   let hasAuthenticated = false;
   let errorMessage = "";
+
+  // Reactive statement: if session has user but user store is null, set it
+  $: if ($session && $session.user && !$user) {
+    $user = $session.user;
+  }
 
   const routes = {
     "/": wrap({
@@ -129,20 +133,30 @@
     return true;
   }
 
-  async function getUserFromSessionStorage() {
-    const localStorage = window.localStorage.getItem(STORAGE_KEY);
+  function getUserFromSessionStorage() {
+    const sessionData = window.localStorage.getItem(STORAGE_KEY);
 
-    if (!localStorage) return false;
+    if (!sessionData) return false;
 
     try {
-      const user = $session.currentUser();
+      const session = JSON.parse(sessionData);
 
-      return user;
+      // Check if session has required fields
+      if (!session.access_token || !session.user) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        return false;
+      }
+
+      // Check if token is expired
+      if (session.expires_at && Date.now() >= session.expires_at * 1000) {
+        // Token is expired, but we might still be able to refresh it
+        return session;
+      }
+
+      return session;
     } catch (err) {
+      console.error("Error parsing session from localStorage:", err);
       window.localStorage.removeItem(STORAGE_KEY);
-
-      $isLoading = false;
-
       return false;
     }
   }
@@ -163,22 +177,74 @@
   async function initAuthentication() {
     $isLoading = true;
 
-    const response = await new GoTrue({
-      APIUrl: "/.netlify/identity",
-      setCookie: true,
-    });
+    try {
+      // Check for existing Supabase session in localStorage
+      const existingSession = getUserFromSessionStorage();
 
-    if (!response) {
+      if (existingSession) {
+        // Validate the existing session with backend
+        const response = await fetch("/.netlify/functions/auth/auth-session", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${existingSession.access_token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const sessionData = await response.json();
+          // Use user from session data if available, otherwise use from existing session
+          $user = sessionData.user || existingSession.user;
+          $session = existingSession;
+          hasAuthenticated = true;
+          $isLoading = false;
+          return true;
+        } else {
+          // Session is invalid, try to refresh if we have a refresh token
+          if (existingSession.refresh_token) {
+            const refreshResponse = await fetch(
+              "/.netlify/functions/auth/auth-refresh",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  refresh_token: existingSession.refresh_token,
+                }),
+              }
+            );
+
+            if (refreshResponse.ok) {
+              const newSession = await refreshResponse.json();
+              // Store the new session
+              window.localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(newSession)
+              );
+              // Ensure user is set from the session
+              $user = newSession.user;
+              $session = newSession;
+              hasAuthenticated = true;
+              $isLoading = false;
+              return true;
+            }
+          }
+
+          // If refresh failed, clear the session
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
+      // No valid session found
       $isLoading = false;
-
+      return true;
+    } catch (error) {
+      console.error("Authentication initialization error:", error);
+      window.localStorage.removeItem(STORAGE_KEY);
+      $isLoading = false;
       return true;
     }
-
-    $session = response;
-
-    $user = await (getUserFromSessionStorage() || $session.currentUser());
-
-    hasAuthenticated = true;
   }
 
   function isUserDm() {
@@ -195,14 +261,11 @@
     $isLoading = true;
 
     if ($user) {
-      await loadProtectedContent($user).catch(async function (error) {
-        await $user.logout().catch((err) => {
-          errorMessage = err;
-        });
-
+      await loadProtectedContent().catch(async function (error) {
+        // Clear local data and redirect to login
         clearLocalApplicationData();
 
-        errorMessage = error;
+        errorMessage = error.message || "Session expired. Please log in again.";
 
         return redirectTo("/");
       });
