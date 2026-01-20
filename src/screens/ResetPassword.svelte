@@ -90,7 +90,7 @@
 
     try {
       // Validate the token with the backend
-      const response = await fetch("/.netlify/functions/auth/auth-session", {
+      const response = await fetch("/.netlify/functions/auth-session", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -133,19 +133,16 @@
     loading = true;
 
     try {
-      const response = await fetch(
-        "/.netlify/functions/auth/auth-password-reset",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token: accessToken || token, // Use access_token from auth-session if available, fallback to original token
-            password: password,
-          }),
-        }
-      );
+      const response = await fetch("/.netlify/functions/auth-password-reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: accessToken || token, // Use access_token from auth-session if available, fallback to original token
+          password: password,
+        }),
+      });
 
       const data = await response.json();
 

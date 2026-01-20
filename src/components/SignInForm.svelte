@@ -21,7 +21,7 @@
     isLoading.set(true);
 
     try {
-      const response = await fetch("/.netlify/functions/auth/auth-login", {
+      const response = await fetch("/.netlify/functions/auth-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

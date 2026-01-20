@@ -183,7 +183,7 @@
 
       if (existingSession) {
         // Validate the existing session with backend
-        const response = await fetch("/.netlify/functions/auth/auth-session", {
+        const response = await fetch("/.netlify/functions/auth-session", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${existingSession.access_token}`,
@@ -203,7 +203,7 @@
           // Session is invalid, try to refresh if we have a refresh token
           if (existingSession.refresh_token) {
             const refreshResponse = await fetch(
-              "/.netlify/functions/auth/auth-refresh",
+              "/.netlify/functions/auth-refresh",
               {
                 method: "POST",
                 headers: {

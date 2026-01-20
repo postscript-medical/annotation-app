@@ -11,7 +11,7 @@
     try {
       // Call the Supabase logout backend function if we have a session
       if ($session && $session.access_token) {
-        await fetch("/.netlify/functions/auth/auth-logout", {
+        await fetch("/.netlify/functions/auth-logout", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${$session.access_token}`,

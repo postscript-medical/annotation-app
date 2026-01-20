@@ -46,7 +46,7 @@ export default async function () {
       if (response.status === 401 && currentSession.refresh_token) {
         try {
           const refreshResponse = await fetch(
-            "/.netlify/functions/auth/auth-refresh",
+            "/.netlify/functions/auth-refresh",
             {
               method: "POST",
               headers: {

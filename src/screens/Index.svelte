@@ -24,7 +24,7 @@
 
     try {
       const response = await fetch(
-        "/.netlify/functions/auth/auth-password-reset-request",
+        "/.netlify/functions/auth-password-reset-request",
         {
           method: "POST",
           headers: {
