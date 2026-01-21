@@ -41,7 +41,7 @@
 
   {#if emailSent && showThankYou}
     <p>
-      Please await a few minutes before checking your email for a recovery link.
+      Please wait a few minutes before checking your email for a recovery link.
     </p>
   {:else}
     <p>
