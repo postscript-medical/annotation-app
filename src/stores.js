@@ -215,6 +215,8 @@ export const illustrationSearchQuery = writable("");
 
 export const illustrationLoaded = writable(false);
 
+export const illustrationDisplayed = writable();
+
 export const selectedIllustrationTitle = derived(
   protectedContent,
   ($protectedContent) => {

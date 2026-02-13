@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { canvasElement, selectedIllustration } from "../stores.js";
+import { canvasElement, dpr, illustrationDisplayed } from "../stores.js";
 
 function drawTextLine(context, text, x, y) {
   context.fillText(text, x, y);
@@ -13,11 +13,6 @@ function drawTypedText(context, parentBoundingRect, dpr) {
   context.textBaseline = "middle";
 
   entries.forEach((entry) => {
-    // Skip if entry is null or doesn't exist
-    if (!entry || !entry.getBoundingClientRect) {
-      return;
-    }
-
     const boundingRect = entry.getBoundingClientRect();
     const x =
       (boundingRect.left - parentBoundingRect.left + 7) *
@@ -61,92 +56,39 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 }
 
 export default async function generateAnnotatedImage() {
-  try {
-    const srcCanvas = get(canvasElement);
-    const currentIllustration = get(selectedIllustration);
+  const srcCanvas = get(canvasElement);
+  const srcIllustration = get(illustrationDisplayed);
+  const _dpr = get(dpr);
+  const annotatedImage = document.createElement("canvas");
+  const context = annotatedImage.getContext("2d");
+  const canvasBoundingRect = srcCanvas.getBoundingClientRect();
+  const illustrationBoundingRect = srcIllustration.getBoundingClientRect();
+  const imageBlob = await fetchBlob(
+    "images/annotation-app/postscript-logo-raster.png"
+  );
+  const watermark = await createImageBitmap(imageBlob);
 
-    if (!currentIllustration || !currentIllustration.src) {
-      throw new Error(
-        "No illustration selected or illustration source is missing"
-      );
-    }
+  annotatedImage.width = srcCanvas.width;
+  annotatedImage.height = srcCanvas.height;
 
-    const annotatedImage = document.createElement("canvas");
-    const context = annotatedImage.getContext("2d");
-    const canvasBoundingRect = srcCanvas.getBoundingClientRect();
+  context.fillStyle = "white";
+  context.fillRect(
+    0,
+    0,
+    canvasBoundingRect.width * _dpr,
+    canvasBoundingRect.height * _dpr
+  );
+  context.drawImage(
+    srcIllustration,
+    (illustrationBoundingRect.left - canvasBoundingRect.left) * _dpr,
+    (illustrationBoundingRect.top - canvasBoundingRect.top) * _dpr,
+    illustrationBoundingRect.width * _dpr,
+    illustrationBoundingRect.height * _dpr
+  );
+  context.drawImage(watermark, 16 * _dpr, 16 * _dpr, 85 * _dpr, 71 * _dpr);
+  context.drawImage(srcCanvas, 0, 0);
 
-    // Fetch the illustration image and create an ImageBitmap
-    const imageUrl =
-      "/images/annotation-app/illustrations/" + currentIllustration.src;
+  drawTypedText(context, canvasBoundingRect, _dpr);
 
-    let illustrationImage;
-    try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error(
-          `Image not accessible: ${response.status} ${response.statusText}`
-        );
-      }
-      const imageBlob = await response.blob();
-      illustrationImage = await createImageBitmap(imageBlob);
-    } catch (fetchError) {
-      console.error("Failed to fetch image:", fetchError);
-      throw fetchError;
-    }
-
-    // Load watermark
-    const imageBlob = await fetchBlob(
-      "/images/annotation-app/postscript-logo-raster.png"
-    );
-    const watermark = await createImageBitmap(imageBlob);
-
-    // Use the visual display dimensions (what users actually see)
-    annotatedImage.width = canvasBoundingRect.width;
-    annotatedImage.height = canvasBoundingRect.height;
-
-    context.fillStyle = "white";
-    context.fillRect(0, 0, canvasBoundingRect.width, canvasBoundingRect.height);
-
-    // Calculate the scale factor between visual display and canvas
-    const scaleX = canvasBoundingRect.width / srcCanvas.width;
-    const scaleY = canvasBoundingRect.height / srcCanvas.height;
-
-    // Draw the illustration at the correct scale
-    const imgWidth = illustrationImage.width * scaleX;
-    const imgHeight = illustrationImage.height * scaleY;
-    const x = (annotatedImage.width - imgWidth) / 2;
-    const y = (annotatedImage.height - imgHeight) / 2;
-
-    context.drawImage(illustrationImage, x, y, imgWidth, imgHeight);
-
-    // Draw watermark at the correct scale
-    context.drawImage(
-      watermark,
-      16 * scaleX,
-      16 * scaleY,
-      85 * scaleX,
-      71 * scaleY
-    );
-
-    // Draw the canvas content scaled to match the visual display
-    context.drawImage(
-      srcCanvas,
-      0,
-      0,
-      srcCanvas.width,
-      srcCanvas.height,
-      0,
-      0,
-      annotatedImage.width,
-      annotatedImage.height
-    );
-
-    // Draw typed text at the correct scale
-    drawTypedText(context, canvasBoundingRect, 1);
-
-    return annotatedImage;
-  } catch (error) {
-    console.error("Error generating annotated image:", error);
-    throw error;
-  }
+  return annotatedImage;
 }
