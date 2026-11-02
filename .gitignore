@@ -1,5 +1,5 @@
 /node_modules/
-/public/build/
+/legacy/
 
 .DS_Store
 
@@ -11,5 +11,3 @@
 .env
 /test-results/
 /playwright-report/
-/playwright/.cache/
-/playwright/.auth/

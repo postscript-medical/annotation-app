@@ -103,7 +103,7 @@ The cutover month carries two emails per existing user (announcement + reset). I
 - Leaked-password protection really is unavailable on free.
 - Supabase Auth accepts passwords up to 72 bytes and the `minimum_password_length = 15` setting.
 
-**0.4 Move legacy code.** `git mv` `src`, `functions`, `public`, `rollup.config.js`, `playwright*`, `db` → `legacy/`. The old site is unaffected (it builds from `main`). The admin code is **deleted outright** rather than kept as reference: `screens/Admin*`, `components/admin/*`, `modals/EditSubSpecialtyModal.svelte`, `modals/InviteNewOrgModal.svelte`, and the functions `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*`, `get-organizations`, `invite-organization`, `delete-organization`.
+**0.4 Move legacy code.** `git mv` `src`, `functions`, `public`, `rollup.config.js`, `playwright*`, `db` → `legacy/`. The old site is unaffected (it builds from `main`). The admin code is **deleted outright** rather than kept as reference: `screens/Admin*`, `components/admin/*`, `modals/EditSubSpecialtyModal.svelte`, `modals/InviteNewOrgModal.svelte`, and the functions `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*`, `get-organizations`, `invite-organization`, `delete-organization`. Done 2026-11-02. Also deleted: `methods/load-organizations.js` (used only by the admin organisations screen), and the admin imports, `/admin*` routes and `isUserDm` guard in `legacy/src/App.svelte`. `legacy/` is then **git-ignored and untracked** (`git rm -r --cached`): it lives only on your machine as a local reference, and its history stays in git (`main` and earlier commits). Anything that needs it in a fresh checkout or CI must be generated from it locally and committed (e.g. `supabase/seed.sql` in 0.7). `netlify.toml`, `package.json` scripts and the workflow are left as they are until 1.1–1.3.
 
 **0.5 Second Netlify site.** Already set up: it deploys automatically when commits are pushed to `migration-sveltekit`. No setup step. (If a later step introduces a new secret, e.g. `RATE_LIMIT_HMAC_SECRET`, I'll say so in that step so you can add it.)
 
@@ -196,7 +196,7 @@ The cutover month carries two emails per existing user (announcement + reset). I
 
 **3.3 Ops.** Nightly backup workflow (`pg_dump` → `age` → artifact, 7-day retention; it includes `auth.users` password hashes, which is one more reason for the encryption and short retention); optional weekly staging ping. Write `docs/operations.md`: backup and restore drill, cron jobs, logs, staging pausing, monthly Lettermint usage, and how to change the catalogue with a SQL migration until admin controls exist.
 
-**3.4 Delete `legacy/`** once its tests are ported or dropped.
+**3.4 Delete `legacy/`** (the local, git-ignored folder) once its tests are ported or dropped.
 
 **3.5 Cutover runbook.** `docs/cutover-runbook.md`: ordered commands, checks and rollback (plan §10).
 
