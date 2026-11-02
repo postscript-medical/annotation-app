@@ -39,7 +39,7 @@ erDiagram
   workspaces { uuid id PK; workspace_kind kind; text name; uuid personal_owner_id UK; timestamptz created_at }
   workspace_members { uuid workspace_id PK; uuid user_id PK; workspace_role role; timestamptz created_at }
   user_app_states { uuid user_id PK; uuid selected_specialty_id; uuid selected_sub_specialty_id; uuid selected_illustration_id; bool show_tutorial }
-  session_policies { uuid session_id PK; uuid user_id; session_mode mode; timestamptz created_at; timestamptz last_seen_at }
+  session_policies { uuid session_id PK; uuid user_id; session_mode mode; timestamptz created_at; timestamptz last_seen_at; timestamptz recovery_verified_at }
   rate_limits { text key PK; timestamptz window_start PK; int count }
   admin_audit { uuid id PK; uuid actor_user_id; text action; text target_table; uuid target_id; jsonb before; jsonb after; timestamptz created_at }
 ```
@@ -90,7 +90,7 @@ Kept from the current schema ([baseline §4.3](architecture-baseline.md)): `spec
 
 | Table | Columns and constraints |
 |---|---|
-| `session_policies` | `session_id uuid pk` (Supabase JWT `session_id` claim). `user_id uuid not null references users(id) on delete cascade`. `mode session_mode not null`. `created_at`, `last_seen_at`. Rules in [auth-spec §5](auth-spec.md). |
+| `session_policies` | `session_id uuid pk` (Supabase JWT `session_id` claim). `user_id uuid not null references users(id) on delete cascade`. `mode session_mode not null`. `created_at`, `last_seen_at`. `recovery_verified_at timestamptz` (null unless the session came from a recovery link; set only by the `/auth/confirm` POST, cleared after the reset). Rules in [auth-spec §5](auth-spec.md). |
 | `rate_limits` | `key text` (HMAC-hashed: `signin:email:<hash>`, `signin:ip:<hash>`, `feedback:user:<id>`). `window_start timestamptz`. `count int`. **PK** `(key, window_start)`. Rows older than 24 hours are purged. |
 | `admin_audit` | `id`, `actor_user_id uuid references users(id) on delete set null`, `action text`, `target_table text`, `target_id uuid`, `before jsonb`, `after jsonb`, `created_at`. Staff catalogue writes only. Holds no personal data about users. |
 
@@ -104,12 +104,12 @@ All are `security definer`, `set search_path = ''`, with `execute` granted to `s
 |---|---|
 | `ensure_account(p_auth_id uuid) returns users` | Idempotent. If no `users` row exists for `p_auth_id`: insert the user, the personal workspace (`personal_owner_id` = user), the `owner` membership and the app state, in one transaction. If the user exists but has **no memberships**, create the personal workspace again. Returns the `users` row. Uses `on conflict do nothing` so two simultaneous calls are safe. |
 | `export_account(p_auth_id uuid) returns jsonb` | Everything we hold about the person: email and auth timestamps from `auth.users`, `platform_role`, workspaces + roles, app state, session policies (mode and timestamps). Backs "Download my data". |
-| `purge_unconfirmed_signups()` | `delete from auth.users where email_confirmed_at is null and created_at < now() - interval '24 hours'`. Phase 0: check this behaves on hosted Supabase (identities and one-time tokens cascade). |
+| `purge_unconfirmed_signups()` | `delete from auth.users where email_confirmed_at is null and created_at < now() - interval '24 hours'`. Checked on staging (0.3): `auth.identities`, `auth.one_time_tokens`, `auth.sessions`, `auth.mfa_factors` and the other `auth.*` children reference `auth.users` with `on delete cascade` (refresh tokens and amr claims go too, via sessions). A live delete of an unconfirmed user with one identity and one token left 0 of each. |
 | `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). |
 | `purge_rate_limits()` | Deletes `rate_limits` rows older than 24 hours. |
 | `purge_auth_audit_log()` | Deletes `auth.audit_log_entries` older than 30 days, if the database audit log can't be turned off ([auth-spec §2](auth-spec.md)). |
 
-pg_cron schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md).
+pg_cron (1.6, already in `shared_preload_libraries` on hosted) is enabled by `create extension pg_cron` in a migration. `cron.schedule` works on free (checked on staging in 0.3). Schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md).
 
 Account deletion is **not** an RPC. The server calls Admin API `deleteUser(auth_id)` and the cascades do the rest.
 

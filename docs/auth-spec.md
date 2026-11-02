@@ -39,7 +39,21 @@ Kept in the repo as `supabase/config.toml` and `supabase/templates/*.html`, then
 | Auth audit log in the database | **Off** if the setting is available, otherwise purged after 30 days by pg_cron | It stores IP addresses ([data-protection §6](data-protection.md)). |
 | Anonymous sign-ins, phone, OAuth | Off | |
 | API keys | The new **publishable / secret** keys, server-side only. Rotate at cutover (§8). | |
+| Leaked-password protection (Supabase's own HIBP check) | **Off.** Pro plan only (confirmed in the dashboard, 2026-11-02). | We check breached passwords ourselves, in `src/lib/server/password.ts`, against the [Have I Been Pwned Pwned Passwords range API](https://haveibeenpwned.com/API/v3#PwnedPasswords) (k-anonymity). Our server sends only the first 5 hex characters of the password's SHA-1 hash, with the `Add-Padding` header. The password, the email address and the user's IP never leave our server. If HIBP is unreachable or slower than 2 s, we fall back to a bundled list of common passwords and app words. Used by sign-up, reset and change password. Details in [migration-execution-plan](migration-execution-plan.md) scope change 4 (G5) and 1.7. |
 | Session time-box / inactivity | Not available on free. If we upgrade, set **30 days / 7 days** as a backstop to §5. | |
+
+**Checked on staging (step 0.3, 2026-11-02).** Probes ran through the Admin API and in rolled-back transactions; staging was left unchanged.
+
+| Check | Result |
+|---|---|
+| `config push` coverage | `config.toml` has keys for `site_url`, redirect URLs, confirm email, OTP expiry, email `max_frequency`, `minimum_password_length`, `password_requirements`, `[auth.rate_limit]`, SMTP (the password via `env()`) and templates. **`config diff` is not a reliable check:** it never reported `minimum_password_length`, not even with staging at 15 and local at 6, and it reported `rate_limit.email_sent` in one run but listed it as "not compared" in the next. After a push, check the settings that matter with a probe or in the dashboard. |
+| Dashboard / Management API only | **Leaked-password protection** (`password_hibp_enabled`, no `config.toml` key). **JWT signing keys** (`signing_keys_path` applies only to the local stack). **Network restrictions** (`supabase network-restrictions`). SSL enforcement. |
+| JWT signing | Staging still signs with the **legacy HS256 secret** (`alg=HS256`, JWKS `{"keys":[]}`). Asymmetric keys must be created and rotated in the dashboard before `getClaims()` can verify locally. Until then `getClaims()` falls back to an Auth server call. **Available on free:** Project Settings → JWT Keys → JWT Signing Keys shows "Migrate JWT secret" enabled (2026-11-02). Done by hand in the dashboard: staging in 1.8, production at cutover (3.7). |
+| `amr` after `verifyOtp({ type: 'recovery' })` | **`[{"method":"otp","timestamp":…}]`, not `recovery`.** A password sign-in gives `password`. So the `amr` claim can't on its own prove that a session came from a recovery link. **Decided:** `/reset-password` requires `session_policies.recovery_verified_at` within 15 min, set only by our `/auth/confirm` POST for `type = recovery` and cleared after the reset, plus `amr` `otp` ([migration-execution-plan](migration-execution-plan.md) 1.10). |
+| Password length upper bound | **72 bytes of UTF-8, not 72 characters.** 72 ASCII and 18 emoji (72 bytes) are accepted. 73 ASCII and 19 emoji (76 bytes) are rejected with "Password cannot be longer than 72 characters". Our validator counts bytes after NFKC normalisation, so users get our message, not this one. |
+| `minimum_password_length = 15` | **Accepted and enforced** (set in the staging dashboard, 2026-11-02). A 14-character password is rejected with "Password should be at least 15 characters"; 15 characters are accepted. |
+| Leaked-password protection unavailable on free | **Confirmed:** Pro plan only. Replaced by our own HIBP range check (table above). |
+| Project email rate limit | 30 per hour on staging. |
 
 ### 2.1 Email templates
 
@@ -150,7 +164,7 @@ Only at sign-in. To switch, the user signs out and back in.
 
 The Supabase free tier has no time-box or inactivity setting, so the app enforces both modes.
 
-**Table `session_policies`** ([data-model §3](data-model.md)): `session_id uuid primary key` (Supabase JWT `session_id` claim), `user_id`, `mode` (`personal|shared`), `created_at`, `last_seen_at`. RLS on, no policies.
+**Table `session_policies`** ([data-model §3](data-model.md)): `session_id uuid primary key` (Supabase JWT `session_id` claim), `user_id`, `mode` (`personal|shared`), `created_at`, `last_seen_at`, `recovery_verified_at` (the marker that unlocks `/reset-password` for 15 min, §2). RLS on, no policies.
 
 | | Personal | Shared |
 |---|---|---|

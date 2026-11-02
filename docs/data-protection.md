@@ -30,7 +30,7 @@ This table also serves as our record of processing.
 | Email of a **not-yet-confirmed** sign-up | `auth.users` | Completing sign-up | Steps before a contract | **24 hours** (pg_cron) |
 | Supabase session + refresh token (includes IP and user agent, held by Supabase) _(verify columns)_ | `auth.sessions`, `auth.refresh_tokens` | Keeping the user signed in | Contract | Until sign-out or the end of the session lifetime (8 h / 30 d) |
 | Auth audit entries (IP, action) | `auth.audit_log_entries` | Supabase-side security | Legitimate interests (security) | **Off**, or 30 days (pg_cron) |
-| Session policy (mode, started, last seen) | `session_policies` | Shared/personal device limits | Contract | Until the session ends, at most 30 days |
+| Session policy (mode, started, last seen, recovery-link time) | `session_policies` | Shared/personal device limits | Contract | Until the session ends, at most 30 days |
 | Rate-limit counters (HMAC hashes of email / IP prefix) | `rate_limits` | Abuse prevention | Legitimate interests (security) | **24 hours** |
 | Preferences (selected specialty, sub-specialty, illustration; tutorial shown) | `user_app_states` | Convenience | Contract | With the account |
 | Platform role, workspace membership | `users`, `workspaces`, `workspace_members` | Authorization | Contract | With the account |

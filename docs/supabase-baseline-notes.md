@@ -60,7 +60,7 @@ From `supabase config diff` (remote values; anything not listed matches the defa
 | `site_url` | `https://staging.app.postscriptmedical.com` | Matches G1 |
 | `additional_redirect_urls` | none | Set in 1.10 |
 | Confirm email (`enable_confirmations`) | on | As planned |
-| `minimum_password_length` | 6, no requirements | 15 in 1.10 |
+| `minimum_password_length` | Not actually known: `config diff` doesn't report this setting (found in 0.3), so "matches local 6" was an inference. Set to 15 in the staging dashboard on 2026-11-02 and confirmed by probe. | Keep 15 in `config.toml` from 1.10 |
 | `otp_expiry` | 86400 s (24 h) | Review in 1.10 (recovery links) |
 | Email `max_frequency` | 1 min | |
 | Custom SMTP | on: Postmark (`smtp.postmarkapp.com:587`), sender `no-reply@postscriptmedical.com` / "PostScript" | Replaced by Lettermint in 0.6 |
