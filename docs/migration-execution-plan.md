@@ -4,7 +4,9 @@
 
 [migration-plan.md](migration-plan.md) (with [auth-spec](auth-spec.md), [data-model](data-model.md), [data-protection](data-protection.md)) defines *what* the new app is: free, individual-first, device-only sharing, SvelteKit (Svelte 5, TS) on a new Netlify site, Supabase eu-west-2, free tiers, no hot fixes to production. This file turns its phases into an ordered list of small, shippable steps (each ≈ one commit/PR on `migration-sveltekit`), with decision gates and checks. Every step ends green: lint → typecheck → unit → integration → build → E2E, plus a push to `migration-sveltekit`, which deploys the second Netlify site automatically.
 
-Current repo state: Svelte 3 + Rollup in `src/`, 33 Netlify functions in `functions/`, seed data in `db/`, Playwright E2E + component tests in `playwright/`, one workflow `.github/workflows/playwright.yml` (runs against a Netlify preview). No `supabase/` dir yet. `package.json` version already bumped to 2.0.0 (uncommitted).
+Current repo state: Svelte 3 + Rollup in `src/`, 33 Netlify functions in `functions/`, seed data in `db/`, Playwright E2E + component tests in `playwright/`, one workflow `.github/workflows/playwright.yml` (runs against a Netlify preview). `supabase/` initialised and linked to staging, with the baseline migration (0.1).
+
+**What production really runs** (found in 0.1, details in [supabase-baseline-notes.md](supabase-baseline-notes.md)): `main` signs users in with **Netlify Identity**, most functions still use **FaunaDB**, and user data is read from the Supabase `*_raw` tables with the anon key. Production `auth.users` is empty. The Supabase Auth work in `functions/auth-*.js` exists only in the unreleased commits on this branch (after `02a9c1c`) and has only run against staging.
 
 ## Working rules
 
@@ -17,11 +19,11 @@ Current repo state: Svelte 3 + Rollup in `src/`, 33 Netlify functions in `functi
 
 | # | Action | Why / used in |
 |---|---|---|
-| P1 | Commit the current state: the `package.json` version bump and `docs/migration-execution-plan.md` | Clean starting point for 0.1 |
-| P2 | Start Docker and make sure your user can reach it (`docker info` works without sudo) | `supabase start` for the local stack (0.7) and integration tests |
-| P3 | Install the Supabase CLI (`npm i -D supabase` in 1.1, or a global install now) and run `supabase login` yourself | Linking projects (0.1, 0.2). The login is interactive; Claude can't do it. |
-| P4 | Give Claude the **project refs** for production and staging (not secrets), and have both database passwords to hand. You type them when `supabase link` asks; don't paste them into chat. | 0.1, 0.2 |
-| P5 | Create the Lettermint account, sign its DPA, and add its SPF/DKIM/DMARC records in the `postscriptmedical.com` DNS | 0.6 |
+| P1 | ✅ Commit the current state: the `package.json` version bump and `docs/migration-execution-plan.md` | Clean starting point for 0.1 |
+| P2 | ✅ Start Docker and make sure your user can reach it (`docker info` works without sudo) | `supabase start` for the local stack (0.7) and integration tests |
+| P3 | ✅ Install the Supabase CLI (`npm i -D supabase` in 1.1, or a global install now) and run `supabase login` yourself | Linking projects (0.1, 0.2). The login is interactive; Claude can't do it. |
+| P4 | ✅ Project refs: production `iszvvxyspowcbcbynoht`, staging `vqwulukmgqifavsvtwcp` (linked). Database passwords are typed by you when `supabase link` asks, never pasted into chat. | 0.1, 0.2 |
+| P5 | ✅ Create the Lettermint account and sign its DPA; add its DNS records in Netlify DNS for `postscriptmedical.com` (domain verified in Lettermint, 2026-11-02) | 0.6 |
 | P6 | In Netlify, add `staging.app.postscriptmedical.com` as the second site's custom domain, plus the DNS record | 0.6, 1.10, 1.14 |
 | P7 | Secrets in the second Netlify site as each step asks (Supabase URL and keys, `RATE_LIMIT_HMAC_SECRET`, Lettermint SMTP). Claude will list them in the step that needs them. | 1.7 onwards |
 
@@ -40,7 +42,7 @@ Later (not blocking Phase 0): controller legal entity (G3) before `/privacy` is 
    - **Sign-in:** `/sign-in` with email + password + "shared device" choice. One generic error for any failure.
    - **Password reset:** `/forgot-password` (always the same response) → Recovery email (`{{ .TokenHash }}`) → scanner-safe `/auth/confirm` page (GET shows a button, POST verifies) → `/reset-password`. That page accepts only a session whose JWT `amr` contains `recovery` from the last 15 minutes (fixes S14). After the change, every other session is signed out.
    - **Change password** on `/account`: the current password is required.
-   - **Existing 11 users keep their current passwords**: they already sign in through Supabase Auth (`signInWithPassword` in `functions/auth-login.js`). The cutover step that scrambled passwords is removed.
+   - **Existing users reset their password at cutover** (decided 2026-11-02). Their passwords are in Netlify Identity, not Supabase (see Context), so they can't be carried over. At cutover a script creates a confirmed Supabase Auth account for each kept user (no password) and links it to their `users` row. The cutover email asks them to set a password with "Forgot password". The old password-scramble step is not needed.
    - **Gone:** `/sign-in/code`, the `ps_pending` cookie, OTP settings, the Magic Link template, code lockout and resend.
    - **Password policy (G5), following NIST SP 800-63B-4 and NCSC guidance.** A password is the only authenticator here, so:
      - **At least 15 characters.** Up to 72 bytes (bcrypt's limit in Supabase Auth), which covers NIST's "allow at least 64 characters" for ordinary text.
@@ -50,7 +52,7 @@ Later (not blocking Phase 0): controller legal entity (G3) before `/privacy` is 
      - **Usable with password managers:** paste allowed, `autocomplete="new-password"` / `"current-password"`, show-password toggle, hint text "Try three random words" (NCSC).
      - **Change is forced only on evidence of compromise**, not on a schedule.
      - Supabase's own leaked-password check is a paid-plan feature and isn't used (confirmed in 0.3). Supabase `minimum_password_length` is set to 15 as a backstop.
-   - **Existing passwords:** the 11 users' current passwords may be shorter than 15 or breached. At sign-in, the server checks the password it has just received against the policy. If it fails, the user is signed in to `/account/password` only and must set a compliant password before using the app. The cutover email warns them.
+   - **No forced change at sign-in.** Because every existing user sets a new password through the policy at cutover, there is no sign-in policy check and no `must_change_password` flag.
 
 Step 0.8 updates the docs to match all of the above.
 
@@ -61,7 +63,8 @@ Step 0.8 updates the docs to match all of the above.
 | # | Decision | Needed by | Default if not decided |
 |---|---|---|---|
 | G1 | ~~Domains (§11.3)~~ **Decided:** staging `https://staging.app.postscriptmedical.com`, production `https://app.postscriptmedical.com` | 0.6, 1.10, 3.7 | — |
-| G2 | ~~Existing user count (§11.4)~~ **Decided: 11 users** (2026-11-02). The cutover email is 11 messages, so no batching is needed. | 0.6, 3.6, 3.7 | — |
+| G2 | Existing user count (§11.4). The earlier figure of 11 isn't backed by production data: production `auth.users` is empty, `public.users` has 207 rows, and the real accounts are in Netlify Identity. Count from the live site's Netlify Identity list. | 3.5, 3.7 | Count before writing the runbook |
+| G6 | Which legacy users get an account at cutover | 3.5 | Only `users` rows whose `netlify_id` matches a confirmed Netlify Identity user; everyone else's rows are deleted (data minimisation) |
 | G3 | Controller legal entity (§11.5, DP §10.1) | 1.13 (`/privacy`) | Placeholder text; blocks cutover only |
 | G4 | Shared-device idle (auth §10.1), feedback form vs `mailto:` (DP §10.3), inactive-account purge (DP §10.2) | 1.10, 2.6 | 60 min; keep the form; don't purge |
 | G5 | ~~Password policy~~ **Decided:** NIST SP 800-63B-4 / NCSC (scope change 4); breached-password check via the HIBP range API with a bundled-list fallback | 1.7, 1.10 | — |
@@ -70,14 +73,14 @@ Step 0.8 updates the docs to match all of the above.
 
 With passwords, **sign-in sends no email.** Email goes out only for:
 
-| Email | Expected volume for 11 users |
+| Email | Expected volume |
 |---|---|
 | Sign-up confirmation | one per new account |
-| Password reset | occasional |
+| Password reset | occasional, plus one per existing user in the weeks after cutover |
 | Feedback to staff (if the form is kept, G4) | at most 5 per user per day by rate limit, in practice a few a month |
-| Cutover announcement | 11, once |
+| Cutover announcement | one per kept user (G2, G6), once |
 
-That's far under 300. If the quota did run out, only sign-up and password reset would stop; existing users could still sign in.
+The cutover month carries two emails per existing user (announcement + reset). If G2 comes out above ~120 users, send the announcement in batches across days or months so the total stays under 300. Otherwise it's well under. If the quota did run out, only sign-up and password reset would stop; existing users could still sign in.
 
 - Local and CI never send real email: messages go to the local Supabase Mailpit/Inbucket.
 - Staging uses its own quota if Lettermint allows it (checked in 0.6), otherwise only a handful of real-email checks (1.14).
@@ -87,9 +90,9 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 
 ## Phase 0 — Groundwork
 
-**0.1 Supabase CLI baseline.** `supabase init`; `supabase link` to prod (eu-west-2); `supabase db pull` → `supabase/migrations/<ts>_baseline.sql`. Dump current RLS policies (`pg_policies`) and Auth settings into notes. Confirm the user count (11, G2) and that all 11 have an email/password identity, and keep both for the 3.7 spot-check. Read-only on prod.
+**0.1 Supabase CLI baseline.** ✅ Done 2026-11-02, see [supabase-baseline-notes.md](supabase-baseline-notes.md). `supabase init`, linked to **staging**, `supabase db pull` → `supabase/migrations/20261102172256_remote_schema.sql`. You confirmed staging's schema matches production, so the baseline stands; production wasn't linked. RLS, grants and staging Auth settings are recorded in the notes. All user data on staging was deleted (mixed real and test users). Production auth turned out to be Netlify Identity, which changed scope change 4, G2 and 3.6–3.7.
 
-**0.2 Staging project in sync.** Link the staging project; `supabase db push` the baseline; `supabase migration list` matches on both.
+**0.2 Staging project in sync.** ✅ Nothing to push: staging's migration history already lists the baseline as applied.
 
 **0.3 Verify free-tier behaviour on staging** (results go into data-model §4 / auth-spec §2):
 - `create extension pg_cron` works.
@@ -104,14 +107,14 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 
 **0.5 Second Netlify site.** Already set up: it deploys automatically when commits are pushed to `migration-sveltekit`. No setup step. (If a later step introduces a new secret, e.g. `RATE_LIMIT_HMAC_SECRET`, I'll say so in that step so you can add it.)
 
-**0.6 Lettermint.** Create the account and sign its DPA (free tier: 300 emails a month, see "Email budget" above). Set delivery-log retention to the minimum and turn click/open tracking off. SPF/DKIM/DMARC on `postscriptmedical.com` (or a sending subdomain of it) for the auth sender address (G1). Configure Lettermint SMTP as Supabase custom SMTP on staging and set the Supabase project email rate limit to a per-hour cap well under the monthly budget. Check whether Lettermint also has a daily cap, and whether staging and production can have separate quotas.
+**0.6 Lettermint.** Account, DPA and DNS are done (P5; free tier: 300 emails a month, see "Email budget" above). Set delivery-log retention to the minimum and turn click/open tracking off. Configure Lettermint SMTP as Supabase custom SMTP on staging and set the Supabase project email rate limit to a per-hour cap well under the monthly budget. Check whether Lettermint also has a daily cap, and whether staging and production can have separate quotas.
 
-**0.7 Local stack and seed.** `supabase start`; generate `supabase/seed.sql` from `legacy/db/cardiology.js` + `gastroeterology.js` (one-off script in `scripts/`) plus two normal test users with known test passwords. Emails are read from local Mailpit/Inbucket.
+**0.7 Local stack and seed.** Set `db.major_version = 15` in `config.toml` to match staging and production; `supabase start`; generate `supabase/seed.sql` from `legacy/db/cardiology.js` + `gastroeterology.js` (one-off script in `scripts/`) plus two normal test users with known test passwords. Emails are read from local Mailpit/Inbucket.
 
 **0.8 Docs update** for the scope changes above:
-- migration-plan: §1 (email provider, password auth, no staff role), §2 diagram and §2.1 layout (drop `(admin)/`, `requireStaff`, `admin_audit`; public routes `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/auth/confirm`), §3 (no `admin_audit`, no `platform_role`, no `show_tutorial`), §4 (`auth-login` → `/sign-in` with password; `auth-password-reset-request` / `auth-password-reset` → `/forgot-password` + `/reset-password`, fixes S14 and S18; `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*` → delete; catalogue via SQL migrations), Phase 3 removed, §6/§7 tables, §9 email row (Lettermint 300/month, the budget above), §11.1–§11.4 closed.
-- auth-spec: rewrite §1 (credentials), §2 (password settings, no OTP), §2.1 templates (Confirm Signup and Recovery with `{{ .TokenHash }}`; Magic Link unused), §3.1 cookies (no `ps_pending`), §4.1 sign-up / sign-in / reset flows, §4.3 change password and no last-`dm` check, §6 limits, §7.1–7.3 (only `user` and workspace roles; drop the `dm` column and `/admin/**` row; add the new routes to the matrix), §8 (no password scramble), §9 (password reset kept, rewritten), §10.3 closed. Remove the audit-log purge row from §2.
-- data-model: ER diagram and §2.1/§3 (drop `platform_role` enum/column and `admin_audit`), §4 (drop `purge_auth_audit_log`), §5.4 and §5.6, §7 step 3 (no role mapping; legacy `role` column just dropped), `show_tutorial` removed from §2, §3.2 and §7 step 5.
+- migration-plan: §1 (email provider, password auth, no staff role), §2 diagram and §2.1 layout (drop `(admin)/`, `requireStaff`, `admin_audit`; public routes `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/auth/confirm`), §3 (no `admin_audit`, no `platform_role`, no `show_tutorial`), §4 (`auth-login` → `/sign-in` with password; `auth-password-reset-request` / `auth-password-reset` → `/forgot-password` + `/reset-password`, fixes S14 and S18; `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*` → delete; catalogue via SQL migrations), Phase 3 removed, §6/§7 tables, §9 email row (Lettermint 300/month, the budget above), §11.1–§11.3 closed, §11.4 still open (G2), §10 cutover (Netlify Identity → new Supabase Auth accounts, everyone resets their password).
+- auth-spec: rewrite §1 (credentials), §2 (password settings, no OTP), §2.1 templates (Confirm Signup and Recovery with `{{ .TokenHash }}`; Magic Link unused), §3.1 cookies (no `ps_pending`), §4.1 sign-up / sign-in / reset flows, §4.3 change password and no last-`dm` check, §6 limits, §7.1–7.3 (only `user` and workspace roles; drop the `dm` column and `/admin/**` row; add the new routes to the matrix), §8 (existing users come from Netlify Identity: new Supabase Auth account per kept user, password set via "Forgot password"; no scramble), §9 (password reset kept, rewritten), §10.3 closed. Remove the audit-log purge row from §2.
+- data-model: ER diagram and §2.1/§3 (drop `platform_role` enum/column and `admin_audit`), §4 (drop `purge_auth_audit_log`), §5.4 and §5.6, §7 step 3 (no role mapping; legacy `role` column just dropped), §7 new step before the reshape: create Supabase Auth users from the kept `users` rows (G6) and set `auth_id`, since production `auth.users` starts empty, `show_tutorial` removed from §2, §3.2 and §7 step 5.
 - data-protection: §4 add Have I Been Pwned (Pwned Passwords range API) as an outside service that receives only a 5-character hash prefix from our server, so no personal data (state it in the privacy notice for transparency); §2 add the password hash (in `auth.users`, bcrypt, held by Supabase) and keep the audit log row with no purge job; §2 preferences row without the tutorial flag; §4 processor row = Lettermint (EU); §5 cookie table without `ps_pending`; §6 drop the audit-log job; §10.4 closed.
 - Memory: already updated with these decisions.
 
@@ -127,16 +130,16 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 
 **1.4 Schema migrations** (one file per concern; local + staging only, production untouched until 3.7):
 1. enums `workspace_kind`, `workspace_role`, `session_mode`;
-2. `workspaces`, `workspace_members`, `session_policies` (plus `must_change_password bool not null default false`), `rate_limits` with the checks and indexes from DM §3;
+2. `workspaces`, `workspace_members`, `session_policies`, `rate_limits` with the checks and indexes from DM §3;
 3. reshape `users` (keep `id`, `auth_id`, `created_at`; drop `email`, `first_name`, `last_name`, `role`, `team_id`, `netlify_id`, `original_source_id`, `show_tutorial`) and `user_app_states` (`user_id` PK; no `show_tutorial` either);
 4. catalogue: composite PKs, `ordering`, drop `original_source_id`;
-5. RLS on every public table, no policies.
+5. RLS on every public table, no policies; revoke the baseline's grants to `anon` and `authenticated` on every public table (and default privileges); drop the two `avatars` policies on `storage.objects` and the bucket (see [supabase-baseline-notes.md](supabase-baseline-notes.md)).
 
 **1.5 RPCs and pg_cron.** `ensure_account`, `export_account`, `purge_unconfirmed_signups`, `purge_expired_sessions`, `purge_rate_limits`. All `security definer`, `search_path = ''`, execute granted to `service_role` only; `cron.schedule` calls. Integration tests: `ensure_account` idempotent and safe under concurrent calls, invariants DM §5.1–5.5, cascade on auth user deletion, each purge.
 
 **1.6 Generated types.** `supabase gen types typescript --local > src/lib/types/db.ts`; CI fails if the regenerated output differs.
 
-**1.7 `lib/server` core.** `supabase.ts` (`createSsrClient(event)` with httpOnly/secure/lax cookie options; `adminClient`), `errors.ts` (port of `legacy/functions/utils/error-handler.js`: codes, request ids, generic client messages), `validation.ts` (zod, including the shared password schema from G5), `password.ts` (NFKC normalisation, length check, HIBP range lookup with `Add-Padding` and a 2 s timeout, bundled-list fallback in `src/lib/server/data/common-passwords.txt`, email and app-word check; used by sign-up, reset, change password and the sign-in policy check), `rate-limit.ts` (HMAC keys, IPv4 /24 or IPv6 /48 prefix, Postgres upsert counter), `log.ts` (user id and request id only; never passwords, emails or IPs). Unit tests for each.
+**1.7 `lib/server` core.** `supabase.ts` (`createSsrClient(event)` with httpOnly/secure/lax cookie options; `adminClient`), `errors.ts` (port of `legacy/functions/utils/error-handler.js`: codes, request ids, generic client messages), `validation.ts` (zod, including the shared password schema from G5), `password.ts` (NFKC normalisation, length check, HIBP range lookup with `Add-Padding` and a 2 s timeout, bundled-list fallback in `src/lib/server/data/common-passwords.txt`, email and app-word check; used by sign-up, reset and change password), `rate-limit.ts` (HMAC keys, IPv4 /24 or IPv6 /48 prefix, Postgres upsert counter), `log.ts` (user id and request id only; never passwords, emails or IPs). Unit tests for each.
 
 **1.8 `hooks.server.ts` and `app.d.ts`.** Order per auth-spec §3.2: SSR client → `getClaims()` → `session_policies` lookup (no row → sign out; expiry or idle → sign out and `/sign-in?expired=1`; `last_seen_at` written at most every 5 min) → `locals.profile = { userId, workspaceId, workspaceRole }` (one join query, `ensure_account` fallback) → security headers. `kit.csp` nonce mode with `connect-src 'self'`; HSTS, nosniff, Referrer-Policy, Permissions-Policy; request body limit.
 
@@ -144,7 +147,7 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 
 **1.10 Auth flows.** All are form actions, with zod validation, email trimmed and lower-cased, and `next` limited to relative paths on our own site.
 - `/sign-up`: email + password (G5: 15+ characters, breached check, "Try three random words" hint, show-password toggle, no "confirm password" field). A rejected password gets a specific, friendly reason ("too short", "this password has appeared in a data breach"). `signUp` with `emailRedirectTo` → `/auth/confirm`. The response is always "check your email to confirm", whether or not the address already exists.
-- `/sign-in`: email + password + "This is a shared device" (default per auth-spec §1). `signInWithPassword` → `ensure_account` → insert `session_policies` → cookie `Max-Age` per mode → policy check on the submitted password (G5): pass → 303 to `next` or `/annotate`; fail → 303 to `/account/password`, and `requireUser` keeps them there until the password is changed (a `must_change_password` flag on `session_policies`, cleared on change). An unconfirmed address gets the same generic error as a wrong password, plus a "resend confirmation" link that is rate-limited and always gives the same response.
+- `/sign-in`: email + password + "This is a shared device" (default per auth-spec §1). `signInWithPassword` → `ensure_account` → insert `session_policies` → cookie `Max-Age` per mode → 303 to `next` or `/annotate`. An unconfirmed address gets the same generic error as a wrong password, plus a "resend confirmation" link that is rate-limited and always gives the same response.
 - `/forgot-password`: email only, always "if an account exists, we've sent a link". `resetPasswordForEmail` with redirect to `/auth/confirm`.
 - `/auth/confirm`: GET shows only a "Continue" button (scanner-safe); POST runs `verifyOtp({ token_hash, type })` for `signup` (→ signed in, account created, device choice on this page) or `recovery` (→ `/reset-password`).
 - `/reset-password`: only for a session whose `amr` includes `recovery` within 15 min, otherwise 303 to `/forgot-password`. New password through the G5 checks, then `updateUser({ password })` → global sign-out of other sessions + delete their `session_policies` rows → continue signed in on this device.
@@ -153,7 +156,7 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 - Templates `supabase/templates/confirm-signup.html` and `recovery.html` (links built from `{{ .SiteURL }}` and `{{ .TokenHash }}`, no tracking). `config.toml`: email provider on, confirm email on, `minimum_password_length = 15`, `site_url` and the redirect allow-list per environment (local `http://localhost:5173`; staging `https://staging.app.postscriptmedical.com`; production `https://app.postscriptmedical.com`), then `config push` to staging. `PUBLIC_SITE_URL` follows the same values.
 - Port the UI from `legacy/src/components/{SignInForm,CredentialsForm,CredentialsTerms}.svelte`, `legacy/src/modals/ForgotPasswordModal.svelte`, `legacy/src/screens/ResetPassword.svelte`. Replace `check-password-requirements.js` with the zod schema.
 
-**1.11 Auth tests.** Integration: a matrix helper (anon / user / other user) over the auth-spec §7.3 rows, extended as routes land; rate-limit thresholds; `/reset-password` refuses a normal (non-recovery) session. Unit tests for `password.ts`: 14 vs 15 characters, NFKC equivalence, the 72-byte limit, HIBP hit/miss with a mocked range response, HIBP timeout → bundled-list fallback, email-as-password rejected. No test calls the real HIBP API. E2E via Mailpit: sign up → confirm link → signed in and account created; sign in with password (personal and shared; shared is a session cookie); wrong password and unknown email give the same message; forgot → reset → old password fails, other sessions signed out; a seeded user with a short password is forced to `/account/password` and can't reach `/annotate` until it's changed; an expired policy signs the user out.
+**1.11 Auth tests.** Integration: a matrix helper (anon / user / other user) over the auth-spec §7.3 rows, extended as routes land; rate-limit thresholds; `/reset-password` refuses a normal (non-recovery) session. Unit tests for `password.ts`: 14 vs 15 characters, NFKC equivalence, the 72-byte limit, HIBP hit/miss with a mocked range response, HIBP timeout → bundled-list fallback, email-as-password rejected. No test calls the real HIBP API. E2E via Mailpit: sign up → confirm link → signed in and account created; sign in with password (personal and shared; shared is a session cookie); wrong password and unknown email give the same message; forgot → reset → old password fails, other sessions signed out; a passwordless account (as created at cutover) can set a password through forgot → reset and then sign in; an expired policy signs the user out.
 
 **1.12 `/account`.** Shows the email. Change password at `/account/password` (current + new, new one through the G5 checks; the current one is checked with a throwaway server-side client whose session is revoked straight away, then `updateUser`, then other sessions signed out). Sessions list (signing out another user's session id → 404; "sign out everywhere" = global signOut + delete rows). Download my data (`export_account` → JSON attachment). Delete my account (current password + typed email, Admin `deleteUser`, clear cookies → `/sign-in?deleted=1`). A test per matrix row.
 
@@ -197,11 +200,11 @@ That's far under 300. If the quota did run out, only sign-up and password reset 
 
 **3.5 Cutover runbook.** `docs/cutover-runbook.md`: ordered commands, checks and rollback (plan §10).
 
-**3.6 Rehearsal on staging.** Restore a prod copy into staging. Run the cutover migration (DM §7, amended: every user → plain user with a personal workspace, legacy `role` and `show_tutorial` columns dropped, in-transaction invariant assertions) and the auth scripts (`scripts/cutover/clear-auth-metadata.ts`, delete unconfirmed/pending-invite users). Sign in as a restored user with their existing password to prove passwords carry over. Merge `migration-sveltekit` → `staging`; full Playwright + Percy including WebKit/iPad against the staging site.
+**3.6 Rehearsal on staging.** Restore a prod copy into staging. Run `scripts/cutover/create-auth-users.ts` (Admin `createUser` with `email_confirm: true` and no password for each kept user per G6, then set `users.auth_id`; idempotent, safe to re-run), then the cutover migration (DM §7, amended: every user → plain user with a personal workspace, rows not kept under G6 deleted, legacy `role`, `netlify_id` and `show_tutorial` columns dropped, in-transaction invariant assertions). Take one restored user through "Forgot password" → set a password → sign in. Merge `migration-sveltekit` → `staging`; full Playwright + Percy including WebKit/iPad against the staging site.
 
 **3.7 Cutover.**
-- Before: data spot-check against prod (11 users, known accounts); Stripe `cancel_at_period_end` on every active subscription and disable the old webhook; send the cutover email to the 11 existing users through Lettermint (G2): "PostScript is now free. Sign in at app.postscriptmedical.com with your usual email and password. If your password is shorter than 15 characters or has appeared in a data breach, you'll be asked to choose a new one; three random words work well. Forgot it? Use 'Forgot password'."
-- Day: encrypted rollback `pg_dump` → cutover migration on prod → auth scripts → rotate Supabase API keys (update the new site's env) → merge `staging` → `main` → point `app.postscriptmedical.com` at the new site (and `staging.app.postscriptmedical.com` stays on the staging deploy) → production Supabase `SITE_URL` = `https://app.postscriptmedical.com`, redirect allow-list = `https://app.postscriptmedical.com/**` only → remove Stripe keys from both sites → smoke test (sign in with a real account).
+- Before: data spot-check against prod (user count from G2, known accounts); Stripe `cancel_at_period_end` on every active subscription and disable the old webhook.
+- Day: encrypted rollback `pg_dump` → `create-auth-users.ts` on prod → cutover migration on prod → rotate Supabase API keys (update the new site's env) → merge `staging` → `main` → point `app.postscriptmedical.com` at the new site (and `staging.app.postscriptmedical.com` stays on the staging deploy) → production Supabase `SITE_URL` = `https://app.postscriptmedical.com`, redirect allow-list = `https://app.postscriptmedical.com/**` only → remove Stripe keys from both sites → smoke test (set a password for a real account through "Forgot password", then sign in) → send the cutover email to each kept user through Lettermint (G2, G6; batched if the email budget needs it): "PostScript has moved and is now free. Your account and settings have come with you, but your old password hasn't. Go to app.postscriptmedical.com, choose 'Forgot password' and enter this email address to set a new one. It needs at least 15 characters; three random words work well."
 - After: keep the old site 1–2 weeks, then delete the rollback dump.
 
 **3.8 Post-cutover.** DP §8 checklist (DPAs with Supabase, Netlify, Lettermint, GitHub; ICO fee check; NZ privacy officer; breach procedure); check the first month of Lettermint usage; mark docs as live.
@@ -220,4 +223,4 @@ Reused from legacy: `functions/utils/error-handler.js` (errors module), `src/com
 - Per phase: deploy to the second Netlify site; manual sign-up, sign-in and reset with a real address; inspect cookies, CSP and headers; the Network tab shows no third-party hosts and no image uploads.
 - An E2E check that `/admin` and `/admin/specialties` return 404.
 - A grep check in CI for `dm`/`requireStaff`/`platform_role`/`admin_audit`/`routes/(admin)`/`/admin` in `src/` and new migrations, so the removed scope doesn't creep back in.
-- Cutover: the staging rehearsal on a prod copy must pass the invariant assertions, a sign-in with an existing password, and full E2E before prod is touched.
+- Cutover: the staging rehearsal on a prod copy must pass the invariant assertions, a password set through "Forgot password" for a restored user followed by a sign-in, and full E2E before prod is touched.
