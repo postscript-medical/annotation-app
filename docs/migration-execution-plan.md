@@ -83,7 +83,7 @@ With passwords, **sign-in sends no email.** Email goes out only for:
 The cutover month carries two emails per existing user (announcement + reset). If G2 comes out above ~120 users, send the announcement in batches across days or months so the total stays under 300. Otherwise it's well under. If the quota did run out, only sign-up and password reset would stop; existing users could still sign in.
 
 - Local and CI never send real email: messages go to the local Supabase Mailpit/Inbucket.
-- Staging uses its own quota if Lettermint allows it (checked in 0.6), otherwise only a handful of real-email checks (1.14).
+- Staging **shares production's quota**: Lettermint Free allows one project, one sending domain and one quota (checked in 0.6). Staging gets its own API token and a low hourly cap, and only a handful of real-email checks (1.14).
 - `docs/operations.md` (3.3) includes a monthly look at Lettermint usage.
 
 ---
@@ -108,6 +108,20 @@ The cutover month carries two emails per existing user (announcement + reset). I
 **0.5 Second Netlify site.** Already set up: it deploys automatically when commits are pushed to `migration-sveltekit`. No setup step. (If a later step introduces a new secret, e.g. `RATE_LIMIT_HMAC_SECRET`, I'll say so in that step so you can add it.)
 
 **0.6 Lettermint.** Account, DPA and DNS are done (P5; free tier: 300 emails a month, see "Email budget" above). Set delivery-log retention to the minimum and turn click/open tracking off. Configure Lettermint SMTP as Supabase custom SMTP on staging and set the Supabase project email rate limit to a per-hour cap well under the monthly budget. Check whether Lettermint also has a daily cap, and whether staging and production can have separate quotas.
+- **Checked in Lettermint's docs (2026-11-02):**
+  - Retention is **28 days, fixed on every plan** (message content, recipients, metadata; analytics events 90 days from 8 Nov 2026), so there is nothing to set.
+  - Open/click tracking is **off by default and not available on Free**.
+  - **No daily cap**, no fixed per-minute rate limit.
+  - Free allows **1 project, 1 sending domain, 1 user**, so staging and production share one project and the one 300/month quota. Sandbox projects (which don't use quota) are paid-only.
+  - **Not documented: what happens at 300** (rejected or queued). Ask Lettermint support.
+- **SMTP for Supabase:**
+  - host `smtp.lettermint.co`, port `587` (STARTTLS);
+  - username `lettermint`;
+  - password = a **Project API token** (`lm_…`), one per environment (`supabase-staging` now, `supabase-production` at cutover);
+  - sender `no-reply@postscriptmedical.com`, name "PostScript".
+  - Before SMTP works, "Enable SMTP" must be turned on in the project. Supabase can't set the `X-Lettermint-Route` header, so the project's **default route must be the transactional `outgoing` route**.
+- **Supabase email rate limit:** staging **5 per hour** (enough for the 1.14 checks; it shares the quota); production set at cutover (3.7).
+- **Done 2026-11-02.** Staging SMTP confirmed with `config diff`: host `smtp.lettermint.co`, port 587, user `lettermint`, sender `no-reply@postscriptmedical.com` / "PostScript", SMTP enabled. The rate limit (5/hour) was set in the dashboard; `config diff` doesn't compare it. A real send is tested in 1.14.
 
 **0.7 Local stack and seed.** Set `db.major_version = 15` in `config.toml` to match staging and production; `supabase start`; generate `supabase/seed.sql` from `legacy/db/cardiology.js` + `gastroeterology.js` (one-off script in `scripts/`) plus two normal test users with known test passwords. Emails are read from local Mailpit/Inbucket.
 
@@ -115,7 +129,7 @@ The cutover month carries two emails per existing user (announcement + reset). I
 - migration-plan: §1 (email provider, password auth, no staff role), §2 diagram and §2.1 layout (drop `(admin)/`, `requireStaff`, `admin_audit`; public routes `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/auth/confirm`), §3 (no `admin_audit`, no `platform_role`, no `show_tutorial`), §4 (`auth-login` → `/sign-in` with password; `auth-password-reset-request` / `auth-password-reset` → `/forgot-password` + `/reset-password`, fixes S14 and S18; `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*` → delete; catalogue via SQL migrations), Phase 3 removed, §6/§7 tables, §9 email row (Lettermint 300/month, the budget above), §11.1–§11.3 closed, §11.4 still open (G2), §10 cutover (Netlify Identity → new Supabase Auth accounts, everyone resets their password).
 - auth-spec: rewrite §1 (credentials), §2 (password settings, no OTP), §2.1 templates (Confirm Signup and Recovery with `{{ .TokenHash }}`; Magic Link unused), §3.1 cookies (no `ps_pending`), §4.1 sign-up / sign-in / reset flows, §4.3 change password and no last-`dm` check, §6 limits, §7.1–7.3 (only `user` and workspace roles; drop the `dm` column and `/admin/**` row; add the new routes to the matrix), §8 (existing users come from Netlify Identity: new Supabase Auth account per kept user, password set via "Forgot password"; no scramble), §9 (password reset kept, rewritten), §10.3 closed. Remove the audit-log purge row from §2.
 - data-model: ER diagram and §2.1/§3 (drop `platform_role` enum/column and `admin_audit`), §4 (drop `purge_auth_audit_log`), §5.4 and §5.6, §7 step 3 (no role mapping; legacy `role` column just dropped), §7 new step before the reshape: create Supabase Auth users from the kept `users` rows (G6) and set `auth_id`, since production `auth.users` starts empty, `show_tutorial` removed from §2, §3.2 and §7 step 5.
-- data-protection: §4 add Have I Been Pwned (Pwned Passwords range API) as an outside service that receives only a 5-character hash prefix from our server, so no personal data (state it in the privacy notice for transparency); §2 add the password hash (in `auth.users`, bcrypt, held by Supabase) and keep the audit log row with no purge job; §2 preferences row without the tutorial flag; §4 processor row = Lettermint (EU); §5 cookie table without `ps_pending`; §6 drop the audit-log job; §10.4 closed.
+- data-protection: §4 add Have I Been Pwned (Pwned Passwords range API) as an outside service that receives only a 5-character hash prefix from our server, so no personal data (state it in the privacy notice for transparency); §2 add the password hash (in `auth.users`, bcrypt, held by Supabase) and keep the audit log row with no purge job; §2 preferences row without the tutorial flag; §4 processor row = Lettermint (EU; message content, recipients and metadata kept 28 days, not configurable; no open/click tracking on Free); §5 cookie table without `ps_pending`; §6 drop the audit-log job; §10.4 closed.
 - Memory: already updated with these decisions.
 
 ---
