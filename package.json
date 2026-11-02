@@ -40,6 +40,7 @@
     "rollup-plugin-svelte": "^7.2.2",
     "rollup-plugin-svelte-hot": "^1.0.0-8",
     "rollup-plugin-terser": "^7.0.2",
+    "supabase": "^3.0.0",
     "svelte": "^3.59.2",
     "svelte-spa-router": "^3.3.0",
     "whatwg-fetch": "^3.6.20"
