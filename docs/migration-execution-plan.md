@@ -154,6 +154,9 @@ Results:
 - **Finding:** `adapter-netlify` registers the SvelteKit function for `/*`, and Netlify runs path-configured functions **before** redirects (docs: request chain), so the `/images/*` → Cloudinary rewrite never fires on the new site, and the adapter has no option to exclude paths. The shell's background (`bg_logo.svg`, 5.6 KB) is now self-hosted in `static/`. How the illustrations reach the browser is **open (G7), needed by 2.3/2.4**.
 
 **1.3 CI.** Replace `.github/workflows/playwright.yml` with `ci.yml`: lint → `svelte-check` → Vitest unit → `supabase start` + integration → build → Playwright (Chromium + WebKit) against `vite preview`. Percy only on PRs to `staging`/`main`.
+- **Done 2026-11-03.** `ci.yml` runs on pushes to `migration-sveltekit`, `staging` and `main` and on PRs to `staging`/`main`. Order: lint → removed-scope check (`scripts/check-removed-scope.sh`, the grep from "Verification" below) → `svelte-check` → unit → `supabase start` (realtime, storage, Studio etc. excluded; Mailpit kept) → integration → build → Playwright. Actions are pinned to commit SHAs (public repo), permissions are `contents: read`, and only `PERCY_TOKEN` is used. No hosted Supabase or real email is touched.
+- Vitest has two projects: `unit` (`src/**/*.{test,spec}.ts`) and `integration` (`tests/integration/**`, run with `npm run test:integration`). Integration tests read the local stack's URL and keys from `supabase status` and refuse any non-local host. First test: seed counts and test-user sign-in.
+- WebKit needs system libraries (`libavif16`) that CI installs with `--with-deps`; locally, run WebKit in `mcr.microsoft.com/playwright:v<version>-noble` if they're missing.
 
 **1.4 Schema migrations** (one file per concern; local + staging only, production untouched until 3.7):
 1. enums `workspace_kind`, `workspace_role`, `session_mode`;

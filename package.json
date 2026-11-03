@@ -15,9 +15,11 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright install && playwright test"
+		"test:unit": "vitest --project unit",
+		"test:integration": "vitest --run --project integration",
+		"test": "npm run test:unit -- --run && npm run test:integration && npm run test:e2e",
+		"test:e2e": "playwright test",
+		"check:scope": "sh scripts/check-removed-scope.sh"
 	},
 	"imports": {
 		"#lib": "./src/lib/index.js",
