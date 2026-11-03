@@ -20,12 +20,9 @@ if [[ "$linked_ref" != "$expected_ref" ]]; then
   exit 1
 fi
 
-# Every public table except the five catalogue tables.
+# Every public table except the five catalogue tables (schema after step 1.4).
 excluded=(
-  illustration_raw migration_failures organization_raw organizations product_prices
-  products_raw products restricted_organization_specialties specialty_raw sub_specialty_raw
-  subscription_plan_products subscription_plans_raw subscription_plans team_raw teams
-  user_app_state_raw user_app_states user_raw users
+  users user_app_states workspaces workspace_members session_policies rate_limits
 )
 exclude_arg="$(printf 'public.%s,' "${excluded[@]}")"
 exclude_arg="${exclude_arg%,}"

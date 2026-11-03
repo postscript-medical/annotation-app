@@ -178,19 +178,21 @@ An external link (e.g. a Stripe Payment Link, Ko-fi or GitHub Sponsors). **No ta
 
 ## 7. Cutover data migration (current → target)
 
-Today's users sign in with **Netlify Identity**, and production `auth.users` is empty, so the cutover first creates Supabase Auth accounts, then reshapes the data. One migration file, run inside a transaction on production after the Stripe cancellation step ([migration-plan §5, Phase 3](migration-plan.md); execution plan 3.6–3.7). Rehearse on a restored copy in staging first.
+Today's users sign in with **Netlify Identity**, and production `auth.users` is empty, so the cutover first creates Supabase Auth accounts, then reshapes the data. **The reshape is the schema migrations from execution plan 1.4** (`supabase/migrations/20261103160000_*` to `20261103160500_*`, decided 2026-11-03), applied with `supabase db push` after the Stripe cancellation step ([migration-plan §5, Phase 3](migration-plan.md); execution plan 3.6–3.7). They do nothing to empty tables, so the same files run on local, staging and production. Each file runs in its own transaction (checked locally: a failing statement rolls back its whole file). A failure in a later file leaves the earlier files applied, so the runbook restores the rollback dump in that case. Rehearse on a restored copy in staging first.
 
 **Before the migration (script, not SQL):** `scripts/cutover/create-auth-users.ts` creates a confirmed Supabase Auth account with **no password** for each kept user (execution plan G6: `users` rows whose `netlify_id` matches a confirmed Netlify Identity user) and sets `users.auth_id`. Idempotent, safe to re-run. The new accounts carry no `app_metadata` or `user_metadata`. Users set a password through "Forgot password" ([auth-spec §8](auth-spec.md)).
 
-Then the migration:
+Then the migrations (file in brackets):
 
-1. **Create** the new enums, tables and functions (§2–§4).
-2. **Remove accounts that aren't kept:** delete `users` rows with no `auth_id` (not matched under G6), with their app state.
-3. **No role mapping.** Every legacy `user`, `admin` and `dm` becomes a plain user; the legacy `role` column is simply dropped in step 6.
-4. **Personal workspaces:** for each remaining user, insert a personal workspace and an `owner` membership.
-5. **App state:** keep one `user_app_states` row per user (the latest if there are duplicates), make `user_id` the PK. Create a default row for anyone missing one. `show_tutorial` is not carried over.
-6. **Drop personal and billing data:** drop `users.email`, `first_name`, `last_name`, `role`, `show_tutorial`, `team_id`, `netlify_id`, `original_source_id`. Then drop `teams` and `organizations`, which takes `name`, `email`, `stripe_id`, `max_users`, `subscription_level` and `available_specialties` with them. Add the `auth_id` FK to `auth.users` with `on delete cascade`.
-7. **Verify invariants** §5.1–§5.5 with SQL assertions at the end of the migration. Any failure rolls back the transaction.
+1. **Create** the new enums and tables (`_enums`, `_tenancy_and_sessions`). Functions come in execution plan 1.5.
+2. **Remove accounts that aren't kept:** delete `users` rows with no `auth_id` (not matched under G6), with their app state (`_reshape_users`).
+3. **No role mapping.** Every legacy `user`, `admin` and `dm` becomes a plain user; the legacy `role` column is simply dropped.
+4. **Personal workspaces:** for each remaining user, insert a personal workspace and an `owner` membership (`_reshape_users`).
+5. **App state:** keep one `user_app_states` row per user (the latest `updated_at` if there are duplicates), make `user_id` the PK. Create a default row for anyone missing one. `show_tutorial` is not carried over (`_reshape_users`).
+6. **Drop personal and billing data:** drop `users.email`, `first_name`, `last_name`, `role`, `show_tutorial`, `team_id`, `netlify_id`, `original_source_id`, `updated_at`; `auth_id` becomes `not null unique` (its FK to `auth.users` with `on delete cascade` is kept from the baseline) (`_reshape_users`). Then drop **every legacy table** (`_drop_legacy_tables`, decided 2026-11-03): the nine `*_raw` Fauna dumps, `migration_failures`, `organizations`, `teams`, `restricted_organization_specialties`, `products`, `product_prices`, `subscription_plans`, `subscription_plan_products`.
+7. **Verify invariants** with SQL assertions: §5.1–§5.3 at the end of `_reshape_users`, §5.5 at the end of `_drop_legacy_tables`, RLS on everywhere and no `anon`/`authenticated` privileges at the end of `_lock_down`. Any failure rolls back that file.
+
+Tested 2026-11-03 on the local stack with legacy-shaped fixtures (a kept user with a team and duplicate app states, a kept `dm` user with none, an unkept user): the unkept user was removed, the latest app state kept, defaults and personal workspaces created.
 
 **Before the migration,** take one encrypted `pg_dump` as a rollback point. Delete it once the old site is retired (one or two weeks after cutover, [data-protection §6](data-protection.md)).
 

@@ -31,6 +31,8 @@ Consequence: existing users can't keep their passwords. At cutover each kept use
 
 ## RLS and grants (staging)
 
+> **Fixed on staging 2026-11-03** by the 1.4 migrations (`_lock_down`): RLS is on for all 11 remaining public tables, `anon` and `authenticated` have no privileges, and the `avatars` policies and bucket are gone. The 17 legacy tables were dropped. The notes below describe the baseline, which production still matches until cutover.
+
 - RLS is **off** on all 24 public tables, with **no policies** on them.
 - `anon` and `authenticated` have **full privileges** (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`) on all 24 tables (the baseline's `GRANT … TO "anon", "authenticated"` lines; confirmed with `has_table_privilege`). With RLS off, **anyone holding the anon key can read, change or empty every table** through the REST API. (An earlier check said "no grants": that query used `information_schema.role_table_grants`, which only shows grants visible to the querying role, and the CLI's read-only role sees none.)
 - Two policies on `storage.objects` let **anyone upload to and read from the `avatars` bucket** (`TO PUBLIC`). The bucket is private, empty and unused by the app.
