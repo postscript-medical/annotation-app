@@ -1,71 +1,32 @@
 # PostScript Medical Annotation App
 
-## Project installation and setup
+SvelteKit (Svelte 5, TypeScript) on Netlify, with Supabase (eu-west-2) for auth and data. The migration to this stack is in progress; see [docs/migration-execution-plan.md](docs/migration-execution-plan.md).
 
-Install Netlify's CLI globally:
+## Requirements
 
-```bash
-npm install netlify-cli -g
-```
+- Node.js 22.17 or later
+- Docker (for the local Supabase stack)
 
-Install Stipe's CLI globally (for MacOS):
-
-```bash
-brew install stripe/stripe-cli/stripe
-```
-
-> For further options and documentation [see Stripe's CLI documentation](https://stripe.com/docs/stripe-cli).
-
-After that install the project's dependencies:
+## Setup
 
 ```bash
 npm install
+npx supabase start      # local Postgres, Auth and Mailpit (http://127.0.0.1:54324)
+npx supabase db reset   # apply migrations and seed the catalogue + test users
 ```
 
-Link the cloned repository to the Netlify ID:
+## Development
 
 ```bash
-netlify link
+npm run dev             # http://localhost:5173
 ```
 
-Login with the project's Stripe account:
+## Checks
 
 ```bash
-stripe login
-```
-
-## Running locally
-
-Use the following command to start the local development server using Netlify's CLI so we can have access to Netlify's functions in the localhost environment.
-
-```bash
-netlify dev
-```
-
-Svelte will be running on `localhost:5000`.
-
-And Netlify will run a server on `localhost:8888`.
-
-Point your browser to Netlify's server to check your work as you develop.
-
-### Testing Stripe's webhooks
-
-Use Stripe's CLI to listen and forward events to the localhost environment:
-
-```bash
-stripe listen --forward-to http://localhost:8888/.netlify/functions/[netlify-function-name]
-```
-
-The command above will list a test webhook secret:
-
-```bash
-> Ready! Your webhook signing secret is [TEST_WEBHOOK_SECRET] (^C to quit)
-```
-
-Copy this secret and add it to a `.env` file at the root of the project alongside `package.json`. Double check this `.env` file is included in the `.gitignore` as it is not meant to be included in the repository.
-
-You can trigger a local event using a second terminal a the following command:
-
-```bash
-stripe trigger checkout.session.completed
+npm run lint            # Prettier + ESLint
+npm run check           # svelte-check (types)
+npm run test:unit -- --run
+npm run build
+npx playwright test     # E2E against `vite preview`
 ```

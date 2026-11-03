@@ -1,13 +1,33 @@
-/node_modules/
+node_modules
+
+# Output
+.output
+.netlify
+/.svelte-kit
+/build
+
+# Legacy app (local reference only, see docs/migration-execution-plan.md 0.4)
 /legacy/
 
+# OS
 .DS_Store
+Thumbs.db
 
-# Local Netlify folder
-.netlify
-.svelte-kit
-
-.eslintcache
+# Env
 .env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Lint caches
+.eslintcache
+
+# Playwright
 /test-results/
 /playwright-report/
+/blob-report/
+/playwright/.cache/
