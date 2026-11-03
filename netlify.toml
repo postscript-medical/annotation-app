@@ -1,26 +1,17 @@
 [build]
   command = "npm run build"
-  publish = "public"
-  functions = "functions"
+  # @sveltejs/adapter-netlify writes the client assets here and the server
+  # function to .netlify/v1 (Netlify Frameworks API).
+  publish = "build"
 
-[dev]
-  command = "npm run dev"
-  targetPort = 8080
+[build.environment]
+  NODE_VERSION = "24"
 
-[dev.environment]
-  DEVELOPMENT_CONTEXT = "true"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Permissions-Policy = "interest-cohort=()"
-
+# Cloudinary illustrations. NOTE: the SvelteKit function claims "/*", and
+# Netlify runs path-configured functions before redirects, so this rule is
+# currently shadowed on the new site. How /images/* is served is decided
+# before 2.3/2.4 (see docs/migration-execution-plan.md 1.2).
 [[redirects]]
-  from = "images/*"
+  from = "/images/*"
   to = "https://res.cloudinary.com/postscript-medical/image/upload/q_auto:eco/:splat"
-  status = 200
-
-[[redirects]]
-  from = "api/*"
-  to = ".netlify/functions/:splat"
   status = 200

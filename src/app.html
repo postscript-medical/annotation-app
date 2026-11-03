@@ -4,9 +4,30 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<title>PostScript Medical</title>
+		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
+		<link
+			rel="preload"
+			href="%sveltekit.assets%/fonts/montserrat-latin-wght-normal.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<body class="ps-app" data-sveltekit-preload-data="hover">
+		<noscript>
+			<main class="central-align main-content">
+				<h1>Please note</h1>
+				<p>If you are seeing this notice it is because your browser has JavaScript disabled.</p>
+				<p>
+					While we respect your preference, the annotation nature of this application relies on the
+					<code>&lt;canvas&gt;</code> tag and on JavaScript to enable the annotation to take place.
+					Unfortunately that makes it mandatory for JavaScript to be enabled in your browser.
+				</p>
+				<p>Please change your browser's settings to enable JavaScript.</p>
+			</main>
+		</noscript>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

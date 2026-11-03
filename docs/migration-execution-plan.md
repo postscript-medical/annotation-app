@@ -67,6 +67,7 @@ Step 0.8 updates the docs to match all of the above.
 | G6 | Which legacy users get an account at cutover | 3.5 | Only `users` rows whose `netlify_id` matches a confirmed Netlify Identity user; everyone else's rows are deleted (data minimisation) |
 | G3 | Controller legal entity (§11.5, DP §10.1) | 1.13 (`/privacy`) | Placeholder text; blocks cutover only |
 | G4 | Shared-device idle (auth §10.1), feedback form vs `mailto:` (DP §10.3), inactive-account purge (DP §10.2) | 1.10, 2.6 | 60 min; keep the form; don't purge |
+| G7 | How Cloudinary illustrations are served, now that the `/images/*` rewrite is shadowed by the SvelteKit function (found in 1.2) | 2.3, 2.4 | A SvelteKit `/images/[...path]` route that proxies a fixed Cloudinary prefix (path allow-list, no other host) with long CDN cache headers, so images stay first-party |
 | G5 | ~~Password policy~~ **Decided:** NIST SP 800-63B-4 / NCSC (scope change 4); breached-password check via the HIBP range API with a bundled-list fallback | 1.7, 1.10 | — |
 
 ### Email budget (Lettermint free: 300/month)
@@ -149,6 +150,8 @@ Results:
 **1.1 Scaffold.** `npx sv create` in the repo root: SvelteKit, Svelte 5, TS, Vite, `@sveltejs/adapter-netlify`, ESLint 9 flat config, Prettier 3, Vitest, Playwright; Husky 9 + lint-staged. Runtime deps: `@supabase/ssr`, `@supabase/supabase-js`, `zod`, `gsap`, `nodemailer` (Lettermint SMTP). CLIs in devDeps. Gone: faunadb, gotrue-js, node-fetch, mdsvex, svench, stripe, postmark, Rollup/Babel/core-js/whatwg-fetch, svelte-spa-router, sirv.
 
 **1.2 Static shell.** `app.html` with no third-party scripts or styles; Montserrat self-hosted in `static/fonts`; port `legacy/public/global.css` and the favicon. `netlify.toml`: new build, keep the `/images/*` → Cloudinary redirect, drop `/api/*`.
+- **Done 2026-11-03.** Montserrat is the variable font (weights 100–900, Latin + Latin Extended, normal + italic, OFL licence in `static/fonts`), so 600 and italic are no longer faked by the browser. `global.css` → `src/app.css` (IE11-only rules and empty media queries dropped), imported by the root layout. The no-JavaScript notice moved into `app.html`. `netlify.toml`: `publish = "build"`, `NODE_VERSION = "24"`; the old `[dev]` block and the obsolete `interest-cohort` header are gone (security headers come in 1.8). E2E checks that the shell loads only first-party resources.
+- **Finding:** `adapter-netlify` registers the SvelteKit function for `/*`, and Netlify runs path-configured functions **before** redirects (docs: request chain), so the `/images/*` → Cloudinary rewrite never fires on the new site, and the adapter has no option to exclude paths. The shell's background (`bg_logo.svg`, 5.6 KB) is now self-hosted in `static/`. How the illustrations reach the browser is **open (G7), needed by 2.3/2.4**.
 
 **1.3 CI.** Replace `.github/workflows/playwright.yml` with `ci.yml`: lint → `svelte-check` → Vitest unit → `supabase start` + integration → build → Playwright (Chromium + WebKit) against `vite preview`. Percy only on PRs to `staging`/`main`.
 
