@@ -2,7 +2,7 @@
 
 > **Companions:** [data-model.md](data-model.md) (tables), [auth-spec.md](auth-spec.md) (sign-in, sessions, account page), [migration-plan.md](migration-plan.md) (phases, free-tier constraints).
 > **Scope:** the new app after cutover. UK GDPR / EU GDPR, PECR (cookies), and the NZ Privacy Act 2020.
-> **Status:** draft, 2026-10-21. Not legal advice. Items marked _(verify)_ need checking against the vendor's current terms or a professional.
+> **Status:** draft, revised 2026-11-03 (email + password, Lettermint, HIBP, audit log kept). Not legal advice. Items marked _(verify)_ need checking against the vendor's current terms or a professional.
 
 ---
 
@@ -11,11 +11,11 @@
 **Goal:** hold as little personal data as possible, for as short a time as possible, and **no health data at all**.
 
 **Zero isn't achievable**, because:
-- Signing in needs an **email address**, which is personal data.
+- Signing in needs an **email address**, which is personal data, and a **password**, held only as a hash.
 - Running sessions needs **identifiers** (user id, session id) tied to that address.
 - Hosting and email providers process **IP addresses** and delivery metadata while serving requests.
 
-So the target is **an email address plus the technical data needed to run the service**. Nothing about the user's identity, employer, patients or behaviour.
+So the target is **an email address and password hash, plus the technical data needed to run the service**. Nothing about the user's identity, employer, patients or behaviour.
 
 ---
 
@@ -25,21 +25,22 @@ This table also serves as our record of processing.
 
 | Data | Where | Why | Lawful basis | Retention |
 |---|---|---|---|---|
-| Email address | Supabase Auth (`auth.users`) | Sign-in, sign-in codes | Contract (Art. 6(1)(b)) | Until the account is deleted (§7) |
+| Email address | Supabase Auth (`auth.users`) | Sign-in (it's the username), confirmation and password-reset emails | Contract (Art. 6(1)(b)) | Until the account is deleted (§7) |
+| Password hash (bcrypt, never the password itself) | Supabase Auth (`auth.users`), held by Supabase | Sign-in | Contract | Until the account is deleted, or replaced on a password change. Never exported, logged or sent to HIBP (§4). Present in the encrypted backups (7 days). |
 | Auth timestamps (created, confirmed, last sign-in) | `auth.users` | Running the account, export | Contract | As above |
-| Email of a **not-yet-confirmed** sign-up | `auth.users` | Completing sign-up | Steps before a contract | **24 hours** (pg_cron) |
+| Email and password hash of a **not-yet-confirmed** sign-up | `auth.users` | Completing sign-up | Steps before a contract | **24 hours** (pg_cron) |
 | Supabase session + refresh token (includes IP and user agent, held by Supabase) _(verify columns)_ | `auth.sessions`, `auth.refresh_tokens` | Keeping the user signed in | Contract | Until sign-out or the end of the session lifetime (8 h / 30 d) |
-| Auth audit entries (IP, action) | `auth.audit_log_entries` | Supabase-side security | Legitimate interests (security) | **Off**, or 30 days (pg_cron) |
+| Auth audit entries (IP, action) | `auth.audit_log_entries` | Supabase-side security, investigating account misuse | Legitimate interests (security) | **Kept as Supabase provides it; not turned off and not purged by us** (decided 2026-11-02). The table has no foreign key to `auth.users`, so entries may **outlive account deletion**, and the payload may include the email address _(verify on staging before `/privacy` is final, 1.13)_. |
 | Session policy (mode, started, last seen, recovery-link time) | `session_policies` | Shared/personal device limits | Contract | Until the session ends, at most 30 days |
 | Rate-limit counters (HMAC hashes of email / IP prefix) | `rate_limits` | Abuse prevention | Legitimate interests (security) | **24 hours** |
-| Preferences (selected specialty, sub-specialty, illustration; tutorial shown) | `user_app_states` | Convenience | Contract | With the account |
-| Platform role, workspace membership | `users`, `workspaces`, `workspace_members` | Authorization | Contract | With the account |
-| Feedback message + account email as reply-to | Staff mailbox (sent via the email provider) | Support | Legitimate interests | Delete from the mailbox **12 months** after resolving |
+| Preferences (selected specialty, sub-specialty, illustration) | `user_app_states` | Convenience | Contract | With the account |
+| Workspace membership | `users`, `workspaces`, `workspace_members` | Authorization | Contract | With the account |
+| Feedback message + account email as reply-to | Staff mailbox (sent via Lettermint) | Support | Legitimate interests | Delete from the mailbox **12 months** after resolving |
 | Request logs (IP, user agent, path) | Netlify, Supabase API logs | Operation, security | Legitimate interests | Vendor retention: Supabase free about 1 day, Netlify _(verify)_ |
-| Email delivery logs (recipient, status) | Email provider | Delivery, debugging | Legitimate interests | Set to the **minimum** the provider allows (e.g. Postmark default 45 days, adjustable) |
+| Email delivery logs (message content, recipient, metadata) | Lettermint | Delivery, debugging | Legitimate interests | **28 days**, fixed on every Lettermint plan (not configurable) |
 | Database backups (contain the above) | Encrypted GitHub Actions artifact | Disaster recovery | Legitimate interests | **7 days** |
 
-**Application logs** contain user ids and request ids only. No emails, IPs, codes or tokens (S17).
+**Application logs** contain user ids and request ids only. No emails, IPs, passwords or tokens (S17).
 
 ---
 
@@ -47,13 +48,13 @@ This table also serves as our record of processing.
 
 | Not collected | How we make sure |
 |---|---|
-| Names, job titles, employer, organisation, country | Sign-up asks for an email address only. Old names are deleted at cutover ([data-model §7](data-model.md)). |
+| Names, job titles, employer, organisation, country | Sign-up asks for an email address and a password only; no separate username. Old names are deleted at cutover ([data-model §7](data-model.md)). |
 | **Annotated images, drawings, typed text, patient details** | Annotation, export and sharing all run in the browser. No endpoint accepts an image. CSP `connect-src 'self'` and a small request-body limit back that up. |
 | Patient email addresses | No server-side email share. The device's share sheet, download or print are used instead (§4). |
 | Payment data | No billing. A future "support this project" link goes to an external platform that stores nothing with us. |
 | Analytics, tracking, advertising IDs | No analytics scripts. No third-party scripts at all. |
 | Third-party requests that leak IPs | Fonts self-hosted (no Google Fonts), GSAP from npm, no Stripe.js, no CDNs. Illustrations go through our Netlify proxy. |
-| Email open or click tracking | Turned off at the email provider. Plain links in templates. |
+| Email open or click tracking | Not available on Lettermint Free (off by default). Plain links in templates. |
 
 ### 3.1 Health data
 
@@ -73,9 +74,11 @@ So no DPIA is mandatory today. Record that screening conclusion here, and **revi
 |---|---|---|---|---|
 | Supabase | Auth + database | Data in **London (eu-west-2)**; company in the US | Supabase DPA with SCCs / UK addendum | Sign the DPA _(verify it's available on free)_ |
 | Netlify | Hosting, server functions, request logs | US, global edge | Netlify DPA with SCCs / UK addendum | Sign the DPA |
-| Email provider (choice pending, [migration-plan §11.1](migration-plan.md)) | Sign-in codes, feedback relay | Depends on the provider | Provider DPA | Choose one with a DPA and minimal log retention |
+| **Lettermint** | Confirmation and password-reset emails (Supabase custom SMTP), feedback relay | EU | Lettermint DPA | **DPA signed** (2026-11-02). Message content, recipients and metadata kept 28 days, not configurable. No open/click tracking on Free. |
 | Cloudinary | Illustration images | US/EU | Only Netlify's proxy talks to it; no user data in requests _(verify which headers are forwarded)_ | DPA optional, since no personal data |
 | GitHub | CI, encrypted backup artifacts | US | GitHub DPA | Backups are encrypted before upload (`age`), and the key isn't held in GitHub |
+
+**Not a processor: Have I Been Pwned (Pwned Passwords range API).** When a password is set or changed, our server sends HIBP only the **first 5 hex characters of the password's SHA-1 hash** (k-anonymity, with the `Add-Padding` header) and checks the returned list itself. The password, the full hash, the email address and the user's IP never leave our server, so HIBP receives no personal data. We still name it in the privacy notice, for transparency.
 
 **NZ Privacy Act (IPP 12):** disclosure overseas is allowed where the recipient is subject to comparable safeguards. The UK and EU are, and the US vendors are bound by contract (DPAs).
 
@@ -88,7 +91,6 @@ If we add CAPTCHA (Cloudflare Turnstile, [auth-spec §6](auth-spec.md)), it beco
 | Cookie | Purpose | Strictly necessary? |
 |---|---|---|
 | `sb-<ref>-auth-token` | Keeps the user signed in | Yes |
-| `ps_pending` | Holds the email between "send code" and "enter code", 15 min | Yes |
 | _later:_ `ps_workspace` | Active workspace choice | Yes |
 
 **Only strictly necessary cookies, so no consent banner.** The privacy notice lists them. No `localStorage` use for anything beyond UI conveniences (e.g. last tool selected), and never for identifiers.
@@ -104,8 +106,9 @@ All jobs run as **pg_cron** inside Postgres. No extra service.
 | `purge_unconfirmed_signups` | nightly | `auth.users` unconfirmed for more than 24 h |
 | `purge_expired_sessions` | nightly | `session_policies` past their lifetime + their `auth.sessions` |
 | `purge_rate_limits` | hourly | `rate_limits` older than 24 h |
-| `purge_auth_audit_log` | nightly | `auth.audit_log_entries` older than 30 days (only if it can't be disabled) |
 | _proposed:_ `purge_inactive_accounts` | nightly | Accounts with no sign-in for **24 months**, after a warning email 30 days before (open question 2) |
+
+The Supabase auth audit log is deliberately **not** purged by us (§2).
 
 Backups: the nightly encrypted `pg_dump` artifact expires after **7 days** (GitHub artifact retention). Deleted accounts therefore disappear from backups within a week. The one-off cutover rollback dump ([data-model §7](data-model.md)) is deleted when the old site is retired.
 
@@ -152,4 +155,4 @@ Backups: the nightly encrypted `pg_dump` artifact expires after **7 days** (GitH
 1. **Controller:** which legal entity is the controller, and where is it established (UK, NZ, elsewhere)? This decides the ICO fee, the Art. 27 representative and the privacy notice wording.
 2. **Inactive accounts:** delete after 24 months without a sign-in (with a warning email), or keep until the user deletes them? Deleting is better for storage limitation and costs one email per account.
 3. **Feedback:** keep the in-app form (an email to staff), or replace it with a plain `mailto:` link so nothing passes through our server?
-4. **Email provider's log retention and location:** part of choosing the provider ([migration-plan §11.1](migration-plan.md)).
+4. ~~**Email provider's log retention and location.**~~ **Closed:** Lettermint, EU, 28 days fixed (§2, §4).

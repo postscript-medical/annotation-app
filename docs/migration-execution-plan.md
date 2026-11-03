@@ -130,12 +130,17 @@ Results:
 - Local `enable_confirmations` stays `false` until 1.10 turns confirm email on.
 - **Done 2026-11-03.** The staging dump goes through the IPv4 pooler (this machine has no IPv6; the CLI falls back on its own). `supabase start` + `db reset` apply the baseline and seed cleanly on Postgres 15.8. Counts match staging (3 / 9 / 106 / 9 / 183); `public.users` 0. Both test users sign in by password through local Auth, a wrong password gives `invalid_credentials`, and a 14-character sign-up is rejected (`weak_password`). A recovery email landed in Mailpit.
 
-**0.8 Docs update** for the scope changes above:
+**0.8 Docs update** for the scope changes above. ✅ Done 2026-11-03 (summary at the end of this entry).
 - migration-plan: §1 (email provider, password auth, no staff role), §2 diagram and §2.1 layout (drop `(admin)/`, `requireStaff`, `admin_audit`; public routes `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/auth/confirm`), §3 (no `admin_audit`, no `platform_role`, no `show_tutorial`), §4 (`auth-login` → `/sign-in` with password; `auth-password-reset-request` / `auth-password-reset` → `/forgot-password` + `/reset-password`, fixes S14 and S18; `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*` → delete; catalogue via SQL migrations), Phase 3 removed, §6/§7 tables, §9 email row (Lettermint 300/month, the budget above), §11.1–§11.3 closed, §11.4 still open (G2), §10 cutover (Netlify Identity → new Supabase Auth accounts, everyone resets their password).
 - auth-spec: rewrite §1 (credentials), §2 (password settings, no OTP), §2.1 templates (Confirm Signup and Recovery with `{{ .TokenHash }}`; Magic Link unused), §3.1 cookies (no `ps_pending`), §4.1 sign-up / sign-in / reset flows, §4.3 change password and no last-`dm` check, §6 limits, §7.1–7.3 (only `user` and workspace roles; drop the `dm` column and `/admin/**` row; add the new routes to the matrix), §8 (existing users come from Netlify Identity: new Supabase Auth account per kept user, password set via "Forgot password"; no scramble), §9 (password reset kept, rewritten), §10.3 closed. Remove the audit-log purge row from §2.
 - data-model: ER diagram and §2.1/§3 (drop `platform_role` enum/column and `admin_audit`), §4 (drop `purge_auth_audit_log`), §5.4 and §5.6, §7 step 3 (no role mapping; legacy `role` column just dropped), §7 new step before the reshape: create Supabase Auth users from the kept `users` rows (G6) and set `auth_id`, since production `auth.users` starts empty, `show_tutorial` removed from §2, §3.2 and §7 step 5.
 - data-protection: §4 add Have I Been Pwned (Pwned Passwords range API) as an outside service that receives only a 5-character hash prefix from our server, so no personal data (state it in the privacy notice for transparency); §2 add the password hash (in `auth.users`, bcrypt, held by Supabase) and keep the audit log row with no purge job; §2 preferences row without the tutorial flag; §4 processor row = Lettermint (EU; message content, recipients and metadata kept 28 days, not configurable; no open/click tracking on Free); §5 cookie table without `ps_pending`; §6 drop the audit-log job; §10.4 closed.
 - Memory: already updated with these decisions.
+- **Done 2026-11-03.** All four docs updated as listed. Also:
+  - migration-plan §5 now matches this plan's phases (old Phase 4 → Phase 3), and §2.1 already says "design system" (the 1.13 note);
+  - auth-spec §7.3 has no `dm` column, `/admin/**` is a 404 row, and `/sign-up`, `/forgot-password`, `/reset-password` and `/account/password` are new rows; §6 uses the limits from 1.10;
+  - data-model §7 starts with the `create-auth-users.ts` script (G6), and step 2 is now "delete rows not kept"; the Auth-metadata clean-up step is gone (new accounts carry none);
+  - data-protection §2 flags that `auth.audit_log_entries` may outlive account deletion and hold the email address _(verify on staging before `/privacy` is final)_.
 
 ---
 
@@ -234,7 +239,7 @@ Results:
 
 `supabase/{config.toml,templates/*,migrations/*,seed.sql}`, `src/hooks.server.ts`, `src/app.d.ts`, `src/lib/server/{supabase,guards,errors,validation,rate-limit,email,log}.ts`, `src/lib/server/repos/catalogue.ts`, `src/lib/sketchpad/**`, `src/lib/share/*`, `src/routes/(public|app)/**`, `.github/workflows/{ci,backup}.yml`, `scripts/cutover/*`, `docs/{cutover-runbook,operations}.md`.
 
-Reused from legacy: `functions/utils/error-handler.js` (errors module), `src/components/sketchpad/**` and helpers, `src/methods/{filter,sort,find}-illustrations.js`, `generate-annotated-image.js`, `debouncer.js`, the `Ps*` components (renamed without the prefix), the sign-in / credentials / forgot-password / reset-password UI, `db/*.js` (seed), Playwright annotate specs.
+Reused from legacy: `functions/utils/error-handler.js` (errors module), `src/components/sketchpad/**` and helpers, `src/methods/{filter,sort,find}-illustrations.js`, `generate-annotated-image.js`, `debouncer.js`, the `Ps*` components (renamed without the prefix), the sign-in / credentials / forgot-password / reset-password UI, Playwright annotate specs. (The seed comes from staging instead of `db/*.js`, see 0.7.)
 
 ## Verification
 

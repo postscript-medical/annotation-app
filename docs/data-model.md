@@ -1,7 +1,7 @@
 # PostScript Annotation App — Data Model
 
 > **Companions:** [migration-plan.md](migration-plan.md) (§3 database work), [auth-spec.md](auth-spec.md) (`ensure_account`, sessions, roles), [data-protection.md](data-protection.md) (what each table holds and for how long), [architecture-baseline.md §4.3](architecture-baseline.md) (current schema).
-> **Status:** draft, 2026-10-21.
+> **Status:** draft, revised 2026-11-03: no staff role (`platform_role`, `admin_audit` removed), no tutorial flag, and the cutover creates Supabase Auth accounts because today's users are in Netlify Identity.
 
 ---
 
@@ -9,7 +9,7 @@
 
 1. **The workspace is the tenant.** Each user gets a **personal workspace** on first sign-in. Anything that belongs to "the account" hangs off the workspace, not the user. Later, a personal workspace can be **promoted** to an organisation. That's an update to one row, not a data migration.
 2. **Membership is a table, not a column.** `workspace_members(workspace_id, user_id, role)` from day one. Later on, many members per workspace, and many workspaces per user, need no schema change.
-3. **No personal data outside Supabase Auth.** The email address lives only in `auth.users`. Our tables hold ids, roles, preferences and timestamps. No names, no copies of the email.
+3. **No personal data outside Supabase Auth.** The email address and password hash live only in `auth.users`. Our tables hold ids, workspace roles, preferences and timestamps. No names, no copies of the email.
 4. **Everything cascades from `auth.users`.** Deleting the Auth user removes every row about that person. Account deletion is one Admin API call.
 5. **Server-only access.** RLS is on for every table with no policies. Only the server, with the secret key, reads or writes.
 6. **Additive growth.** Future features add tables and enum values. They don't rename or reshape launch tables (§6).
@@ -33,27 +33,24 @@ erDiagram
   sub_specialties ||--o{ specialty_sub_specialties : ""
   sub_specialties ||--o{ sub_specialty_illustrations : ""
   illustrations ||--o{ sub_specialty_illustrations : ""
-  users ||--o{ admin_audit : "actor (set null)"
 
-  users { uuid id PK; uuid auth_id UK; platform_role platform_role; timestamptz created_at }
+  users { uuid id PK; uuid auth_id UK; timestamptz created_at }
   workspaces { uuid id PK; workspace_kind kind; text name; uuid personal_owner_id UK; timestamptz created_at }
   workspace_members { uuid workspace_id PK; uuid user_id PK; workspace_role role; timestamptz created_at }
-  user_app_states { uuid user_id PK; uuid selected_specialty_id; uuid selected_sub_specialty_id; uuid selected_illustration_id; bool show_tutorial }
+  user_app_states { uuid user_id PK; uuid selected_specialty_id; uuid selected_sub_specialty_id; uuid selected_illustration_id }
   session_policies { uuid session_id PK; uuid user_id; session_mode mode; timestamptz created_at; timestamptz last_seen_at; timestamptz recovery_verified_at }
   rate_limits { text key PK; timestamptz window_start PK; int count }
-  admin_audit { uuid id PK; uuid actor_user_id; text action; text target_table; uuid target_id; jsonb before; jsonb after; timestamptz created_at }
 ```
 
 ### 2.1 Enums
 
 | Enum | Values at launch | Later |
 |---|---|---|
-| `platform_role` | `user`, `dm` | — |
 | `workspace_kind` | `personal`, `organization` | — |
 | `workspace_role` | `owner`, `member` | maybe `admin` (org admins who aren't billing owners) |
 | `session_mode` | `personal`, `shared` | — |
 
-`organization` exists from the start so promotion (§6.1) needs no `ALTER TYPE`. Nothing creates one at launch.
+`organization` exists from the start so promotion (§6.1) needs no `ALTER TYPE`. Nothing creates one at launch. There is **no `platform_role` enum**: this migration has no staff role, and a future admin project adds its own design.
 
 ---
 
@@ -63,7 +60,7 @@ erDiagram
 
 | Table | Columns and constraints |
 |---|---|
-| `users` | `id uuid pk default gen_random_uuid()`. `auth_id uuid not null unique references auth.users(id) on delete cascade`. `platform_role platform_role not null default 'user'`. `created_at timestamptz not null default now()`. |
+| `users` | `id uuid pk default gen_random_uuid()`. `auth_id uuid not null unique references auth.users(id) on delete cascade`. `created_at timestamptz not null default now()`. |
 | `workspaces` | `id uuid pk`. `kind workspace_kind not null default 'personal'`. `name text` (null for personal). `personal_owner_id uuid unique references users(id) on delete cascade`. `created_at`. **Checks:** `(kind = 'personal') = (personal_owner_id is not null)`; `kind = 'personal' or name is not null`. |
 | `workspace_members` | `workspace_id uuid references workspaces(id) on delete cascade`. `user_id uuid references users(id) on delete cascade`. `role workspace_role not null`. `created_at`. **PK** `(workspace_id, user_id)`. Index on `user_id`. |
 
@@ -75,24 +72,24 @@ erDiagram
 
 | Table | Columns and constraints |
 |---|---|
-| `user_app_states` | `user_id uuid pk references users(id) on delete cascade`. `selected_specialty_id`, `selected_sub_specialty_id`, `selected_illustration_id`: nullable FKs to the catalogue, **`on delete set null`**, so a staff deletion never breaks a user. `show_tutorial bool not null default true`. |
+| `user_app_states` | `user_id uuid pk references users(id) on delete cascade`. `selected_specialty_id`, `selected_sub_specialty_id`, `selected_illustration_id`: nullable FKs to the catalogue, **`on delete set null`**, so removing a catalogue item in a migration never breaks a user. No tutorial flag (dropped, not moved). |
 
 App state is per **user**, not per workspace. It holds the user's own preferences, which stay the same whichever workspace they're in.
 
 ### 3.3 Catalogue
 
 Kept from the current schema ([baseline §4.3](architecture-baseline.md)): `specialties`, `sub_specialties`, `specialty_sub_specialties`, `illustrations` (`name`, `src` = Cloudinary public ID, `default_illustration`, `illustration_aliases text[]`), `sub_specialty_illustrations`. Changes:
-- Join tables get composite primary keys and an `ordering int` column where the admin UI needs ordering.
+- Join tables get composite primary keys and an `ordering int` column where the catalogue needs ordering.
+- **Read-only for the app.** Until a separate admin project ships, the catalogue changes only through reviewed SQL migrations in `supabase/migrations/`; Cloudinary uploads stay manual.
 - `original_source_id` is dropped.
 - **No per-tenant filter.** Every user sees every specialty. `organizations.available_specialties` goes away with `organizations`.
 
-### 3.4 Sessions, abuse, audit
+### 3.4 Sessions and abuse
 
 | Table | Columns and constraints |
 |---|---|
 | `session_policies` | `session_id uuid pk` (Supabase JWT `session_id` claim). `user_id uuid not null references users(id) on delete cascade`. `mode session_mode not null`. `created_at`, `last_seen_at`. `recovery_verified_at timestamptz` (null unless the session came from a recovery link; set only by the `/auth/confirm` POST, cleared after the reset). Rules in [auth-spec §5](auth-spec.md). |
-| `rate_limits` | `key text` (HMAC-hashed: `signin:email:<hash>`, `signin:ip:<hash>`, `feedback:user:<id>`). `window_start timestamptz`. `count int`. **PK** `(key, window_start)`. Rows older than 24 hours are purged. |
-| `admin_audit` | `id`, `actor_user_id uuid references users(id) on delete set null`, `action text`, `target_table text`, `target_id uuid`, `before jsonb`, `after jsonb`, `created_at`. Staff catalogue writes only. Holds no personal data about users. |
+| `rate_limits` | `key text` (HMAC-hashed: e.g. `signin:email:<hash>`, `signin:ip:<hash>`, `signup:ip:<hash>`, `reset:email:<hash>`, `confirm:ip:<hash>`, `feedback:user:<id>`; limits in [auth-spec §6](auth-spec.md)). `window_start timestamptz`. `count int`. **PK** `(key, window_start)`. Rows older than 24 hours are purged. |
 
 ---
 
@@ -103,13 +100,12 @@ All are `security definer`, `set search_path = ''`, with `execute` granted to `s
 | Function | Does |
 |---|---|
 | `ensure_account(p_auth_id uuid) returns users` | Idempotent. If no `users` row exists for `p_auth_id`: insert the user, the personal workspace (`personal_owner_id` = user), the `owner` membership and the app state, in one transaction. If the user exists but has **no memberships**, create the personal workspace again. Returns the `users` row. Uses `on conflict do nothing` so two simultaneous calls are safe. |
-| `export_account(p_auth_id uuid) returns jsonb` | Everything we hold about the person: email and auth timestamps from `auth.users`, `platform_role`, workspaces + roles, app state, session policies (mode and timestamps). Backs "Download my data". |
+| `export_account(p_auth_id uuid) returns jsonb` | Everything we hold about the person: email and auth timestamps from `auth.users` (never the password hash), workspaces + roles, app state, session policies (mode and timestamps). Backs "Download my data". |
 | `purge_unconfirmed_signups()` | `delete from auth.users where email_confirmed_at is null and created_at < now() - interval '24 hours'`. Checked on staging (0.3): `auth.identities`, `auth.one_time_tokens`, `auth.sessions`, `auth.mfa_factors` and the other `auth.*` children reference `auth.users` with `on delete cascade` (refresh tokens and amr claims go too, via sessions). A live delete of an unconfirmed user with one identity and one token left 0 of each. |
 | `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). |
 | `purge_rate_limits()` | Deletes `rate_limits` rows older than 24 hours. |
-| `purge_auth_audit_log()` | Deletes `auth.audit_log_entries` older than 30 days, if the database audit log can't be turned off ([auth-spec §2](auth-spec.md)). |
 
-pg_cron (1.6, already in `shared_preload_libraries` on hosted) is enabled by `create extension pg_cron` in a migration. `cron.schedule` works on free (checked on staging in 0.3). Schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md).
+pg_cron (1.6, already in `shared_preload_libraries` on hosted) is enabled by `create extension pg_cron` in a migration. `cron.schedule` works on free (checked on staging in 0.3). Schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md). The Supabase auth audit log is kept and **not** purged by us ([auth-spec §2](auth-spec.md)).
 
 Account deletion is **not** an RPC. The server calls Admin API `deleteUser(auth_id)` and the cascades do the rest.
 
@@ -120,9 +116,9 @@ Account deletion is **not** an RPC. The server calls Admin API `deleteUser(auth_
 1. Every `users` row has exactly one `user_app_states` row.
 2. Every user has at least one membership (launch: exactly one, as `owner` of their personal workspace).
 3. A personal workspace has exactly one member, its `personal_owner_id`, with role `owner`.
-4. Deleting an `auth.users` row leaves no row in any public table that refers to that person (`admin_audit.actor_user_id` becomes null).
+4. Deleting an `auth.users` row leaves no row in any public table that refers to that person.
 5. No public table has a column holding an email address, name or IP address.
-6. `platform_role = 'dm'` is never written by app code (checked by grep in CI: no update of `platform_role` outside `supabase/migrations/`).
+6. No staff scope creeps back in: CI greps `src/` and new migrations for `dm`, `platform_role`, `requireStaff`, `admin_audit`, `routes/(admin)` and `/admin` ([execution plan, Verification](migration-execution-plan.md)).
 
 ---
 
@@ -182,22 +178,25 @@ An external link (e.g. a Stripe Payment Link, Ko-fi or GitHub Sponsors). **No ta
 
 ## 7. Cutover data migration (current → target)
 
-One migration file, run inside a transaction on production after the Stripe cancellation step ([migration-plan Phase 4](migration-plan.md)). Rehearse on a restored copy in staging first.
+Today's users sign in with **Netlify Identity**, and production `auth.users` is empty, so the cutover first creates Supabase Auth accounts, then reshapes the data. One migration file, run inside a transaction on production after the Stripe cancellation step ([migration-plan §5, Phase 3](migration-plan.md); execution plan 3.6–3.7). Rehearse on a restored copy in staging first.
+
+**Before the migration (script, not SQL):** `scripts/cutover/create-auth-users.ts` creates a confirmed Supabase Auth account with **no password** for each kept user (execution plan G6: `users` rows whose `netlify_id` matches a confirmed Netlify Identity user) and sets `users.auth_id`. Idempotent, safe to re-run. The new accounts carry no `app_metadata` or `user_metadata`. Users set a password through "Forgot password" ([auth-spec §8](auth-spec.md)).
+
+Then the migration:
 
 1. **Create** the new enums, tables and functions (§2–§4).
-2. **Remove accounts that were never used:** delete `users` rows with no `auth_id`, or whose Auth user is unconfirmed or a pending invite. Delete those Auth users too ([auth-spec §8](auth-spec.md)).
-3. **Platform role:** add `platform_role`. Set `'dm'` where `role = 'dm'`. `admin` → `user` unless [migration-plan §11.2](migration-plan.md) decides otherwise. Everyone else → `user`.
+2. **Remove accounts that aren't kept:** delete `users` rows with no `auth_id` (not matched under G6), with their app state.
+3. **No role mapping.** Every legacy `user`, `admin` and `dm` becomes a plain user; the legacy `role` column is simply dropped in step 6.
 4. **Personal workspaces:** for each remaining user, insert a personal workspace and an `owner` membership.
-5. **App state:** keep one `user_app_states` row per user (the latest if there are duplicates), make `user_id` the PK, and move `show_tutorial` over from `users`. Create a default row for anyone missing one.
-6. **Drop personal and billing data:** drop `users.email`, `first_name`, `last_name`, `role`, `team_id`, `netlify_id`, `original_source_id`. Then drop `teams` and `organizations`, which takes `name`, `email`, `stripe_id`, `max_users`, `subscription_level` and `available_specialties` with them.
-7. **Clear Auth metadata** (`app_metadata.roles`, `user_metadata`) with the admin script ([auth-spec §8](auth-spec.md)).
-8. **Verify invariants** §5.1–§5.5 with SQL assertions at the end of the migration. Any failure rolls back the transaction.
+5. **App state:** keep one `user_app_states` row per user (the latest if there are duplicates), make `user_id` the PK. Create a default row for anyone missing one. `show_tutorial` is not carried over.
+6. **Drop personal and billing data:** drop `users.email`, `first_name`, `last_name`, `role`, `show_tutorial`, `team_id`, `netlify_id`, `original_source_id`. Then drop `teams` and `organizations`, which takes `name`, `email`, `stripe_id`, `max_users`, `subscription_level` and `available_specialties` with them. Add the `auth_id` FK to `auth.users` with `on delete cascade`.
+7. **Verify invariants** §5.1–§5.5 with SQL assertions at the end of the migration. Any failure rolls back the transaction.
 
-**Before step 6,** take one encrypted `pg_dump` of the old tables as a rollback point. Delete it once the old site is retired (one or two weeks after cutover, [data-protection §6](data-protection.md)).
+**Before the migration,** take one encrypted `pg_dump` as a rollback point. Delete it once the old site is retired (one or two weeks after cutover, [data-protection §6](data-protection.md)).
 
 ---
 
 ## 8. Open questions
 
 1. **App state per workspace?** Per user is assumed. Revisit if organisations want a shared default specialty.
-2. **Ordering in the catalogue:** does the admin UI need manual ordering of specialties as well as sub-specialties, or is alphabetical enough?
+2. **Ordering in the catalogue:** does the catalogue need manual ordering of specialties as well as sub-specialties, or is alphabetical enough? (Set by SQL migration either way.)
