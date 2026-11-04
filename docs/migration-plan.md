@@ -153,7 +153,7 @@ Each phase ends with a deploy to the new Netlify site and a green CI run. The nu
 - [x] Supabase CLI: `supabase init`, linked to **staging**, `db pull` baseline; RLS, grants and Auth settings recorded ([supabase-baseline-notes.md](supabase-baseline-notes.md)). Production is not linked and stays untouched until cutover.
 - [x] Free-tier checks on staging: pg_cron, cascades from `auth.users`, `config push` coverage, `amr` after recovery, the 72-byte password limit, `minimum_password_length = 15`, leaked-password protection (Pro only).
 - [x] Legacy code moved to `legacy/` (git-ignored, local only); all admin code deleted.
-- [x] The second Netlify site deploys `migration-sveltekit` automatically.
+- [x] The second Netlify site deploys the `staging` branch automatically (and no other branch); `migration-sveltekit` reaches it once `staging` is updated.
 - [x] Lettermint as Supabase custom SMTP on staging (email rate limit 5/hour).
 - [x] Local stack (`supabase start`) + `seed.sql`: the catalogue dumped from staging plus two test users (`scripts/generate-seed.sh`).
 - [x] Docs updated for email + password, no staff role, Lettermint.

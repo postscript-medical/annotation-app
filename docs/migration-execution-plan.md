@@ -2,7 +2,7 @@
 
 ## Context
 
-[migration-plan.md](migration-plan.md) (with [auth-spec](auth-spec.md), [data-model](data-model.md), [data-protection](data-protection.md)) defines *what* the new app is: free, individual-first, device-only sharing, SvelteKit (Svelte 5, TS) on a new Netlify site, Supabase eu-west-2, free tiers, no hot fixes to production. This file turns its phases into an ordered list of small, shippable steps (each ≈ one commit/PR on `migration-sveltekit`), with decision gates and checks. Every step ends green: lint → typecheck → unit → integration → build → E2E, plus a push to `migration-sveltekit`, which deploys the second Netlify site automatically.
+[migration-plan.md](migration-plan.md) (with [auth-spec](auth-spec.md), [data-model](data-model.md), [data-protection](data-protection.md)) defines *what* the new app is: free, individual-first, device-only sharing, SvelteKit (Svelte 5, TS) on a new Netlify site, Supabase eu-west-2, free tiers, no hot fixes to production. This file turns its phases into an ordered list of small, shippable steps (each ≈ one commit/PR on `migration-sveltekit`), with decision gates and checks. Every step ends green: lint → typecheck → unit → integration → build → E2E, plus a push to `migration-sveltekit`. The second Netlify site (staging.app) deploys only from the `staging` branch, so a step reaches it once you bring `staging` up to `migration-sveltekit`.
 
 Current repo state (after 0.4): the old Svelte 3 + Rollup app, its Netlify functions, seed data and Playwright tests are in `legacy/`, which is git-ignored and exists only on your machine. Still tracked: `docs/`, `netlify.toml`, `package.json`, one workflow `.github/workflows/playwright.yml` (runs against a Netlify preview; left as is until 1.3), and `supabase/`, initialised and linked to staging, with the baseline migration (0.1).
 
@@ -107,7 +107,7 @@ Results:
 
 **0.4 Move legacy code.** `git mv` `src`, `functions`, `public`, `rollup.config.js`, `playwright*`, `db` → `legacy/`. The old site is unaffected (it builds from `main`). The admin code is **deleted outright** rather than kept as reference: `screens/Admin*`, `components/admin/*`, `modals/EditSubSpecialtyModal.svelte`, `modals/InviteNewOrgModal.svelte`, and the functions `update-illustration-details`, `update-sub-specialty-details`, `get-illustrations*`, `get-organizations`, `invite-organization`, `delete-organization`. Done 2026-11-02. Also deleted: `methods/load-organizations.js` (used only by the admin organisations screen), and the admin imports, `/admin*` routes and `isUserDm` guard in `legacy/src/App.svelte`. `legacy/` is then **git-ignored and untracked** (`git rm -r --cached`): it lives only on your machine as a local reference, and its history stays in git (`main` and earlier commits). Anything that needs it in a fresh checkout or CI must be generated from it locally and committed (e.g. `supabase/seed.sql` in 0.7). `netlify.toml`, `package.json` scripts and the workflow are left as they are until 1.1–1.3.
 
-**0.5 Second Netlify site.** Already set up: it deploys automatically when commits are pushed to `migration-sveltekit`. No setup step. (If a later step introduces a new secret, e.g. `RATE_LIMIT_HMAC_SECRET`, I'll say so in that step so you can add it.)
+**0.5 Second Netlify site.** Already set up: it deploys automatically when commits are pushed to the **`staging`** branch, and from no other branch (corrected 2026-11-04; this said `migration-sveltekit` before). Work happens on `migration-sveltekit`; to deploy it, update `staging` to match. No setup step. (If a later step introduces a new secret, e.g. `RATE_LIMIT_HMAC_SECRET`, I'll say so in that step so you can add it.)
 
 **0.6 Lettermint.** Account, DPA and DNS are done (P5; free tier: 300 emails a month, see "Email budget" above). Set delivery-log retention to the minimum and turn click/open tracking off. Configure Lettermint SMTP as Supabase custom SMTP on staging and set the Supabase project email rate limit to a per-hour cap well under the monthly budget. Check whether Lettermint also has a daily cap, and whether staging and production can have separate quotas.
 - **Checked in Lettermint's docs (2026-11-02):**
@@ -300,15 +300,14 @@ Results:
 
 **1.14 Deploy check.** On the staging site: sign up a real address end to end through Lettermint, sign in, reset the password; inspect cookies, headers and the console for CSP violations.
 
-- **In progress 2026-11-04** (on `018cca1`):
+- **Done 2026-11-04.**
   - **Routes:** `/`, `/sign-in`, `/sign-up`, `/forgot-password`, `/auth/confirm` 200; `/account` and `/annotate` 303 to `/sign-in?next=…`; `/reset-password` without a recovery session 303 to `/forgot-password`; `/admin` and unknown paths 404; `GET /logout` only redirects home.
   - **Headers:** CSP with a per-request nonce, HSTS, nosniff, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy, COOP/CORP. Every app script has the nonce; no inline styles; no third-party origins.
-  - **Auth checks:** a wrong password gets the generic 400; a POST with a foreign `Origin` gets 403. Sign-up through Lettermint works after the SMTP fix (see 0.6).
+  - **Auth, checked by you in the browser:** sign-up through Lettermint (after the SMTP fix, see 0.6), email confirmation, sign in, sign out of all devices, password reset; cookie flags and the console are fine. By curl: a wrong password gets the generic 400; a POST with a foreign `Origin` gets 403.
   - **Permissions-Policy:** `bluetooth=()` removed. Chromium logged "Unrecognized feature: 'bluetooth'" on every page.
-  - **Netlify Real User Monitoring (your action, in the second site's Netlify settings):** Netlify injects `/.netlify/scripts/rum`, which sends page data to `ingesteer.services-prod.nsvcs.net`. `connect-src 'self'` blocks the beacon (console CSP errors), and it's a processor the privacy notice doesn't list. Turn it off for this site (and for production at cutover) rather than allowing the host in the CSP.
-  - **Function region:** the Supabase log shows our server calls coming from us-east-1 (Ashburn). Already a known trade-off (migration-plan §6); the privacy notice draft's processors and transfers section must say Netlify runs the server code in the US.
-  - **Open:** "Sign out of all devices" on `/account` was reported blocked by the browser on staging. It works on a local production build in Chromium (303 to `/sign-in`, no console or network errors). Needs the browser, the Network status text and the console message.
-  - **Still to do:** sign in, password reset, cookie flags (`sb-…-auth-token` HttpOnly, Secure, SameSite=Lax; no expiry on shared devices), console check once RUM is off.
+  - **Netlify Real User Monitoring turned off** on the staging site. Netlify injected `/.netlify/scripts/rum`, which sends page data to `ingesteer.services-prod.nsvcs.net`: blocked by `connect-src 'self'` (console CSP errors), and a processor the privacy notice doesn't list. Turn it off on the production site too (3.7).
+  - **Function region:** the Supabase log shows our server calls coming from us-east-1 (Ashburn). Already a known trade-off (migration-plan §6); the privacy notice draft already lists Netlify as US hosting.
+  - **"Sign out of all devices"** was first reported blocked by the browser; it worked on a local production build and in your later check on staging, so no change was made.
 
 ---
 
@@ -366,7 +365,7 @@ Reused from legacy: `functions/utils/error-handler.js` (errors module), `src/com
 ## Verification
 
 - Per step: `npm run lint && npm run check && npm run test:unit && npm run test:integration` (local Supabase) `&& npm run build && npx playwright test`.
-- Per phase: deploy to the second Netlify site; manual sign-up, sign-in and reset with a real address; inspect cookies, CSP and headers; the Network tab shows no third-party hosts and no image uploads.
+- Per phase: deploy to the second Netlify site (update the `staging` branch); manual sign-up, sign-in and reset with a real address; inspect cookies, CSP and headers; the Network tab shows no third-party hosts and no image uploads.
 - An E2E check that `/admin` and `/admin/specialties` return 404.
 - A grep check in CI for `dm`/`requireStaff`/`platform_role`/`admin_audit`/`routes/(admin)`/`/admin` in `src/` and new migrations, so the removed scope doesn't creep back in.
 - Cutover: the staging rehearsal on a prod copy must pass the invariant assertions, a password set through "Forgot password" for a restored user followed by a sign-in, and full E2E before prod is touched.
