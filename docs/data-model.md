@@ -102,10 +102,12 @@ All are `security definer`, `set search_path = ''`, with `execute` granted to `s
 | `ensure_account(p_auth_id uuid) returns users` | Idempotent. If no `users` row exists for `p_auth_id`: insert the user, the personal workspace (`personal_owner_id` = user), the `owner` membership and the app state, in one transaction. If the user exists but has **no memberships**, create the personal workspace again. Returns the `users` row. Uses `on conflict do nothing` so two simultaneous calls are safe. |
 | `export_account(p_auth_id uuid) returns jsonb` | Everything we hold about the person: email and auth timestamps from `auth.users` (never the password hash), workspaces + roles, app state, session policies (mode and timestamps). Backs "Download my data". |
 | `purge_unconfirmed_signups()` | `delete from auth.users where email_confirmed_at is null and created_at < now() - interval '24 hours'`. Checked on staging (0.3): `auth.identities`, `auth.one_time_tokens`, `auth.sessions`, `auth.mfa_factors` and the other `auth.*` children reference `auth.users` with `on delete cascade` (refresh tokens and amr claims go too, via sessions). A live delete of an unconfirmed user with one identity and one token left 0 of each. |
-| `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). |
+| `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). Also deletes `auth.sessions` rows more than a day old with no `session_policies` row: the hook already refuses them, and the one-day margin covers a sign-in between creating its session and inserting its policy. |
 | `purge_rate_limits()` | Deletes `rate_limits` rows older than 24 hours. |
 
-pg_cron (1.6, already in `shared_preload_libraries` on hosted) is enabled by `create extension pg_cron` in a migration. `cron.schedule` works on free (checked on staging in 0.3). Schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md). The Supabase auth audit log is kept and **not** purged by us ([auth-spec §2](auth-spec.md)).
+The three purges return the number of rows they deleted.
+
+pg_cron (already in `shared_preload_libraries` on hosted) is enabled by `create extension pg_cron` in a migration (execution plan 1.5). `cron.schedule` works on free (checked on staging in 0.3). Schedules: `purge_rate_limits` hourly; the others nightly. The full schedule is in [data-protection §6](data-protection.md). The Supabase auth audit log is kept and **not** purged by us ([auth-spec §2](auth-spec.md)).
 
 Account deletion is **not** an RPC. The server calls Admin API `deleteUser(auth_id)` and the cascades do the rest.
 

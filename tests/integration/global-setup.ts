@@ -21,21 +21,32 @@ export default function setup(project: TestProject) {
 	}
 
 	const apiUrl = status.API_URL;
-	const host = new URL(apiUrl).hostname;
-	if (host !== '127.0.0.1' && host !== 'localhost') {
-		throw new Error(`Refusing to run integration tests against a non-local Supabase: ${host}`);
+	const dbUrl = status.DB_URL;
+	for (const url of [apiUrl, dbUrl]) {
+		const host = new URL(url).hostname;
+		if (host !== '127.0.0.1' && host !== 'localhost') {
+			throw new Error(`Refusing to run integration tests against a non-local Supabase: ${host}`);
+		}
 	}
 
 	project.provide('supabase', {
 		url: apiUrl,
 		publishableKey: status.PUBLISHABLE_KEY,
 		secretKey: status.SECRET_KEY,
+		// Direct Postgres access for tests that must reach `auth.*` or backdate rows.
+		dbUrl,
 		mailpitUrl: status.MAILPIT_URL
 	});
 }
 
 declare module 'vitest' {
 	export interface ProvidedContext {
-		supabase: { url: string; publishableKey: string; secretKey: string; mailpitUrl: string };
+		supabase: {
+			url: string;
+			publishableKey: string;
+			secretKey: string;
+			dbUrl: string;
+			mailpitUrl: string;
+		};
 	}
 }

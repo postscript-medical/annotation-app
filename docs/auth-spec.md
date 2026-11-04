@@ -180,7 +180,7 @@ The Supabase free tier has no time-box or inactivity setting, so the app enforce
 
 - `last_seen_at` is updated at most once every 5 minutes per session, so we don't write to the database on every request.
 - Supabase's own refresh tokens don't expire without the time-box setting. They're useless without a policy row, though, because the hook signs out any session that has none.
-- pg_cron deletes policy rows past their absolute lifetime, and the matching `auth.sessions` rows ([data-protection §6](data-protection.md)).
+- pg_cron deletes policy rows past their absolute lifetime, and the matching `auth.sessions` rows. It also deletes `auth.sessions` rows more than a day old that never got a policy row (e.g. the insert failed after sign-in) ([data-protection §6](data-protection.md)).
 
 ---
 

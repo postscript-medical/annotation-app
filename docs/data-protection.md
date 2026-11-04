@@ -104,7 +104,7 @@ All jobs run as **pg_cron** inside Postgres. No extra service.
 | Job | Schedule | Deletes |
 |---|---|---|
 | `purge_unconfirmed_signups` | nightly | `auth.users` unconfirmed for more than 24 h |
-| `purge_expired_sessions` | nightly | `session_policies` past their lifetime + their `auth.sessions` |
+| `purge_expired_sessions` | nightly | `session_policies` past their lifetime + their `auth.sessions`; `auth.sessions` older than a day with no policy row |
 | `purge_rate_limits` | hourly | `rate_limits` older than 24 h |
 | _proposed:_ `purge_inactive_accounts` | nightly | Accounts with no sign-in for **24 months**, after a warning email 30 days before (open question 2) |
 
