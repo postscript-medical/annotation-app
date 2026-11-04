@@ -21,7 +21,8 @@
 		"test:e2e": "playwright test",
 		"check:scope": "sh scripts/check-removed-scope.sh",
 		"db:types": "sh scripts/gen-db-types.sh",
-		"check:db-types": "sh scripts/gen-db-types.sh --check"
+		"check:db-types": "sh scripts/gen-db-types.sh --check",
+		"env:local": "sh scripts/local-env.sh"
 	},
 	"imports": {
 		"#lib": "./src/lib/index.js",
