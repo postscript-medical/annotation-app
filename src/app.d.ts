@@ -28,6 +28,8 @@ declare global {
 				amr: string[];
 				recoveryVerifiedAt: string | null;
 			} | null;
+			/** The device choice a sign-in flow just made, for this response's auth cookies. */
+			cookieMode?: 'personal' | 'shared';
 			/** The app account and active workspace, or null when signed out. */
 			profile: {
 				userId: string;

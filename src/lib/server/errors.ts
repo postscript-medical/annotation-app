@@ -12,6 +12,7 @@ export const ERROR_CODES = {
 	AUTH_REQUIRED: 'AUTH_REQUIRED',
 	SESSION_EXPIRED: 'SESSION_EXPIRED',
 	INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+	LINK_INVALID: 'LINK_INVALID',
 	NOT_FOUND: 'NOT_FOUND',
 	VALIDATION_FAILED: 'VALIDATION_FAILED',
 	RATE_LIMITED: 'RATE_LIMITED',
@@ -27,6 +28,10 @@ const DETAILS: Record<ErrorCode, { status: number; message: string }> = {
 	INVALID_CREDENTIALS: {
 		status: 400,
 		message: "That email address and password don't match an account."
+	},
+	LINK_INVALID: {
+		status: 400,
+		message: 'This link has expired or has already been used. Please ask for a new one.'
 	},
 	// Also used for things that exist but belong to someone else, so ids can't be probed.
 	NOT_FOUND: { status: 404, message: "We couldn't find that page." },

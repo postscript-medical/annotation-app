@@ -157,11 +157,12 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:5173"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# Local: the dev server and `vite preview` (E2E). Email links use {{ .SiteURL }} (auth-spec §2.1).
+additional_redirect_urls = ["http://localhost:5173/**", "http://localhost:4173/**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -225,15 +226,18 @@ enabled = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# On: the confirmation link proves the address before the account exists (auth-spec §2).
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
+# 1s locally so tests can send several emails to one address; 60s on staging/production (below).
 max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# 15 minutes for confirmation and recovery links (auth-spec §2).
+otp_expiry = 900
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -244,6 +248,15 @@ otp_expiry = 3600
 # pass = "env(SENDGRID_API_KEY)"
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
+
+# Our templates: token-hash links to /auth/confirm, never {{ .ConfirmationURL }} (auth-spec §2.1).
+[auth.email.template.confirmation]
+subject = "Confirm your PostScript account"
+content_path = "./supabase/templates/confirm-signup.html"
+
+[auth.email.template.recovery]
+subject = "Reset your PostScript password"
+content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
@@ -420,3 +433,30 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------------------------------------
+# Staging (`npx supabase config push --remote`, project vqwulukmgqifavsvtwcp). Only the values
+# that differ from local; everything else (confirmations, OTP expiry, templates, password
+# length) is pushed from the sections above. SMTP (Lettermint) stays as set in the dashboard.
+[remotes.staging]
+project_id = "vqwulukmgqifavsvtwcp"
+
+[remotes.staging.auth]
+site_url = "https://staging.app.postscriptmedical.com"
+additional_redirect_urls = ["https://staging.app.postscriptmedical.com/**"]
+
+[remotes.staging.auth.email]
+max_frequency = "60s"
+
+[remotes.staging.auth.rate_limit]
+# Project-wide emails per hour (set in 0.6; Lettermint free tier is 300 a month).
+email_sent = 5
+
+# Keep staging's own values for settings the local file would otherwise overwrite.
+[remotes.staging.db.pooler]
+# Supabase's sizes for staging's compute.
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.staging.storage.vector]
+enabled = false

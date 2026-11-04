@@ -91,6 +91,7 @@ If we add CAPTCHA (Cloudflare Turnstile, [auth-spec §6](auth-spec.md)), it beco
 | Cookie | Purpose | Strictly necessary? |
 |---|---|---|
 | `sb-<ref>-auth-token` | Keeps the user signed in | Yes |
+| `ps_session_mode` | Remembers "personal" or "shared device", so the sign-in cookie is kept for 30 days or only until the browser closes | Yes |
 | _later:_ `ps_workspace` | Active workspace choice | Yes |
 
 **Only strictly necessary cookies, so no consent banner.** The privacy notice lists them. No `localStorage` use for anything beyond UI conveniences (e.g. last tool selected), and never for identifiers.

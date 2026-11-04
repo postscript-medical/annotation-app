@@ -37,7 +37,7 @@ Kept in the repo as `supabase/config.toml` and `supabase/templates/*.html`, then
 | Minimum interval between emails per user | 60 s | Supabase default. Prevents resend spam. |
 | Project-wide email rate limit (custom SMTP) | Staging **5 per hour** (set in 0.6); production set at cutover, well under the monthly budget | Lettermint Free is 300 emails a month, shared by staging and production. |
 | SMTP | **Lettermint**: `smtp.lettermint.co:587` (STARTTLS), user `lettermint`, password = a Project API token per environment, sender `no-reply@postscriptmedical.com` / "PostScript" | SPF, DKIM and DMARC aligned for `postscriptmedical.com`. NHSmail is strict. The project's default route must be the transactional route (Supabase can't set `X-Lettermint-Route`). |
-| Site URL / redirect allow-list | Local `http://localhost:5173`; staging `https://staging.app.postscriptmedical.com`; production `https://app.postscriptmedical.com` (allow-list `https://app.postscriptmedical.com/**` only) | `PUBLIC_SITE_URL` uses the same values. |
+| Site URL / redirect allow-list | Local `http://localhost:5173` (allow-list also `http://localhost:4173/**` for `vite preview`); staging `https://staging.app.postscriptmedical.com`; production `https://app.postscriptmedical.com` (allow-list `https://app.postscriptmedical.com/**` only) | Email links are built from `{{ .SiteURL }}`, so the app needs no `PUBLIC_SITE_URL` and passes no `emailRedirectTo`: the site URL has one source, the Supabase config. |
 | JWT signing keys | **Asymmetric** (the new signing keys), migrated in the dashboard: staging in 1.8, production at cutover | Lets the hook verify JWTs locally with `getClaims()` (§3.2), saving an Auth round trip per request. |
 | Auth audit log in the database | **Kept as Supabase provides it:** not turned off, not purged by us | Useful for security investigations. It stores IP addresses, so it's listed in [data-protection §2](data-protection.md). |
 | Anonymous sign-ins, phone, OAuth | Off | |
@@ -81,6 +81,7 @@ All cookies are strictly necessary, so no consent banner is needed ([data-protec
 | Cookie | Set by | Contents | Flags |
 |---|---|---|---|
 | `sb-<ref>-auth-token` (chunked) | `@supabase/ssr` | Supabase session | `HttpOnly; Secure; SameSite=Lax; Path=/`. **Personal:** `Max-Age` 30 days. **Shared:** no `Max-Age` (session cookie). |
+| `ps_session_mode` | the sign-in flows | `personal` or `shared` | Same flags and lifetime as the auth cookie. Token refreshes rewrite the auth cookie inside `getClaims()`, before the hook knows the session's mode, so the mode travels in this cookie; missing or unknown = shared (session cookie). It only sets how long the browser keeps cookies: the server enforces each mode from `session_policies`, so changing it gains nothing. |
 
 `createServerClient` is passed `cookieOptions: { httpOnly: true, secure: true, sameSite: 'lax' }`. The `@supabase/ssr` default isn't httpOnly, because it assumes a browser client that we don't have.
 
@@ -198,7 +199,7 @@ Open sign-up and password reset mean anyone can make us send an email to any add
 
 Plus the Supabase-side limits from §2 (per-user email interval, project email rate limit). If sign-up or reset is abused for email bombing, add Supabase's built-in CAPTCHA (Cloudflare Turnstile) to those forms. That brings in a new processor, so update data-protection §4 before enabling it.
 
-Sign-in events are logged with the **user id only** (no email, no IP, never a password). Failed attempts are logged with the hashed key (S17).
+Sign-in events are logged with the **user id only** (no email, no IP, never a password). Failed attempts are logged with Supabase's error code only (S17).
 
 ---
 
@@ -232,7 +233,7 @@ This is the source of truth for the authorization tests ([migration-plan §6](mi
 
 | Route / action | anon | user | other user's resource | Notes |
 |---|---|---|---|---|
-| `/sign-up`, `/sign-in`, `/forgot-password` | ✅ | ✅ (→ /annotate) | — | Rate-limited (§6) |
+| `/sign-up`, `/sign-in`, `/forgot-password`, `/resend-confirmation` | ✅ | ✅ (→ /annotate) | — | Rate-limited (§6) |
 | `/auth/confirm` (GET page, POST verify) | ✅ | ✅ | — | POST rate-limited; only the POST verifies |
 | `/reset-password` | ❌ 303 → /forgot-password | ✅ only with a recovery marker < 15 min and `amr` `otp`; otherwise ❌ 303 → /forgot-password | — | One use per marker |
 | `/privacy`, `/terms` | ✅ | ✅ | — | |

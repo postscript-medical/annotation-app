@@ -13,18 +13,38 @@ import { createAuthUser, env, sessionIdOf, testPassword } from './helpers';
 /** An in-memory cookie jar with SvelteKit's Cookies API (enough for @supabase/ssr). */
 export class Jar {
 	store = new Map<string, string>();
+	options = new Map<string, Record<string, unknown>>();
 	get = (name: string) => this.store.get(name);
 	getAll = () => [...this.store].map(([name, value]) => ({ name, value }));
-	set = (name: string, value: string, options: { maxAge?: number } = {}) => {
-		if (options.maxAge === 0 || value === '') this.store.delete(name);
-		else this.store.set(name, value);
+	set = (name: string, value: string, options: Record<string, unknown> = {}) => {
+		if (options.maxAge === 0 || value === '') {
+			this.store.delete(name);
+			this.options.delete(name);
+		} else {
+			this.store.set(name, value);
+			this.options.set(name, options);
+		}
 	};
-	delete = (name: string) => void this.store.delete(name);
+	delete = (name: string) => {
+		this.store.delete(name);
+		this.options.delete(name);
+	};
 	serialize = () => '';
 	authCookies = () => [...this.store.keys()].filter((name) => name.startsWith('sb-'));
 }
 
-export function fakeEvent(jar: Jar, path = '/annotate', init: RequestInit = {}) {
+/** A random documentation-range address, so per-network rate limits don't couple tests. */
+export function randomIp() {
+	const byte = () => Math.floor(Math.random() * 256);
+	return `198.18.${byte()}.${byte()}`;
+}
+
+export function fakeEvent(
+	jar: Jar,
+	path = '/annotate',
+	init: RequestInit = {},
+	ip: string = randomIp()
+) {
 	const url = new URL(path, 'http://localhost:4173');
 	return {
 		url,
@@ -33,13 +53,26 @@ export function fakeEvent(jar: Jar, path = '/annotate', init: RequestInit = {}) 
 		locals: {} as App.Locals,
 		route: { id: url.pathname },
 		setHeaders: vi.fn(),
-		getClientAddress: () => '127.0.0.1',
+		getClientAddress: () => ip,
 		isDataRequest: false,
 		isSubRequest: false,
 		params: {},
 		platform: undefined,
 		fetch
 	} as unknown as RequestEvent;
+}
+
+/** A form POST as a browser sends it. */
+export function formPost(fields: Record<string, string>): RequestInit {
+	const body = new URLSearchParams(fields).toString();
+	return {
+		method: 'POST',
+		body,
+		headers: {
+			'content-type': 'application/x-www-form-urlencoded',
+			'content-length': String(Buffer.byteLength(body))
+		}
+	};
 }
 
 export function requestHelpers(admin: Db, sql: Sql, created: string[]) {

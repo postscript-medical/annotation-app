@@ -11,7 +11,15 @@ import {
 	loadSession,
 	touchSession
 } from './lib/server/session';
-import { adminClient, createSsrClient, type Db } from './lib/server/supabase';
+import {
+	adminClient,
+	clearCookieMode,
+	cookieModeFor,
+	createSsrClient,
+	setCookieMode,
+	SESSION_MODE_COOKIE,
+	type Db
+} from './lib/server/supabase';
 
 /**
  * Request pipeline (auth-spec §3.2):
@@ -28,6 +36,7 @@ export const EXPIRED_REDIRECT = '/sign-in?expired=1';
 
 async function signOutQuietly(event: RequestEvent, reason: string) {
 	const { error } = await event.locals.supabase.auth.signOut({ scope: 'local' });
+	clearCookieMode(event);
 	// Already revoked or expired is fine: the cookies are cleared either way.
 	log.info('signed_out_by_hook', { requestId: event.locals.requestId, code: reason });
 	if (error) log.warn('sign_out_failed', { requestId: event.locals.requestId }, error);
@@ -84,6 +93,14 @@ async function authenticate(event: RequestEvent, deps: HookDeps) {
 				role: record.membership.role
 			}
 		: await ensureMembership(admin, authId);
+
+	// Keep the cookie persistence in line with the session's mode (e.g. a lost mode cookie).
+	if (
+		event.cookies.get(SESSION_MODE_COOKIE) !== record.mode ||
+		cookieModeFor(event) !== record.mode
+	) {
+		setCookieMode(event, record.mode);
+	}
 
 	locals.session = {
 		id: sessionId,
