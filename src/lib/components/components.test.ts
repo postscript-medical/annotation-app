@@ -1,4 +1,5 @@
 import { createRawSnippet, type Component } from 'svelte';
+import { compile } from 'svelte/compiler';
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 import Button from './Button.svelte';
@@ -175,5 +176,21 @@ describe('icons', () => {
 		const out = html(module.default, {});
 		expect(out).toMatch(/<svg[^>]*viewBox="0 0 24 24"/);
 		expect(out).toMatch(/<title>Icon: [^<]+<\/title>/);
+	});
+
+	// A server render can't show this: the browser parses the HTML string inside <svg> and puts the
+	// elements in the SVG namespace. In the browser, Svelte builds an icon's children from a
+	// template and infers its namespace from the elements; a `<title>` (an HTML element name too)
+	// among them made it an HTML template, so the shapes drew nothing (found in 2.1).
+	const sources = import.meta.glob<string>('./icons/Icon?*.svelte', {
+		eager: true,
+		query: '?raw',
+		import: 'default'
+	});
+
+	it.each(Object.entries(sources))('%s builds its shapes as SVG in the browser', (path, source) => {
+		const { js } = compile(source, { generate: 'client', filename: path, runes: true });
+		expect(js.code).toMatch(/\$\.from_svg\(/);
+		expect(js.code).not.toMatch(/\$\.from_html\(/);
 	});
 });

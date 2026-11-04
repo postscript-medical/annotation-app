@@ -2,8 +2,7 @@
 	import Icon from './Icon.svelte';
 </script>
 
-<Icon>
-	<title>Icon: eraser</title>
+<Icon title="Icon: eraser">
 	<g fill-rule="evenodd">
 		<rect x="8" y="22" width="15" height="2" />
 

@@ -2,8 +2,7 @@
 	import Icon from './Icon.svelte';
 </script>
 
-<Icon>
-	<title>Icon: Undo</title>
+<Icon title="Icon: Undo">
 	<path
 		d="
     M12,21

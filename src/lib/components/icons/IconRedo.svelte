@@ -2,8 +2,7 @@
 	import Icon from './Icon.svelte';
 </script>
 
-<Icon>
-	<title>Icon: Redo</title>
+<Icon title="Icon: Redo">
 	<path
 		d="
     M12,21

@@ -1,8 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	// The frame every icon draws into: 24×24, 1em square, currentColor.
-	let { children }: { children: Snippet } = $props();
+	// The frame every icon draws into: 24×24, 1em square, currentColor. The `<title>` (the icon's
+	// accessible name) is rendered here, not by each icon: inside an icon's children Svelte infers
+	// the namespace from the elements, and a `<title>` (also an HTML element) made it create the
+	// whole fragment as HTML, so client-rendered icons drew nothing. `children` must hold only
+	// SVG-only elements (path, circle, g, polygon, rect …).
+	let { title, children }: { title: string; children: Snippet } = $props();
 </script>
 
 <svg
@@ -14,6 +18,7 @@
 	fill="currentColor"
 	role="img"
 >
+	<title>{title}</title>
 	{@render children()}
 </svg>
 

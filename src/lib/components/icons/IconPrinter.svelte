@@ -2,8 +2,7 @@
 	import Icon from './Icon.svelte';
 </script>
 
-<Icon>
-	<title>Icon: Printer</title>
+<Icon title="Icon: Printer">
 	<g fill="none" stroke="black">
 		<!-- Paper -->
 		<path

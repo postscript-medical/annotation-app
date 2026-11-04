@@ -5,8 +5,7 @@
 	let { size = DEFAULT_SIZE }: { size?: Size } = $props();
 </script>
 
-<Icon>
-	<title>Icon: eraser size</title>
+<Icon title="Icon: eraser size">
 	{#if size === SIZE_SMALL}
 		<circle cx="12" cy="12" r="6" />
 	{:else if size === SIZE_MEDIUM}
