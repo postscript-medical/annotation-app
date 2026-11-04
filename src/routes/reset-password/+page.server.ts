@@ -4,6 +4,7 @@ import { HOME_PATH, canResetPassword } from '#lib/server/auth.ts';
 import { actionFailure, failAndLog } from '#lib/server/errors.ts';
 import { log } from '#lib/server/log.ts';
 import { checkNewPassword } from '#lib/server/password.ts';
+import { signOutOtherSessions } from '#lib/server/account.ts';
 import { adminClient } from '#lib/server/supabase.ts';
 import { newPasswordSchema, parseForm } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
@@ -47,22 +48,19 @@ export const actions: Actions = {
 			return failAndLog('reset_update_failed', error, { requestId, userId: profile.userId });
 		}
 
-		// Every other session ends: Supabase revokes them, we delete their policy rows. This one
-		// continues, with its marker cleared so the page can't be used again.
-		const others = await locals.supabase.auth.signOut({ scope: 'others' });
-		if (others.error) log.warn('reset_sign_out_others_failed', { requestId }, others.error);
-		const admin = adminClient();
-		const deleted = await admin
-			.from('session_policies')
-			.delete()
-			.eq('user_id', profile.userId)
-			.neq('session_id', session.id);
-		const cleared = await admin
+		// Every other session ends; this one continues, with its marker cleared so the page can't
+		// be used again.
+		try {
+			await signOutOtherSessions(event);
+		} catch (cause) {
+			return failAndLog('reset_cleanup_failed', cause, { requestId, userId: profile.userId });
+		}
+		const cleared = await adminClient()
 			.from('session_policies')
 			.update({ recovery_verified_at: null })
 			.eq('session_id', session.id);
-		if (deleted.error || cleared.error) {
-			return failAndLog('reset_cleanup_failed', deleted.error ?? cleared.error, {
+		if (cleared.error) {
+			return failAndLog('reset_cleanup_failed', cleared.error, {
 				requestId,
 				userId: profile.userId
 			});

@@ -21,7 +21,7 @@ export type Expectation =
 	/** Runs: no redirect, no HTTP error (a form validation failure is still "allowed"). */
 	| { allow: true; check?: (ctx: Context) => Promise<void> }
 	| { redirect: string | RegExp; check?: (ctx: Context) => Promise<void> }
-	| { status: 403 | 404 };
+	| { status: 403 | 404; check?: (ctx: Context) => Promise<void> };
 
 export type Row = {
 	name: string;
@@ -67,6 +67,7 @@ export function matrixHelpers(admin: Db, sql: Sql, created: string[]) {
 				true
 			);
 			if (isHttpError(thrown)) expect(thrown.status).toBe(expected.status);
+			await expected.check?.(ctx);
 			return;
 		}
 		if ('redirect' in expected) {

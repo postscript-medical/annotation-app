@@ -379,6 +379,7 @@ export type Database = {
 			rate_limit_count: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
 			rate_limit_hit: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
 			rate_limit_window_start: { Args: { p_window_seconds: number }; Returns: string };
+			revoke_session: { Args: { p_session_id: string; p_user_id: string }; Returns: boolean };
 		};
 		Enums: {
 			session_mode: 'personal' | 'shared';

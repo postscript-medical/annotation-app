@@ -155,8 +155,8 @@ sequenceDiagram
 | Section | What it does |
 |---|---|
 | Email | Shows the address. Changing it isn't offered at launch: the user deletes the account and signs up with the new address, losing only preferences. |
-| Change password (`/account/password`) | Current + new password; the new one goes through the policy (§1). The current one is checked with a throwaway server-side client whose session is revoked straight away. Then `updateUser({ password })` and every other session is signed out. |
-| Sessions | The user's `session_policies` rows: mode, started, last seen, "this device". Sign out one, or all. No IP or device details are stored or shown. |
+| Change password (`/account/password`) | Current + new password; the new one goes through the policy (§1). The current one is checked with a throwaway server-side client whose session is revoked straight away; wrong guesses count towards the sign-in limit for that address (§6), as they do for account deletion. Then `updateUser({ password })` and every other session is signed out. |
+| Sessions | The user's `session_policies` rows: mode, started, last seen, "this device". Sign out one (`revoke_session`: the policy row and the Supabase session, only if both are the caller's; otherwise 404), or all. No IP or device details are stored or shown. |
 | Download my data | `export_account(auth_id)` → a JSON file: email, account created and last sign-in dates, workspace, app state, sessions. Covers the rights of access and portability. |
 | Delete my account | Confirmation with the **current password** and the email address typed. Then Admin API `deleteUser(auth_id)`. The FK cascade removes `users`, the personal workspace, memberships, app state and session policies. The cookies are cleared → `/sign-in?deleted=1`. |
 
@@ -245,7 +245,7 @@ This is the source of truth for the authorization tests ([migration-plan §6](mi
 | `/account/password` (change password) | ❌ 303 | ✅ own, current password required | — | |
 | `account?/signOutSession` | ❌ 303 | ✅ own session | ❌ 404 | |
 | `account?/signOutEverywhere` | ❌ 303 | ✅ | — | |
-| `account?/export` | ❌ 303 | ✅ own | — | |
+| `POST /account/export` | ❌ 303 | ✅ own | — | A `+server.ts` endpoint: a form action can't return a file |
 | `account?/delete` | ❌ 303 | ✅ own, current password + email typed | — | |
 | `/admin`, `/admin/**` | ❌ 404 | ❌ 404 | — | No such routes |
 

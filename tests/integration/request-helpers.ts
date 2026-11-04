@@ -100,7 +100,16 @@ export function requestHelpers(admin: Db, sql: Sql, created: string[]) {
 		const { data, error } = await client.auth.signInWithPassword({ email, password: testPassword });
 		expect(error).toBeNull();
 		expect(jar.authCookies().length).toBeGreaterThan(0);
-		return { jar, authId, sessionId: sessionIdOf(data.session!.access_token) };
+		return { jar, authId, email, sessionId: sessionIdOf(data.session!.access_token) };
+	}
+
+	/** Another session for an existing account, as from a second device. */
+	async function signInAgain(email: string) {
+		const jar = new Jar();
+		const client = deps().ssrClient(fakeEvent(jar));
+		const { data, error } = await client.auth.signInWithPassword({ email, password: testPassword });
+		expect(error).toBeNull();
+		return { jar, sessionId: sessionIdOf(data.session!.access_token) };
 	}
 
 	async function addPolicy(
@@ -139,5 +148,5 @@ export function requestHelpers(admin: Db, sql: Sql, created: string[]) {
 		}
 	}
 
-	return { fakeEvent, deps, signedInJar, addPolicy, authSessionExists, run };
+	return { fakeEvent, deps, signedInJar, signInAgain, addPolicy, authSessionExists, run };
 }

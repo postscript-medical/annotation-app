@@ -25,14 +25,21 @@ function localStack() {
 }
 
 const stack = localStack();
-export const sql = postgres(stack.DB_URL, { max: 2, onnotice: () => {} });
+// Idle connections close themselves: several test files share this module in one worker.
+export const sql = postgres(stack.DB_URL, { max: 2, idle_timeout: 1, onnotice: () => {} });
 export const admin = createClient(stack.API_URL, stack.SECRET_KEY, {
 	auth: { persistSession: false, autoRefreshToken: false }
 });
 
 export const PASSWORD = 'violet harbour lantern quietly';
 export const NEW_PASSWORD = 'copper meadow sparrow tuesday';
-export const newEmail = () => `e2e-${crypto.randomUUID()}@example.com`;
+/** Addresses this worker made; cleanUp deletes only these (other workers run in parallel). */
+const madeHere = new Set<string>();
+export const newEmail = () => {
+	const email = `e2e-${crypto.randomUUID()}@example.com`;
+	madeHere.add(email);
+	return email;
+};
 
 /**
  * Every browser request comes from this machine, so our per-network limits (auth-spec §6) would
@@ -99,7 +106,8 @@ export async function ageSessions(email: string) {
 }
 
 export async function cleanUp() {
-	const ids = await sql`select id from auth.users where email like 'e2e-%@example.com'`;
+	if (madeHere.size === 0) return;
+	const ids = await sql`select id from auth.users where email = any(${[...madeHere]})`;
 	for (const { id } of ids) await admin.auth.admin.deleteUser(id);
-	await sql.end();
+	madeHere.clear();
 }

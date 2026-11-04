@@ -1,5 +1,11 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { load as appLayoutLoad } from '../../src/routes/(app)/+layout.server';
+import {
+	actions as accountActions,
+	load as accountLoad
+} from '../../src/routes/(app)/account/+page.server';
+import { POST as exportPost } from '../../src/routes/(app)/account/export/+server';
+import { actions as passwordActions } from '../../src/routes/(app)/account/password/+page.server';
 import { load as authLayoutLoad } from '../../src/routes/(auth)/+layout.server';
 import { actions as forgotActions } from '../../src/routes/(auth)/forgot-password/+page.server';
 import { actions as resendActions } from '../../src/routes/(auth)/resend-confirmation/+page.server';
@@ -18,8 +24,7 @@ import { adminClient, sqlClient } from './helpers';
 import { cells, matrixHelpers, type Row } from './matrix';
 
 // auth-spec §7.3, the source of truth for authorization: every row × caller that exists so far.
-// Still to come: /privacy and /terms (1.13), /account/** (1.12), annotate actions and feedback
-// (2.4, 2.6). /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
+// Still to come: /privacy and /terms (1.13), annotate actions and feedback (2.4, 2.6). /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
 
 const admin = adminClient();
 const sql = sqlClient();
@@ -124,6 +129,77 @@ const rows: Row[] = [
 				}
 			}
 		}
+	},
+	{
+		name: '/account (page)',
+		path: '/account',
+		handler: accountLoad,
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: run }
+	},
+	{
+		name: '/account/password (page)',
+		path: '/account/password',
+		handler: appLayoutLoad,
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fpassword' }, user: run }
+	},
+	{
+		name: '/account/password (change)',
+		path: '/account/password',
+		handler: passwordActions.default,
+		// A wrong current password: the action runs and refuses it.
+		fields: () => ({
+			currentPassword: 'not my password',
+			newPassword: 'copper meadow sparrow tuesday'
+		}),
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fpassword' }, user: run }
+	},
+	{
+		name: 'account?/signOutSession',
+		path: '/account?/signOutSession',
+		handler: accountActions.signOutSession,
+		fields: ({ self, other }) => ({
+			sessionId: other?.sessionId ?? self?.sessionId ?? crypto.randomUUID()
+		}),
+		expect: {
+			anon: { redirect: '/sign-in?next=%2Faccount' },
+			// Own session (this one): signed out.
+			user: { redirect: '/sign-in' },
+			// Someone else's session: 404, and it stays.
+			other: {
+				status: 404,
+				check: async ({ other }) => {
+					const [{ count }] = await sql`
+						select count(*)::int from public.session_policies where session_id = ${other!.sessionId}
+					`;
+					expect(count).toBe(1);
+				}
+			}
+		}
+	},
+	{
+		name: 'account?/signOutEverywhere',
+		path: '/account?/signOutEverywhere',
+		handler: accountActions.signOutEverywhere,
+		fields: () => ({}),
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: { redirect: '/sign-in' } }
+	},
+	{
+		name: 'POST /account/export',
+		path: '/account/export',
+		handler: exportPost,
+		fields: () => ({}),
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fexport' }, user: run }
+	},
+	{
+		name: 'account?/delete',
+		path: '/account?/delete',
+		handler: accountActions.delete,
+		// A wrong password: the action runs and refuses it (deletion itself: account.test.ts).
+		fields: ({ self }) => ({
+			password: 'not my password',
+			confirmEmail: `${self?.userId}@example.com`
+		}),
+		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: run }
 	},
 	{
 		name: '/annotate (page)',

@@ -105,6 +105,7 @@ All are `security definer`, `set search_path = ''`, with `execute` granted to `s
 | `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). Also deletes `auth.sessions` rows more than a day old with no `session_policies` row: the hook already refuses them, and the one-day margin covers a sign-in between creating its session and inserting its policy. |
 | `purge_rate_limits()` | Deletes `rate_limits` rows older than 24 hours. |
 | `rate_limit_hit(p_key text, p_window_seconds int) returns int` | Adds one to the key's counter in the current fixed window (aligned to the Unix epoch, 1 s to 1 day) and returns the new count; an atomic upsert. Used by `src/lib/server/rate-limit.ts`. |
+| `revoke_session(p_user_id uuid, p_session_id uuid) returns boolean` | Ends one session from the account page: deletes the policy row and the matching `auth.sessions` row (refresh tokens cascade), only when the session belongs to `p_user_id`. False otherwise, which the app reports as 404. |
 | `rate_limit_count(p_key text, p_window_seconds int) returns int` | The key's count in the current window without changing it (0 if none). |
 
 The three purges return the number of rows they deleted.
