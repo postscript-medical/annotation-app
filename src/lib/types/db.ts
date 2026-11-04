@@ -376,6 +376,9 @@ export type Database = {
 			purge_expired_sessions: { Args: Record<PropertyKey, never>; Returns: number };
 			purge_rate_limits: { Args: Record<PropertyKey, never>; Returns: number };
 			purge_unconfirmed_signups: { Args: Record<PropertyKey, never>; Returns: number };
+			rate_limit_count: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
+			rate_limit_hit: { Args: { p_key: string; p_window_seconds: number }; Returns: number };
+			rate_limit_window_start: { Args: { p_window_seconds: number }; Returns: string };
 		};
 		Enums: {
 			session_mode: 'personal' | 'shared';

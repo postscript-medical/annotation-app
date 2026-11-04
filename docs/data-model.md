@@ -89,7 +89,7 @@ Kept from the current schema ([baseline §4.3](architecture-baseline.md)): `spec
 | Table | Columns and constraints |
 |---|---|
 | `session_policies` | `session_id uuid pk` (Supabase JWT `session_id` claim). `user_id uuid not null references users(id) on delete cascade`. `mode session_mode not null`. `created_at`, `last_seen_at`. `recovery_verified_at timestamptz` (null unless the session came from a recovery link; set only by the `/auth/confirm` POST, cleared after the reset). Rules in [auth-spec §5](auth-spec.md). |
-| `rate_limits` | `key text` (HMAC-hashed: e.g. `signin:email:<hash>`, `signin:ip:<hash>`, `signup:ip:<hash>`, `reset:email:<hash>`, `confirm:ip:<hash>`, `feedback:user:<id>`; limits in [auth-spec §6](auth-spec.md)). `window_start timestamptz`. `count int`. **PK** `(key, window_start)`. Rows older than 24 hours are purged. |
+| `rate_limits` | `key text` (`scope:kind:<HMAC>`, where the HMAC covers the scope, kind and subject: `signin:email`, `signin:ip`, `signup:ip`, `reset:email`, `reset:ip`, `resend:email`, `resend:ip`, `confirm:ip`, `feedback:user`; the user id is hashed too; limits in [auth-spec §6](auth-spec.md)). `window_start timestamptz`. `count int`. **PK** `(key, window_start)`. Rows older than 24 hours are purged. |
 
 ---
 
@@ -104,6 +104,8 @@ All are `security definer`, `set search_path = ''`, with `execute` granted to `s
 | `purge_unconfirmed_signups()` | `delete from auth.users where email_confirmed_at is null and created_at < now() - interval '24 hours'`. Checked on staging (0.3): `auth.identities`, `auth.one_time_tokens`, `auth.sessions`, `auth.mfa_factors` and the other `auth.*` children reference `auth.users` with `on delete cascade` (refresh tokens and amr claims go too, via sessions). A live delete of an unconfirmed user with one identity and one token left 0 of each. |
 | `purge_expired_sessions()` | Deletes `session_policies` rows past their absolute lifetime (8 h shared, 30 d personal) and the matching `auth.sessions` rows (refresh tokens cascade). Also deletes `auth.sessions` rows more than a day old with no `session_policies` row: the hook already refuses them, and the one-day margin covers a sign-in between creating its session and inserting its policy. |
 | `purge_rate_limits()` | Deletes `rate_limits` rows older than 24 hours. |
+| `rate_limit_hit(p_key text, p_window_seconds int) returns int` | Adds one to the key's counter in the current fixed window (aligned to the Unix epoch, 1 s to 1 day) and returns the new count; an atomic upsert. Used by `src/lib/server/rate-limit.ts`. |
+| `rate_limit_count(p_key text, p_window_seconds int) returns int` | The key's count in the current window without changing it (0 if none). |
 
 The three purges return the number of rows they deleted.
 
