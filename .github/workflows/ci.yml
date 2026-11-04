@@ -47,6 +47,10 @@ jobs:
         # Migrations and supabase/seed.sql are applied on start. Mailpit stays on for auth emails.
         run: npx supabase start -x realtime,storage-api,imgproxy,studio,edge-runtime,logflare,vector,supavisor,postgres-meta
 
+      - name: Generated database types are current
+        # Fails if src/lib/types/db.ts differs from types generated from the migrations.
+        run: npm run check:db-types
+
       - name: Integration tests
         run: npm run test:integration
 

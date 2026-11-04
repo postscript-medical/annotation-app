@@ -1,5 +1,11 @@
 import { afterAll, describe, expect, it } from 'vitest';
-import { adminClient, createAuthUser, publishableClient, sqlClient } from './helpers';
+import {
+	adminClient,
+	createAuthUser,
+	ensureAccount as ensureAccountWith,
+	publishableClient,
+	sqlClient
+} from './helpers';
 
 // ensure_account and export_account (data-model §4) and invariants §5.1–5.5.
 const admin = adminClient();
@@ -12,10 +18,33 @@ async function newAuthUser(options?: { confirmed?: boolean }) {
 	return user;
 }
 
-async function ensureAccount(authId: string) {
-	const { data, error } = await admin.rpc('ensure_account', { p_auth_id: authId });
+const ensureAccount = (authId: string) => ensureAccountWith(admin, authId);
+
+type Named = { id: string; name: string } | null;
+
+/** The shape export_account returns (the generated type is plain `Json`). */
+type AccountExport = {
+	exported_at: string;
+	login: {
+		email: string;
+		created_at: string;
+		email_confirmed_at: string | null;
+		last_sign_in_at: string | null;
+	};
+	account: { id: string; created_at: string } | null;
+	workspaces: Record<string, unknown>[];
+	app_state: {
+		selected_specialty: Named;
+		selected_sub_specialty: Named;
+		selected_illustration: Named;
+	} | null;
+	sessions: { mode: string; created_at: string; last_seen_at: string }[];
+};
+
+async function exportAccount(authId: string) {
+	const { data, error } = await admin.rpc('export_account', { p_auth_id: authId });
 	expect(error).toBeNull();
-	return data as { id: string; auth_id: string; created_at: string };
+	return data as AccountExport | null;
 }
 
 /** Rows the app holds for one user, keyed by table. */
@@ -128,8 +157,9 @@ describe('ensure_account', () => {
 			Array.from({ length: 10 }, () => admin.rpc('ensure_account', { p_auth_id: authId }))
 		);
 		for (const { error } of results) expect(error).toBeNull();
-		expect(new Set(results.map(({ data }) => data.id)).size).toBe(1);
-		expect(await accountRows(results[0].data.id)).toMatchObject({
+		const ids = new Set(results.map(({ data }) => data?.id));
+		expect(ids.size).toBe(1);
+		expect(await accountRows(results[0].data!.id)).toMatchObject({
 			users: 1,
 			memberships: 1,
 			personal_workspaces: 1
@@ -182,8 +212,7 @@ describe('export_account', () => {
 			values (${sessionId}, ${user.id}, 'shared')
 		`;
 
-		const { data, error } = await admin.rpc('export_account', { p_auth_id: authId });
-		expect(error).toBeNull();
+		const data = (await exportAccount(authId))!;
 
 		expect(data.login).toMatchObject({ email });
 		expect(data.login.created_at).toEqual(expect.any(String));
@@ -215,15 +244,13 @@ describe('export_account', () => {
 			where user_id = ${user.id}
 		`;
 
-		const { data } = await admin.rpc('export_account', { p_auth_id: authId });
-		expect(data.app_state.selected_specialty).toEqual({ id: specialty.id, name: specialty.name });
+		const data = await exportAccount(authId);
+		expect(data?.app_state?.selected_specialty).toEqual({ id: specialty.id, name: specialty.name });
 	});
 
 	it('works before the app account exists', async () => {
 		const { id: authId, email } = await newAuthUser({ confirmed: false });
-		const { data, error } = await admin.rpc('export_account', { p_auth_id: authId });
-		expect(error).toBeNull();
-		expect(data).toMatchObject({
+		expect(await exportAccount(authId)).toMatchObject({
 			login: { email, email_confirmed_at: null },
 			account: null,
 			workspaces: [],
@@ -233,9 +260,7 @@ describe('export_account', () => {
 	});
 
 	it('returns null for an unknown id', async () => {
-		const { data, error } = await admin.rpc('export_account', { p_auth_id: crypto.randomUUID() });
-		expect(error).toBeNull();
-		expect(data).toBeNull();
+		expect(await exportAccount(crypto.randomUUID())).toBeNull();
 	});
 });
 

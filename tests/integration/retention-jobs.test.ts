@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import {
 	adminClient,
 	createAuthUser,
+	ensureAccount,
 	publishableClient,
 	sessionIdOf,
 	sqlClient,
@@ -19,7 +20,9 @@ async function newAuthUser(options?: { confirmed?: boolean }) {
 	return user;
 }
 
-async function purge(fn: string) {
+async function purge(
+	fn: 'purge_unconfirmed_signups' | 'purge_expired_sessions' | 'purge_rate_limits'
+) {
 	const { data, error } = await admin.rpc(fn);
 	expect(error).toBeNull();
 	return data as number;
@@ -79,7 +82,7 @@ describe('purge_expired_sessions', () => {
 
 	it('deletes policies past their absolute lifetime and their auth sessions', async () => {
 		const { id: authId, email } = await newAuthUser();
-		const { data: user } = await admin.rpc('ensure_account', { p_auth_id: authId });
+		const user = await ensureAccount(admin, authId);
 
 		const sharedExpired = await sessionWithPolicy(user.id, email, 'shared', '8 hours 1 minute');
 		const sharedLive = await sessionWithPolicy(user.id, email, 'shared', '7 hours 59 minutes');
@@ -106,7 +109,7 @@ describe('purge_expired_sessions', () => {
 
 	it('deletes auth sessions older than a day that have no policy, and only those', async () => {
 		const { id: authId, email } = await newAuthUser();
-		const { data: user } = await admin.rpc('ensure_account', { p_auth_id: authId });
+		const user = await ensureAccount(admin, authId);
 
 		async function signIn() {
 			const { data, error } = await publishableClient().auth.signInWithPassword({
