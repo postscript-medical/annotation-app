@@ -206,9 +206,11 @@ anonymous_users = 30
 # Number of sessions that can be refreshed in a 5 minute interval per IP address.
 token_refresh = 150
 # Number of sign up and sign-in requests that can be made in a 5 minute interval per IP address (excludes anonymous users).
-sign_in_sign_ups = 30
+# High locally: every test request reaches Auth from this machine's address. Our own limits
+# (auth-spec §6) are what the tests check. Staging keeps 30 (below).
+sign_in_sign_ups = 1000
 # Number of OTP / Magic link verifications that can be made in a 5 minute interval per IP address.
-token_verifications = 30
+token_verifications = 1000
 # Number of Web3 logins that can be made in a 5 minute interval per IP address.
 web3 = 30
 
@@ -451,6 +453,9 @@ max_frequency = "60s"
 [remotes.staging.auth.rate_limit]
 # Project-wide emails per hour (set in 0.6; Lettermint free tier is 300 a month).
 email_sent = 5
+# Supabase's own per-IP limits keep their hosted values (raised locally only, for tests).
+sign_in_sign_ups = 30
+token_verifications = 30
 
 # Keep staging's own values for settings the local file would otherwise overwrite.
 [remotes.staging.db.pooler]

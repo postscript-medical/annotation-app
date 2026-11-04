@@ -67,12 +67,22 @@ export function clearCookieMode(event: CookieEvent) {
 	event.cookies.delete(SESSION_MODE_COOKIE, { path: '/' });
 }
 
+/**
+ * `@supabase/ssr` always uses the PKCE flow, so signUp and resetPasswordForEmail store a
+ * code-verifier cookie each time (they pile up). We never exchange a code: email links are
+ * verified by token hash on our server (/auth/confirm), so these cookies are never needed.
+ */
+export function isCodeVerifierCookie(name: string): boolean {
+	return name.endsWith('-code-verifier');
+}
+
 /** Cookie read/write for `@supabase/ssr`, through SvelteKit's cookie API. */
 export function cookieMethods(event: CookieEvent): CookieMethodsServer {
 	return {
 		getAll: () => event.cookies.getAll(),
 		setAll: (cookiesToSet, headers) => {
 			for (const { name, value, options } of cookiesToSet) {
+				if (isCodeVerifierCookie(name) && options.maxAge !== 0) continue;
 				// A deletion keeps Max-Age 0; anything else gets our flags and the mode's lifetime.
 				const { maxAge, expires, ...rest } = options;
 				void expires;

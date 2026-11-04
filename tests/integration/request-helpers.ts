@@ -33,10 +33,13 @@ export class Jar {
 	authCookies = () => [...this.store.keys()].filter((name) => name.startsWith('sb-'));
 }
 
-/** A random documentation-range address, so per-network rate limits don't couple tests. */
+/**
+ * A random private address, so per-network rate limits don't couple tests (or test runs: the
+ * counters last an hour). Limits group addresses by /24, so the first three octets vary.
+ */
 export function randomIp() {
 	const byte = () => Math.floor(Math.random() * 256);
-	return `198.18.${byte()}.${byte()}`;
+	return `10.${byte()}.${byte()}.${byte()}`;
 }
 
 export function fakeEvent(

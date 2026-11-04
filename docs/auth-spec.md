@@ -83,7 +83,7 @@ All cookies are strictly necessary, so no consent banner is needed ([data-protec
 | `sb-<ref>-auth-token` (chunked) | `@supabase/ssr` | Supabase session | `HttpOnly; Secure; SameSite=Lax; Path=/`. **Personal:** `Max-Age` 30 days. **Shared:** no `Max-Age` (session cookie). |
 | `ps_session_mode` | the sign-in flows | `personal` or `shared` | Same flags and lifetime as the auth cookie. Token refreshes rewrite the auth cookie inside `getClaims()`, before the hook knows the session's mode, so the mode travels in this cookie; missing or unknown = shared (session cookie). It only sets how long the browser keeps cookies: the server enforces each mode from `session_policies`, so changing it gains nothing. |
 
-`createServerClient` is passed `cookieOptions: { httpOnly: true, secure: true, sameSite: 'lax' }`. The `@supabase/ssr` default isn't httpOnly, because it assumes a browser client that we don't have.
+`createServerClient` is passed `cookieOptions: { httpOnly: true, secure: true, sameSite: 'lax' }`. `@supabase/ssr` always uses the PKCE flow and would leave a `…-code-verifier` cookie after every sign-up and reset request; we never exchange a code (links are verified by token hash), so `setAll` drops them. The `@supabase/ssr` default isn't httpOnly, because it assumes a browser client that we don't have.
 
 ### 3.2 `hooks.server.ts` order
 

@@ -112,6 +112,19 @@ describe('cookieMethods', () => {
 		});
 	});
 
+	it('never sets the PKCE code-verifier cookies (email links use token hashes)', async () => {
+		const { event, set } = fakeEvent({ modeCookie: 'personal' });
+		await cookieMethods(event).setAll?.(
+			[
+				{ name: 'sb-x-auth-token-code-verifier', value: 'v', options: {} },
+				{ name: 'sb-x-auth-token-flow-abc-code-verifier', value: 'v', options: {} },
+				{ name: 'sb-x-auth-token', value: 'session', options: {} }
+			],
+			{}
+		);
+		expect(set.mock.calls.map(([name]) => name)).toEqual(['sb-x-auth-token']);
+	});
+
 	it('passes the no-cache headers on', async () => {
 		const { event, setHeaders } = fakeEvent();
 		const methods = cookieMethods(event);
