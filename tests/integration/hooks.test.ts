@@ -1,114 +1,24 @@
-import { createServerClient } from '@supabase/ssr';
-import { isRedirect, type Cookies, type RequestEvent } from '@sveltejs/kit';
+import { isRedirect, type RequestEvent } from '@sveltejs/kit';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
-import { createHandle, handleError, type HookDeps } from '../../src/hooks.server';
-import { cookieMethods, authCookieOptions } from '../../src/lib/server/supabase';
-import type { Database } from '../../src/lib/types/db';
-import {
-	adminClient,
-	createAuthUser,
-	ensureAccount,
-	env,
-	sessionIdOf,
-	sqlClient,
-	testPassword
-} from './helpers';
+import { handleError } from '../../src/hooks.server';
+import { adminClient, createAuthUser, ensureAccount, sqlClient } from './helpers';
+import { Jar, requestHelpers } from './request-helpers';
 
 // The real hooks.server.ts handle against the local stack (auth-spec §3.2, §5).
 const admin = adminClient();
 const sql = sqlClient();
 const created: string[] = [];
+const { fakeEvent, deps, signedInJar, addPolicy, authSessionExists, run } = requestHelpers(
+	admin,
+	sql,
+	created
+);
 
 afterEach(() => vi.restoreAllMocks());
 afterAll(async () => {
 	for (const id of created) await admin.auth.admin.deleteUser(id);
 	await sql.end();
 });
-
-/** An in-memory cookie jar with SvelteKit's Cookies API (enough for @supabase/ssr). */
-class Jar {
-	store = new Map<string, string>();
-	get = (name: string) => this.store.get(name);
-	getAll = () => [...this.store].map(([name, value]) => ({ name, value }));
-	set = (name: string, value: string, options: { maxAge?: number } = {}) => {
-		if (options.maxAge === 0 || value === '') this.store.delete(name);
-		else this.store.set(name, value);
-	};
-	delete = (name: string) => void this.store.delete(name);
-	serialize = () => '';
-	authCookies = () => [...this.store.keys()].filter((name) => name.startsWith('sb-'));
-}
-
-function fakeEvent(jar: Jar, path = '/annotate', init: RequestInit = {}) {
-	const url = new URL(path, 'http://localhost:4173');
-	return {
-		url,
-		request: new Request(url, init),
-		cookies: jar as unknown as Cookies,
-		locals: {} as App.Locals,
-		route: { id: path },
-		setHeaders: vi.fn(),
-		getClientAddress: () => '127.0.0.1',
-		isDataRequest: false,
-		isSubRequest: false,
-		params: {},
-		platform: undefined,
-		fetch
-	} as unknown as RequestEvent;
-}
-
-function deps(now: () => Date = () => new Date()): HookDeps {
-	return {
-		ssrClient: (event) =>
-			createServerClient<Database>(env.url, env.publishableKey, {
-				cookieOptions: authCookieOptions(event.url),
-				cookies: cookieMethods(event)
-			}),
-		admin: () => admin,
-		now
-	};
-}
-
-/** Signs in through an SSR client, so the session lands in the jar as auth cookies. */
-async function signedInJar() {
-	const { id: authId, email } = await createAuthUser(admin);
-	created.push(authId);
-	const jar = new Jar();
-	const client = deps().ssrClient(fakeEvent(jar));
-	const { data, error } = await client.auth.signInWithPassword({ email, password: testPassword });
-	expect(error).toBeNull();
-	expect(jar.authCookies().length).toBeGreaterThan(0);
-	return { jar, authId, sessionId: sessionIdOf(data.session!.access_token) };
-}
-
-async function addPolicy(
-	userId: string,
-	sessionId: string,
-	mode: 'personal' | 'shared',
-	created: string,
-	lastSeen: string
-) {
-	await sql`
-		insert into public.session_policies (session_id, user_id, mode, created_at, last_seen_at)
-		values (${sessionId}, ${userId}, ${mode}, now() - ${created}::interval, now() - ${lastSeen}::interval)
-	`;
-}
-
-async function authSessionExists(sessionId: string) {
-	const [{ count }] = await sql`select count(*)::int from auth.sessions where id = ${sessionId}`;
-	return count === 1;
-}
-
-/** Runs the handle; returns the event, the response (if any) and what was thrown. */
-async function run(event: RequestEvent, hookDeps = deps()) {
-	const resolve = vi.fn(async () => new Response('page'));
-	try {
-		const response = await createHandle(hookDeps)({ event, resolve });
-		return { event, response, resolve, thrown: undefined };
-	} catch (thrown) {
-		return { event, response: undefined, resolve, thrown };
-	}
-}
 
 describe('signed out', () => {
 	it('passes through with no session and adds the security headers', async () => {

@@ -219,7 +219,7 @@ There is **no platform or staff role** in this migration (no `dm`, no `platform_
 
 | Guard | Checks | Fails with |
 |---|---|---|
-| `requireUser(event)` | `locals.user` and `locals.profile` exist | 303 → `/sign-in?next=…` |
+| `requireUser(event)` | `locals.session` and `locals.profile` exist (set by the hook, §3.2) | 303 → `/sign-in?next=…` (`next` = the page's path and query on GET, the path only for an action) |
 | _later:_ `requireWorkspaceRole(event, roles)` | membership role in the active workspace | 403 |
 | _later:_ `requireSameWorkspace(event, workspaceId)` | target row belongs to the active workspace | **404** (doesn't reveal that other tenants' rows exist) |
 | _later:_ `requireFeature(event, feature)` | the active workspace has the feature entitlement | 403 → upgrade page |
