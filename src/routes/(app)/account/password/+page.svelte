@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
@@ -13,7 +14,7 @@
 	);
 </script>
 
-<AuthPage title="Change your password">
+<AuthPage title="Change your password" signedIn>
 	{#if form?.error && form.error.code !== 'VALIDATION_FAILED'}
 		<Notice tone="error"><p>{form.error.message}</p></Notice>
 	{/if}
@@ -41,7 +42,7 @@
 			hint="At least 15 characters. Try three random words."
 			error={fieldErrors.newPassword}
 		/>
-		<button type="submit" disabled={submitting}>Change password</button>
+		<Button type="submit" style="on-dark" loading={submitting}>Change password</Button>
 	</form>
 	<p class="links"><a href={resolve('/(app)/account')}>Back to your account</a></p>
 </AuthPage>

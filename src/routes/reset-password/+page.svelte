@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
 	import Notice from '#lib/components/auth/Notice.svelte';
@@ -34,6 +35,6 @@
 			hint="At least 15 characters. Try three random words."
 			error={fieldErrors.password}
 		/>
-		<button type="submit" disabled={submitting}>Save new password</button>
+		<Button type="submit" style="on-dark" loading={submitting}>Save new password</Button>
 	</form>
 </AuthPage>

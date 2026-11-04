@@ -1,10 +1,12 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
 	import Notice from '#lib/components/auth/Notice.svelte';
 	import PasswordField from '#lib/components/auth/PasswordField.svelte';
 	import TextField from '#lib/components/auth/TextField.svelte';
+	import { PRIVACY_URL, TERMS_URL } from '#lib/links.ts';
 	import type { PageProps } from './$types';
 
 	let { form }: PageProps = $props();
@@ -58,13 +60,11 @@
 				hint="At least 15 characters. Try three random words."
 				error={fieldErrors.password}
 			/>
-			<button type="submit" disabled={submitting}>Create account</button>
+			<Button type="submit" style="on-dark" loading={submitting}>Create account</Button>
 		</form>
 		<p class="small">
-			By continuing you agree to the <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- /terms arrives in 1.13 -->
-			<a href="/terms">Terms</a> and the
-			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- /privacy arrives in 1.13 -->
-			<a href="/privacy">Privacy notice</a>.
+			By continuing you agree to the <a href={TERMS_URL} rel="external">Terms of use</a> and the
+			<a href={PRIVACY_URL} rel="external">Privacy notice</a>.
 		</p>
 		<p class="links"><a href={resolve('/(auth)/sign-in')}>I already have an account</a></p>
 	{/if}

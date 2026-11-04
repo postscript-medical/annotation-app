@@ -89,3 +89,22 @@ test('a wrong password gets the generic error', async ({ page }) => {
 	);
 	await expect(page.getByLabel('Email')).toHaveValue(/nobody-/);
 });
+
+test('sign-up links to the terms and privacy notice on the marketing site', async ({ page }) => {
+	await page.goto('/sign-up');
+	await expect(page.getByRole('link', { name: 'Terms of use' })).toHaveAttribute(
+		'href',
+		'https://www.postscriptmedical.com/terms-of-use'
+	);
+	await expect(page.getByRole('link', { name: 'Privacy notice' })).toHaveAttribute(
+		'href',
+		'https://www.postscriptmedical.com/privacy-policy'
+	);
+});
+
+test('the header logo links to the app', async ({ page }) => {
+	await page.goto('/sign-in');
+	const home = page.getByRole('link', { name: 'PostScript Medical home' });
+	await expect(home).toHaveAttribute('href', '/annotate');
+	await expect(home.locator('svg title')).toHaveText('PostScript Medical');
+});

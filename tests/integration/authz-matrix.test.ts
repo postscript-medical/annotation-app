@@ -24,7 +24,8 @@ import { adminClient, sqlClient } from './helpers';
 import { cells, matrixHelpers, type Row } from './matrix';
 
 // auth-spec §7.3, the source of truth for authorization: every row × caller that exists so far.
-// Still to come: /privacy and /terms (1.13), annotate actions and feedback (2.4, 2.6). /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
+// Still to come: annotate actions and feedback (2.4, 2.6). (Privacy and terms are on the
+// marketing site, not in the app.) /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
 
 const admin = adminClient();
 const sql = sqlClient();

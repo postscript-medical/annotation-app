@@ -30,7 +30,7 @@ This table also serves as our record of processing.
 | Auth timestamps (created, confirmed, last sign-in) | `auth.users` | Running the account, export | Contract | As above |
 | Email and password hash of a **not-yet-confirmed** sign-up | `auth.users` | Completing sign-up | Steps before a contract | **24 hours** (pg_cron) |
 | Supabase session + refresh token (includes IP and user agent, held by Supabase) _(verify columns)_ | `auth.sessions`, `auth.refresh_tokens` | Keeping the user signed in | Contract | Until sign-out or the end of the session lifetime (8 h / 30 d) |
-| Auth audit entries (IP, action) | `auth.audit_log_entries` | Supabase-side security, investigating account misuse | Legitimate interests (security) | **Kept as Supabase provides it; not turned off and not purged by us** (decided 2026-11-02). The table has no foreign key to `auth.users`, so entries may **outlive account deletion**, and the payload may include the email address _(verify on staging before `/privacy` is final, 1.13)_. |
+| Auth audit entries (IP, action) | `auth.audit_log_entries` | Supabase-side security, investigating account misuse | Legitimate interests (security) | **Kept as Supabase provides it; not turned off and not purged by us** (decided 2026-11-02). The table has no foreign key to `auth.users`, so entries may **outlive account deletion**, and the payload may include the email address _(verify on staging before the privacy notice is published)_. |
 | Session policy (mode, started, last seen, recovery-link time) | `session_policies` | Shared/personal device limits | Contract | Until the session ends, at most 30 days |
 | Rate-limit counters (HMAC hashes of email / IP prefix) | `rate_limits` | Abuse prevention | Legitimate interests (security) | **24 hours** |
 | Preferences (selected specialty, sub-specialty, illustration) | `user_app_states` | Convenience | Contract | With the account |
@@ -129,8 +129,8 @@ Backups: the nightly encrypted `pg_dump` artifact expires after **7 days** (GitH
 
 ## 8. Documents and obligations
 
-- [ ] **Privacy notice** (`/privacy`): controller identity and contact, this inventory in plain language, processors, cookies, rights, retention, how to complain (ICO / NZ Privacy Commissioner).
-- [ ] **Terms** (`/terms`): free service, provided as is. The user is responsible for patient communications they send from their device (§3.1). Acceptable use.
+- [ ] **Privacy notice**, published on the marketing site (https://www.postscriptmedical.com/privacy-policy); the app links to it. Draft: [privacy-notice.md](privacy-notice.md). Contents: controller identity and contact, this inventory in plain language, processors, cookies, rights, retention, how to complain (ICO / NZ Privacy Commissioner).
+- [ ] **Terms of use**, published on the marketing site (https://www.postscriptmedical.com/terms-of-use); the app links to it. Draft: [terms-of-use.md](terms-of-use.md). Contents: free service, provided as is. The user is responsible for patient communications they send from their device (§3.1). Acceptable use.
 - [ ] **ICO data protection fee** (UK): most controllers must pay it. Check whether we're exempt _(verify)_.
 - [ ] **UK / EU representative** (Art. 27): needed if the controller has no establishment in the UK or EU but offers the service there. The exemption for occasional, low-risk processing may apply _(verify, depends on open question 1)_.
 - [ ] **NZ privacy officer:** name one (Privacy Act 2020, s 201).
@@ -153,7 +153,7 @@ Backups: the nightly encrypted `pg_dump` artifact expires after **7 days** (GitH
 
 ## 10. Open questions
 
-1. **Controller:** which legal entity is the controller, and where is it established (UK, NZ, elsewhere)? This decides the ICO fee, the Art. 27 representative and the privacy notice wording.
+1. **Controller:** which legal entity is the controller, and where is it established (UK, NZ, elsewhere)? This decides the ICO fee, the Art. 27 representative and the privacy notice wording. The marketing site's current policy names PostScript Medical Limited, 18 The Broadway East Lane, Wembley, HA9 8JU, England, without a company number; the drafts use that, to be confirmed.
 2. **Inactive accounts:** delete after 24 months without a sign-in (with a warning email), or keep until the user deletes them? Deleting is better for storage limitation and costs one email per account.
 3. **Feedback:** keep the in-app form (an email to staff), or replace it with a plain `mailto:` link so nothing passes through our server?
 4. ~~**Email provider's log retention and location.**~~ **Closed:** Lettermint, EU, 28 days fixed (§2, §4).

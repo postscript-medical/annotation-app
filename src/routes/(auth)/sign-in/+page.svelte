@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
@@ -49,7 +50,7 @@
 			</span>
 		</label>
 		{#if data.next}<input type="hidden" name="next" value={data.next} />{/if}
-		<button type="submit" disabled={submitting}>Sign in</button>
+		<Button type="submit" style="on-dark" loading={submitting}>Sign in</Button>
 	</form>
 
 	<p class="links">

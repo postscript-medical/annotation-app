@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
@@ -48,7 +49,7 @@
 					<span class="small">(signs you out after 60 minutes idle or 8 hours)</span>
 				</span>
 			</label>
-			<button type="submit" disabled={submitting}>Continue</button>
+			<Button type="submit" style="on-dark" loading={submitting}>Continue</Button>
 		</form>
 	{/if}
 </AuthPage>

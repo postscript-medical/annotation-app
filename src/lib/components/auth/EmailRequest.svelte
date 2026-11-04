@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '../Button.svelte';
 	import { resolve } from '$app/paths';
 	import type { Snippet } from 'svelte';
 	import { enhance } from '$app/forms';
@@ -44,7 +45,7 @@
 				required
 				error={form?.fieldErrors?.email}
 			/>
-			<button type="submit" disabled={submitting}>{button}</button>
+			<Button type="submit" style="on-dark" loading={submitting}>{button}</Button>
 		</form>
 		<p class="links"><a href={resolve('/(auth)/sign-in')}>Back to sign in</a></p>
 	{/if}

@@ -76,7 +76,7 @@ src/
 │   ├── components/            # design system (ported Ps* components, prefix dropped)
 │   └── types/                 # generated DB types (supabase gen types) + DTOs
 └── routes/
-    ├── (public)/              # /sign-up, /sign-in, /forgot-password, /auth/confirm, /reset-password, /logout, /privacy, /terms
+    ├── (public)/              # /sign-up, /sign-in, /forgot-password, /auth/confirm, /reset-password, /logout (privacy and terms: links to the marketing site)
     └── (app)/                 # +layout.server.ts → requireUser
         ├── annotate/
         └── account/           # email, change password, sessions, export my data, delete my account
@@ -167,7 +167,7 @@ Each phase ends with a deploy to the new Netlify site and a green CI run. The nu
 - [ ] Schema migrations for data-model §3, `ensure_account`, pg_cron jobs.
 - [ ] Auth flows from [auth-spec.md](auth-spec.md) §4–§6 (sign-up, sign-in, forgot/reset password), plus Supabase config and email templates in the repo (§2).
 - [ ] `/account`: change password, sessions, sign out everywhere, export my data, delete my account.
-- [ ] Design system (the `Ps*` components without the prefix), `/privacy` and `/terms` pages (data-protection §8).
+- [ ] Design system (the `Ps*` components without the prefix); privacy notice and terms of use drafted for the marketing site, which the app links to (data-protection §8).
 - [ ] Netlify redirect `/images/*` → Cloudinary kept in `netlify.toml`.
 
 ### Phase 2 — Clinician journey

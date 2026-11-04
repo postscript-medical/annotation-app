@@ -131,7 +131,7 @@ sequenceDiagram
   A-->>U: set cookies, 303 → /annotate
 ```
 
-**Sign-up (`/sign-up`).** Email + password (no "confirm password" field). A rejected password gets a specific, friendly reason ("at least 15 characters", "this password has appeared in a data breach"). The response is always "check your email to confirm", whether or not the address already has an account, so the form can't be used to find out who has one. Supabase creates an unconfirmed `auth.users` row; pg_cron deletes it if it's still unconfirmed after 24 hours. Below the form: "By continuing you agree to the [Terms](/terms) and [Privacy notice](/privacy)." No checkbox and nothing stored; agreeing to terms isn't GDPR consent, the lawful basis is the contract ([data-protection §3](data-protection.md)).
+**Sign-up (`/sign-up`).** Email + password (no "confirm password" field). A rejected password gets a specific, friendly reason ("at least 15 characters", "this password has appeared in a data breach"). The response is always "check your email to confirm", whether or not the address already has an account, so the form can't be used to find out who has one. Supabase creates an unconfirmed `auth.users` row; pg_cron deletes it if it's still unconfirmed after 24 hours. Below the form: "By continuing you agree to the [Terms of use](https://www.postscriptmedical.com/terms-of-use) and the [Privacy notice](https://www.postscriptmedical.com/privacy-policy)." The legal pages live on the marketing site, not in the app (drafts: [terms-of-use.md](terms-of-use.md), [privacy-notice.md](privacy-notice.md)). No checkbox and nothing stored; agreeing to terms isn't GDPR consent, the lawful basis is the contract ([data-protection §3](data-protection.md)).
 
 **Sign-in (`/sign-in`).** Email + password + "This is a shared device". `signInWithPassword` → `ensure_account` → insert `session_policies` → cookie `Max-Age` per mode → 303 to `next` or `/annotate`. **One generic error for any failure** (unknown email, wrong password, unconfirmed address). The page also offers a "resend confirmation email" link, which is rate-limited and always gives the same response.
 
@@ -236,7 +236,6 @@ This is the source of truth for the authorization tests ([migration-plan §6](mi
 | `/sign-up`, `/sign-in`, `/forgot-password`, `/resend-confirmation` | ✅ | ✅ (→ /annotate) | — | Rate-limited (§6) |
 | `/auth/confirm` (GET page, POST verify) | ✅ | ✅ | — | POST rate-limited; only the POST verifies |
 | `/reset-password` | ❌ 303 → /forgot-password | ✅ only with a recovery marker < 15 min and `amr` `otp`; otherwise ❌ 303 → /forgot-password | — | One use per marker |
-| `/privacy`, `/terms` | ✅ | ✅ | — | |
 | `POST /logout` | ❌ 303 | ✅ | — | |
 | `/annotate` load | ❌ 303 | ✅ | — | |
 | `annotate?/chooseSpecialty`, `?/chooseIllustration` | ❌ 303 | ✅ own state; ids must exist in the catalogue | ❌ (no user id accepted) | |

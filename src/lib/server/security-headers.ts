@@ -9,7 +9,7 @@ export const SECURITY_HEADERS: Record<string, string> = {
 	// Full URLs (which can hold a confirmation token) never leave the site.
 	'Referrer-Policy': 'same-origin',
 	'Permissions-Policy':
-		'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), browsing-topics=()',
+		'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), hid=(), midi=(), browsing-topics=()',
 	// Legacy twin of CSP `frame-ancestors 'none'`.
 	'X-Frame-Options': 'DENY',
 	'Cross-Origin-Opener-Policy': 'same-origin',

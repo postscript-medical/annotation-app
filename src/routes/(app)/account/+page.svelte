@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '#lib/components/Button.svelte';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import AuthPage from '#lib/components/auth/AuthPage.svelte';
@@ -22,7 +23,7 @@
 	const when = (iso: string) => `${format.format(new Date(iso))} UTC`;
 </script>
 
-<AuthPage title="Your account">
+<AuthPage title="Your account" signedIn>
 	{#if data.passwordChanged && !form}
 		<Notice><p>Your password has been changed. Other devices have been signed out.</p></Notice>
 	{/if}
@@ -60,13 +61,13 @@
 					</div>
 					<form method="POST" action="?/signOutSession" use:enhance>
 						<input type="hidden" name="sessionId" value={session.id} />
-						<button type="submit">Sign out</button>
+						<Button type="submit" style="secondary">Sign out</Button>
 					</form>
 				</li>
 			{/each}
 		</ul>
 		<form method="POST" action="?/signOutEverywhere">
-			<button type="submit">Sign out of all devices</button>
+			<Button type="submit" style="secondary">Sign out of all devices</Button>
 		</form>
 	</section>
 
@@ -77,7 +78,7 @@
 			settings and sessions.
 		</p>
 		<form method="POST" action="/account/export">
-			<button type="submit">Download my data</button>
+			<Button type="submit" style="secondary">Download my data</Button>
 		</form>
 	</section>
 
@@ -107,12 +108,12 @@
 				required
 				error={deleteErrors.confirmEmail}
 			/>
-			<button type="submit" class="danger">Delete my account</button>
+			<Button type="submit" style="danger">Delete my account</Button>
 		</form>
 	</section>
 
 	<form method="POST" action="/logout">
-		<button type="submit">Sign out</button>
+		<Button type="submit" style="secondary">Sign out</Button>
 	</form>
 </AuthPage>
 
@@ -152,10 +153,5 @@
 		padding: 0.125rem 0.5rem;
 		border: 1px solid currentColor;
 		border-radius: 999px;
-	}
-
-	.danger {
-		background-color: rgb(170, 40, 40);
-		border-color: rgb(170, 40, 40);
 	}
 </style>
