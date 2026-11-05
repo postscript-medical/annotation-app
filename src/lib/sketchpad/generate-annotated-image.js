@@ -1,6 +1,7 @@
 // @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 // Ported as-is (2.1) from legacy `methods/generate-annotated-image.js`: flattens the illustration,
 // the watermark, the canvas strokes and the typed text into one canvas for sharing (2.5).
+// The canvas goes to lib/share as a JPEG; nothing is uploaded.
 import { get } from 'svelte/store';
 import { WATERMARK_URL } from '../images.ts';
 import { canvasElement, dpr, illustrationDisplayed } from './stores.js';
@@ -31,9 +32,10 @@ function drawTypedText(context, parentBoundingRect, dpr) {
 
 async function fetchBlob(url) {
 	const response = await fetch(url);
-	const blob = await response.blob(); // TODO: Check for errors
+	// 2.5: a failed fetch would otherwise reach createImageBitmap as an error page.
+	if (!response.ok) throw new Error(`watermark request failed: ${response.status}`);
 
-	return blob;
+	return response.blob();
 }
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
@@ -66,7 +68,6 @@ export default async function generateAnnotatedImage() {
 	const annotatedImage = document.createElement('canvas');
 	const context = annotatedImage.getContext('2d');
 	const canvasBoundingRect = srcCanvas.getBoundingClientRect();
-	const illustrationBoundingRect = srcIllustration.getBoundingClientRect();
 	const imageBlob = await fetchBlob(WATERMARK_URL);
 	const watermark = await createImageBitmap(imageBlob);
 
@@ -75,13 +76,17 @@ export default async function generateAnnotatedImage() {
 
 	context.fillStyle = 'white';
 	context.fillRect(0, 0, canvasBoundingRect.width * _dpr, canvasBoundingRect.height * _dpr);
-	context.drawImage(
-		srcIllustration,
-		(illustrationBoundingRect.left - canvasBoundingRect.left) * _dpr,
-		(illustrationBoundingRect.top - canvasBoundingRect.top) * _dpr,
-		illustrationBoundingRect.width * _dpr,
-		illustrationBoundingRect.height * _dpr
-	);
+	// No illustration chosen yet (2.5): share the drawing on white. Legacy threw here.
+	if (srcIllustration) {
+		const illustrationBoundingRect = srcIllustration.getBoundingClientRect();
+		context.drawImage(
+			srcIllustration,
+			(illustrationBoundingRect.left - canvasBoundingRect.left) * _dpr,
+			(illustrationBoundingRect.top - canvasBoundingRect.top) * _dpr,
+			illustrationBoundingRect.width * _dpr,
+			illustrationBoundingRect.height * _dpr
+		);
+	}
 	context.drawImage(watermark, 16 * _dpr, 16 * _dpr, 85 * _dpr, 71 * _dpr);
 	context.drawImage(srcCanvas, 0, 0);
 

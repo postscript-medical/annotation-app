@@ -4,11 +4,12 @@
      sketchpad it drives. Browser only (the page has ssr = false).
      Changes from legacy: the catalogue and selection come from the page load, by id; choosing a
      specialty or an illustration saves through a form action and only takes effect once saved, with
-     an error shown otherwise (legacy updated the screen and saved fire-and-forget). Share (2.5) and
-     feedback (2.6) are not here yet; email sharing is gone (scope change). -->
+     an error shown otherwise (legacy updated the screen and saved fire-and-forget). Sharing is
+     device-only (2.5): share sheet, download or print; email sharing is gone (scope change).
+     Feedback comes in 2.6. -->
 <script>
 	// @ts-nocheck -- legacy JavaScript ported (2.4); typed in the runes conversion (2.8).
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { resolveSelection } from '../catalogue/selection.ts';
 	import {
 		DEFAULT_COLOR,
@@ -26,11 +27,14 @@
 		TOOL_SHAPE,
 		TOOL_TEXT
 	} from '../sketchpad/constants.js';
+	import generateAnnotatedImage from '../sketchpad/generate-annotated-image.js';
 	import { actions, selectedIllustration, selectedIllustrationTitle } from '../sketchpad/stores.js';
+	import { toJpegBlob } from '../share/share.ts';
 	import SketchPad from '../sketchpad/SketchPad.svelte';
 	import SketchPadUi from '../sketchpad/SketchPadUi.svelte';
 	import ChooseSpecialtyModal from './ChooseSpecialtyModal.svelte';
 	import ImageCatalogue from './ImageCatalogue.svelte';
+	import ShareModal from './ShareModal.svelte';
 	import { saveChoice } from './post-action.ts';
 
 	/** From the page load: the catalogue, the saved selection (ids) and the menu initial. */
@@ -39,6 +43,7 @@
 	export let accountInitial = '';
 
 	const CHOOSE_A_SPECIALTY = 'chooseASpecialty';
+	const MODAL_SHARE = 'share';
 
 	let activeModal = '';
 	let saving = false;
@@ -155,6 +160,17 @@
 		closeModal();
 	}
 
+	async function prepareImage() {
+		return toJpegBlob(await generateAnnotatedImage());
+	}
+
+	async function printImage() {
+		// Close the modal first, so only the annotated page prints (print rules hide the tools).
+		closeModal();
+		await tick();
+		window.print();
+	}
+
 	function selectTool({ detail: toolId }) {
 		selectedToolId = toolId;
 	}
@@ -187,6 +203,7 @@
 		on:change-shape={changeShapeType}
 		on:erase-annotation={eraseAnnotation}
 		on:open-catalogue={() => openModal(IMAGE_CATALOGUE)}
+		on:open-share={() => openModal(MODAL_SHARE)}
 		on:redo={() => sketchPad.redo()}
 		on:select-tool={selectTool}
 		on:undo={() => sketchPad.undo()}
@@ -204,6 +221,10 @@
 		onselect={selectIllustration}
 		onclose={closeModal}
 	/>
+{/if}
+
+{#if activeModal === MODAL_SHARE}
+	<ShareModal prepare={prepareImage} onprint={printImage} onclose={closeModal} />
 {/if}
 
 {#if activeModal === CHOOSE_A_SPECIALTY}

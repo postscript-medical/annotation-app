@@ -1,42 +1,23 @@
-import { expect, test, type Page } from '@playwright/test';
-import { PASSWORD, cleanUp, clearRateLimits, confirmedAccount, sql } from './support';
+import { expect, test } from '@playwright/test';
+import {
+	canvasIllustration,
+	catalogue,
+	chooseFirstSpecialty,
+	signIn,
+	stubImages,
+	watchProblems
+} from './annotate-support';
+import { cleanUp, clearRateLimits, confirmedAccount, sql } from './support';
 
 // /annotate in a real browser (2.4): first visit (specialty, then the catalogue), choosing an
-// illustration, the choice surviving a reload, and a failed save. Images come from a stub (below),
-// so E2E never contacts Cloudinary; the proxy's allow-list is checked at the end.
-
-// A 1×1 transparent PNG.
-const PNG = Buffer.from(
-	'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
-	'base64'
-);
+// illustration, the choice surviving a reload, and a failed save. Images come from a stub
+// (annotate-support.ts), so E2E never contacts Cloudinary; the proxy's allow-list is checked at the end.
 
 test.beforeEach(async ({ page }) => {
 	await clearRateLimits();
-	await page.route('**/images/**', (route) =>
-		route.fulfill({ status: 200, contentType: 'image/png', body: PNG })
-	);
+	await stubImages(page);
 });
 test.afterAll(cleanUp);
-
-function watchProblems(page: Page) {
-	const problems: string[] = [];
-	page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`));
-	page.on('console', (message) => {
-		if (message.type() === 'error' || /Content Security Policy|Refused to/i.test(message.text())) {
-			problems.push(`${message.type()}: ${message.text()}`);
-		}
-	});
-	return problems;
-}
-
-async function signIn(page: Page, email: string) {
-	await page.goto('/sign-in?next=%2Fannotate');
-	await page.getByLabel('Email').fill(email);
-	await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
-	await page.getByRole('button', { name: 'Sign in' }).click();
-	await expect(page).toHaveURL(/\/annotate$/);
-}
 
 async function storedIllustrationId(authId: string) {
 	const [row] = await sql<{ id: string | null }[]>`
@@ -44,22 +25,6 @@ async function storedIllustrationId(authId: string) {
 		from public.user_app_states as s join public.users as u on u.id = s.user_id
 		where u.auth_id = ${authId}`;
 	return row?.id ?? null;
-}
-
-// The full-size illustration on the canvas (thumbnails are under /images/c_thumb,…).
-const canvasIllustration = (page: Page) =>
-	page.locator('img[src^="/images/annotation-app/illustrations/"]');
-const catalogue = (page: Page) => page.getByRole('dialog', { name: 'Illustration catalogue' });
-
-/** First visit: pick the first specialty; the catalogue opens. */
-async function chooseFirstSpecialty(page: Page) {
-	const welcome = page.getByRole('dialog', { name: 'Welcome to PostScript' });
-	await expect(welcome).toBeVisible();
-	await expect(welcome.getByRole('button', { name: 'Confirm' })).toBeDisabled();
-	await welcome.locator('label').first().click();
-	await welcome.getByRole('button', { name: 'Confirm' }).click();
-	await expect(welcome).toBeHidden();
-	await expect(catalogue(page)).toBeVisible();
 }
 
 test('first visit: choose a specialty, then an illustration, which a reload keeps', async ({

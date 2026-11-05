@@ -1,8 +1,8 @@
 <svelte:options runes={false} />
 
 <!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
-     Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight` with the user menu (2.4);
-     its share and feedback buttons arrive in 2.5 and 2.6. -->
+     Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight` with the share button (2.5)
+     and the user menu (2.4); its feedback button arrives in 2.6. -->
 <script>
 	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 	import { createEventDispatcher } from 'svelte';
@@ -27,6 +27,7 @@
 	import IconText from '../components/icons/IconText.svelte';
 	import IconHome from '../components/icons/IconHome.svelte';
 	import IconShapes from '../components/icons/IconShapes.svelte';
+	import Button from '../components/Button.svelte';
 	import Header from '../components/Header.svelte';
 	import UserSettingsDropdown from '../annotate/UserSettingsDropdown.svelte';
 
@@ -77,6 +78,7 @@
 <div class="ui ui-content">
 	<Header signedIn onLight>
 		{#snippet actions()}
+			<Button style="tertiary" onclick={() => dispatch('open-share')}>Share annotation</Button>
 			<UserSettingsDropdown initial={accountInitial} />
 		{/snippet}
 	</Header>
