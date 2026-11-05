@@ -27,3 +27,10 @@ export interface Specialty {
 
 /** Specialties by name. */
 export type Catalogue = Specialty[];
+
+/** An illustration picked in the catalogue panel, with where it was found. */
+export interface CatalogueChoice {
+	specialtyId: string;
+	subSpecialtyId: string;
+	illustration: Illustration;
+}

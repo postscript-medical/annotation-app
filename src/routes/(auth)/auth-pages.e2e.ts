@@ -52,7 +52,8 @@ test('signs in, stays signed in, signs out', async ({ page, context, baseURL }) 
 	await page.getByLabel(/This is a shared device/).uncheck();
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/annotate$/);
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Annotate');
+	await expect(page).toHaveTitle('Annotate · PostScript Medical');
+	await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
 
 	const cookies = await context.cookies();
 	const auth = cookies.filter((c) => c.name.startsWith('sb-'));
@@ -65,7 +66,8 @@ test('signs in, stays signed in, signs out', async ({ page, context, baseURL }) 
 	}
 
 	await page.reload();
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Annotate');
+	await expect(page).toHaveTitle('Annotate · PostScript Medical');
+	await expect(page.getByRole('button', { name: 'Account menu' })).toBeVisible();
 
 	const logout = await page.request.post('/logout', {
 		// As a plain browser form sends it; with Accept: */* SvelteKit answers as for use:enhance.

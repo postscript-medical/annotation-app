@@ -116,6 +116,10 @@ async function authenticate(event: RequestEvent, deps: HookDeps) {
 	};
 }
 
+export function isPublicImage(pathname: string): boolean {
+	return pathname.startsWith('/images/');
+}
+
 export function createHandle(deps: HookDeps): Handle {
 	return async ({ event, resolve }) => {
 		event.locals.requestId = newRequestId();
@@ -129,7 +133,9 @@ export function createHandle(deps: HookDeps): Handle {
 		}
 
 		event.locals.supabase = deps.ssrClient(event);
-		await authenticate(event, deps);
+		// Public images (G7, 2.4) need no session. Skipping it saves a database read per thumbnail
+		// and keeps a token refresh (with its no-store header) off a response the CDN caches.
+		if (!isPublicImage(event.url.pathname)) await authenticate(event, deps);
 
 		const response = await resolve(event);
 		applySecurityHeaders(response.headers);

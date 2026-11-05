@@ -1,8 +1,8 @@
 <svelte:options runes={false} />
 
 <!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
-     Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight`; its share, feedback and
-     user-menu buttons arrive with /annotate (2.4–2.6). -->
+     Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight` with the user menu (2.4);
+     its share and feedback buttons arrive in 2.5 and 2.6. -->
 <script>
 	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 	import { createEventDispatcher } from 'svelte';
@@ -28,11 +28,14 @@
 	import IconHome from '../components/icons/IconHome.svelte';
 	import IconShapes from '../components/icons/IconShapes.svelte';
 	import Header from '../components/Header.svelte';
+	import UserSettingsDropdown from '../annotate/UserSettingsDropdown.svelte';
 
 	export let pen;
 	export let eraser;
 	export let selectedToolId;
 	export let shape;
+	/** First letter of the account email, for the user-menu button (2.4). */
+	export let accountInitial = '';
 
 	const dispatch = createEventDispatcher();
 
@@ -72,7 +75,11 @@
 </script>
 
 <div class="ui ui-content">
-	<Header signedIn onLight />
+	<Header signedIn onLight>
+		{#snippet actions()}
+			<UserSettingsDropdown initial={accountInitial} />
+		{/snippet}
+	</Header>
 
 	<ButtonTool
 		primaryValue=""

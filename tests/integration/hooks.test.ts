@@ -121,6 +121,40 @@ describe('a valid session', () => {
 	});
 });
 
+describe('public images (G7, 2.4)', () => {
+	it('skips authentication for /images/: no session lookup, no cookie changes', async () => {
+		const { jar, authId, sessionId } = await signedInJar();
+		const user = await ensureAccount(admin, authId);
+		await addPolicy(user.id, sessionId, 'personal', '1 hour', '1 minute');
+		const cookiesBefore = jar.authCookies();
+		const lookups = vi.fn(admin.from.bind(admin));
+		const spyAdmin = Object.assign(Object.create(admin), { from: lookups });
+
+		const { event, response, resolve } = await run(
+			fakeEvent(jar, '/images/annotation-app/illustrations/vagus_nerve.jpg'),
+			{ ...deps(), admin: () => spyAdmin }
+		);
+
+		expect(resolve).toHaveBeenCalledOnce();
+		expect(lookups).not.toHaveBeenCalled();
+		expect(event.locals.session).toBeNull();
+		expect(event.locals.profile).toBeNull();
+		expect(jar.authCookies()).toEqual(cookiesBefore);
+		// Still gets the security headers.
+		expect(response?.headers.get('X-Content-Type-Options')).toBe('nosniff');
+	});
+
+	it('still authenticates a path that only starts like it', async () => {
+		const { jar, authId, sessionId } = await signedInJar();
+		const user = await ensureAccount(admin, authId);
+		await addPolicy(user.id, sessionId, 'personal', '1 hour', '1 minute');
+
+		const { event } = await run(fakeEvent(jar, '/imagesx'));
+
+		expect(event.locals.session?.id).toBe(sessionId);
+	});
+});
+
 describe('sessions that must end', () => {
 	it('signs out a session with no policy row and revokes it', async () => {
 		const { jar, sessionId } = await signedInJar();

@@ -1,7 +1,7 @@
 <svelte:options runes={false} />
 
 <!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
-     The image path depends on how Cloudinary illustrations are served (G7, 2.3/2.4). -->
+     Images come through the first-party /images proxy (G7, 2.4). -->
 <script module>
 	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 	import { gsap } from 'gsap';
@@ -22,11 +22,12 @@
 <script>
 	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 	import { onMount, onDestroy } from 'svelte';
+	import { illustrationUrl } from '../images.ts';
 	import { illustrationDisplayed } from './stores.js';
 
 	export let name = '';
 
-	$: src = 'images/annotation-app/illustrations/' + name;
+	$: src = illustrationUrl(name);
 
 	async function imageLoaded() {
 		gsap.to($illustrationDisplayed, {

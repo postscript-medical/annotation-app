@@ -1,6 +1,10 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { load as appLayoutLoad } from '../../src/routes/(app)/+layout.server';
 import {
+	actions as annotateActions,
+	load as annotateLoad
+} from '../../src/routes/(app)/annotate/+page.server';
+import {
 	actions as accountActions,
 	load as accountLoad
 } from '../../src/routes/(app)/account/+page.server';
@@ -24,7 +28,7 @@ import { adminClient, sqlClient } from './helpers';
 import { cells, matrixHelpers, type Row } from './matrix';
 
 // auth-spec §7.3, the source of truth for authorization: every row × caller that exists so far.
-// Still to come: annotate actions and feedback (2.4, 2.6). (Privacy and terms are on the
+// Still to come: feedback (2.6). (Privacy and terms are on the
 // marketing site, not in the app.) /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
 
 const admin = adminClient();
@@ -206,6 +210,32 @@ const rows: Row[] = [
 		name: '/annotate (page)',
 		path: '/annotate',
 		handler: appLayoutLoad,
+		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+	},
+	{
+		name: '/annotate (page load)',
+		path: '/annotate',
+		handler: annotateLoad,
+		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+	},
+	// Ids not in the catalogue: the action runs and refuses them (saving: annotate.test.ts). There
+	// is no user id in the request, so there is no "other user's row" case to try.
+	{
+		name: 'annotate?/chooseSpecialty',
+		path: '/annotate?/chooseSpecialty',
+		handler: annotateActions.chooseSpecialty,
+		fields: () => ({ specialtyId: crypto.randomUUID() }),
+		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+	},
+	{
+		name: 'annotate?/chooseIllustration',
+		path: '/annotate?/chooseIllustration',
+		handler: annotateActions.chooseIllustration,
+		fields: () => ({
+			specialtyId: crypto.randomUUID(),
+			subSpecialtyId: crypto.randomUUID(),
+			illustrationId: crypto.randomUUID()
+		}),
 		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
 	}
 ];

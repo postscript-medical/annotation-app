@@ -7,11 +7,7 @@
 [build.environment]
   NODE_VERSION = "24"
 
-# Cloudinary illustrations. NOTE: the SvelteKit function claims "/*", and
-# Netlify runs path-configured functions before redirects, so this rule is
-# currently shadowed on the new site. How /images/* is served is decided
-# before 2.3/2.4 (see docs/migration-execution-plan.md 1.2).
-[[redirects]]
-  from = "/images/*"
-  to = "https://res.cloudinary.com/postscript-medical/image/upload/q_auto:eco/:splat"
-  status = 200
+# Cloudinary illustrations are served by the app itself (G7, 2.4): the route
+# src/routes/images/[...path] proxies an allow-listed set of paths from
+# Cloudinary, with CDN cache headers. (The legacy /images/* rewrite was
+# shadowed by the SvelteKit function, which claims "/*", and was removed.)

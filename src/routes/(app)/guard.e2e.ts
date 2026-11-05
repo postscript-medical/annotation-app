@@ -8,7 +8,8 @@ test('a signed-out visitor to /annotate is sent to sign in, with next', async ({
 	expect(response.status()).toBe(303);
 	expect(response.headers()['location']).toBe('/sign-in?next=%2Fannotate');
 	expect(response.headers()['x-content-type-options']).toBe('nosniff');
-	expect(await response.text()).not.toContain('The annotation screen is on its way');
+	// No page and no catalogue data before the redirect.
+	expect(await response.text()).not.toContain('subSpecialties');
 });
 
 test('client-side data requests are redirected too', async ({ request }) => {

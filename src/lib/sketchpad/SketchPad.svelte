@@ -1,7 +1,7 @@
 <svelte:options runes={false} />
 
 <!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
-     Browser only (reads `window` when created). The watermark path depends on G7 (2.3/2.4). -->
+     Browser only (reads `window` when created). -->
 <script>
 	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 	import { onDestroy, onMount } from 'svelte';
@@ -36,6 +36,7 @@
 		TOOL_SHAPE,
 		TOOL_TEXT
 	} from './constants.js';
+	import { WATERMARK_URL } from '../images.ts';
 	import Illustration from './Illustration.svelte';
 	import StokeCursor from './StokeCursor.svelte';
 	import TypedTextEntry from './TypedTextEntry.svelte';
@@ -580,13 +581,7 @@
 		<StokeCursor position={pointerLocation} size={selectedTool.lineWidth} />
 	{/if}
 
-	<img
-		src="/images/annotation-app/postscript-logo-raster.png"
-		class="watermark"
-		width="85"
-		height="71"
-		alt=""
-	/>
+	<img src={WATERMARK_URL} class="watermark" width="85" height="71" alt="" />
 </div>
 
 <style>

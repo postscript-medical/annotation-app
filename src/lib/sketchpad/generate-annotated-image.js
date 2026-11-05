@@ -1,8 +1,8 @@
 // @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
 // Ported as-is (2.1) from legacy `methods/generate-annotated-image.js`: flattens the illustration,
 // the watermark, the canvas strokes and the typed text into one canvas for sharing (2.5).
-// The illustration and watermark URLs depend on how Cloudinary images are served (G7, 2.3/2.4).
 import { get } from 'svelte/store';
+import { WATERMARK_URL } from '../images.ts';
 import { canvasElement, dpr, illustrationDisplayed } from './stores.js';
 
 function drawTextLine(context, text, x, y) {
@@ -67,7 +67,7 @@ export default async function generateAnnotatedImage() {
 	const context = annotatedImage.getContext('2d');
 	const canvasBoundingRect = srcCanvas.getBoundingClientRect();
 	const illustrationBoundingRect = srcIllustration.getBoundingClientRect();
-	const imageBlob = await fetchBlob('images/annotation-app/postscript-logo-raster.png');
+	const imageBlob = await fetchBlob(WATERMARK_URL);
 	const watermark = await createImageBitmap(imageBlob);
 
 	annotatedImage.width = srcCanvas.width;
