@@ -64,3 +64,45 @@ export async function saveChoice(name: string, fields: Record<string, string>) {
 	}
 	return outcome;
 }
+
+const FEEDBACK_FAILED = "We couldn't send your feedback. Please try again later.";
+
+/** What sending feedback came to. */
+export type FeedbackOutcome =
+	| { kind: 'sent' }
+	| { kind: 'invalid'; message: string }
+	| { kind: 'failed'; message: string }
+	| { kind: 'redirected' };
+
+type FailureData = {
+	error?: { code?: string; message?: string; requestId?: string };
+	fieldErrors?: Record<string, string>;
+};
+
+/** Reads a `?/feedback` result. Server messages are the app's own generic ones (errors.ts). */
+export function feedbackOutcome(result: PostResult): FeedbackOutcome {
+	if (result.type === 'success') return { kind: 'sent' };
+	if (result.type === 'redirect') return { kind: 'redirected' };
+	if (result.type !== 'failure') return { kind: 'failed', message: FEEDBACK_FAILED };
+
+	const data = (result.data ?? {}) as FailureData;
+	const fieldError = data.fieldErrors?.message;
+	if (fieldError) return { kind: 'invalid', message: fieldError };
+	if (data.error?.code === 'RATE_LIMITED') {
+		return {
+			kind: 'failed',
+			message: "You've sent several messages today. Please try again tomorrow."
+		};
+	}
+	const reference = data.error?.requestId ? ` (Reference: ${data.error.requestId})` : '';
+	return { kind: 'failed', message: FEEDBACK_FAILED + reference };
+}
+
+/** Sends feedback through `?/feedback`; a redirect (session ended) is followed. */
+export async function sendFeedback(message: string): Promise<FeedbackOutcome> {
+	const result = await postAction('feedback', { message });
+	if (result.type === 'redirect' && /^\/(?!\/)/.test(result.location)) {
+		window.location.assign(result.location);
+	}
+	return feedbackOutcome(result);
+}

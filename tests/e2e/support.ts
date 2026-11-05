@@ -111,3 +111,20 @@ export async function cleanUp() {
 	for (const { id } of ids) await admin.auth.admin.deleteUser(id);
 	madeHere.clear();
 }
+
+/** The newest email (in the local Mailpit) whose text contains `marker`, or null after ~10 s. */
+export async function emailContaining(marker: string) {
+	for (let attempt = 0; attempt < 40; attempt++) {
+		const search = await fetch(
+			`${stack.MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`"${marker}"`)}`
+		).then((r) => r.json());
+		const [found] = (search.messages ?? []) as { ID: string }[];
+		if (found) {
+			return (await fetch(`${stack.MAILPIT_URL}/api/v1/message/${found.ID}`).then((r) =>
+				r.json()
+			)) as { Subject: string; Text: string; ReplyTo: { Address: string }[] };
+		}
+		await new Promise((resolve) => setTimeout(resolve, 250));
+	}
+	return null;
+}

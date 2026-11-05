@@ -27,9 +27,9 @@ import {
 import { adminClient, sqlClient } from './helpers';
 import { cells, matrixHelpers, type Row } from './matrix';
 
-// auth-spec §7.3, the source of truth for authorization: every row × caller that exists so far.
-// Still to come: feedback (2.6). (Privacy and terms are on the
-// marketing site, not in the app.) /admin/** → 404 is checked end to end (tests/e2e/removed-scope.e2e.ts).
+// auth-spec §7.3, the source of truth for authorization: every row × caller. (Privacy and terms
+// are on the marketing site, not in the app.) /admin/** → 404 is checked end to end
+// (tests/e2e/removed-scope.e2e.ts).
 
 const admin = adminClient();
 const sql = sqlClient();
@@ -236,6 +236,14 @@ const rows: Row[] = [
 			subSpecialtyId: crypto.randomUUID(),
 			illustrationId: crypto.randomUUID()
 		}),
+		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+	},
+	{
+		// An empty message: the action runs and refuses it, so nothing is sent (feedback.test.ts).
+		name: 'annotate?/feedback',
+		path: '/annotate?/feedback',
+		handler: annotateActions.feedback,
+		fields: () => ({ message: '' }),
 		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
 	}
 ];

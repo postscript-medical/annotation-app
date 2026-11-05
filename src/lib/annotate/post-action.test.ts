@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { postAction, saveOutcome } from './post-action';
+import { feedbackOutcome, postAction, saveOutcome } from './post-action';
 
 const selection = { specialtyId: 's', subSpecialtyId: 'ss', illustrationId: null };
 
@@ -66,6 +66,70 @@ describe('saveOutcome', () => {
 		expect(saveOutcome(result as never)).toEqual({
 			kind: 'failed',
 			message: "We couldn't save your choice. Please try again."
+		});
+	});
+});
+
+describe('feedbackOutcome', () => {
+	const location = '/annotate';
+
+	it('is sent on success', () => {
+		expect(
+			feedbackOutcome({ type: 'success', status: 200, location, data: { sent: true } })
+		).toEqual({
+			kind: 'sent'
+		});
+	});
+
+	it("shows the server's field error for an invalid message", () => {
+		expect(
+			feedbackOutcome({
+				type: 'failure',
+				status: 400,
+				location,
+				data: {
+					error: { code: 'VALIDATION_FAILED' },
+					fieldErrors: { message: 'Please write a message.' }
+				}
+			})
+		).toEqual({ kind: 'invalid', message: 'Please write a message.' });
+	});
+
+	it('explains the daily limit', () => {
+		expect(
+			feedbackOutcome({
+				type: 'failure',
+				status: 429,
+				location,
+				data: { error: { code: 'RATE_LIMITED', requestId: 'r1' } }
+			})
+		).toEqual({
+			kind: 'failed',
+			message: "You've sent several messages today. Please try again tomorrow."
+		});
+	});
+
+	it('gives a reference for a failed send', () => {
+		expect(
+			feedbackOutcome({
+				type: 'failure',
+				status: 500,
+				location,
+				data: { error: { code: 'OPERATION_FAILED', requestId: 'req-9' } }
+			})
+		).toEqual({
+			kind: 'failed',
+			message: "We couldn't send your feedback. Please try again later. (Reference: req-9)"
+		});
+	});
+
+	it('reports a redirect, and a generic failure for errors and network failures', () => {
+		expect(feedbackOutcome({ type: 'redirect', status: 303, location: '/sign-in' })).toEqual({
+			kind: 'redirected'
+		});
+		expect(feedbackOutcome({ type: 'network_error' })).toEqual({
+			kind: 'failed',
+			message: "We couldn't send your feedback. Please try again later."
 		});
 	});
 });

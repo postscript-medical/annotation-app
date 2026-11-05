@@ -25,6 +25,10 @@ const lines = [
 	`SUPABASE_PUBLISHABLE_KEY=${s.PUBLISHABLE_KEY}`,
 	`SUPABASE_SECRET_KEY=${s.SECRET_KEY}`,
 	`RATE_LIMIT_HMAC_SECRET=${secret}`,
+	// Feedback email goes to the local Mailpit (smtp_port in supabase/config.toml).
+	"SMTP_HOST=127.0.0.1",
+	"SMTP_PORT=54325",
+	"FEEDBACK_TO=feedback@example.com",
 	""
 ];
 require("node:fs").writeFileSync(".env", lines.join("\n"), { mode: 0o600 });

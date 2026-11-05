@@ -6,7 +6,7 @@
      specialty or an illustration saves through a form action and only takes effect once saved, with
      an error shown otherwise (legacy updated the screen and saved fire-and-forget). Sharing is
      device-only (2.5): share sheet, download or print; email sharing is gone (scope change).
-     Feedback comes in 2.6. -->
+     Feedback (2.6) goes to staff by email through `?/feedback`. -->
 <script>
 	// @ts-nocheck -- legacy JavaScript ported (2.4); typed in the runes conversion (2.8).
 	import { onMount, tick } from 'svelte';
@@ -33,6 +33,7 @@
 	import SketchPad from '../sketchpad/SketchPad.svelte';
 	import SketchPadUi from '../sketchpad/SketchPadUi.svelte';
 	import ChooseSpecialtyModal from './ChooseSpecialtyModal.svelte';
+	import FeedbackModal from './FeedbackModal.svelte';
 	import ImageCatalogue from './ImageCatalogue.svelte';
 	import ShareModal from './ShareModal.svelte';
 	import { saveChoice } from './post-action.ts';
@@ -44,6 +45,7 @@
 
 	const CHOOSE_A_SPECIALTY = 'chooseASpecialty';
 	const MODAL_SHARE = 'share';
+	const MODAL_FEEDBACK = 'feedback';
 
 	let activeModal = '';
 	let saving = false;
@@ -204,6 +206,7 @@
 		on:erase-annotation={eraseAnnotation}
 		on:open-catalogue={() => openModal(IMAGE_CATALOGUE)}
 		on:open-share={() => openModal(MODAL_SHARE)}
+		on:open-feedback={() => openModal(MODAL_FEEDBACK)}
 		on:redo={() => sketchPad.redo()}
 		on:select-tool={selectTool}
 		on:undo={() => sketchPad.undo()}
@@ -225,6 +228,10 @@
 
 {#if activeModal === MODAL_SHARE}
 	<ShareModal prepare={prepareImage} onprint={printImage} onclose={closeModal} />
+{/if}
+
+{#if activeModal === MODAL_FEEDBACK}
+	<FeedbackModal onclose={closeModal} />
 {/if}
 
 {#if activeModal === CHOOSE_A_SPECIALTY}

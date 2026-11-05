@@ -31,7 +31,11 @@ export function watchProblems(page: Page) {
 
 export async function signIn(page: Page, email: string) {
 	await page.goto('/sign-in?next=%2Fannotate');
+	// Type only once the page has hydrated: until then, hydration resets the email field (found
+	// in 2.6; under parallel load the field was sometimes empty on submit).
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email').fill(email);
+	await expect(page.getByLabel('Email')).toHaveValue(email);
 	await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
 	await page.getByRole('button', { name: 'Sign in' }).click();
 	await expect(page).toHaveURL(/\/annotate$/);

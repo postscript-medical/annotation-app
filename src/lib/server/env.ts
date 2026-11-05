@@ -1,5 +1,10 @@
 import {
+	FEEDBACK_TO,
 	RATE_LIMIT_HMAC_SECRET,
+	SMTP_HOST,
+	SMTP_PASSWORD,
+	SMTP_PORT,
+	SMTP_USER,
 	SUPABASE_PUBLISHABLE_KEY,
 	SUPABASE_SECRET_KEY,
 	SUPABASE_URL
@@ -14,7 +19,12 @@ const values = {
 	SUPABASE_URL,
 	SUPABASE_PUBLISHABLE_KEY,
 	SUPABASE_SECRET_KEY,
-	RATE_LIMIT_HMAC_SECRET
+	RATE_LIMIT_HMAC_SECRET,
+	SMTP_HOST,
+	SMTP_PORT,
+	SMTP_USER,
+	SMTP_PASSWORD,
+	FEEDBACK_TO
 };
 
 export type ServerEnvName = keyof typeof values;
@@ -25,6 +35,11 @@ export class ConfigurationError extends Error {
 		super(`Environment variable ${name} is not set`);
 		this.name = 'ConfigurationError';
 	}
+}
+
+/** For settings that may legitimately be unset (SMTP login for the local Mailpit). */
+export function optionalServerEnv(name: ServerEnvName): string | undefined {
+	return values[name] || undefined;
 }
 
 export function serverEnv(name: ServerEnvName): string {
