@@ -181,28 +181,7 @@
 			case TOOL_ELLIPSE:
 				_context.translate(shape.x, shape.y);
 				_context.beginPath();
-
-				if (_context.ellipse) {
-					// IE does not support ellipse path command in Canvas
-					_context.ellipse(
-						shape.dx,
-						shape.dy,
-						Math.abs(shape.dx),
-						Math.abs(shape.dy),
-						0,
-						0,
-						RADIAN
-					);
-				} else {
-					_context.arc(
-						shape.dx,
-						shape.dy,
-						Math.sqrt(shape.dx * shape.dx + shape.dy * shape.dy) /* hypotenuse */,
-						0,
-						6.283185
-					);
-				}
-
+				_context.ellipse(shape.dx, shape.dy, Math.abs(shape.dx), Math.abs(shape.dy), 0, 0, RADIAN);
 				_context.stroke();
 				break;
 
@@ -255,6 +234,10 @@
 		toolDrawerOpen.set('');
 
 		closeUserSettingsDropdown();
+
+		// No tool chosen yet: nothing would be drawn, so don't record an empty action (and undo
+		// step). Legacy recorded a pen stroke with no points here.
+		if (!selectedToolId) return;
 
 		recordPoint(event);
 

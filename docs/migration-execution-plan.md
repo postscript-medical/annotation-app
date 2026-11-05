@@ -332,6 +332,15 @@ Results:
 
 **2.2 Defect fixes.** `dpr = Math.min(window.devicePixelRatio || 1, 2)`; remove the `msSaveBlob`/IE branches in `generate-annotated-image.js`. Unit tests for `get-updated-actions`, `typed-text`, `get-pointer-location`.
 
+- **Done 2026-11-05** (locally).
+  - **`dpr`:** `stores.js` now exports `pixelRatio(devicePixelRatio)` = `Math.min(devicePixelRatio || 1, 2)`, and `dpr` uses it. Effect: on a 1× display the canvas backing store, and so the exported image (2.5), is now 1× instead of always 2×; 2× and higher displays are unchanged.
+  - **IE:** `generate-annotated-image.js` had no IE code (see 2.1). The only IE branch was `SketchPad`'s `arc` fallback for a missing `context.ellipse`, now removed. The touch-event fallback for browsers without `PointerEvent` stays.
+  - **Empty action before a tool is chosen** (2.1 legacy defect): `onPointerDown` returns before recording when `selectedToolId` is unset, so no empty pen action or undo step. Drawers and the settings dropdown still close. 2.4 can decide whether `/annotate` starts with the pen selected.
+  - **Tests:** new `helpers/get-pointer-location.test.ts` (5), `helpers/get-updated-actions.test.ts` (3), `helpers/typed-text.test.ts` (6: add, updateContent and remove with undo, drag in place with canvas bounds at the capped ratio); `stores.test.ts` gains 7 for `pixelRatio`/`dpr`. 222 unit tests.
+  - **Checked in Chromium** on a temporary client-only route (since deleted) at device pixel ratios 1, 2 and 3: `dpr` is 1, 2 and 2, and the canvas backing store is 1×, 2× and 2× its CSS width. A drag before a tool is chosen adds no undo step and draws nothing; a pen stroke and an ellipse each add one step and draw. No page errors or Svelte warnings; the only 404 is the watermark (G7, as in 2.1).
+  - **Totals:** 222 unit, 189 integration; E2E 38 Chromium and 30 WebKit, all passing.
+  - **WebKit locally:** it needs the system library `libavif16` (`sudo apt-get install libavif16`). In a terminal opened from the VS Code snap, WebKit's network process also loads the snap's GIO modules (`GIO_MODULE_DIR`), which link against the snap's old `libpthread`, so every page load fails with "WebKit encountered an internal error". Run Playwright from a normal terminal, or clear the snap variables first (`env -u GIO_MODULE_DIR -u GTK_PATH -u LOCPATH … npx playwright test`). CI isn't affected.
+
 **2.3 Catalogue repo and loader.** `lib/server/repos/catalogue.ts` (specialties → sub-specialties → illustrations, ordered), read-only. `annotate/+page.server.ts` loads it with `setHeaders({ 'cache-control': 'private, max-age=…' })`. No tenant filter. Port `filter-sort-illustrations.js` and `find-illustrations.js` with unit tests.
 
 **2.4 `/annotate`.** Port `ImageAnnotation`, `ImageCatalogue`, `ImagesGrid*`, `ChooseSpecialtyModal`, `UserSettingsDropdown` (links to `/account`, logout form). Actions `?/chooseSpecialty` and `?/chooseIllustration` take **ids**, are validated against the catalogue, write only the caller's row from `locals.profile`, and show an error on failure (fixes the fire-and-forget defect). No tutorial flag is stored or loaded.

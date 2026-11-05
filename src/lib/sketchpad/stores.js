@@ -163,11 +163,16 @@ export const canvasElement = writable();
 
 export const context = writable();
 
-// Ported as-is: the comma operator makes this always 2. Fixed in 2.2.
-export const dpr = readable(1, (set) => {
-	let pixelRatio = (window.devicePixelRatio || 1, 2);
+/**
+ * The canvas backing-store scale: the device's pixel ratio, capped at 2 to bound canvas memory.
+ * (Legacy wrote `(window.devicePixelRatio || 1, 2)`, which the comma operator made always 2.)
+ */
+export function pixelRatio(devicePixelRatio) {
+	return Math.min(devicePixelRatio || 1, 2);
+}
 
-	set(pixelRatio);
+export const dpr = readable(1, (set) => {
+	set(pixelRatio(window.devicePixelRatio));
 
 	return () => {};
 });

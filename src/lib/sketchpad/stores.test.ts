@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TOOL_PEN, TOOL_TEXT } from './constants.js';
-import { actions, typedTextEntries } from './stores.js';
+import { actions, dpr, pixelRatio, typedTextEntries } from './stores.js';
 
 // Pins the legacy undo/redo store's behaviour (ported as-is in 2.1) before the runes
 // conversion (2.8). Each stack entry is the whole list of drawn actions at that point.
@@ -103,5 +103,25 @@ describe('typedTextEntries', () => {
 		expect(get(typedTextEntries)).toEqual([c[2]]);
 		actions.push(b);
 		expect(get(typedTextEntries)).toEqual([]);
+	});
+});
+
+describe('pixelRatio / dpr (fixed in 2.2; legacy was always 2)', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	it.each([
+		[1, 1],
+		[1.5, 1.5],
+		[2, 2],
+		[3, 2],
+		[undefined, 1],
+		[0, 1]
+	])('devicePixelRatio %s → %s', (devicePixelRatio, expected) => {
+		expect(pixelRatio(devicePixelRatio)).toBe(expected);
+	});
+
+	it('dpr reads window.devicePixelRatio', () => {
+		vi.stubGlobal('window', { devicePixelRatio: 1 });
+		expect(get(dpr)).toBe(1);
 	});
 });
