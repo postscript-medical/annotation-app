@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { load as signInLoad } from '../../src/routes/(auth)/sign-in/+page.server';
+import { load as signInLoad } from '../../src/routes/(auth)/+page.server';
 import { actions as signUpActions } from '../../src/routes/(auth)/sign-up/+page.server';
 import { actions as forgotActions } from '../../src/routes/(auth)/forgot-password/+page.server';
 import { actions as resendActions } from '../../src/routes/(auth)/resend-confirmation/+page.server';
@@ -207,11 +207,11 @@ describe('sign-in', () => {
 
 	it('sends a signed-in visitor from the sign-in pages to the app', async () => {
 		const { jar } = await confirmedUser();
-		expect(redirectTo(await call(jar, '/sign-in', authLayoutLoad as never))).toBe('/annotate');
+		expect(redirectTo(await call(jar, '/', authLayoutLoad as never))).toBe('/annotate');
 	});
 
 	it('passes the sign-in page notices through', async () => {
-		const page = await call(new Jar(), '/sign-in?expired=1&next=%2Faccount', signInLoad as never);
+		const page = await call(new Jar(), '/?expired=1&next=%2Faccount', signInLoad as never);
 		expect(page.result).toEqual({ next: '/account', expired: true, deleted: false });
 	});
 });
@@ -344,7 +344,7 @@ describe('sign-out', () => {
 		const authId = (await authIdOf(email))!;
 		const [{ session_id: sessionId }] = await policiesOf(authId);
 
-		expect(redirectTo(await call(jar, '/logout', logoutActions.default, {}))).toBe('/sign-in');
+		expect(redirectTo(await call(jar, '/logout', logoutActions.default, {}))).toBe('/');
 		expect(jar.authCookies()).toEqual([]);
 		expect(jar.get(SESSION_MODE_COOKIE)).toBeUndefined();
 		expect(await policiesOf(authId)).toEqual([]);
@@ -353,8 +353,6 @@ describe('sign-out', () => {
 	});
 
 	it('a signed-out POST just goes to sign in', async () => {
-		expect(redirectTo(await call(new Jar(), '/logout', logoutActions.default, {}))).toBe(
-			'/sign-in'
-		);
+		expect(redirectTo(await call(new Jar(), '/logout', logoutActions.default, {}))).toBe('/');
 	});
 });

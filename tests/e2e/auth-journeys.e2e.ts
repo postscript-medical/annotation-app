@@ -18,7 +18,7 @@ test.beforeEach(clearRateLimits);
 test.afterAll(cleanUp);
 
 async function signIn(page: Page, email: string, password: string, { shared = true } = {}) {
-	await page.goto('/sign-in');
+	await page.goto('/');
 	await page.getByLabel('Email').fill(email);
 	await page.getByLabel('Password', { exact: true }).fill(password);
 	await page.getByLabel(/This is a shared device/).setChecked(shared);
@@ -100,7 +100,7 @@ test('forgot → reset: old password fails, other sessions are signed out', asyn
 
 	// The other device is signed out on its next request.
 	await other.reload();
-	await expect(other).toHaveURL(/\/sign-in/);
+	await expect(other.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 
 	// The reset page can't be used again: it sends this signed-in user away (to /forgot-password,
 	// which sends signed-in users on to the app).
@@ -143,7 +143,7 @@ test('an expired session is signed out with a notice', async ({ page }) => {
 
 	await ageSessions(email);
 	await page.reload();
-	await expect(page).toHaveURL(/\/sign-in\?expired=1$/);
+	await expect(page).toHaveURL(/\/\?expired=1$/);
 	await expect(page.getByRole('status')).toHaveText(
 		'Your session has ended. Please sign in again.'
 	);

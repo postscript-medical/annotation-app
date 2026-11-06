@@ -119,7 +119,7 @@ describe('sign out one session', () => {
 		const outcome = await call(me.jar, '/account?/signOutSession', accountActions.signOutSession, {
 			sessionId: me.sessionId
 		});
-		expect(redirectTo(outcome)).toBe('/sign-in');
+		expect(redirectTo(outcome)).toBe('/');
 		expect(me.jar.authCookies()).toEqual([]);
 		expect(await policyIds(me.userId)).toEqual([]);
 	});
@@ -134,7 +134,7 @@ describe('sign out of all devices', () => {
 			accountActions.signOutEverywhere,
 			{}
 		);
-		expect(redirectTo(outcome)).toBe('/sign-in');
+		expect(redirectTo(outcome)).toBe('/');
 		expect(await policyIds(me.userId)).toEqual([]);
 		for (const id of [me.sessionId, ...me.others.map((o) => o.sessionId)]) {
 			expect(await authSessionExists(id)).toBe(false);
@@ -248,7 +248,7 @@ describe('delete my account', () => {
 	it('deletes the account and everything about it, and signs out', async () => {
 		const me = await account(1);
 		const outcome = await remove(me.jar, testPassword, me.email.toUpperCase());
-		expect(redirectTo(outcome)).toBe('/sign-in?deleted=1');
+		expect(redirectTo(outcome)).toBe('/?deleted=1');
 		expect(me.jar.authCookies()).toEqual([]);
 
 		const [row] = await sql`

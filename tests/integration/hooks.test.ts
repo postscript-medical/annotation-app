@@ -34,7 +34,7 @@ describe('signed out', () => {
 	it('refuses an oversized body before touching Supabase', async () => {
 		const ssrClient = vi.fn();
 		const body = 'x'.repeat(70 * 1024);
-		const event = fakeEvent(new Jar(), '/sign-in', {
+		const event = fakeEvent(new Jar(), '/', {
 			method: 'POST',
 			body,
 			headers: { 'content-length': String(body.length) }
@@ -184,7 +184,7 @@ describe('sessions that must end', () => {
 		['shared, older than 8 hours', 'shared', '8 hours 1 minute', '1 minute'],
 		['personal, idle for 7 days', 'personal', '8 days', '7 days 1 minute'],
 		['personal, older than 30 days', 'personal', '30 days 1 minute', '1 minute']
-	] as const)('%s: signs out and redirects to /sign-in?expired=1', async (_l, mode, age, idle) => {
+	] as const)('%s: signs out and redirects to /?expired=1', async (_l, mode, age, idle) => {
 		const { jar, authId, sessionId } = await signedInJar();
 		const user = await ensureAccount(admin, authId);
 		await addPolicy(user.id, sessionId, mode, age, idle);
@@ -193,7 +193,7 @@ describe('sessions that must end', () => {
 		expect(isRedirect(thrown)).toBe(true);
 		if (!isRedirect(thrown)) return;
 		expect(thrown.status).toBe(303);
-		expect(thrown.location).toBe('/sign-in?expired=1');
+		expect(thrown.location).toBe('/?expired=1');
 		expect(resolve).not.toHaveBeenCalled();
 		expect(jar.authCookies()).toEqual([]);
 		expect(await authSessionExists(sessionId)).toBe(false);
@@ -203,12 +203,12 @@ describe('sessions that must end', () => {
 		expect(count).toBe(0);
 	});
 
-	it('does not redirect when the expired session is already on /sign-in', async () => {
+	it('does not redirect when the expired session is already on the sign-in form', async () => {
 		const { jar, authId, sessionId } = await signedInJar();
 		const user = await ensureAccount(admin, authId);
 		await addPolicy(user.id, sessionId, 'shared', '9 hours', '1 minute');
 
-		const { thrown, resolve, event } = await run(fakeEvent(jar, '/sign-in'));
+		const { thrown, resolve, event } = await run(fakeEvent(jar, '/'));
 		expect(thrown).toBeUndefined();
 		expect(resolve).toHaveBeenCalledOnce();
 		expect(event.locals.session).toBeNull();

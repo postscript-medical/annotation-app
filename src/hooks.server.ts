@@ -32,7 +32,7 @@ export type HookDeps = {
 	now: () => Date;
 };
 
-export const EXPIRED_REDIRECT = '/sign-in?expired=1';
+export const EXPIRED_REDIRECT = '/?expired=1';
 
 async function signOutQuietly(event: RequestEvent, reason: string) {
 	const { error } = await event.locals.supabase.auth.signOut({ scope: 'local' });
@@ -74,7 +74,7 @@ async function authenticate(event: RequestEvent, deps: HookDeps) {
 	if (verdict === 'expired') {
 		await deleteSessionPolicy(admin, sessionId);
 		await signOutQuietly(event, 'session_expired');
-		if (event.url.pathname !== '/sign-in') redirect(303, EXPIRED_REDIRECT);
+		if (event.url.pathname !== '/') redirect(303, EXPIRED_REDIRECT);
 		return;
 	}
 	if (verdict === 'touch') {

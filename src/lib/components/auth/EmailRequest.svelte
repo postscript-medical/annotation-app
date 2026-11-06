@@ -24,7 +24,7 @@
 <AuthPage title={form?.sent ? 'Check your email' : title}>
 	{#if form?.sent}
 		<Notice>{@render sent(form.email ?? '')}</Notice>
-		<p class="links"><a href={resolve('/(auth)/sign-in')}>Back to sign in</a></p>
+		<p class="links"><a href={resolve('/(auth)')}>Back to sign in</a></p>
 	{:else}
 		{@render intro()}
 		<form
@@ -47,6 +47,6 @@
 			/>
 			<Button type="submit" style="on-dark" loading={submitting}>{button}</Button>
 		</form>
-		<p class="links"><a href={resolve('/(auth)/sign-in')}>Back to sign in</a></p>
+		<p class="links"><a href={resolve('/(auth)')}>Back to sign in</a></p>
 	{/if}
 </AuthPage>

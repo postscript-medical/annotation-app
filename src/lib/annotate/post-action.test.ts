@@ -38,7 +38,7 @@ describe('saveOutcome', () => {
 	});
 
 	it('reports a redirect (followed by saveChoice)', () => {
-		expect(saveOutcome({ type: 'redirect', status: 303, location: '/sign-in' })).toEqual({
+		expect(saveOutcome({ type: 'redirect', status: 303, location: '/' })).toEqual({
 			kind: 'redirected'
 		});
 	});
@@ -124,7 +124,7 @@ describe('feedbackOutcome', () => {
 	});
 
 	it('reports a redirect, and a generic failure for errors and network failures', () => {
-		expect(feedbackOutcome({ type: 'redirect', status: 303, location: '/sign-in' })).toEqual({
+		expect(feedbackOutcome({ type: 'redirect', status: 303, location: '/' })).toEqual({
 			kind: 'redirected'
 		});
 		expect(feedbackOutcome({ type: 'network_error' })).toEqual({

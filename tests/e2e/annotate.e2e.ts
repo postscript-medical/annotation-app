@@ -99,9 +99,10 @@ test('the user menu links to the account and signs out', async ({ page }) => {
 	);
 
 	await page.getByRole('button', { name: 'Sign out' }).click();
-	await expect(page).toHaveURL(/\/sign-in$/);
+	await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+	await expect(new URL(page.url()).pathname).toBe('/');
 	await page.goto('/annotate');
-	await expect(page).toHaveURL(/\/sign-in\?next=%2Fannotate$/);
+	await expect(page).toHaveURL(/\/\?next=%2Fannotate$/);
 });
 
 test('the image proxy refuses paths outside its allow-list', async ({ request }) => {

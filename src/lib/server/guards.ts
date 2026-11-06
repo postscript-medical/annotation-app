@@ -13,7 +13,8 @@ export type SignedIn = {
 	profile: NonNullable<App.Locals['profile']>;
 };
 
-export const SIGN_IN_PATH = '/sign-in';
+// The sign-in form is the home page.
+export const SIGN_IN_PATH = '/';
 
 /**
  * Where to come back to after signing in. A page's path and query for GET; only the path for
@@ -27,7 +28,7 @@ export function returnPath(event: Pick<RequestEvent, 'url' | 'request'>): string
 	return safe && safe !== '/' ? safe : null;
 }
 
-/** The signed-in user, or a 303 to `/sign-in?next=…`. */
+/** The signed-in user, or a 303 to the sign-in form (`/?next=…`). */
 export function requireUser(event: Pick<RequestEvent, 'locals' | 'url' | 'request'>): SignedIn {
 	const { session, profile } = event.locals;
 	if (!session || !profile) {

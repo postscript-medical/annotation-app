@@ -53,7 +53,7 @@ test('the page runs with no CSP violations', async ({ page }) => {
 		});
 	});
 	await page.goto('/');
-	await expect(page.locator('h1')).toHaveText('PostScript Medical');
+	await expect(page.locator('h1')).toHaveText('Sign in');
 	await page.evaluate(() => document.fonts.ready);
 	expect(violations).toEqual([]);
 });

@@ -164,6 +164,6 @@ describe('?/feedback', () => {
 	it('sends a signed-out caller to sign in', async () => {
 		const outcome = await send(new Jar(), 'hello');
 
-		expect(redirectTo(outcome)).toBe('/sign-in?next=%2Fannotate');
+		expect(redirectTo(outcome)).toBe('/?next=%2Fannotate');
 	});
 });

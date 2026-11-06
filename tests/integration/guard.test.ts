@@ -28,9 +28,9 @@ function location(thrown: unknown) {
 }
 
 describe('(app) pages', () => {
-	it('signed out → 303 to /sign-in with next', async () => {
+	it('signed out → 303 to the sign-in form with next', async () => {
 		const { thrown } = await run(fakeEvent(new Jar(), '/annotate'), undefined, renderAppPage);
-		expect(location(thrown)).toBe('303 /sign-in?next=%2Fannotate');
+		expect(location(thrown)).toBe('303 /?next=%2Fannotate');
 	});
 
 	it('signed in with a valid policy → the page renders, with no user data in it', async () => {
@@ -43,24 +43,24 @@ describe('(app) pages', () => {
 		expect(await response?.text()).toBe('{}');
 	});
 
-	it('a session revoked elsewhere (policy row gone) → signed out, then 303 to /sign-in', async () => {
+	it('a session revoked elsewhere (policy row gone) → signed out, then 303 to the sign-in form', async () => {
 		const { jar, authId, sessionId } = await signedInJar();
 		const user = await ensureAccount(admin, authId);
 		await addPolicy(user.id, sessionId, 'personal', '1 hour', '1 minute');
 		await sql`delete from public.session_policies where session_id = ${sessionId}`;
 
 		const { thrown } = await run(fakeEvent(jar, '/annotate'), undefined, renderAppPage);
-		expect(location(thrown)).toBe('303 /sign-in?next=%2Fannotate');
+		expect(location(thrown)).toBe('303 /?next=%2Fannotate');
 		expect(jar.authCookies()).toEqual([]);
 	});
 
-	it('an expired session → the hook redirects to /sign-in?expired=1 before the page runs', async () => {
+	it('an expired session → the hook redirects to /?expired=1 before the page runs', async () => {
 		const { jar, authId, sessionId } = await signedInJar();
 		const user = await ensureAccount(admin, authId);
 		await addPolicy(user.id, sessionId, 'shared', '9 hours', '1 minute');
 
 		const { thrown, resolve } = await run(fakeEvent(jar, '/annotate'), undefined, renderAppPage);
-		expect(location(thrown)).toBe('303 /sign-in?expired=1');
+		expect(location(thrown)).toBe('303 /?expired=1');
 		expect(resolve).not.toHaveBeenCalled();
 	});
 });

@@ -11,7 +11,7 @@ export type LogFields = {
 	/** An app error code or a library error code such as `invalid_credentials`. */
 	code?: string;
 	status?: number;
-	/** The route id, e.g. `/sign-in`, never the URL (its query could hold a token). */
+	/** The route id, e.g. `/annotate`, never the URL (its query could hold a token). */
 	route?: string;
 	method?: string;
 	durationMs?: number;

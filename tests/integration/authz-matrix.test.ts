@@ -13,7 +13,7 @@ import { actions as passwordActions } from '../../src/routes/(app)/account/passw
 import { load as authLayoutLoad } from '../../src/routes/(auth)/+layout.server';
 import { actions as forgotActions } from '../../src/routes/(auth)/forgot-password/+page.server';
 import { actions as resendActions } from '../../src/routes/(auth)/resend-confirmation/+page.server';
-import { actions as signInActions } from '../../src/routes/(auth)/sign-in/+page.server';
+import { actions as signInActions } from '../../src/routes/(auth)/+page.server';
 import { actions as signUpActions } from '../../src/routes/(auth)/sign-up/+page.server';
 import {
 	actions as confirmActions,
@@ -46,23 +46,20 @@ const toForgot = { redirect: '/forgot-password' } as const;
 const run = { allow: true } as const;
 const email = () => `matrix-${crypto.randomUUID()}@example.com`;
 
-const signedOutPages: Row[] = [
-	'/sign-up',
-	'/sign-in',
-	'/forgot-password',
-	'/resend-confirmation'
-].map((path) => ({
-	name: `${path} (page)`,
-	path,
-	handler: authLayoutLoad,
-	expect: { anon: run, user: toApp }
-}));
+const signedOutPages: Row[] = ['/sign-up', '/', '/forgot-password', '/resend-confirmation'].map(
+	(path) => ({
+		name: `${path} (page)`,
+		path,
+		handler: authLayoutLoad,
+		expect: { anon: run, user: toApp }
+	})
+);
 
 const rows: Row[] = [
 	...signedOutPages,
 	{
-		name: '/sign-in (action)',
-		path: '/sign-in',
+		name: '/ (sign-in action)',
+		path: '/',
 		handler: signInActions.default,
 		fields: () => ({ email: email(), password: 'not a real password' }),
 		expect: { anon: run, user: toApp }
@@ -123,9 +120,9 @@ const rows: Row[] = [
 		handler: logoutActions.default,
 		fields: () => ({}),
 		expect: {
-			anon: { redirect: '/sign-in' },
+			anon: { redirect: '/' },
 			user: {
-				redirect: '/sign-in',
+				redirect: '/',
 				check: async ({ self }) => {
 					const [{ count }] = await sql`
 						select count(*)::int from public.session_policies where session_id = ${self!.sessionId}
@@ -139,13 +136,13 @@ const rows: Row[] = [
 		name: '/account (page)',
 		path: '/account',
 		handler: accountLoad,
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Faccount' }, user: run }
 	},
 	{
 		name: '/account/password (page)',
 		path: '/account/password',
 		handler: appLayoutLoad,
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fpassword' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Faccount%2Fpassword' }, user: run }
 	},
 	{
 		name: '/account/password (change)',
@@ -156,7 +153,7 @@ const rows: Row[] = [
 			currentPassword: 'not my password',
 			newPassword: 'copper meadow sparrow tuesday'
 		}),
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fpassword' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Faccount%2Fpassword' }, user: run }
 	},
 	{
 		name: 'account?/signOutSession',
@@ -166,9 +163,9 @@ const rows: Row[] = [
 			sessionId: other?.sessionId ?? self?.sessionId ?? crypto.randomUUID()
 		}),
 		expect: {
-			anon: { redirect: '/sign-in?next=%2Faccount' },
+			anon: { redirect: '/?next=%2Faccount' },
 			// Own session (this one): signed out.
-			user: { redirect: '/sign-in' },
+			user: { redirect: '/' },
 			// Someone else's session: 404, and it stays.
 			other: {
 				status: 404,
@@ -186,14 +183,14 @@ const rows: Row[] = [
 		path: '/account?/signOutEverywhere',
 		handler: accountActions.signOutEverywhere,
 		fields: () => ({}),
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: { redirect: '/sign-in' } }
+		expect: { anon: { redirect: '/?next=%2Faccount' }, user: { redirect: '/' } }
 	},
 	{
 		name: 'POST /account/export',
 		path: '/account/export',
 		handler: exportPost,
 		fields: () => ({}),
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount%2Fexport' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Faccount%2Fexport' }, user: run }
 	},
 	{
 		name: 'account?/delete',
@@ -204,19 +201,19 @@ const rows: Row[] = [
 			password: 'not my password',
 			confirmEmail: `${self?.userId}@example.com`
 		}),
-		expect: { anon: { redirect: '/sign-in?next=%2Faccount' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Faccount' }, user: run }
 	},
 	{
 		name: '/annotate (page)',
 		path: '/annotate',
 		handler: appLayoutLoad,
-		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Fannotate' }, user: run }
 	},
 	{
 		name: '/annotate (page load)',
 		path: '/annotate',
 		handler: annotateLoad,
-		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Fannotate' }, user: run }
 	},
 	// Ids not in the catalogue: the action runs and refuses them (saving: annotate.test.ts). There
 	// is no user id in the request, so there is no "other user's row" case to try.
@@ -225,7 +222,7 @@ const rows: Row[] = [
 		path: '/annotate?/chooseSpecialty',
 		handler: annotateActions.chooseSpecialty,
 		fields: () => ({ specialtyId: crypto.randomUUID() }),
-		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Fannotate' }, user: run }
 	},
 	{
 		name: 'annotate?/chooseIllustration',
@@ -236,7 +233,7 @@ const rows: Row[] = [
 			subSpecialtyId: crypto.randomUUID(),
 			illustrationId: crypto.randomUUID()
 		}),
-		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Fannotate' }, user: run }
 	},
 	{
 		// An empty message: the action runs and refuses it, so nothing is sent (feedback.test.ts).
@@ -244,7 +241,7 @@ const rows: Row[] = [
 		path: '/annotate?/feedback',
 		handler: annotateActions.feedback,
 		fields: () => ({ message: '' }),
-		expect: { anon: { redirect: '/sign-in?next=%2Fannotate' }, user: run }
+		expect: { anon: { redirect: '/?next=%2Fannotate' }, user: run }
 	}
 ];
 

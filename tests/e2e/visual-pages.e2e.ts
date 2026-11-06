@@ -6,7 +6,7 @@ import { visualSnapshot } from './visual-snapshot';
 // error-page.
 
 test('Sign-in page', async ({ page }) => {
-	await page.goto('/sign-in');
+	await page.goto('/');
 	await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 
 	await visualSnapshot(page, 'Login page');

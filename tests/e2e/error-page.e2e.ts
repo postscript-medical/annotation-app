@@ -19,7 +19,7 @@ test('an unknown address shows the page, with a 404 and a way back', async ({ pa
 
 	// Signed out, the way back ends at sign-in.
 	await page.getByRole('link', { name: 'PostScript', exact: true }).click();
-	await expect(page).toHaveURL(/\/sign-in\?next=%2Fannotate$/);
+	await expect(page).toHaveURL(/\/\?next=%2Fannotate$/);
 });
 
 test('the removed admin area gets the same page', async ({ page }) => {

@@ -39,7 +39,7 @@ describe('log', () => {
 		const fields = {
 			requestId: 'req-1',
 			userId: 'user-1',
-			route: '/sign-in',
+			route: '/',
 			email: 'jane@example.com',
 			ip: '203.0.113.42',
 			password: 'hunter2hunter2hunter2'
@@ -52,7 +52,7 @@ describe('log', () => {
 			event: 'signed_in',
 			requestId: 'req-1',
 			userId: 'user-1',
-			route: '/sign-in'
+			route: '/'
 		});
 		expect(entry).not.toHaveProperty('email');
 		expect(entry).not.toHaveProperty('ip');

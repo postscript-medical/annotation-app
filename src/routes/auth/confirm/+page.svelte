@@ -19,7 +19,7 @@
 		<p class="links">
 			<a href={resolve('/(auth)/forgot-password')}>Ask for a new password link</a>
 			<a href={resolve('/(auth)/resend-confirmation')}>Resend the confirmation email</a>
-			<a href={resolve('/(auth)/sign-in')}>Sign in</a>
+			<a href={resolve('/(auth)')}>Sign in</a>
 		</p>
 	{:else}
 		{#if form?.error}

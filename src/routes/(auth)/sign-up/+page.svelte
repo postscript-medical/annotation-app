@@ -28,7 +28,7 @@
 			Nothing arrived? Check your spam folder, or
 			<a href={resolve('/(auth)/resend-confirmation')}>send the confirmation email again</a>.
 			Already confirmed?
-			<a href={resolve('/(auth)/sign-in')}>Sign in</a>.
+			<a href={resolve('/(auth)')}>Sign in</a>.
 		</p>
 	{:else}
 		{#if form?.error && form.error.code !== 'VALIDATION_FAILED'}
@@ -66,6 +66,6 @@
 			By continuing you agree to the <a href={TERMS_URL} rel="external">Terms of use</a> and the
 			<a href={PRIVACY_URL} rel="external">Privacy notice</a>.
 		</p>
-		<p class="links"><a href={resolve('/(auth)/sign-in')}>I already have an account</a></p>
+		<p class="links"><a href={resolve('/(auth)')}>I already have an account</a></p>
 	{/if}
 </AuthPage>

@@ -76,7 +76,7 @@ src/
 │   ├── components/            # design system (ported Ps* components, prefix dropped)
 │   └── types/                 # generated DB types (supabase gen types) + DTOs
 └── routes/
-    ├── (public)/              # /sign-up, /sign-in, /forgot-password, /auth/confirm, /reset-password, /logout (privacy and terms: links to the marketing site)
+    ├── (public)/              # / (sign-in), /sign-up, /forgot-password, /auth/confirm, /reset-password, /logout (privacy and terms: links to the marketing site)
     └── (app)/                 # +layout.server.ts → requireUser
         ├── annotate/
         └── account/           # email, change password, sessions, export my data, delete my account
@@ -94,7 +94,7 @@ Gone compared with earlier drafts: `/sign-in/code`, `/onboarding`, `/invite/[tok
 ### 2.2 Authentication and authorization
 
 Specified in [auth-spec.md](auth-spec.md):
-- **Email + password:** `/sign-up` (confirm email on), `/sign-in`, `/forgot-password` → scanner-safe `/auth/confirm` → `/reset-password`, change password on `/account`. Emailed links use `{{ .TokenHash }}` and are verified only on POST, so email scanners can't use them up.
+- **Email + password:** `/sign-up` (confirm email on), sign-in at `/`, `/forgot-password` → scanner-safe `/auth/confirm` → `/reset-password`, change password on `/account`. Emailed links use `{{ .TokenHash }}` and are verified only on POST, so email scanners can't use them up.
 - **Accounts:** the first verified sign-in creates the user, their personal workspace and app state (`ensure_account`).
 - **Sessions:** personal (30 days) or shared device (8 hours), enforced by the app through `session_policies`.
 - **Roles:** no platform roles; every account is a plain user. Workspace roles (`owner` / `member`) exist in the schema for later.
@@ -124,7 +124,7 @@ Every legacy function is either **rewritten behind a guard** or **deleted**. Non
 
 | Legacy function | New home | Guard | Fixes |
 |---|---|---|---|
-| `auth-login` | `/sign-in` with password, and `/sign-up` ([auth-spec §4.1](auth-spec.md)) | — (rate-limited) | S9, S13, S18 |
+| `auth-login` | `/` (sign-in) with password, and `/sign-up` ([auth-spec §4.1](auth-spec.md)) | — (rate-limited) | S9, S13, S18 |
 | `auth-session`, `auth-refresh` | `hooks.server.ts` | — | S9, S13 |
 | `auth-logout` | `/logout` action | user | S10 |
 | `auth-password-reset-request`, `auth-password-reset` | `/forgot-password` + `/auth/confirm` + `/reset-password` (recovery marker, [auth-spec §4.1](auth-spec.md)) | — (rate-limited) | S14, S18 |

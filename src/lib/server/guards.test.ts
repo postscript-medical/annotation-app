@@ -49,29 +49,29 @@ describe('requireUser', () => {
 	});
 
 	it('sends a signed-out visitor to sign in, remembering the page', () => {
-		expect(redirectedTo(() => requireUser(event('/annotate')))).toBe('/sign-in?next=%2Fannotate');
+		expect(redirectedTo(() => requireUser(event('/annotate')))).toBe('/?next=%2Fannotate');
 		expect(redirectedTo(() => requireUser(event('/account?tab=sessions')))).toBe(
-			'/sign-in?next=%2Faccount%3Ftab%3Dsessions'
+			'/?next=%2Faccount%3Ftab%3Dsessions'
 		);
 	});
 
 	it('refuses a session without a profile, and a profile without a session', () => {
 		expect(redirectedTo(() => requireUser(event('/annotate', { session, profile: null })))).toBe(
-			'/sign-in?next=%2Fannotate'
+			'/?next=%2Fannotate'
 		);
 		expect(redirectedTo(() => requireUser(event('/annotate', { session: null, profile })))).toBe(
-			'/sign-in?next=%2Fannotate'
+			'/?next=%2Fannotate'
 		);
 	});
 
 	it('does not carry an action over to after sign-in', () => {
 		expect(
 			redirectedTo(() => requireUser(event('/annotate?/chooseSpecialty', undefined, 'POST')))
-		).toBe('/sign-in?next=%2Fannotate');
+		).toBe('/?next=%2Fannotate');
 	});
 
 	it('omits next for the home page', () => {
-		expect(redirectedTo(() => requireUser(event('/')))).toBe('/sign-in');
+		expect(redirectedTo(() => requireUser(event('/')))).toBe('/');
 	});
 });
 
@@ -85,7 +85,7 @@ describe('returnPath', () => {
 
 describe('(app) layout', () => {
 	it('redirects a signed-out visitor', () => {
-		expect(redirectedTo(() => load(event('/annotate') as never))).toBe('/sign-in?next=%2Fannotate');
+		expect(redirectedTo(() => load(event('/annotate') as never))).toBe('/?next=%2Fannotate');
 	});
 
 	it('lets a signed-in user through and sends nothing about them to the page', () => {

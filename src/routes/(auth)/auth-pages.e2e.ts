@@ -12,7 +12,7 @@ function watchCsp(page: Page) {
 }
 
 for (const [path, heading] of [
-	['/sign-in', 'Sign in'],
+	['/', 'Sign in'],
 	['/sign-up', 'Create an account'],
 	['/forgot-password', 'Forgot your password?'],
 	['/resend-confirmation', 'Resend the confirmation email']
@@ -45,7 +45,7 @@ test('a link without a valid token says so', async ({ page }) => {
 test('signs in, stays signed in, signs out', async ({ page, context, baseURL }) => {
 	const violations = watchCsp(page);
 	await page.goto('/annotate');
-	await expect(page).toHaveURL(/\/sign-in\?next=%2Fannotate$/);
+	await expect(page).toHaveURL(/\/\?next=%2Fannotate$/);
 
 	await page.getByLabel('Email').fill('test-user-1@example.com');
 	await page.getByLabel('Password', { exact: true }).fill('local-test-password-one');
@@ -77,12 +77,12 @@ test('signs in, stays signed in, signs out', async ({ page, context, baseURL }) 
 	});
 	expect(logout.status()).toBe(303);
 	await page.goto('/annotate');
-	await expect(page).toHaveURL(/\/sign-in\?next=%2Fannotate$/);
+	await expect(page).toHaveURL(/\/\?next=%2Fannotate$/);
 	expect(violations).toEqual([]);
 });
 
 test('a wrong password gets the generic error', async ({ page }) => {
-	await page.goto('/sign-in');
+	await page.goto('/');
 	await page.getByLabel('Email').fill(`nobody-${Date.now()}@example.com`);
 	await page.getByLabel('Password', { exact: true }).fill('not a real password at all');
 	await page.getByRole('button', { name: 'Sign in' }).click();
@@ -105,7 +105,7 @@ test('sign-up links to the terms and privacy notice on the marketing site', asyn
 });
 
 test('the header logo links to the app', async ({ page }) => {
-	await page.goto('/sign-in');
+	await page.goto('/');
 	const home = page.getByRole('link', { name: 'PostScript Medical home' });
 	await expect(home).toHaveAttribute('href', '/annotate');
 	await expect(home.locator('svg title')).toHaveText('PostScript Medical');

@@ -83,6 +83,6 @@ describe('/annotate load', () => {
 		const outcome = await call(new Jar(), '/annotate', annotateLoad as never);
 
 		expect(outcome.result).toBeUndefined();
-		expect(redirectTo(outcome)).toBe('/sign-in?next=%2Fannotate');
+		expect(redirectTo(outcome)).toBe('/?next=%2Fannotate');
 	});
 });

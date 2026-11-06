@@ -10,7 +10,7 @@ import {
 function post(body: string | null, headers: Record<string, string> = {}) {
 	const length: Record<string, string> =
 		body === null ? {} : { 'content-length': String(Buffer.byteLength(body)) };
-	return new Request('https://app.postscriptmedical.com/sign-in', {
+	return new Request('https://app.postscriptmedical.com/', {
 		method: 'POST',
 		body,
 		headers: { ...length, ...headers }

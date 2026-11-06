@@ -20,7 +20,7 @@ import {
 } from '#lib/server/validation.ts';
 import type { Actions, PageServerLoad } from './$types';
 
-// Sign-in (auth-spec §4.1): email + password + "This is a shared device". One generic error for
+// Sign-in, on the home page (auth-spec §4.1): email + password + "This is a shared device". One generic error for
 // any failure; failed attempts count towards the per-email and per-network limits (§6).
 
 const schema = z.object({

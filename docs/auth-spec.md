@@ -133,7 +133,7 @@ sequenceDiagram
 
 **Sign-up (`/sign-up`).** Email + password (no "confirm password" field). A rejected password gets a specific, friendly reason ("at least 15 characters", "this password has appeared in a data breach"). The response is always "check your email to confirm", whether or not the address already has an account, so the form can't be used to find out who has one. Supabase creates an unconfirmed `auth.users` row; pg_cron deletes it if it's still unconfirmed after 24 hours. Below the form: "By continuing you agree to the [Terms of use](https://www.postscriptmedical.com/terms-of-use) and the [Privacy notice](https://www.postscriptmedical.com/privacy-policy)." The legal pages live on the marketing site, not in the app (drafts: [terms-of-use.md](terms-of-use.md), [privacy-notice.md](privacy-notice.md)). No checkbox and nothing stored; agreeing to terms isn't GDPR consent, the lawful basis is the contract ([data-protection §3](data-protection.md)).
 
-**Sign-in (`/sign-in`).** Email + password + "This is a shared device". `signInWithPassword` → `ensure_account` → insert `session_policies` → cookie `Max-Age` per mode → 303 to `next` or `/annotate`. **One generic error for any failure** (unknown email, wrong password, unconfirmed address). The page also offers a "resend confirmation email" link, which is rate-limited and always gives the same response.
+**Sign-in (`/`, the home page).** Email + password + "This is a shared device". `signInWithPassword` → `ensure_account` → insert `session_policies` → cookie `Max-Age` per mode → 303 to `next` or `/annotate`. **One generic error for any failure** (unknown email, wrong password, unconfirmed address). The page also offers a "resend confirmation email" link, which is rate-limited and always gives the same response.
 
 **Password reset.**
 1. `/forgot-password`: email only. Always "if an account exists, we've sent a link". `resetPasswordForEmail` with redirect to `/auth/confirm`.
@@ -141,7 +141,7 @@ sequenceDiagram
 3. `/reset-password`: allowed only when this session's `recovery_verified_at` is within the last **15 minutes** **and** the JWT `amr` contains `otp`; otherwise 303 to `/forgot-password`. The `amr` claim alone isn't enough, because Supabase reports a recovery as `otp`, the same as a sign-up confirmation (§2). This closes S14.
 4. The new password goes through the policy, then `updateUser({ password })` → global sign-out of every other session and deletion of their `session_policies` rows → `recovery_verified_at = null` on this row, so the page can't be reused → the user continues signed in on this device.
 
-**Device choice:** asked on whichever screen completes sign-in (`/sign-in` or the `/auth/confirm` page). It defaults to **shared device** when we can't tell, because that's the safer default.
+**Device choice:** asked on whichever screen completes sign-in (the home page or the `/auth/confirm` page). It defaults to **shared device** when we can't tell, because that's the safer default.
 
 **Account creation happens only after verification.** `ensure_account` creates the `users` row, the personal workspace, the `owner` membership and the app state in one transaction.
 
@@ -158,7 +158,7 @@ sequenceDiagram
 | Change password (`/account/password`) | Current + new password; the new one goes through the policy (§1). The current one is checked with a throwaway server-side client whose session is revoked straight away; wrong guesses count towards the sign-in limit for that address (§6), as they do for account deletion. Then `updateUser({ password })` and every other session is signed out. |
 | Sessions | The user's `session_policies` rows: mode, started, last seen, "this device". Sign out one (`revoke_session`: the policy row and the Supabase session, only if both are the caller's; otherwise 404), or all. No IP or device details are stored or shown. |
 | Download my data | `export_account(auth_id)` → a JSON file: email, account created and last sign-in dates, workspace, app state, sessions. Covers the rights of access and portability. |
-| Delete my account | Confirmation with the **current password** and the email address typed. Then Admin API `deleteUser(auth_id)`. The FK cascade removes `users`, the personal workspace, memberships, app state and session policies. The cookies are cleared → `/sign-in?deleted=1`. |
+| Delete my account | Confirmation with the **current password** and the email address typed. Then Admin API `deleteUser(auth_id)`. The FK cascade removes `users`, the personal workspace, memberships, app state and session policies. The cookies are cleared → `/?deleted=1`. |
 
 ### 4.4 Changing the device choice
 
@@ -177,7 +177,7 @@ The Supabase free tier has no time-box or inactivity setting, so the app enforce
 | Absolute lifetime | **30 days** from `created_at` | **8 hours** from `created_at` |
 | Idle timeout | **7 days** since `last_seen_at` | **60 minutes** since `last_seen_at` |
 | Cookie persistence | `Max-Age` 30 days | Browser-session cookie |
-| Expired → | Hook calls `signOut({scope:'local'})`, deletes the row → `/sign-in?expired=1` | Same |
+| Expired → | Hook calls `signOut({scope:'local'})`, deletes the row → `/?expired=1` | Same |
 
 - `last_seen_at` is updated at most once every 5 minutes per session, so we don't write to the database on every request.
 - Supabase's own refresh tokens don't expire without the time-box setting. They're useless without a policy row, though, because the hook signs out any session that has none.
@@ -191,7 +191,7 @@ Open sign-up and password reset mean anyone can make us send an email to any add
 
 | Action | Limit | Response when hit |
 |---|---|---|
-| Failed sign-ins (`/sign-in`) | 5 per email per 15 min, 20 per IP prefix per 15 min | The same generic error |
+| Failed sign-ins (`/`) | 5 per email per 15 min, 20 per IP prefix per 15 min | The same generic error |
 | Sign-up (`/sign-up`) | 5 per IP prefix per hour | The same "check your email" screen. Nothing is sent. |
 | Forgot password, resend confirmation | 3 per email per hour, 10 per IP prefix per hour | The same response. Nothing is sent. |
 | Confirm page POST (`/auth/confirm`) | 20 per IP prefix per 15 min | Generic error |
@@ -220,7 +220,7 @@ There is **no platform or staff role** in this migration (no `dm`, no `platform_
 
 | Guard | Checks | Fails with |
 |---|---|---|
-| `requireUser(event)` | `locals.session` and `locals.profile` exist (set by the hook, §3.2) | 303 → `/sign-in?next=…` (`next` = the page's path and query on GET, the path only for an action) |
+| `requireUser(event)` | `locals.session` and `locals.profile` exist (set by the hook, §3.2) | 303 → `/?next=…` (`next` = the page's path and query on GET, the path only for an action) |
 | _later:_ `requireWorkspaceRole(event, roles)` | membership role in the active workspace | 403 |
 | _later:_ `requireSameWorkspace(event, workspaceId)` | target row belongs to the active workspace | **404** (doesn't reveal that other tenants' rows exist) |
 | _later:_ `requireFeature(event, feature)` | the active workspace has the feature entitlement | 403 → upgrade page |
@@ -233,7 +233,7 @@ This is the source of truth for the authorization tests ([migration-plan §6](mi
 
 | Route / action | anon | user | other user's resource | Notes |
 |---|---|---|---|---|
-| `/sign-up`, `/sign-in`, `/forgot-password`, `/resend-confirmation` | ✅ | ✅ (→ /annotate) | — | Rate-limited (§6) |
+| `/` (sign-in), `/sign-up`, `/forgot-password`, `/resend-confirmation` | ✅ | ✅ (→ /annotate) | — | Rate-limited (§6) |
 | `/auth/confirm` (GET page, POST verify) | ✅ | ✅ | — | POST rate-limited; only the POST verifies |
 | `/reset-password` | ❌ 303 → /forgot-password | ✅ only with a recovery marker < 15 min and `amr` `otp`; otherwise ❌ 303 → /forgot-password | — | One use per marker |
 | `POST /logout` | ❌ 303 | ✅ | — | |
@@ -268,7 +268,7 @@ The data side (workspaces, dropping orgs) is in [data-model §7](data-model.md);
 
 | Item | Status |
 |---|---|
-| `auth-login`, `auth-password-reset-request`, `auth-password-reset` | **Replaced** by `/sign-in`, `/forgot-password`, `/auth/confirm` and `/reset-password` (§4.1) |
+| `auth-login`, `auth-password-reset-request`, `auth-password-reset` | **Replaced** by `/` (sign-in), `/forgot-password`, `/auth/confirm` and `/reset-password` (§4.1) |
 | `SignInForm`, `CredentialsForm`, `CredentialsTerms`, `ForgotPasswordModal`, `ResetPassword` | **Ported** to the new routes (execution plan 1.10) |
 | `check-password-requirements.js`, `template-identity-recovery.html` | Replaced by the zod password schema (`password.ts`) and `supabase/templates/recovery.html` |
 | "Stay logged in" checkbox | Replaced by the personal / shared device choice (§5) |

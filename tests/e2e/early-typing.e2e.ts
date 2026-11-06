@@ -26,7 +26,7 @@ async function hydrated(page: Page) {
 
 test('sign-in keeps what was typed, and then submits it', async ({ page }) => {
 	await clearRateLimits();
-	const release = await openBeforeHydration(page, '/sign-in');
+	const release = await openBeforeHydration(page, '/');
 	const shared = page.getByLabel(/This is a shared device/);
 
 	await page.getByLabel('Email').fill('early@example.com');
@@ -63,7 +63,7 @@ test.describe('without JavaScript', () => {
 
 	test('a failed sign-in keeps the email', async ({ page }) => {
 		await clearRateLimits();
-		await page.goto('/sign-in');
+		await page.goto('/');
 		await page.getByLabel('Email').fill('nojs@example.com');
 		await page.getByLabel('Password', { exact: true }).fill('not a real password at all');
 		await page.getByRole('button', { name: 'Sign in' }).click();

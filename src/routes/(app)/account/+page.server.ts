@@ -49,7 +49,7 @@ export const actions: Actions = {
 
 		if (sessionId === session.id) {
 			await endSession(event);
-			redirect(303, '/sign-in');
+			redirect(303, '/');
 		}
 		const { data: revoked, error } = await adminClient().rpc('revoke_session', {
 			p_user_id: profile.userId,
@@ -84,7 +84,7 @@ export const actions: Actions = {
 		}
 		clearAuthCookies(event);
 		log.info('signed_out_everywhere', { requestId, userId: profile.userId });
-		redirect(303, '/sign-in');
+		redirect(303, '/');
 	},
 
 	/**
@@ -119,6 +119,6 @@ export const actions: Actions = {
 			return failAndLog('account_delete_failed', error, { requestId, userId: profile.userId });
 		clearAuthCookies(event);
 		log.info('account_deleted', { requestId, userId: profile.userId });
-		redirect(303, '/sign-in?deleted=1');
+		redirect(303, '/?deleted=1');
 	}
 };

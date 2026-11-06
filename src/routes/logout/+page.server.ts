@@ -9,8 +9,8 @@ export const load: PageServerLoad = () => redirect(303, '/');
 
 export const actions: Actions = {
 	default: async (event) => {
-		if (!event.locals.session) redirect(303, '/sign-in');
+		if (!event.locals.session) redirect(303, '/');
 		await endSession(event);
-		redirect(303, '/sign-in');
+		redirect(303, '/');
 	}
 };

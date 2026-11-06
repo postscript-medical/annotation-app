@@ -10,7 +10,7 @@ test.beforeEach(clearRateLimits);
 test.afterAll(cleanUp);
 
 async function signIn(page: Page, email: string) {
-	await page.goto('/sign-in?next=%2Faccount');
+	await page.goto('/?next=%2Faccount');
 	await page.getByLabel('Email').fill(email);
 	await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
 	await page.getByRole('button', { name: 'Sign in' }).click();
@@ -66,7 +66,7 @@ test('deletes the account', async ({ page }) => {
 
 	await form.getByLabel('Type your email address to confirm').fill(email);
 	await form.getByRole('button', { name: 'Delete my account' }).click();
-	await expect(page).toHaveURL(/\/sign-in\?deleted=1$/);
+	await expect(page).toHaveURL(/\/\?deleted=1$/);
 	await expect(page.getByRole('status')).toHaveText('Your account has been deleted.');
 	expect((await page.context().cookies()).filter((c) => c.name.startsWith('sb-'))).toEqual([]);
 

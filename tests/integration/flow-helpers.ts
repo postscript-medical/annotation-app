@@ -1,7 +1,7 @@
 import { isActionFailure, isRedirect, type RequestEvent } from '@sveltejs/kit';
 import type { Sql } from 'postgres';
 import { expect, vi } from 'vitest';
-import { actions as signInActions } from '../../src/routes/(auth)/sign-in/+page.server';
+import { actions as signInActions } from '../../src/routes/(auth)/+page.server';
 import { actions as signUpActions } from '../../src/routes/(auth)/sign-up/+page.server';
 import { actions as confirmActions } from '../../src/routes/auth/confirm/+page.server';
 import type { Db } from '../../src/lib/server/supabase';
@@ -152,13 +152,7 @@ export function flowHelpers(admin: Db, sql: Sql, created: string[], prefix: stri
 		ip?: string
 	) {
 		const jar = new Jar();
-		const outcome = await call(
-			jar,
-			'/sign-in',
-			signInActions.default,
-			{ email, password, ...extra },
-			ip
-		);
+		const outcome = await call(jar, '/', signInActions.default, { email, password, ...extra }, ip);
 		return { jar, outcome };
 	}
 
