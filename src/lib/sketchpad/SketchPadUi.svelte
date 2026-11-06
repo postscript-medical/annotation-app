@@ -1,10 +1,10 @@
 <svelte:options runes={false} />
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
+<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
      Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight` with the feedback (2.6) and
      share (2.5) buttons and the user menu (2.4). -->
 <script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 	import { createEventDispatcher } from 'svelte';
 	import {
 		ERASER_SIZES,

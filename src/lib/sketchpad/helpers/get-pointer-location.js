@@ -1,4 +1,4 @@
-// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 // Ported as-is (2.1) from legacy `components/sketchpad/helpers/`.
 export default function getPointerLocation(event, location, hasPointer) {
 	if (hasPointer) {

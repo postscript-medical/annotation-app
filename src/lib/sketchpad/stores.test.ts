@@ -4,7 +4,7 @@ import { TOOL_PEN, TOOL_TEXT } from './constants.js';
 import { actions, dpr, pixelRatio, typedTextEntries } from './stores.js';
 
 // Pins the legacy undo/redo store's behaviour (ported as-is in 2.1) before the runes
-// conversion (2.8). Each stack entry is the whole list of drawn actions at that point.
+// conversion (2.9). Each stack entry is the whole list of drawn actions at that point.
 const a = [{ name: TOOL_PEN, index: 0 }];
 const b = [...a, { name: TOOL_PEN, index: 1 }];
 const c = [...b, { name: TOOL_TEXT, index: 2, content: 'note' }];

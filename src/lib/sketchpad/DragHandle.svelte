@@ -1,8 +1,8 @@
 <svelte:options runes={false} />
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8. -->
+<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
 <script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import IconDrag from '../components/icons/IconDrag.svelte';
 

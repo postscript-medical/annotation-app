@@ -8,7 +8,9 @@
 		hint?: string;
 	} & Omit<HTMLInputAttributes, 'name'>;
 
-	let { label, name, error, hint, ...input }: Props = $props();
+	// `bind:value`, not a spread: Svelte then keeps what was typed before hydration, where a spread
+	// value would overwrite it with the server's.
+	let { label, name, error, hint, value = $bindable(), ...input }: Props = $props();
 	const id = $props.id();
 </script>
 
@@ -20,6 +22,7 @@
 		aria-invalid={error ? 'true' : undefined}
 		aria-describedby={[error && `${id}-error`, hint && `${id}-hint`].filter(Boolean).join(' ') ||
 			undefined}
+		bind:value
 		{...input}
 	/>
 	{#if hint}<span class="hint" id="{id}-hint">{hint}</span>{/if}

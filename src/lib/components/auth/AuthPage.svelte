@@ -2,8 +2,8 @@
 	import type { Snippet } from 'svelte';
 	import Header from '../Header.svelte';
 
-	// The frame for the sign-in, sign-up, password and account pages: the header with the logo,
-	// then the page.
+	// The frame for the sign-in, sign-up, password, account and error pages: the header with the
+	// logo, then the page.
 	let {
 		title,
 		signedIn = false,

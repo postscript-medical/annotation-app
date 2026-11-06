@@ -1,9 +1,9 @@
 <svelte:options runes={false} />
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
+<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
      Images come through the first-party /images proxy (G7, 2.4). -->
 <script module>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 	import { gsap } from 'gsap';
 
 	let target;
@@ -20,7 +20,7 @@
 </script>
 
 <script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 	import { onMount, onDestroy } from 'svelte';
 	import { illustrationUrl } from '../images.ts';
 	import { illustrationDisplayed } from './stores.js';

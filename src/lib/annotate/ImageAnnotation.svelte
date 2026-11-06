@@ -1,6 +1,6 @@
 <svelte:options runes={false} />
 
-<!-- Ported (2.4) from legacy screens/ImageAnnotation; legacy (non-runes) mode until 2.8, like the
+<!-- Ported (2.4) from legacy screens/ImageAnnotation; legacy (non-runes) mode until 2.9, like the
      sketchpad it drives. Browser only (the page has ssr = false).
      Changes from legacy: the catalogue and selection come from the page load, by id; choosing a
      specialty or an illustration saves through a form action and only takes effect once saved, with
@@ -8,7 +8,7 @@
      device-only (2.5): share sheet, download or print; email sharing is gone (scope change).
      Feedback (2.6) goes to staff by email through `?/feedback`. -->
 <script>
-	// @ts-nocheck -- legacy JavaScript ported (2.4); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported (2.4); typed in the runes conversion (2.9).
 	import { onMount, tick } from 'svelte';
 	import { resolveSelection } from '../catalogue/selection.ts';
 	import {

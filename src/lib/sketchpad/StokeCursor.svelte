@@ -1,6 +1,6 @@
 <svelte:options runes={false} />
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8. -->
+<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
 <script>
 	export let position = { x: -1000, y: -1000 };
 	export let size = 10;

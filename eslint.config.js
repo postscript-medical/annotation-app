@@ -35,7 +35,7 @@ export default defineConfig(
 	},
 	{
 		// The sketchpad is legacy JavaScript ported as-is (2.1), type-checked off with @ts-nocheck
-		// until the runes conversion (2.8) types it. Remove this block then.
+		// until the runes conversion (2.9) types it. Remove this block then.
 		files: ['src/lib/sketchpad/**/*.js'],
 		rules: { '@typescript-eslint/ban-ts-comment': ['error', { 'ts-nocheck': false }] }
 	},

@@ -1,6 +1,6 @@
-// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 // Sketchpad stores, ported as-is (2.1) from legacy `stores.js`: the undo/redo `actions` store and
-// the canvas, viewport and drawer stores the sketchpad uses. Converted to runes in 2.8.
+// the canvas, viewport and drawer stores the sketchpad uses. Converted to runes in 2.9.
 //
 // Not ported: the app-level stores (`session`, `user`, `protectedContent`, the catalogue stores,
 // `customerPortalUrl`), which 2.3/2.4 replace with server data. Legacy derived

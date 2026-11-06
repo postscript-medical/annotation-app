@@ -1,4 +1,4 @@
-// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 // Ported as-is (2.1) from legacy `methods/generate-annotated-image.js`: flattens the illustration,
 // the watermark, the canvas strokes and the typed text into one canvas for sharing (2.5).
 // The canvas goes to lib/share as a JPEG; nothing is uploaded.

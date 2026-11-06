@@ -1,9 +1,9 @@
 <svelte:options runes={false} />
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.8.
+<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
      Browser only (reads `window` when created). -->
 <script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.8).
+	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 	import { onDestroy, onMount } from 'svelte';
 	import {
 		actions,
@@ -64,7 +64,7 @@
 	let pointerLocation = { x: 0, y: 0 };
 	let rafID;
 
-	// eslint-disable-next-line svelte/no-immutable-reactive-statements -- as legacy; 2.8
+	// eslint-disable-next-line svelte/no-immutable-reactive-statements -- as legacy; 2.9
 	$: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
 
 	function addShape(shapeId) {
@@ -242,7 +242,7 @@
 
 		recordPoint(event);
 
-		// eslint-disable-next-line no-useless-assignment -- as legacy; 2.8
+		// eslint-disable-next-line no-useless-assignment -- as legacy; 2.9
 		let newAction = {};
 
 		switch (selectedToolId) {
