@@ -146,15 +146,15 @@
 		position: absolute;
 		right: 0;
 		top: 0;
-		z-index: 3;
+		z-index: var(--z-panel);
 	}
 
 	.image-catalogue {
-		background-color: white;
+		background-color: var(--color-white);
 		display: flex;
 		flex-direction: column;
 		height: 100vh;
-		padding: 2rem;
+		padding: var(--space-8);
 		position: absolute;
 		right: 0;
 		top: 0;
@@ -163,10 +163,10 @@
 
 	header {
 		display: grid;
-		gap: 2rem;
+		gap: var(--space-8);
 		grid-template-columns: 1fr min-content;
-		margin-bottom: 2rem;
-		margin-top: 1rem;
+		margin-bottom: var(--space-8);
+		margin-top: var(--space-4);
 	}
 
 	.close {
@@ -177,7 +177,7 @@
 
 	.body {
 		display: grid;
-		gap: 1rem;
+		gap: var(--space-4);
 		grid-auto-rows: min-content;
 		grid-template-columns: 1fr 1fr;
 		overflow-y: auto;

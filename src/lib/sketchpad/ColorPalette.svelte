@@ -69,8 +69,8 @@
 
 <style>
 	.colors-palette {
-		background-color: white;
-		border-radius: 1.5rem;
+		background-color: var(--color-white);
+		border-radius: var(--radius-pill);
 		display: flex;
 		align-items: center;
 	}

@@ -47,16 +47,16 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
+		gap: var(--space-1-5);
 	}
 
 	label {
-		font-size: 0.875rem;
+		font-size: var(--font-size-md);
 	}
 
 	.row {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--space-2);
 	}
 
 	.row input {
@@ -67,21 +67,21 @@
 	.toggle {
 		flex-shrink: 0;
 		background: transparent;
-		border-color: rgba(255, 255, 255, 0.6);
+		border-color: var(--color-white-border);
 		min-width: 4.5rem;
 	}
 
 	.hint {
-		font-size: 0.8125rem;
+		font-size: var(--font-size-sm);
 		opacity: 0.85;
 	}
 
 	.error {
-		font-size: 0.875rem;
-		color: rgb(255, 170, 170);
+		font-size: var(--font-size-md);
+		color: var(--color-error-text);
 	}
 
 	input[aria-invalid='true'] {
-		border-color: rgb(230, 90, 90);
+		border-color: var(--color-error-border);
 	}
 </style>

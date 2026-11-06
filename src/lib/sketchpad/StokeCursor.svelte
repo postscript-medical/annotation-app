@@ -21,8 +21,8 @@
 		position: fixed;
 		left: 0;
 		top: 0;
-		border: 1px solid black;
-		border-radius: 50%;
+		border: 1px solid var(--color-black);
+		border-radius: var(--radius-round);
 		pointer-events: none;
 	}
 </style>

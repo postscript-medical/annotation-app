@@ -68,8 +68,8 @@
 
 <style>
 	.undo-redo {
-		background-color: white;
-		border-radius: 1.5rem;
+		background-color: var(--color-white);
+		border-radius: var(--radius-pill);
 		display: flex;
 		position: relative;
 	}
@@ -77,8 +77,8 @@
 	button {
 		background: transparent;
 		border: none;
-		font-size: 1.25rem;
-		padding: 0.75rem;
+		font-size: var(--font-size-xl);
+		padding: var(--space-3);
 		margin: 0;
 		line-height: 1;
 	}
@@ -100,11 +100,11 @@
 		}
 
 		button:first-child {
-			padding-bottom: 0.375rem;
+			padding-bottom: var(--space-1-5);
 		}
 
 		button:last-child {
-			padding-top: 0.375rem;
+			padding-top: var(--space-1-5);
 		}
 
 		hr {

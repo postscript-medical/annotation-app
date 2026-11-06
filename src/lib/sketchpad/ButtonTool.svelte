@@ -176,11 +176,11 @@
 	}
 
 	.secondary-tools {
-		background-color: white;
-		border-radius: 0.375rem;
+		background-color: var(--color-white);
+		border-radius: var(--radius-md);
 		display: flex;
 		flex-direction: column;
-		padding: 0.375rem;
+		padding: var(--space-1-5);
 		position: absolute;
 		left: 0;
 		top: -15%;
@@ -188,17 +188,17 @@
 	}
 
 	.secondary-tools > :global(*) {
-		background-color: white;
+		background-color: var(--color-white);
 		border: 0;
-		border-radius: 0.25rem;
+		border-radius: var(--radius-sm);
 	}
 	.secondary-tools > :global(:not(:last-child)) {
-		margin-bottom: 0.5rem;
+		margin-bottom: var(--space-2);
 	}
 
 	.secondary-tools > :global(*.on-dark) {
-		background-color: rgb(42, 41, 41);
-		color: white;
+		background-color: var(--color-ink);
+		color: var(--color-white);
 	}
 
 	@media screen and (min-width: 900px) {

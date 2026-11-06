@@ -6,6 +6,7 @@
 	},
 	"include": [
 		"src",
+		".storybook/**/*.ts",
 		"vite.config.ts",
 		"prettier.config.js",
 		"eslint.config.js",

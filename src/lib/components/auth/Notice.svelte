@@ -11,8 +11,8 @@
 
 <style>
 	.notice {
-		border-radius: 4px;
-		padding: 0.75rem 1rem;
+		border-radius: var(--radius-sm);
+		padding: var(--space-3) var(--space-4);
 		line-height: 1.4;
 	}
 
@@ -21,12 +21,12 @@
 	}
 
 	.error {
-		background: rgba(200, 40, 40, 0.25);
-		border: 1px solid rgb(230, 90, 90);
+		background: var(--color-error-tint);
+		border: 1px solid var(--color-error-border);
 	}
 
 	.info {
-		background: rgba(55, 154, 70, 0.25);
-		border: 1px solid rgb(55, 154, 70);
+		background: var(--color-brand-tint);
+		border: 1px solid var(--color-brand);
 	}
 </style>

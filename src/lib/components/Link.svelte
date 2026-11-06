@@ -23,6 +23,6 @@
 
 <style>
 	a.on-dark {
-		color: white;
+		color: var(--color-white);
 	}
 </style>

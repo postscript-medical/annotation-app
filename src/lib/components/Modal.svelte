@@ -116,23 +116,23 @@
 
 <style>
 	dialog {
-		background-color: white;
+		background-color: var(--color-white);
 		border: 0;
-		border-radius: 1rem;
-		color: rgb(42, 41, 41);
+		border-radius: var(--radius-xl);
+		color: var(--color-ink);
 		max-height: 90%;
 		overflow: hidden;
-		padding: 2rem;
+		padding: var(--space-8);
 		width: 95%;
 	}
 
 	dialog::backdrop {
-		background-color: rgba(255, 255, 255, 0.96);
+		background-color: var(--color-white-scrim);
 	}
 
 	form {
 		display: grid;
-		gap: 1rem;
+		gap: var(--space-4);
 		grid-template-rows: min-content 1fr min-content;
 		height: 100%;
 		overflow: hidden;
@@ -146,7 +146,7 @@
 	.modal-header {
 		align-items: start;
 		display: grid;
-		gap: 0.5rem;
+		gap: var(--space-2);
 		grid-template-columns: 1fr min-content;
 		margin: 0;
 	}
@@ -164,7 +164,7 @@
 	footer {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem 1rem;
+		gap: var(--space-2) var(--space-4);
 		justify-content: flex-end;
 	}
 

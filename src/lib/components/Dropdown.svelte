@@ -63,7 +63,7 @@
 		border: 0;
 		border-radius: 0;
 		background-color: transparent;
-		color: rgb(42, 41, 41);
+		color: var(--color-ink);
 	}
 
 	.disabled {
@@ -75,7 +75,7 @@
 		align-items: baseline;
 	}
 	.horizontal > :not(:last-child):not(:empty) {
-		margin-right: 0.5rem;
+		margin-right: var(--space-2);
 	}
 
 	.vertical {
@@ -83,6 +83,6 @@
 		align-items: flex-start;
 	}
 	.vertical > :not(:last-child):not(:empty) {
-		margin-bottom: 0.25rem;
+		margin-bottom: var(--space-1);
 	}
 </style>

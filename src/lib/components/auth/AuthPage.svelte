@@ -24,7 +24,7 @@
 
 <style>
 	.auth-page {
-		color: #fff;
+		color: var(--color-white);
 		max-width: 28rem;
 		width: 100%;
 	}
@@ -32,7 +32,7 @@
 	.auth-page :global(form) {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: var(--space-4);
 	}
 
 	/* The gap spaces the fields; drop the global form margin (app.css) so it isn't doubled. */
@@ -43,17 +43,17 @@
 	.auth-page :global(.links) {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem 1.5rem;
-		font-size: 0.875rem;
+		gap: var(--space-2) var(--space-6);
+		font-size: var(--font-size-md);
 	}
 
 	.auth-page :global(.links a),
 	.auth-page :global(p a) {
-		color: #fff;
+		color: var(--color-white);
 	}
 
 	.auth-page :global(.small) {
-		font-size: 0.8125rem;
+		font-size: var(--font-size-sm);
 		opacity: 0.85;
 	}
 </style>

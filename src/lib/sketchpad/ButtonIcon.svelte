@@ -37,18 +37,18 @@
 <style>
 	button {
 		align-items: center;
-		background-color: white;
-		border-radius: 50%;
+		background-color: var(--color-white);
+		border-radius: var(--radius-round);
 		border: 0;
 		display: flex;
-		font-size: 1.25rem;
+		font-size: var(--font-size-xl);
 		justify-content: center;
 		margin: 0;
-		padding: 0.75rem;
+		padding: var(--space-3);
 	}
 
 	.on-dark {
-		background-color: rgb(42, 41, 41);
-		color: white;
+		background-color: var(--color-ink);
+		color: var(--color-white);
 	}
 </style>

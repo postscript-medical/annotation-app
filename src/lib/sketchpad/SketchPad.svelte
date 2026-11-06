@@ -615,7 +615,7 @@
 	}
 
 	.paper {
-		background: white;
+		background: var(--color-white);
 		position: relative;
 		overflow: hidden;
 		display: flex;

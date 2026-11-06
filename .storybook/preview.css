@@ -1,0 +1,16 @@
+/*
+ * app.css styles bare elements (button, input, select, p, a), which is right for the app but also
+ * reaches Storybook's own docs blocks. Give those their own look back.
+ */
+.sbdocs button,
+.sbdocs input,
+.sbdocs select,
+.sbdocs textarea {
+	width: auto;
+}
+
+.sbdocs p {
+	max-width: none;
+	user-select: text;
+	-webkit-user-select: text;
+}

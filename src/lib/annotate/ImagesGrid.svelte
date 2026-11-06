@@ -50,7 +50,7 @@
 		margin: 0;
 		max-width: none;
 		overflow: hidden;
-		padding: 0.5rem;
+		padding: var(--space-2);
 		text-align: left;
 		text-overflow: ellipsis;
 		width: auto;
@@ -61,7 +61,7 @@
 	}
 
 	.card > :global(:not(:last-child)) {
-		margin-bottom: 1rem;
+		margin-bottom: var(--space-4);
 	}
 
 	.scrollable-container {
@@ -73,15 +73,15 @@
 	.images-grid {
 		align-items: start;
 		display: grid;
-		gap: 2rem 1rem;
+		gap: var(--space-8) var(--space-4);
 		grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
 	}
 
 	.no-results {
-		font-size: 3rem;
-		font-weight: 600;
+		font-size: var(--font-size-3xl);
+		font-weight: var(--font-weight-semibold);
 		grid-column: 1 / -1;
-		padding-top: 1rem;
+		padding-top: var(--space-4);
 		width: 100%;
 	}
 

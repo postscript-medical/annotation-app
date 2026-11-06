@@ -64,8 +64,8 @@
 <style>
 	label {
 		display: block;
-		font-weight: 600;
-		margin-bottom: 0.25rem;
+		font-weight: var(--font-weight-semibold);
+		margin-bottom: var(--space-1);
 	}
 
 	textarea {
@@ -76,8 +76,8 @@
 	}
 
 	.hint {
-		font-size: 0.875rem;
-		margin: 0.25rem 0 0.75rem;
+		font-size: var(--font-size-md);
+		margin: var(--space-1) 0 var(--space-3);
 		opacity: 0.8;
 	}
 </style>

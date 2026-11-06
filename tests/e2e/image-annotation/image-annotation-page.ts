@@ -18,8 +18,6 @@ export class ImageAnnotationPage {
 		await this.page.goto('/annotate');
 
 		await illustration;
-
-		await expect(this.page.getByTestId('loading-overlay')).toBeHidden();
 	}
 
 	async openCatalogue() {

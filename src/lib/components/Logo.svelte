@@ -343,14 +343,14 @@
 	}
 
 	.white {
-		fill: white;
+		fill: var(--color-white);
 	}
 
 	.full-color .cls-1 {
-		fill: #29292a;
+		fill: var(--color-logo-ink);
 	}
 	.full-color .cls-2 {
-		fill: #389a2f;
+		fill: var(--color-logo-green);
 	}
 
 	@media screen and (min-width: 600px) {

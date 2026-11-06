@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Introduction" />
+
+# PostScript Medical design system
+
+The components and visual language of the annotation app. Everything here runs the same code as the app, from `src/lib`, so what you see is what ships.
+
+## What's where
+
+- **Foundations**: colours, type, space, shape, motion and icons. The values live in `src/lib/design/tokens.css`, and those pages read that file.
+- **Components**: the general building blocks in `src/lib/components`.
+- **Layouts**: the frames for the sign-in and account pages.
+- **Annotation**: the parts of the annotation screen, in `src/lib/annotate` and `src/lib/sketchpad`.
+- **Design audit**: where the system is inconsistent today, and what to decide.
+
+The canvas itself (`SketchPad`, `Illustration`, `TypedTextEntry`, `StokeCursor`) and the screen around it (`ImageAnnotation`) aren't here: they need a real drawing session, and the E2E tests in `tests/e2e/image-annotation` cover them.
+
+## Principles
+
+These come from how the app is already built.
+
+- **Calm, and out of the way.** The illustration is the subject. The interface is green and near-black, with one shadow and little motion.
+- **Works for everyone.** Native elements first: `<dialog>` for modals, real labels, radio inputs for choices. Errors use `role="alert"`, and status messages `role="status"`.
+- **Forms work without JavaScript.** `use:enhance` adds to a form; it doesn't replace it.
+- **Nothing leaves for another host.** Fonts and images are first-party, under a strict Content Security Policy.
+- **No patient data.** Not in the app's data, and not in stories. Fixtures are made up (`src/lib/design/fixtures.ts`).
+
+## Using it
+
+```svelte
+<script lang="ts">
+	import Button from '#lib/components/Button.svelte';
+</script>
+
+<Button style="secondary">Download image</Button>
+
+<style>
+	.panel {
+		background-color: var(--color-white);
+		border-radius: var(--radius-lg);
+		padding: var(--space-4);
+	}
+</style>
+```
+
+- Style with tokens. `src/lib/design/tokens.test.ts` fails on a colour value in a component's styles, or on a `var()` that isn't defined.
+- Add a story beside the component: `Thing.svelte`, `Thing.stories.svelte`.
+- Check the **Accessibility** panel while you build. It runs axe on the current story.
+
+Run it with `npm run storybook`.

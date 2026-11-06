@@ -178,16 +178,16 @@
 		height: 100%;
 		width: 100%;
 		max-height: auto;
-		z-index: 3;
+		z-index: var(--z-panel);
 	}
 
 	.ui > :global(:not(:first-child)) {
-		margin-left: 1rem;
-		margin-top: 1rem;
+		margin-left: var(--space-4);
+		margin-top: var(--space-4);
 	}
 
 	.ui > :global(:first-child) {
-		z-index: 10;
+		z-index: var(--z-overlay);
 		padding: 0;
 		position: absolute;
 		left: 0;
@@ -195,7 +195,7 @@
 	}
 
 	.secondary-tool {
-		padding: 0.5rem;
+		padding: var(--space-2);
 		cursor: pointer;
 	}
 
@@ -208,7 +208,7 @@
 		}
 
 		.ui > :global(*) {
-			margin-bottom: 1rem;
+			margin-bottom: var(--space-4);
 			margin-top: 0;
 		}
 

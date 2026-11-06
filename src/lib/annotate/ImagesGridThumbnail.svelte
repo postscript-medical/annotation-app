@@ -26,14 +26,14 @@
 		display: block;
 		width: 100%;
 		height: auto;
-		border-radius: 0.25rem;
-		border: 4px solid rgba(42, 41, 41, 0);
+		border-radius: var(--radius-sm);
+		border: 4px solid var(--color-ink-clear);
 		opacity: 0;
-		transition: opacity 1s ease-out;
+		transition: opacity var(--duration-slow) ease-out;
 	}
 
 	img.selected {
-		border-color: rgba(42, 41, 41, 1);
+		border-color: var(--color-ink);
 	}
 
 	img.loaded {

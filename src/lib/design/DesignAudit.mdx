@@ -1,0 +1,35 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design audit" />
+
+# Design audit
+
+What building this design system turned up, as of 2026-11-06. The tokens record the app as it is, so none of this has been changed. Each item needs a decision. Contrast figures are also on the Colors page, measured live.
+
+## Accessibility
+
+These affect people using the app today.
+
+- **Reduced motion is only partly honoured** (`ButtonTool`, `UserSettingsDropdown`, `Button`, `ImageCatalogue`). `prefers-reduced-motion` in `app.css` stops CSS motion, but GSAP timelines and Svelte's `fly` still play. Everything opens and works, but the motion doesn't stop.
+- **Keyboard focus can't be seen** (`app.css` sets `outline: none` on all buttons). Borderless buttons (toolbar tools, undo and redo, modal close, drag handle) show nothing when focused. Only the specialty options have a `:focus-visible` style.
+- **A focused primary button is hard to read** (`Button`: `button:focus`). The background turns light grey under white text: 1.48:1. It stays that way after a mouse click, and a modal whose first button is Confirm opens like this.
+- **White text on the brand green is below AA** (Primary and tertiary buttons, the sign-in and account pages). 3.58:1, where AA needs 4.5:1 for text under 24px. Darkening `--color-brand` would fix most of this from one place, but it changes the brand.
+- **Field errors on green are hard to read** (`TextField`, `PasswordField`). `--color-error-text` on brand is 1.97:1, so an error is hard to read on the page where it matters most.
+- **Other text on green is low too** (`PasswordField`, hints). The Show button's text is 3.53:1, and hints at 85% opacity are 3.03:1.
+- **Pen colours have no accessible names** (`ColorPalette`). Axe rates this critical: the radios have no label, and none is marked as checked.
+- **Tool names read as "Icon: pen"** (`ButtonIcon`, `Icon`). The button's only name is the icon's title. The tooltip text ("Annotate") would be a better one.
+
+## Colour
+
+- **Two greens.** `--color-brand` is `rgb(55, 154, 70)`; the logo is `#389a2f`. They're close enough to look like a mistake side by side.
+- **Several reds.** `--color-danger`, `--color-error`, `--color-error-tint`, `--color-error-border` and `--color-error-text` grew separately. One or two, plus a tint, may do.
+- **A stray blue.** The arrow on `select` is `#007CB2`, inside a data URI in `app.css`. It's the only blue in the app, and barely visible on the dark control.
+- **Three near-blacks.** `--color-ink`, `--color-logo-ink` and `--color-black`, and `--color-border` is based on the logo's ink rather than `--color-ink`.
+- **Ten neutrals.** Most of them have one use each, on default control states.
+
+## Components
+
+- **Two kinds of message.** `ErrorMessage` for light surfaces and `Notice` for the green pages may want to be one component with a surface option.
+- **`style` is a free string.** `Button`, `Link`, `Dropdown` and `Logo` take space-separated class names, so a typo fails silently and editors can't suggest values. Separate typed props (`variant`, `onDark`) would fix that. `Dropdown` already has a separate `direction`.
+- **Global element styles.** `app.css` styles bare `button`, `input`, `select`, `p` and `form`, and components spend rules undoing them (the `Modal` form margin, for one). Paragraphs also can't be selected, because `p` sets `user-select: none`.
+- **Parent-dependent colour.** `Notice`, `TextField` and `PasswordField` rely on `AuthPage` to make their text white, so they're dark and hard to read anywhere else on green.

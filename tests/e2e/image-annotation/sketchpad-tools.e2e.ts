@@ -385,3 +385,34 @@ test.describe('the rest of the screen', () => {
 		await expect.poll(() => annotation.inkCount()).toBe(0);
 	});
 });
+
+// A non-zero transition-duration in app.css's reduced-motion rule made GSAP's `.from()` read
+// mid-transition values as its end values, which left these collapsed or invisible.
+test.describe('with reduced motion', () => {
+	test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+	// Check once the intro has ended: the bug only showed at its end, so an assertion that retries
+	// from the start can pass on the way.
+	const SETTLED = 500;
+
+	test('a tool drawer shows its options', async ({ page }) => {
+		await page.getByTestId('pen').click();
+		await page.waitForTimeout(SETTLED);
+
+		const options = drawer(page).locator('label');
+		await expect(options).toHaveCount(3);
+		const opacities = await options.evaluateAll((labels) =>
+			labels.map((label) => getComputedStyle(label).opacity)
+		);
+		expect(opacities).toEqual(['1', '1', '1']);
+	});
+
+	test('the user menu opens, and signing out can be reached', async ({ page }) => {
+		await page.getByRole('button', { name: 'Account menu' }).click();
+		await page.waitForTimeout(SETTLED);
+
+		const menu = await page.locator('#user-settings-menu').boundingBox();
+		expect(menu?.height).toBeGreaterThan(0);
+		await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+	});
+});

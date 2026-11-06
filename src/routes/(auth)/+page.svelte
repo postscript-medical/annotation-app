@@ -63,7 +63,7 @@
 <style>
 	.checkbox {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--space-2);
 		align-items: baseline;
 	}
 </style>

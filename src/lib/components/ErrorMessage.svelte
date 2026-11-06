@@ -10,14 +10,19 @@
 
 <style>
 	div {
-		background-color: white;
-		background-image: linear-gradient(to right, #df0303, #df0303 2.5rem, white 2.5rem);
-		border: 1px solid #df0303;
-		border-radius: 0.25rem;
-		padding: 0.5rem;
-		color: #df0303;
+		background-color: var(--color-white);
+		background-image: linear-gradient(
+			to right,
+			var(--color-error),
+			var(--color-error) 2.5rem,
+			var(--color-white) 2.5rem
+		);
+		border: 1px solid var(--color-error);
+		border-radius: var(--radius-sm);
+		padding: var(--space-2);
+		color: var(--color-error);
 		padding-left: 3rem;
-		font-size: 0.875rem;
+		font-size: var(--font-size-md);
 		line-height: 1rem;
 	}
 </style>

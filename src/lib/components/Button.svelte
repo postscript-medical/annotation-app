@@ -93,12 +93,12 @@
 
 <style>
 	button {
-		background-color: rgb(55, 154, 70);
-		border: 2px solid rgb(55, 154, 70);
-		color: white;
+		background-color: var(--color-brand);
+		border: 2px solid var(--color-brand);
+		color: var(--color-white);
 		white-space: nowrap;
 		position: relative;
-		transition: opacity 100ms ease-in-out;
+		transition: opacity var(--duration-fast) ease-in-out;
 	}
 
 	button :global(*) {
@@ -106,7 +106,7 @@
 	}
 
 	button:focus {
-		background-color: rgba(42, 41, 41, 0.2);
+		background-color: var(--color-ink-pressed);
 	}
 
 	button:disabled {
@@ -128,26 +128,26 @@
 	}
 
 	.on-dark {
-		background-color: white;
-		border-color: white;
-		color: rgb(42, 41, 41);
+		background-color: var(--color-white);
+		border-color: var(--color-white);
+		color: var(--color-ink);
 	}
 
 	.secondary {
-		background-color: white;
-		border-color: rgb(42, 41, 41);
-		color: rgb(42, 41, 41);
+		background-color: var(--color-white);
+		border-color: var(--color-ink);
+		color: var(--color-ink);
 	}
 
 	.danger {
-		background-color: rgb(170, 40, 40);
-		border-color: rgb(170, 40, 40);
-		color: white;
+		background-color: var(--color-danger);
+		border-color: var(--color-danger);
+		color: var(--color-white);
 	}
 
 	.tertiary {
-		border-radius: 1.5rem;
-		color: white;
+		border-radius: var(--radius-pill);
+		color: var(--color-white);
 		line-height: 1.5;
 	}
 
@@ -160,7 +160,7 @@
 	}
 
 	.inline.on-dark {
-		color: white;
+		color: var(--color-white);
 	}
 
 	.loading-content {

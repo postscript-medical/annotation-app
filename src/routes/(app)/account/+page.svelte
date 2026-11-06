@@ -121,12 +121,12 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: var(--space-3);
 	}
 
 	h2 {
 		margin: 0;
-		font-size: 1.125rem;
+		font-size: var(--font-size-lg);
 	}
 
 	.sessions {
@@ -135,22 +135,22 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: var(--space-3);
 	}
 
 	.sessions li {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 1rem;
-		padding-bottom: 0.75rem;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		gap: var(--space-4);
+		padding-bottom: var(--space-3);
+		border-bottom: 1px solid var(--color-white-divider);
 	}
 
 	.tag {
-		margin-left: 0.5rem;
-		font-size: 0.75rem;
-		padding: 0.125rem 0.5rem;
+		margin-left: var(--space-2);
+		font-size: var(--font-size-xs);
+		padding: var(--space-0-5) var(--space-2);
 		border: 1px solid currentColor;
 		border-radius: 999px;
 	}

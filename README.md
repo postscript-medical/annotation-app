@@ -21,6 +21,14 @@ npx supabase db reset   # apply migrations and seed the catalogue + test users
 npm run dev             # http://localhost:5173
 ```
 
+## Design system
+
+```bash
+npm run storybook       # http://localhost:6006
+```
+
+Tokens are in [src/lib/design/tokens.css](src/lib/design/tokens.css); stories sit beside their components (`Thing.stories.svelte`). Stories use made-up data, and nothing in Storybook needs Supabase.
+
 ## Checks
 
 ```bash

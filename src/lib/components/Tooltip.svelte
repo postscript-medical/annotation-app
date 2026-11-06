@@ -38,7 +38,7 @@
 
 <style>
 	.tooltip {
-		background-color: white;
+		background-color: var(--color-white);
 		border-radius: 0.5em;
 		left: 0;
 		margin: 0;
@@ -46,6 +46,6 @@
 		pointer-events: none;
 		position: fixed;
 		top: 0;
-		z-index: 20;
+		z-index: var(--z-tooltip);
 	}
 </style>

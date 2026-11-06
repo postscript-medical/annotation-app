@@ -54,24 +54,24 @@
 	}
 
 	.dropdown-button {
-		background-color: rgb(42, 41, 41);
+		background-color: var(--color-ink);
 		border: 0;
-		border-radius: 50%;
-		color: white;
+		border-radius: var(--radius-round);
+		color: var(--color-white);
 		padding: 0;
 	}
 
 	.dropdown {
-		background-color: rgb(42, 41, 41);
-		border-radius: 0.5rem;
+		background-color: var(--color-ink);
+		border-radius: var(--radius-lg);
 		display: flex;
 		flex-direction: column;
 		min-width: 30ch;
-		padding: 2rem;
+		padding: var(--space-8);
 		position: absolute;
 		right: 0;
 		top: 115%;
-		z-index: 1;
+		z-index: var(--z-raised);
 	}
 
 	.dropdown > :global(*) {
@@ -79,14 +79,14 @@
 	}
 
 	.dropdown > :global(:not(:last-child)) {
-		margin-bottom: 1rem;
+		margin-bottom: var(--space-4);
 	}
 
 	/* Looks like the links above it; it's a button so signing out is a POST (auth-spec §4.4). */
 	.sign-out {
 		background: transparent;
 		border: 0;
-		color: white;
+		color: var(--color-white);
 		cursor: pointer;
 		font: inherit;
 		padding: 0;

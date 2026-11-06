@@ -1,0 +1,95 @@
+/*
+ * Design tokens: the single source of truth for the app's look. Values were extracted from the
+ * styles already in the repo, not designed anew. Storybook's Foundations pages read this file, so
+ * a trailing comment here is the documentation there. Add a token when a value is used on purpose
+ * in more than one place; tokens.test.ts fails on a var() with no definition here.
+ */
+:root {
+	/* Brand */
+	--color-brand: rgb(55, 154, 70); /* Page background, primary buttons, selected states */
+	--color-brand-tint: rgba(55, 154, 70, 0.25); /* Information notice background */
+	--color-logo-green: #389a2f; /* The logo artwork only */
+	--color-logo-ink: #29292a; /* The logo artwork only */
+
+	/* Ink */
+	--color-ink: rgb(42, 41, 41); /* Body text, selected tools, the select control */
+	--color-ink-muted: rgba(42, 41, 41, 0.4); /* Text of a disabled select */
+	--color-ink-pressed: rgba(42, 41, 41, 0.2); /* Focused button background */
+	--color-ink-clear: rgba(42, 41, 41, 0); /* Unselected thumbnail border, disabled select */
+	--color-border: rgba(41, 41, 42, 0.2); /* Default control border */
+	--color-black: black; /* Close and drag icon strokes, typed-text border */
+
+	/* White */
+	--color-white: white; /* Surfaces, and text on brand or ink */
+	--color-white-scrim: rgba(255, 255, 255, 0.96); /* Modal backdrop */
+	--color-white-border: rgba(255, 255, 255, 0.6); /* Password toggle border on brand */
+	--color-white-glass: rgba(255, 255, 255, 0.5); /* Typed-text box while editing */
+	--color-white-divider: rgba(255, 255, 255, 0.2); /* Divider on brand */
+
+	/* Neutrals */
+	--color-neutral-50: rgb(250, 250, 250); /* Annotation screen background */
+	--color-neutral-75: #f8f8f8; /* Input background */
+	--color-neutral-100: #f4f4f4; /* Unstyled button background */
+	--color-neutral-200: #ddd; /* Pressed button background */
+	--color-neutral-300: #ccc; /* Disabled input text */
+	--color-neutral-400: #aaa; /* Disabled select border */
+	--color-neutral-500: #999; /* Disabled button text */
+	--color-neutral-600: #888; /* Select border on hover */
+	--color-neutral-700: #666; /* Focused button border */
+	--color-neutral-800: #333; /* Unstyled button text */
+
+	/* Feedback */
+	--color-danger: rgb(170, 40, 40); /* Destructive buttons */
+	--color-error: #df0303; /* ErrorMessage on a light surface */
+	--color-error-tint: rgba(200, 40, 40, 0.25); /* Error notice background */
+	--color-error-border: rgb(230, 90, 90); /* Invalid fields and error notices on brand */
+	--color-error-text: rgb(255, 170, 170); /* Field error text on brand */
+
+	/* Font family */
+	--font-family-base:
+		'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
+		Cantarell, 'Helvetica Neue', sans-serif; /* Everything; Montserrat is self-hosted */
+
+	/* Font size */
+	--font-size-xs: 0.75rem; /* Smallest labels */
+	--font-size-sm: 0.8125rem; /* Field hints, small print */
+	--font-size-md: 0.875rem; /* Field labels and errors, secondary links */
+	--font-size-lg: 1.125rem; /* Lead text */
+	--font-size-xl: 1.25rem; /* Toolbar icons */
+	--font-size-3xl: 3rem; /* Empty-state message */
+
+	/* Font weight */
+	--font-weight-regular: 400; /* Headings and body */
+	--font-weight-semibold: 600; /* Field labels, empty-state message */
+
+	/* Space */
+	--space-0-5: 0.125rem; /* 2px */
+	--space-1: 0.25rem; /* 4px */
+	--space-1-5: 0.375rem; /* 6px */
+	--space-2: 0.5rem; /* 8px */
+	--space-3: 0.75rem; /* 12px */
+	--space-4: 1rem; /* 16px, the default gap */
+	--space-6: 1.5rem; /* 24px */
+	--space-8: 2rem; /* 32px, between page sections */
+
+	/* Radius */
+	--radius-sm: 0.25rem; /* Inputs, buttons, notices */
+	--radius-md: 0.375rem; /* Tool drawers */
+	--radius-lg: 0.5rem; /* Menus, specialty options */
+	--radius-xl: 1rem; /* Modals */
+	--radius-pill: 1.5rem; /* Tertiary buttons, toolbar groups */
+	--radius-round: 50%; /* Icon buttons, the avatar */
+
+	/* Shadow */
+	--shadow-sm: 0px 0.075rem 0.25rem 0px rgba(42, 41, 41, 0.15); /* All raised surfaces */
+
+	/* Layer */
+	--z-raised: 1; /* A menu above its neighbours */
+	--z-panel: 3; /* The toolbar and the catalogue panel */
+	--z-overlay: 10; /* Tooltip container, the toolbar's header */
+	--z-tooltip: 20; /* Tooltips, above everything */
+
+	/* Duration */
+	--duration-fast: 100ms; /* Hover and state changes */
+	--duration-slow: 1s; /* Thumbnails fading in */
+}

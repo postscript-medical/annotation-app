@@ -53,26 +53,26 @@
 	ul {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
-		padding-bottom: 0.25rem;
+		gap: var(--space-2);
+		padding-bottom: var(--space-1);
 	}
 
 	label {
-		border: 2px solid black;
-		border-radius: 0.5rem;
+		border: 2px solid var(--color-black);
+		border-radius: var(--radius-lg);
 		display: block;
-		padding: 0.5rem;
+		padding: var(--space-2);
 	}
 
 	input[type='radio']:checked + label,
 	label:hover {
-		background-color: rgb(55, 154, 70);
-		border-color: rgb(55, 154, 70);
-		color: white;
+		background-color: var(--color-brand);
+		border-color: var(--color-brand);
+		color: var(--color-white);
 	}
 
 	input[type='radio']:focus-visible + label {
-		outline: 2px solid rgb(42, 41, 41);
+		outline: 2px solid var(--color-ink);
 		outline-offset: 2px;
 	}
 </style>

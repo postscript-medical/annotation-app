@@ -9,7 +9,7 @@
 <style>
 	path {
 		stroke-width: 2.5;
-		stroke: black;
+		stroke: var(--color-black);
 		stroke-linecap: round;
 	}
 </style>

@@ -43,13 +43,13 @@
 
 <style>
 	.drag-handle {
-		background: white;
+		background: var(--color-white);
 		border: 0;
-		border-radius: 50%;
+		border-radius: var(--radius-round);
 		cursor: grab;
-		font-size: 1.25rem;
+		font-size: var(--font-size-xl);
 		left: 0;
-		padding: 0.75rem;
+		padding: var(--space-3);
 		text-align: center;
 	}
 </style>

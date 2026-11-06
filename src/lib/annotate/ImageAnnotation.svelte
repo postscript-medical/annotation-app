@@ -243,7 +243,7 @@
 <style>
 	.main-content {
 		align-items: center;
-		background: rgb(250, 250, 250);
+		background: var(--color-neutral-50);
 		display: flex;
 		height: 100vh;
 		justify-content: center;

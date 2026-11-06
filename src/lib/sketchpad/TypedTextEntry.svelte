@@ -72,7 +72,7 @@
 		opacity: 0;
 		top: -1.25rem;
 		left: -1.25rem;
-		transition: opacity 100ms linear;
+		transition: opacity var(--duration-fast) linear;
 	}
 
 	.typed-text-entry:hover > :global(:not(textarea)) {
@@ -85,12 +85,12 @@
 	}
 
 	.typed-annotation {
-		background: rgba(255, 255, 255, 0.5);
-		border-color: black;
+		background: var(--color-white-glass);
+		border-color: var(--color-black);
 		border-width: 2px;
 	}
 
 	.typed-annotation:focus {
-		background-color: white;
+		background-color: var(--color-white);
 	}
 </style>

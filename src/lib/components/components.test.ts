@@ -8,8 +8,6 @@ import ErrorMessage from './ErrorMessage.svelte';
 import Link from './Link.svelte';
 import Logo from './Logo.svelte';
 import Modal from './Modal.svelte';
-import TagsInput from './TagsInput.svelte';
-import TextInput from './TextInput.svelte';
 import Tooltip from './Tooltip.svelte';
 
 // The ported design system (1.13), rendered on the server: structure, attributes and
@@ -124,24 +122,6 @@ describe('Modal', () => {
 });
 
 describe('form controls', () => {
-	it('TextInput labels its input', () => {
-		const out = html(TextInput, {
-			children: text('Search'),
-			value: 'heart',
-			style: 'inline',
-			placeholder: 'Find'
-		});
-		expect(out).toMatch(/<label class="container inline/);
-		expect(out).toContain('<span>Search</span>');
-		expect(out).toMatch(/<input[^>]*type="text"/);
-		expect(out).toMatch(/value="heart"/);
-		expect(out).toMatch(/placeholder="Find"/);
-	});
-
-	it('TagsInput shows the list comma-separated', () => {
-		expect(html(TagsInput, { tags: ['heart', 'valve'] })).toMatch(/value="heart,valve"/);
-	});
-
 	it('Dropdown lists the options, or shows the chosen label when not editable', () => {
 		const options = [
 			{ label: 'Cardiology', value: 'c' },

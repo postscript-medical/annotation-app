@@ -12,7 +12,7 @@
 	path {
 		fill: none;
 		stroke-width: 2;
-		stroke: black;
+		stroke: var(--color-black);
 		stroke-linecap: round;
 	}
 </style>

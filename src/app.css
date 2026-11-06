@@ -1,7 +1,9 @@
 /*
  * Global styles, ported from legacy/public/global.css.
  * Montserrat is self-hosted from static/fonts (variable font, weights 100–900, OFL licence).
+ * Colours, sizes and the rest are design tokens in lib/design/tokens.css.
  */
+@import './lib/design/tokens.css';
 
 /* Fonts */
 @font-face {
@@ -102,7 +104,9 @@ select {
 	*::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
+		/* 0s, not a tiny duration: any non-zero value starts real transitions, and GSAP's `.from()`
+		   then reads a mid-transition value as its end value, leaving menus and drawers collapsed. */
+		transition-duration: 0s !important;
 		scroll-behavior: auto !important;
 	}
 }
@@ -114,18 +118,8 @@ html {
 }
 
 body {
-	color: rgb(42, 41, 41);
-	font-family:
-		'Montserrat',
-		-apple-system,
-		BlinkMacSystemFont,
-		'Segoe UI',
-		Roboto,
-		Oxygen-Sans,
-		Ubuntu,
-		Cantarell,
-		'Helvetica Neue',
-		sans-serif;
+	color: var(--color-ink);
+	font-family: var(--font-family-base);
 	min-height: 100%;
 }
 
@@ -135,11 +129,11 @@ main {
 }
 
 main > :not(:last-child) {
-	margin-bottom: 2rem;
+	margin-bottom: var(--space-8);
 }
 
 .ps-app {
-	background-color: rgb(55, 154, 70);
+	background-color: var(--color-brand);
 	background-position: bottom right;
 	background-size: contain;
 	background-repeat: no-repeat;
@@ -148,17 +142,17 @@ main > :not(:last-child) {
 }
 
 h2 {
-	font-weight: 400;
+	font-weight: var(--font-weight-regular);
 	line-height: 1;
 }
 
 h3 {
-	font-weight: 400;
+	font-weight: var(--font-weight-regular);
 }
 
 a,
 .link-style {
-	color: rgb(42, 41, 41);
+	color: var(--color-ink);
 	text-decoration: underline;
 	line-height: 1.5;
 }
@@ -171,20 +165,20 @@ a:hover,
 
 a:visited,
 .link-style:visited {
-	color: rgb(42, 41, 41);
+	color: var(--color-ink);
 }
 
 form > *:not(:last-child) {
-	margin-bottom: 2rem;
+	margin-bottom: var(--space-8);
 }
 
 input,
 button,
 select,
 textarea {
-	background-color: #f8f8f8;
-	border: 1px solid rgba(41, 41, 42, 0.2);
-	border-radius: 0.25rem;
+	background-color: var(--color-neutral-75);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
 	font-family: inherit;
 	font-size: inherit;
 	padding: 0.4em;
@@ -197,7 +191,7 @@ select {
 }
 
 input:disabled {
-	color: #ccc;
+	color: var(--color-neutral-300);
 }
 
 input[type='checkbox'],
@@ -217,10 +211,10 @@ input[type='radio'] {
 }
 
 button {
-	background-color: #f4f4f4;
-	color: #333;
+	background-color: var(--color-neutral-100);
+	color: var(--color-neutral-800);
 	outline: none;
-	padding: 0.25rem 1.5rem;
+	padding: var(--space-1) var(--space-6);
 	user-select: none;
 	-webkit-user-select: none;
 	width: auto;
@@ -228,15 +222,15 @@ button {
 }
 
 button:disabled {
-	color: #999;
+	color: var(--color-neutral-500);
 }
 
 button:not(:disabled):active {
-	background-color: #ddd;
+	background-color: var(--color-neutral-200);
 }
 
 button:focus {
-	border-color: #666;
+	border-color: var(--color-neutral-700);
 }
 
 p {
@@ -264,7 +258,7 @@ svg {
 
 th {
 	text-align: left;
-	font-weight: 400;
+	font-weight: var(--font-weight-regular);
 }
 
 ol.plain,
@@ -288,14 +282,14 @@ ul.plain {
 }
 
 .tool-icon {
-	margin: 0.75rem;
+	margin: var(--space-3);
 	width: 1.25rem;
 	height: 1.25rem;
-	fill: rgb(42, 41, 41);
+	fill: var(--color-ink);
 }
 
 .tool-icon.on-dark {
-	fill: white;
+	fill: var(--color-white);
 }
 
 .tooltip-container {
@@ -305,7 +299,7 @@ ul.plain {
 	width: 100%;
 	height: 100%;
 	pointer-events: none;
-	z-index: 10;
+	z-index: var(--z-overlay);
 }
 
 .tooltip-container > div {
@@ -315,8 +309,8 @@ ul.plain {
 
 /* Custom styling of the select tag */
 select {
-	color: white;
-	background-color: rgb(42, 41, 41);
+	color: var(--color-white);
+	background-color: var(--color-ink);
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
 	background-repeat: no-repeat;
 	background-position:
@@ -326,40 +320,40 @@ select {
 		0.65em auto,
 		100%;
 	display: inline-block;
-	font-weight: 400;
+	font-weight: var(--font-weight-regular);
 	width: 100%;
 	max-width: 100%;
 	appearance: none;
 }
 
 select:hover {
-	border-color: #888;
+	border-color: var(--color-neutral-600);
 }
 
 select:focus {
-	color: white;
-	outline: rgb(55, 154, 70);
+	color: var(--color-white);
+	outline: var(--color-brand);
 }
 
 select option {
-	color: white;
+	color: var(--color-white);
 }
 
 select:disabled,
 select[aria-disabled='true'] {
 	cursor: not-allowed;
-	background-color: rgba(42, 41, 41, 0);
-	color: rgba(42, 41, 41, 0.4);
+	background-color: var(--color-ink-clear);
+	color: var(--color-ink-muted);
 }
 
 select:disabled:hover,
 select[aria-disabled='true'] {
-	border-color: #aaa;
+	border-color: var(--color-neutral-400);
 }
 
 /* Helper classes */
 .shadow {
-	box-shadow: 0px 0.075rem 0.25rem 0px rgba(42, 41, 41, 0.15);
+	box-shadow: var(--shadow-sm);
 }
 
 .link-style {
@@ -384,28 +378,28 @@ select[aria-disabled='true'] {
 .stacker {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: var(--space-4);
 }
 
 .stacker--small {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: var(--space-2);
 }
 
 .wrapper {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 1rem;
+	gap: var(--space-4);
 }
 
 .main-content {
-	padding: 1rem;
+	padding: var(--space-4);
 }
 
 /* No-JavaScript notice (app.html) */
 noscript {
-	color: #fff;
+	color: var(--color-white);
 }
 
 noscript main {
@@ -415,7 +409,7 @@ noscript main {
 }
 
 noscript main > :not(:last-child) {
-	margin-bottom: 1rem;
+	margin-bottom: var(--space-4);
 }
 
 noscript h1 {

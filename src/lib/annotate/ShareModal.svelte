@@ -90,7 +90,7 @@
 
 	.modal-body > :global(*) {
 		align-self: flex-start;
-		margin-bottom: 1rem;
+		margin-bottom: var(--space-4);
 	}
 
 	h3,
