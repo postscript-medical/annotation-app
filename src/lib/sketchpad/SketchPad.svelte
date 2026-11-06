@@ -6,7 +6,6 @@
 		canvasElement,
 		closeUserSettingsDropdown,
 		selectedIllustration,
-		selectedIllustrationTitle,
 		toolDrawerOpen,
 		typedTextEntries
 	} from './stores.ts';
@@ -214,15 +213,11 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
-		const isZed = event.key === 'z';
+		// With Shift held the key is usually reported as 'Z', but as 'z' with Cmd on a Mac.
+		if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') return;
 
-		if ((event.metaKey || event.ctrlKey) && isZed) {
-			undo();
-		}
-
-		if ((event.metaKey || event.ctrlKey) && event.shiftKey && isZed) {
-			redo();
-		}
+		if (event.shiftKey) redo();
+		else undo();
 	}
 
 	function onPointerDown(event: Event) {
@@ -368,7 +363,6 @@
 
 				case TOOL_CHANGE_IMAGE:
 					clearRect();
-					selectedIllustrationTitle.set(action.illustrationTitle);
 					break;
 
 				default:
@@ -376,10 +370,21 @@
 			}
 		});
 
+		showIllustrationOfCurrentStep();
+
 		if (isPointerActive) {
 			rafID = requestAnimationFrame(render);
 		} else {
 			cancelAnimationFrame(rafID);
+		}
+	}
+
+	/** After undo or redo: the illustration this step of the history last chose. */
+	function showIllustrationOfCurrentStep() {
+		const step = $actions.current.filter((action) => action.name === TOOL_CHANGE_IMAGE).at(-1);
+		// Each render, so only when it differs: a new object here would re-render every frame.
+		if (step && step.illustration?.id !== $selectedIllustration?.id) {
+			selectedIllustration.set(step.illustration);
 		}
 	}
 
@@ -548,7 +553,7 @@
 		actions.set([
 			{
 				name: TOOL_CHANGE_IMAGE,
-				illustrationTitle: $selectedIllustrationTitle
+				illustration: $selectedIllustration
 			}
 		]);
 

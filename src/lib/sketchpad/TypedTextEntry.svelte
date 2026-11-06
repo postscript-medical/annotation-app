@@ -32,19 +32,23 @@
 	}: Props = $props();
 
 	let container = $state<HTMLDivElement>();
+	let textarea = $state<HTMLTextAreaElement>();
 	let boundingRect = $state.raw<DOMRect>();
 
 	const style = $derived(`transform: translate3d(${x}px,${y}px,0px)`);
 
 	onMount(() => {
 		boundingRect = container!.getBoundingClientRect();
+
+		// A new note takes the focus, unless something else has it. Not the `autofocus` attribute:
+		// WebKit acts on it later and can move focus back to an earlier note.
+		if (document.activeElement === document.body) textarea!.focus();
 	});
 </script>
 
 <div bind:this={container} class="typed-text-entry" {style}>
-	<!-- svelte-ignore a11y_autofocus -->
 	<textarea
-		autofocus
+		bind:this={textarea}
 		class="typed-annotation"
 		style={`color: ${color};`}
 		value={content}

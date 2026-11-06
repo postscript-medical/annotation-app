@@ -4,9 +4,8 @@
 //
 // Not ported: the app-level stores (`session`, `user`, `protectedContent`, the catalogue stores,
 // `customerPortalUrl`), which 2.3/2.4 replace with server data. Legacy derived
-// `selectedIllustration` and `selectedIllustrationTitle` from `protectedContent`; here they are
-// plain writables that /annotate (2.4) sets, and that `SketchPad` updates on undo/redo of an image
-// change, as before.
+// `selectedIllustration` from `protectedContent`; here it is a plain writable that /annotate (2.4)
+// sets, and that `SketchPad` updates on undo and redo of an image change.
 //
 // These are module-level singletons, so the sketchpad must render in the browser only: on the
 // server they would be shared between requests (and `SketchPad` reads `window` when created).
@@ -172,7 +171,5 @@ export const typedTextEntries = derived(actions, ($actions) =>
  */
 export const illustrationDisplayed = writable<HTMLImageElement | null | undefined>();
 
-// The selected illustration (`{ src, … }`) and its title; set by /annotate (2.4).
+// The illustration on screen: set by /annotate (2.4), and by `SketchPad` on undo and redo.
 export const selectedIllustration = writable<Illustration | null>(null);
-
-export const selectedIllustrationTitle = writable('');

@@ -183,7 +183,7 @@ Each phase ends with a deploy to the new Netlify site and a green CI run. The nu
 - [ ] Authz matrix tests green (§6). Run `/security-review` and `/code-review` on the branch.
 - [ ] Structured logs with user ids only: no emails, IPs or passwords (S17). Generic client errors only.
 - [ ] Nightly encrypted backups and `docs/operations.md`; delete `legacy/`.
-- [ ] Cutover runbook, then a rehearsal on a production copy restored into staging; merge to `staging` and run full Playwright + Percy against the staging site, including WebKit/iPad.
+- [ ] Cutover runbook, then a rehearsal on a production copy restored into staging; merge to `staging` and run the smoke suite (`npm run test:smoke`) against the staging site, including WebKit/iPad.
 - [ ] **Data check:** the user count from Netlify Identity (execution plan G2) and a few known accounts, before running the cutover migration.
 - [ ] **Stripe:** set every active subscription to `cancel_at_period_end` (script or dashboard), disable the old webhook endpoint, and remove Stripe keys from both Netlify sites.
 - [ ] **Accounts:** production `auth.users` is empty (today's users sign in with Netlify Identity), so a script creates a confirmed Supabase Auth account, with no password, for each kept user (execution plan G6) and sets `users.auth_id`. Then the cutover data migration (data-model §7). Rotate Supabase API keys and move production to asymmetric JWT keys.
@@ -200,8 +200,8 @@ The cutover runbook is written in execution plan step 3.5 (§10).
 |---|---|---|---|
 | Unit | Vitest | Node | Guards, validation schemas, password policy (NFKC, 15 characters, 72 bytes, mocked HIBP and its fallback), rate limiter, sketchpad helpers, filters/sorters, share fallbacks. |
 | Integration / authz | Vitest | **Local Supabase** (`supabase start` in CI) | Every action/endpoint × caller (`anon`, `user`, other `user`). Expect allow/deny. `ensure_account` idempotency, cascade on account deletion, pg_cron purge functions, `/reset-password` refusing anything but a fresh recovery session. |
-| E2E | Playwright | `vite preview` locally / in CI; Netlify deploy preview for smoke | Sign-up → confirm link (local Mailpit) → account created; sign-in with password; forgot → reset password; annotate + download/print; account export and deletion; `/admin` returns 404. Chromium + **WebKit**. |
-| Visual | Percy | E2E run | Keep the existing snapshots, re-baseline once. |
+| E2E | Playwright | `vite preview` locally / in CI; a smoke suite by hand against the staging site | Sign-up → confirm link (local Mailpit) → account created; sign-in with password; forgot → reset password; annotate + download/print; account export and deletion; `/admin` returns 404. Chromium + **WebKit**. |
+| Visual | Percy | E2E run | Snapshots kept in the specs. No baseline in this migration; whether to use Percy is reassessed later. |
 
 CI (GitHub Actions): lint → typecheck → unit → integration (local Supabase) → build → E2E. Percy on PRs to `staging`/`main`.
 

@@ -211,6 +211,27 @@ test.describe('undo and redo', () => {
 		await expect.poll(() => annotation.inkCount()).toBe(0);
 	});
 
+	for (const combo of ['Control+Shift+z', 'Control+Shift+Z', 'Meta+Shift+z', 'Meta+Shift+Z']) {
+		test(`${combo} redoes one step, however the key is reported`, async ({ page }) => {
+			await annotation.drag(LEFT, RIGHT);
+			await expect.poll(() => annotation.inkAt(400, 300)).toBe(true);
+			await annotation.drag({ x: 300, y: 400 }, { x: 500, y: 400 });
+			await expect.poll(() => annotation.inkAt(400, 400)).toBe(true);
+
+			await page.keyboard.press('Control+z');
+			await expect.poll(() => annotation.inkAt(400, 400)).toBe(false);
+			await page.keyboard.press('Control+z');
+			await expect.poll(() => annotation.inkCount()).toBe(0);
+
+			await page.keyboard.press(combo);
+			await expect.poll(() => annotation.inkAt(400, 300)).toBe(true);
+			expect(await annotation.inkAt(400, 400)).toBe(false);
+
+			await page.keyboard.press(combo);
+			await expect.poll(() => annotation.inkAt(400, 400)).toBe(true);
+		});
+	}
+
 	test('a new stroke after an undo drops what could have been redone', async ({ page }) => {
 		await annotation.drag(LEFT, RIGHT);
 		await expect.poll(() => annotation.inkAt(400, 300)).toBe(true);
@@ -247,6 +268,22 @@ test.describe('typed text', () => {
 		await expect(page.locator('textarea')).toHaveCount(2);
 		await page.locator('textarea').nth(0).fill('First');
 		await page.locator('textarea').nth(1).fill('Second');
+
+		await expect(page.locator('textarea').nth(0)).toHaveValue('First');
+		await expect(page.locator('textarea').nth(1)).toHaveValue('Second');
+	});
+
+	test('typing goes into the note just added, not an earlier one', async ({ page }) => {
+		await page.getByTestId('text').click();
+		await page.mouse.click(400, 300);
+		await page.keyboard.type('First');
+		await page.mouse.click(400, 500);
+
+		// WebKit's handling of the `autofocus` attribute used to move focus back a moment later.
+		await expect(page.locator('textarea').nth(1)).toBeFocused();
+		await page.waitForTimeout(400);
+		await expect(page.locator('textarea').nth(1)).toBeFocused();
+		await page.keyboard.type('Second');
 
 		await expect(page.locator('textarea').nth(0)).toHaveValue('First');
 		await expect(page.locator('textarea').nth(1)).toHaveValue('Second');

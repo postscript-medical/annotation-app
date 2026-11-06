@@ -25,7 +25,7 @@
 		TOOL_TEXT
 	} from '../sketchpad/constants.ts';
 	import generateAnnotatedImage from '../sketchpad/generate-annotated-image.ts';
-	import { actions, selectedIllustration, selectedIllustrationTitle } from '../sketchpad/stores.ts';
+	import { actions, selectedIllustration } from '../sketchpad/stores.ts';
 	import type {
 		EraserTool,
 		PenTool,
@@ -80,10 +80,9 @@
 		type: SHAPES.find(({ id }) => id === DEFAULT_SHAPE)!.id
 	});
 
-	// The saved illustration, before SketchPad mounts (it records the title as its first action).
+	// The saved illustration, before SketchPad mounts (it records it as its first action).
 	const initial = untrack(() => resolveSelection(catalogue, selection));
 	selectedIllustration.set(initial.illustration);
-	selectedIllustrationTitle.set(initial.illustration?.name ?? '');
 
 	const selectedTool: SelectedTool | null = $derived.by(() => {
 		switch (selectedToolId) {
@@ -167,10 +166,7 @@
 		if (outcome.kind !== 'saved') return;
 
 		selection = outcome.selection;
-		actions.push([
-			...sketchPad!.clearCanvas(),
-			{ name: TOOL_CHANGE_IMAGE, illustrationTitle: illustration.name }
-		]);
+		actions.push([...sketchPad!.clearCanvas(), { name: TOOL_CHANGE_IMAGE, illustration }]);
 		selectedIllustration.set(illustration);
 		closeModal();
 	}
@@ -224,7 +220,7 @@
 		{catalogue}
 		specialtyId={selection.specialtyId}
 		subSpecialtyId={selection.subSpecialtyId}
-		activeIllustrationId={selection.illustrationId}
+		activeIllustrationId={$selectedIllustration?.id ?? null}
 		{saving}
 		error={saveError}
 		onselect={selectIllustration}

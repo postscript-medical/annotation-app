@@ -19,6 +19,7 @@
 		"test:integration": "vitest --run --project integration",
 		"test": "npm run test:unit -- --run && npm run test:integration && npm run test:e2e",
 		"test:e2e": "playwright test",
+		"test:smoke": "playwright test -c playwright.smoke.config.ts",
 		"check:scope": "sh scripts/check-removed-scope.sh",
 		"db:types": "sh scripts/gen-db-types.sh",
 		"check:db-types": "sh scripts/gen-db-types.sh --check",

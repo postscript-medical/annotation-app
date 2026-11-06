@@ -1,4 +1,5 @@
 import type { Component } from 'svelte';
+import type { Illustration } from '../catalogue/types.ts';
 
 // What the sketchpad draws and remembers. The undo history is a list of these lists.
 
@@ -49,9 +50,10 @@ export type TextAction = {
 
 export type EraseAllAction = { name: 'erase-all'; index?: undefined };
 
+/** Records which illustration this point in the history shows, so undo and redo can restore it. */
 export type ChangeImageAction = {
 	name: 'change-image';
-	illustrationTitle: string;
+	illustration: Illustration | null;
 	index?: undefined;
 };
 
