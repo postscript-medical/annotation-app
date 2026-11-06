@@ -1,14 +1,8 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
-     Legacy `PsHeader user={$user} loggedIn` → `Header signedIn onLight` with the feedback (2.6) and
-     share (2.5) buttons and the user menu (2.4). -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher } from 'svelte';
+<!-- From legacy components/sketchpad. Legacy `PsHeader user={$user} loggedIn` → `Header signedIn
+     onLight` with the feedback (2.6) and share (2.5) buttons and the user menu (2.4). -->
+<script lang="ts">
 	import {
 		ERASER_SIZES,
-		IMAGE_CATALOGUE,
 		PEN_COLORS,
 		PEN_SIZES,
 		SHAPES,
@@ -18,7 +12,9 @@
 		TOOL_PEN,
 		TOOL_SHAPE,
 		TOOL_TEXT
-	} from './constants.js';
+	} from './constants.ts';
+	import type { EraserTool, PenTool, SecondaryTool, ShapeTool, ShapeType } from './types.ts';
+	import type { Size } from '../components/icons/sizes.ts';
 	import ButtonUndoRedo from './ButtonUndoRedo.svelte';
 	import ButtonTool from './ButtonTool.svelte';
 	import ColorPalette from './ColorPalette.svelte';
@@ -31,55 +27,71 @@
 	import Header from '../components/Header.svelte';
 	import UserSettingsDropdown from '../annotate/UserSettingsDropdown.svelte';
 
-	export let pen;
-	export let eraser;
-	export let selectedToolId;
-	export let shape;
-	/** First letter of the account email, for the user-menu button (2.4). */
-	export let accountInitial = '';
+	type Props = {
+		pen: PenTool;
+		eraser: EraserTool;
+		selectedToolId?: string;
+		shape: ShapeTool;
+		/** First letter of the account email, for the user-menu button (2.4). */
+		accountInitial?: string;
+		onchangethickness: (change: { thickness: number; toolId: string }) => void;
+		onchangecolor: (color: string) => void;
+		onchangeshape: (type: ShapeType) => void;
+		onerase: () => void;
+		onopencatalogue: () => void;
+		onopenshare: () => void;
+		onopenfeedback: () => void;
+		onredo: () => void;
+		onselecttool: (toolId: string) => void;
+		onundo: () => void;
+	};
 
-	const dispatch = createEventDispatcher();
+	let {
+		pen,
+		eraser,
+		selectedToolId,
+		shape,
+		accountInitial = '',
+		onchangethickness,
+		onchangecolor,
+		onchangeshape,
+		onerase,
+		onopencatalogue,
+		onopenshare,
+		onopenfeedback,
+		onredo,
+		onselecttool,
+		onundo
+	}: Props = $props();
 
-	function changeLineThickness(thickness, toolId) {
-		dispatch('change-thickness', { thickness, toolId });
-	}
-
-	function changeColor(color) {
-		dispatch('change-color', color);
-	}
-
-	function changeShape(shape) {
-		dispatch('change-shape', shape);
-	}
-
-	function eraseAnnotation() {
-		dispatch('erase-annotation');
-	}
-
-	function handleEraserSecondaryTool(secondaryToolId, thickness, toolId) {
-		if (secondaryToolId === TOOL_ERASE_ALL) {
-			eraseAnnotation();
+	function changeEraser({ value, id }: { value: number | string; id: string }) {
+		if (id === TOOL_ERASE_ALL) {
+			onerase();
 
 			return;
 		}
 
-		changeLineThickness(thickness, toolId);
-	}
-
-	function selectTool(toolId) {
-		dispatch('select-tool', toolId);
-	}
-
-	function openIllustrationCatalogue() {
-		dispatch('open-catalogue', IMAGE_CATALOGUE);
+		onchangethickness({ thickness: Number(value), toolId: TOOL_ERASER });
 	}
 </script>
+
+{#snippet sizeOption(option: SecondaryTool)}
+	<div class="secondary-tool">
+		<option.component size={option.id as Size} />
+	</div>
+{/snippet}
+
+{#snippet shapeOption(option: SecondaryTool)}
+	<div class="secondary-tool">
+		<option.component />
+	</div>
+{/snippet}
 
 <div class="ui ui-content">
 	<Header signedIn onLight>
 		{#snippet actions()}
-			<Button style="tertiary" onclick={() => dispatch('open-feedback')}>Feedback?</Button>
-			<Button style="tertiary" onclick={() => dispatch('open-share')}>Share annotation</Button>
+			<Button style="tertiary" onclick={onopenfeedback}>Feedback?</Button>
+			<Button style="tertiary" onclick={onopenshare}>Share annotation</Button>
 			<UserSettingsDropdown initial={accountInitial} />
 		{/snippet}
 	</Header>
@@ -88,7 +100,7 @@
 		primaryValue=""
 		toolName={TOOL_CATALOGUE}
 		tooltip="Image catalogue"
-		on:change-primary={openIllustrationCatalogue}
+		onchangeprimary={onopencatalogue}
 	>
 		<IconHome />
 	</ButtonTool>
@@ -99,19 +111,12 @@
 		secondaryValue={pen.lineWidth}
 		toolName={TOOL_PEN}
 		tooltip="Annotate"
-		on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-		on:change-secondary={({ detail }) => changeLineThickness(detail.value, TOOL_PEN)}
+		onchangeprimary={onselecttool}
+		onchangesecondary={({ value }) =>
+			onchangethickness({ thickness: Number(value), toolId: TOOL_PEN })}
+		secondaryTool={sizeOption}
 	>
 		<IconPen />
-		<div
-			slot="secondary-tool"
-			let:secondaryTool
-			let:onDark
-			class="secondary-tool"
-			class:on-dark={onDark}
-		>
-			<svelte:component this={secondaryTool.component} size={secondaryTool.id} />
-		</div>
 	</ButtonTool>
 
 	<ButtonTool
@@ -120,20 +125,11 @@
 		tooltip="Erase"
 		secondaryTools={ERASER_SIZES}
 		secondaryValue={eraser.lineWidth}
-		on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-		on:change-secondary={({ detail }) =>
-			handleEraserSecondaryTool(detail.id, detail.value, TOOL_ERASER)}
+		onchangeprimary={onselecttool}
+		onchangesecondary={changeEraser}
+		secondaryTool={sizeOption}
 	>
 		<IconEraser />
-		<div
-			slot="secondary-tool"
-			let:secondaryTool
-			let:onDark
-			class="secondary-tool"
-			class:on-dark={onDark}
-		>
-			<svelte:component this={secondaryTool.component} size={secondaryTool.id} />
-		</div>
 	</ButtonTool>
 
 	<ButtonTool
@@ -142,26 +138,18 @@
 		tooltip="Shapes"
 		secondaryTools={SHAPES}
 		secondaryValue={shape.type}
-		on:change-primary={({ detail: toolId }) => selectTool(toolId)}
-		on:change-secondary={({ detail }) => changeShape(detail.value)}
+		onchangeprimary={onselecttool}
+		onchangesecondary={({ value }) => onchangeshape(value as ShapeType)}
+		secondaryTool={shapeOption}
 	>
 		<IconShapes />
-		<div
-			slot="secondary-tool"
-			let:secondaryTool
-			let:onDark
-			class="secondary-tool"
-			class:on-dark={onDark}
-		>
-			<svelte:component this={secondaryTool.component} />
-		</div>
 	</ButtonTool>
 
 	<ButtonTool
 		primaryValue={selectedToolId}
 		toolName={TOOL_TEXT}
 		tooltip="Type text"
-		on:change-primary={({ detail }) => selectTool(detail)}
+		onchangeprimary={onselecttool}
 	>
 		<IconText />
 	</ButtonTool>
@@ -170,10 +158,10 @@
 		colors={PEN_COLORS}
 		tooltip="Colors"
 		selected={pen.color}
-		on:change={({ detail }) => changeColor(detail)}
+		onchange={onchangecolor}
 	/>
 
-	<ButtonUndoRedo on:redo on:undo />
+	<ButtonUndoRedo {onredo} {onundo} />
 </div>
 
 <style>

@@ -46,6 +46,34 @@ export class ImageAnnotationPage {
 		await this.page.mouse.up();
 	}
 
+	/** The canvas pixel at this point of the page, as [red, green, blue, alpha]. */
+	async pixelAt(x: number, y: number) {
+		return this.page.locator('canvas').evaluate(
+			(element, point) => {
+				const canvas = element as HTMLCanvasElement;
+				const box = canvas.getBoundingClientRect();
+				const scale = canvas.width / box.width;
+				return Array.from(
+					canvas
+						.getContext('2d')!
+						.getImageData((point.x - box.left) * scale, (point.y - box.top) * scale, 1, 1).data
+				);
+			},
+			{ x, y }
+		);
+	}
+
+	/** How many canvas pixels hold anything. */
+	async inkCount() {
+		return this.page.locator('canvas').evaluate((element) => {
+			const canvas = element as HTMLCanvasElement;
+			const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
+			let count = 0;
+			for (let i = 3; i < data.length; i += 4) if (data[i] > 0) count++;
+			return count;
+		});
+	}
+
 	/** Whether anything is drawn at this point of the page. */
 	async inkAt(x: number, y: number) {
 		return this.page.locator('canvas').evaluate(

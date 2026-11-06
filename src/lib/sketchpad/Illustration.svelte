@@ -1,54 +1,23 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
-     Images come through the first-party /images proxy (G7, 2.4). -->
-<script module>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
+<!-- From legacy components/sketchpad. Images come through the first-party /images proxy (G7, 2.4). -->
+<script lang="ts">
 	import { gsap } from 'gsap';
-
-	let target;
-
-	export function tweenOut(callback) {
-		gsap.to(target, {
-			duration: 0.15,
-			opacity: 0,
-			onComplete: () => {
-				callback();
-			}
-		});
-	}
-</script>
-
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { onMount, onDestroy } from 'svelte';
 	import { illustrationUrl } from '../images.ts';
-	import { illustrationDisplayed } from './stores.js';
+	import { illustrationDisplayed } from './stores.ts';
 
-	export let name = '';
+	let { name = '' }: { name?: string } = $props();
 
-	$: src = illustrationUrl(name);
+	const src = $derived(illustrationUrl(name));
 
-	async function imageLoaded() {
-		gsap.to($illustrationDisplayed, {
+	function imageLoaded() {
+		gsap.to($illustrationDisplayed!, {
 			duration: 0.15,
 			opacity: 1,
 			ease: 'power4.in'
 		});
 	}
-
-	onMount(() => {
-		target = $illustrationDisplayed;
-
-		$illustrationDisplayed.addEventListener('load', imageLoaded);
-	});
-
-	onDestroy(() => {
-		$illustrationDisplayed.removeEventListener('load', imageLoaded);
-	});
 </script>
 
-<img bind:this={$illustrationDisplayed} {src} alt="" crossOrigin="anonymous" />
+<img bind:this={$illustrationDisplayed} {src} alt="" crossorigin="anonymous" onload={imageLoaded} />
 
 <style>
 	img {

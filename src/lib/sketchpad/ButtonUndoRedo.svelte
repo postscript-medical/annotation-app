@@ -1,28 +1,24 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher } from 'svelte';
-	import { actions } from './stores.js';
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
+	import { actions } from './stores.ts';
 	import IconUndo from '../components/icons/IconUndo.svelte';
 	import IconRedo from '../components/icons/IconRedo.svelte';
 	import Tooltip from '../components/Tooltip.svelte';
 
-	const dispatch = createEventDispatcher();
+	let { onredo, onundo }: { onredo?: () => void; onundo?: () => void } = $props();
 
-	let position = { x: 0, y: 0 };
-	let tooltip = '';
+	let position = $state({ x: 0, y: 0 });
+	let tooltip = $state('');
 
-	function handleEnter(details) {
-		const { left, top, width, height } = details.event.target.getBoundingClientRect();
+	function handleEnter(element: HTMLElement, text: string) {
+		const { left, top, width, height } = element.getBoundingClientRect();
 
 		position = {
 			x: left + width,
 			y: top + height * 0.5
 		};
 
-		tooltip = details.tooltip;
+		tooltip = text;
 	}
 
 	function handleLeave() {
@@ -32,23 +28,21 @@
 	function redo() {
 		tooltip = '';
 
-		dispatch('redo');
+		onredo?.();
 	}
 
 	function undo() {
 		tooltip = '';
 
-		dispatch('undo');
+		onundo?.();
 	}
 </script>
 
 <div class="undo-redo shadow">
 	<button
-		on:click={undo}
-		on:pointerenter={(event) => {
-			handleEnter({ event, tooltip: 'Undo action' });
-		}}
-		on:pointerleave={handleLeave}
+		onclick={undo}
+		onpointerenter={(event) => handleEnter(event.currentTarget, 'Undo action')}
+		onpointerleave={handleLeave}
 		disabled={$actions.first}
 	>
 		<IconUndo />
@@ -57,11 +51,9 @@
 	<hr />
 
 	<button
-		on:click={redo}
-		on:pointerenter={(event) => {
-			handleEnter({ event, tooltip: 'Redo action' });
-		}}
-		on:pointerleave={handleLeave}
+		onclick={redo}
+		onpointerenter={(event) => handleEnter(event.currentTarget, 'Redo action')}
+		onpointerleave={handleLeave}
 		disabled={$actions.last}
 	>
 		<IconRedo />

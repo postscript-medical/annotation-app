@@ -1,13 +1,14 @@
 import { get } from 'svelte/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TOOL_PEN, TOOL_TEXT } from './constants.js';
-import { actions, dpr, pixelRatio, typedTextEntries } from './stores.js';
+import { TOOL_PEN, TOOL_TEXT } from './constants.ts';
+import { actions, dpr, pixelRatio, typedTextEntries } from './stores.ts';
+import type { SketchAction } from './types.ts';
 
 // Pins the legacy undo/redo store's behaviour (ported as-is in 2.1) before the runes
 // conversion (2.9). Each stack entry is the whole list of drawn actions at that point.
-const a = [{ name: TOOL_PEN, index: 0 }];
-const b = [...a, { name: TOOL_PEN, index: 1 }];
-const c = [...b, { name: TOOL_TEXT, index: 2, content: 'note' }];
+const a = [{ name: TOOL_PEN, index: 0 }] as SketchAction[];
+const b = [...a, { name: TOOL_PEN, index: 1 }] as SketchAction[];
+const c = [...b, { name: TOOL_TEXT, index: 2, content: 'note' }] as SketchAction[];
 
 function state() {
 	const { first, last, current, index } = get(actions);

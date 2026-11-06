@@ -1,32 +1,51 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher } from 'svelte';
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+	import type { TransitionConfig } from 'svelte/transition';
 	import { gsap } from 'gsap';
-	import { closeUserSettingsDropdown, toolDrawerOpen, viewportType } from './stores.js';
-	import { VIEWPORT_PHONE, VIEWPORT_TABLET } from './constants.js';
+	import { closeUserSettingsDropdown, toolDrawerOpen, viewportType } from './stores.ts';
+	import { VIEWPORT_PHONE, VIEWPORT_TABLET } from './constants.ts';
+	import type { SecondaryTool } from './types.ts';
 	import ButtonIcon from './ButtonIcon.svelte';
 	import Tooltip from '../components/Tooltip.svelte';
 
-	export let toolName;
-	export let tooltip = '';
-	export let primaryValue = '';
-	export let secondaryTools = [];
-	export let secondaryValue = '';
+	type Props = {
+		toolName: string;
+		tooltip?: string;
+		primaryValue?: string;
+		secondaryTools?: SecondaryTool[];
+		secondaryValue?: number | string;
+		onchangeprimary?: (toolName: string) => void;
+		onchangesecondary?: (tool: { value: number | string; id: string }) => void;
+		children: Snippet;
+		secondaryTool?: Snippet<[SecondaryTool]>;
+	};
 
-	const dispatch = createEventDispatcher();
+	let {
+		toolName,
+		tooltip = '',
+		primaryValue = '',
+		secondaryTools = [],
+		secondaryValue = '',
+		onchangeprimary,
+		onchangesecondary,
+		children,
+		secondaryTool
+	}: Props = $props();
 
-	let position = { x: 0, y: 0 };
-	let secondaryToolsContainer;
-	let showTooltip = false;
+	let position = $state({ x: 0, y: 0 });
+	let showTooltip = $state(false);
 
-	$: openDrawer = $toolDrawerOpen === toolName;
-	$: isSelected = primaryValue === toolName;
-	$: showSecondaryTools = openDrawer && secondaryTools.length > 0 && isSelected;
+	const openDrawer = $derived($toolDrawerOpen === toolName);
+	const isSelected = $derived(primaryValue === toolName);
+	const showSecondaryTools = $derived(openDrawer && secondaryTools.length > 0 && isSelected);
 
-	function changePrimary({ detail: newTool }) {
+	function changePrimary() {
+		// Read before anything changes: a press toggles the drawer as it was when pressed, and these
+		// are derived, so they'd follow the store as soon as it's set below.
+		const wasSelected = isSelected;
+		const wasShowing = showSecondaryTools;
+
 		$toolDrawerOpen = toolName;
 
 		closeUserSettingsDropdown();
@@ -34,27 +53,27 @@
 		showTooltip = false;
 
 		if (secondaryTools.length < 1) {
-			dispatch('change-primary', newTool);
+			onchangeprimary?.(toolName);
 
 			return;
 		}
 
-		if (!isSelected) {
-			dispatch('change-primary', newTool);
+		if (!wasSelected) {
+			onchangeprimary?.(toolName);
 		}
 
-		if (showSecondaryTools) {
+		if (wasShowing) {
 			$toolDrawerOpen = '';
 		}
 	}
 
-	function changeSecondary(value, id) {
+	function changeSecondary(value: number | string, id: string) {
 		closeUserSettingsDropdown();
 
-		dispatch('change-secondary', { value, id });
+		onchangesecondary?.({ value, id });
 	}
 
-	function handleEnter({ detail: element }) {
+	function handleEnter(element: HTMLElement) {
 		const { left, top, width, height } = element.getBoundingClientRect();
 
 		position = {
@@ -69,7 +88,7 @@
 		showTooltip = false;
 	}
 
-	function tween(node) {
+	function tween(node: HTMLElement): TransitionConfig {
 		const tl = gsap.timeline({ paused: true });
 		let scale = 'scaleX';
 		let scaleDirection = '0% 0%';
@@ -85,13 +104,13 @@
 			gsap.set(node, { yPercent: -100 });
 		}
 
-		tl.from(secondaryToolsContainer, {
+		tl.from(node, {
 			duration: 0.15,
 			[scale]: 0,
 			transformOrigin: scaleDirection,
 			ease: 'circ.inOut'
 		}).from(
-			secondaryToolsContainer.children,
+			node.children,
 			{
 				duration: 0.15,
 				opacity: 0,
@@ -116,29 +135,25 @@
 <div class="primary-tool">
 	<ButtonIcon
 		testId={toolName}
-		on:click={changePrimary}
-		on:enter={handleEnter}
-		on:leave={handleLeave}
+		onclick={changePrimary}
+		onenter={handleEnter}
+		onleave={handleLeave}
 		onDark={isSelected}
 		value={toolName}
 	>
-		<slot onDark={isSelected}>!!</slot>
+		{@render children()}
 	</ButtonIcon>
 	{#if showSecondaryTools}
-		<div bind:this={secondaryToolsContainer} class="secondary-tools shadow" transition:tween>
-			{#each secondaryTools as secondaryTool (secondaryTool.id)}
-				<label id={secondaryTool.id} class:on-dark={secondaryTool.value === secondaryValue}>
+		<div class="secondary-tools shadow" transition:tween>
+			{#each secondaryTools as tool (tool.id)}
+				<label id={tool.id} class:on-dark={tool.value === secondaryValue}>
 					<input
 						name={'secondary-' + toolName}
 						type="radio"
-						value={secondaryTool.value}
-						on:change={() => changeSecondary(secondaryTool.value, secondaryTool.id)}
+						value={tool.value}
+						onchange={() => changeSecondary(tool.value, tool.id)}
 					/>
-					<slot
-						name="secondary-tool"
-						onDark={secondaryTool.value === secondaryValue}
-						{secondaryTool}
-					/>
+					{@render secondaryTool?.(tool)}
 				</label>
 			{/each}
 		</div>

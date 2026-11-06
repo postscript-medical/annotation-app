@@ -1,6 +1,6 @@
-// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 // Sketchpad stores, ported as-is (2.1) from legacy `stores.js`: the undo/redo `actions` store and
-// the canvas, viewport and drawer stores the sketchpad uses. Converted to runes in 2.9.
+// the canvas, viewport and drawer stores the sketchpad uses. They stay Svelte stores (2.9): the
+// undo stack and the helpers use them outside components, where a store is the simpler fit.
 //
 // Not ported: the app-level stores (`session`, `user`, `protectedContent`, the catalogue stores,
 // `customerPortalUrl`), which 2.3/2.4 replace with server data. Legacy derived
@@ -17,43 +17,36 @@ import {
 	VIEWPORT_TABLET,
 	VIEWPORT_LAPTOP,
 	VIEWPORT_WIDESCREEN
-} from './constants.js';
+} from './constants.ts';
+import type { Illustration } from '../catalogue/types.ts';
+import type { SketchAction, TextAction } from './types.ts';
 
-export const viewportType = readable(VIEWPORT_PHONE, (set) => {
-	const mediaQueryPhone = window.matchMedia('(max-width: 599px');
+export const viewportType = readable<string>(VIEWPORT_PHONE, (set) => {
+	const mediaQueryPhone = window.matchMedia('(max-width: 599px)');
 	const mediaQueryTablet = window.matchMedia('(min-width: 600px) and (max-width: 899px)');
 	const mediaQueryLaptop = window.matchMedia('(min-width: 900px) and (max-width: 1199px)');
 	const mediaQueryWideScreen = window.matchMedia('(min-width: 1200px)');
-	const hasEventListenerType = mediaQueryPhone.addEventListener;
 
-	function phoneQueryChange({ matches }) {
+	function phoneQueryChange({ matches }: { matches: boolean }) {
 		if (matches) set(VIEWPORT_PHONE);
 	}
 
-	function tabletQueryChange({ matches }) {
+	function tabletQueryChange({ matches }: { matches: boolean }) {
 		if (matches) set(VIEWPORT_TABLET);
 	}
 
-	function laptopQueryChange({ matches }) {
+	function laptopQueryChange({ matches }: { matches: boolean }) {
 		if (matches) set(VIEWPORT_LAPTOP);
 	}
 
-	function widescreenQueryChange({ matches }) {
+	function widescreenQueryChange({ matches }: { matches: boolean }) {
 		if (matches) set(VIEWPORT_WIDESCREEN);
 	}
 
-	/* iOS does not seem to currently support 'addEventListener' */
-	if (hasEventListenerType) {
-		mediaQueryPhone.addEventListener('change', phoneQueryChange);
-		mediaQueryTablet.addEventListener('change', tabletQueryChange);
-		mediaQueryLaptop.addEventListener('change', laptopQueryChange);
-		mediaQueryWideScreen.addEventListener('change', widescreenQueryChange);
-	} else {
-		mediaQueryPhone.addListener(phoneQueryChange);
-		mediaQueryTablet.addListener(tabletQueryChange);
-		mediaQueryLaptop.addListener(laptopQueryChange);
-		mediaQueryWideScreen.addListener(widescreenQueryChange);
-	}
+	mediaQueryPhone.addEventListener('change', phoneQueryChange);
+	mediaQueryTablet.addEventListener('change', tabletQueryChange);
+	mediaQueryLaptop.addEventListener('change', laptopQueryChange);
+	mediaQueryWideScreen.addEventListener('change', widescreenQueryChange);
 
 	phoneQueryChange(mediaQueryPhone);
 	tabletQueryChange(mediaQueryTablet);
@@ -61,17 +54,10 @@ export const viewportType = readable(VIEWPORT_PHONE, (set) => {
 	widescreenQueryChange(mediaQueryWideScreen);
 
 	return () => {
-		if (hasEventListenerType) {
-			mediaQueryPhone.removeEventListener('change', phoneQueryChange);
-			mediaQueryTablet.removeEventListener('change', tabletQueryChange);
-			mediaQueryLaptop.removeEventListener('change', laptopQueryChange);
-			mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange);
-		} else {
-			mediaQueryPhone.removeListener(phoneQueryChange);
-			mediaQueryTablet.removeListener(tabletQueryChange);
-			mediaQueryLaptop.removeListener(laptopQueryChange);
-			mediaQueryWideScreen.removeListener(widescreenQueryChange);
-		}
+		mediaQueryPhone.removeEventListener('change', phoneQueryChange);
+		mediaQueryTablet.removeEventListener('change', tabletQueryChange);
+		mediaQueryLaptop.removeEventListener('change', laptopQueryChange);
+		mediaQueryWideScreen.removeEventListener('change', widescreenQueryChange);
 	};
 });
 
@@ -92,14 +78,14 @@ export const actions = (function () {
 	 * Adapted from Rich Harris svelte-undo
 	 * & lihautan Undo/Redo with Svelte store video
 	 */
-	const stack = [];
+	const stack: SketchAction[][] = [];
 
 	let index = stack.length;
 
 	const state = writable({
 		first: true,
 		last: true,
-		current: stack,
+		current: [] as SketchAction[],
 		stack,
 		index
 	});
@@ -117,12 +103,12 @@ export const actions = (function () {
 	}
 
 	return {
-		jumpTo: (newIndex) => {
+		jumpTo: (newIndex: number) => {
 			if (newIndex > 0 && newIndex < stack.length) index = newIndex;
 
 			update();
 		},
-		push: (value) => {
+		push: (value: SketchAction[]) => {
 			stack.length = index;
 			stack[index++] = value;
 
@@ -133,7 +119,7 @@ export const actions = (function () {
 
 			update();
 		},
-		set: (value) => {
+		set: (value?: SketchAction[]) => {
 			stack.length = 0;
 
 			if (value) {
@@ -150,7 +136,7 @@ export const actions = (function () {
 
 			update();
 		},
-		update: (value) => {
+		update: (value: SketchAction[]) => {
 			stack.length = index;
 			stack[index - 1] = value;
 
@@ -159,15 +145,13 @@ export const actions = (function () {
 	};
 })();
 
-export const canvasElement = writable();
-
-export const context = writable();
+export const canvasElement = writable<HTMLCanvasElement | null | undefined>();
 
 /**
  * The canvas backing-store scale: the device's pixel ratio, capped at 2 to bound canvas memory.
  * (Legacy wrote `(window.devicePixelRatio || 1, 2)`, which the comma operator made always 2.)
  */
-export function pixelRatio(devicePixelRatio) {
+export function pixelRatio(devicePixelRatio: number | undefined) {
 	return Math.min(devicePixelRatio || 1, 2);
 }
 
@@ -180,15 +164,15 @@ export const dpr = readable(1, (set) => {
 export const toolDrawerOpen = writable('');
 
 export const typedTextEntries = derived(actions, ($actions) =>
-	$actions.current.filter(({ name }) => name === TOOL_TEXT)
+	$actions.current.filter((action): action is TextAction => action.name === TOOL_TEXT)
 );
 
 /**
  * Illustration-related stores
  */
-export const illustrationDisplayed = writable();
+export const illustrationDisplayed = writable<HTMLImageElement | null | undefined>();
 
 // The selected illustration (`{ src, … }`) and its title; set by /annotate (2.4).
-export const selectedIllustration = writable(null);
+export const selectedIllustration = writable<Illustration | null>(null);
 
 export const selectedIllustrationTitle = writable('');

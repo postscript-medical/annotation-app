@@ -9,6 +9,7 @@ import IconLineThickness from '../components/icons/IconLineThickness.svelte';
 import IconRectangle from '../components/icons/IconRectangle.svelte';
 import IconTrashBin from '../components/icons/IconTrashBin.svelte';
 import { DEFAULT_SIZE, SIZE_LARGE, SIZE_MEDIUM, SIZE_SMALL } from '../components/icons/sizes.ts';
+import type { EventNames, SecondaryTool, ShapeType } from './types.ts';
 
 export { DEFAULT_SIZE, SIZE_LARGE, SIZE_MEDIUM, SIZE_SMALL };
 
@@ -54,13 +55,13 @@ export const VIEWPORT_LAPTOP = 'laptop';
 
 export const VIEWPORT_WIDESCREEN = 'wide';
 
-export const EVENTS_TOUCH = {
+export const EVENTS_TOUCH: EventNames = {
 	down: 'touchstart',
 	move: 'touchmove',
 	up: 'touchend'
 };
 
-export const EVENTS_POINTER = {
+export const EVENTS_POINTER: EventNames = {
 	down: 'pointerdown',
 	move: 'pointermove',
 	up: 'pointerup'
@@ -68,7 +69,7 @@ export const EVENTS_POINTER = {
 
 export const IMAGE_CATALOGUE = 'image-catalogue';
 
-export const ERASER_SIZES = [
+export const ERASER_SIZES: SecondaryTool[] = [
 	{
 		id: DEFAULT_SIZE,
 		value: LINE_THICKNESS_4,
@@ -106,7 +107,7 @@ export const PEN_COLORS = [
 	}
 ];
 
-export const PEN_SIZES = [
+export const PEN_SIZES: SecondaryTool[] = [
 	{
 		id: DEFAULT_SIZE,
 		value: LINE_THICKNESS_1,
@@ -133,7 +134,7 @@ const SHAPE_DEFAULT = {
 
 export const SHAPE_ARROW = {
 	...SHAPE_DEFAULT,
-	id: TOOL_ARROW,
+	id: TOOL_ARROW as ShapeType,
 	length: 0,
 	value: TOOL_ARROW,
 	component: IconArrow
@@ -141,16 +142,20 @@ export const SHAPE_ARROW = {
 
 const SHAPE_ELLIPSE = {
 	...SHAPE_DEFAULT,
-	id: TOOL_ELLIPSE,
+	id: TOOL_ELLIPSE as ShapeType,
 	value: TOOL_ELLIPSE,
 	component: IconEllipse
 };
 
 const SHAPE_RECTANGLE = {
 	...SHAPE_DEFAULT,
-	id: TOOL_RECTANGLE,
+	id: TOOL_RECTANGLE as ShapeType,
 	value: TOOL_RECTANGLE,
 	component: IconRectangle
 };
 
-export const SHAPES = [SHAPE_ARROW, SHAPE_ELLIPSE, SHAPE_RECTANGLE];
+export const SHAPES: (SecondaryTool & { id: ShapeType })[] = [
+	SHAPE_ARROW,
+	SHAPE_ELLIPSE,
+	SHAPE_RECTANGLE
+];

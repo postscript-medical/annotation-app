@@ -1,28 +1,27 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher } from 'svelte';
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
 	import Tooltip from '../components/Tooltip.svelte';
 
-	export let colors = [];
-	export let selected;
-	export let tooltip = '';
+	type Props = {
+		colors?: { id: string; value: string }[];
+		selected: string;
+		tooltip?: string;
+		onchange?: (color: string) => void;
+	};
 
-	const dispatch = createEventDispatcher();
+	let { colors = [], selected, tooltip = '', onchange }: Props = $props();
 
-	let showTooltip = false;
-	let position = { x: 0, y: 0 };
+	let showTooltip = $state(false);
+	let position = $state({ x: 0, y: 0 });
 
-	function changeColor() {
+	function changeColor(color: string) {
 		showTooltip = false;
 
-		dispatch('change', this.value);
+		onchange?.(color);
 	}
 
-	function handleEnter() {
-		const { left, top, width, height } = this.getBoundingClientRect();
+	function handleEnter(element: HTMLElement) {
+		const { left, top, width, height } = element.getBoundingClientRect();
 
 		position = {
 			x: left + width,
@@ -38,11 +37,20 @@
 </script>
 
 <!-- The hover only shows the tooltip; the radio inputs are the controls. -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="colors-palette shadow" on:pointerenter={handleEnter} on:pointerleave={handleLeave}>
+<div
+	class="colors-palette shadow"
+	role="presentation"
+	onpointerenter={(event) => handleEnter(event.currentTarget)}
+	onpointerleave={handleLeave}
+>
 	{#each colors as color (color.id)}
 		<label id={'palette-' + color.id}>
-			<input name="color-palette" type="radio" value={color.value} on:change={changeColor} />
+			<input
+				name="color-palette"
+				type="radio"
+				value={color.value}
+				onchange={() => changeColor(color.value)}
+			/>
 			<svg class="tool-icon" viewBox="0 0 100 100" width="24px" height="24px">
 				{#if selected === color.value}
 					<circle cx="50" cy="50" r="60" stroke={color.value} fill="none" />

@@ -1,15 +1,17 @@
-<svelte:options runes={false} />
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
+	import type { Point } from './types.ts';
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	export let position = { x: -1000, y: -1000 };
-	export let size = 10;
+	let { position = { x: -1000, y: -1000 }, size = 10 }: { position?: Point; size?: number } =
+		$props();
 
-	$: radius = size / 2;
+	const radius = $derived(size / 2);
 
-	$: style = `width: ${size}px; height: ${size}px; transform: translate3d(${
-		position.x - radius
-	}px,${position.y - radius}px,0px);`;
+	const style = $derived(
+		`width: ${size}px; height: ${size}px; transform: translate3d(${
+			position.x - radius
+		}px,${position.y - radius}px,0px);`
+	);
 </script>
 
 <div {style}></div>

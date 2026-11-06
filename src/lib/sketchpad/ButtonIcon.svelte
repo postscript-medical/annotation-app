@@ -1,38 +1,37 @@
-<svelte:options runes={false} />
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
+	import type { Snippet } from 'svelte';
 
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher } from 'svelte';
+	type Props = {
+		value?: string | null;
+		onDark?: boolean;
+		testId?: string;
+		onclick?: (value: string | null) => void;
+		onenter?: (element: HTMLElement) => void;
+		onleave?: () => void;
+		children: Snippet;
+	};
 
-	const dispatch = createEventDispatcher();
-
-	export let value = null;
-	export let onDark = false;
-	export let testId = '';
-
-	function changeTool() {
-		dispatch('click', value);
-	}
-
-	function handleLeave() {
-		dispatch('leave');
-	}
-
-	function handleEnter() {
-		dispatch('enter', this);
-	}
+	let {
+		value = null,
+		onDark = false,
+		testId = '',
+		onclick,
+		onenter,
+		onleave,
+		children
+	}: Props = $props();
 </script>
 
 <button
 	class:on-dark={onDark}
 	class="shadow"
 	data-testid={testId}
-	on:click={() => changeTool(value)}
-	on:pointerenter={handleEnter}
-	on:pointerleave={handleLeave}
+	onclick={() => onclick?.(value)}
+	onpointerenter={(event) => onenter?.(event.currentTarget)}
+	onpointerleave={() => onleave?.()}
 >
-	<slot />
+	{@render children()}
 </button>
 
 <style>

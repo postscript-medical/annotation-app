@@ -2,7 +2,7 @@
 	import { gsap } from 'gsap';
 	import { resolve } from '$app/paths';
 	import Link from '#lib/components/Link.svelte';
-	import { userSettingsDropdownDrawerOpen } from '#lib/sketchpad/stores.js';
+	import { userSettingsDropdownDrawerOpen } from '#lib/sketchpad/stores.ts';
 
 	// The user menu (legacy UserSettingsDropdown): the account page and sign out. Legacy's team,
 	// subscription and admin links are gone with those features (scope changes); its "Annotate

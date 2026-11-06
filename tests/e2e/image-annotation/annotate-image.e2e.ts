@@ -24,7 +24,11 @@ test('Load', async ({ page }) => {
 
 	await expect(page.getByText('Feedback?')).toBeVisible();
 	await expect(page.getByRole('dialog')).toHaveCount(0);
-	await expect(page.locator('img[src^="/images/annotation-app/illustrations/"]')).toHaveCount(1);
+	// It starts transparent and fades in once loaded.
+	await expect(page.locator('img[src^="/images/annotation-app/illustrations/"]')).toHaveCSS(
+		'opacity',
+		'1'
+	);
 	expect(await annotation.inkAt(350, 350)).toBe(false);
 	expect(problems).toEqual([]);
 

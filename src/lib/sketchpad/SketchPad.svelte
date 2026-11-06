@@ -1,25 +1,20 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9.
-     Browser only (reads `window` when created). -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { onDestroy, onMount } from 'svelte';
+<!-- From legacy components/sketchpad. Browser only (reads `window` when created). -->
+<script lang="ts">
+	import { onMount } from 'svelte';
 	import {
 		actions,
 		canvasElement,
 		closeUserSettingsDropdown,
-		context,
 		selectedIllustration,
 		selectedIllustrationTitle,
 		toolDrawerOpen,
 		typedTextEntries
-	} from './stores.js';
-	import clone from './helpers/clone.js';
-	import getPointerLocation from './helpers/get-pointer-location.js';
-	import getUpdatedActions from './helpers/get-updated-actions.js';
-	import setupCanvas from './helpers/setup-canvas.js';
-	import typedText from './helpers/typed-text.js';
+	} from './stores.ts';
+	import clone from './helpers/clone.ts';
+	import getPointerLocation from './helpers/get-pointer-location.ts';
+	import getUpdatedActions from './helpers/get-updated-actions.ts';
+	import setupCanvas from './helpers/setup-canvas.ts';
+	import typedText from './helpers/typed-text.ts';
 	import {
 		EVENTS_POINTER,
 		EVENTS_TOUCH,
@@ -35,16 +30,32 @@
 		TOOL_RECTANGLE,
 		TOOL_SHAPE,
 		TOOL_TEXT
-	} from './constants.js';
+	} from './constants.ts';
 	import { WATERMARK_URL } from '../images.ts';
+	import type {
+		PenTool,
+		PointerLocation,
+		SelectedTool,
+		ShapeAction,
+		ShapeTool,
+		SketchAction,
+		SketchEvent,
+		StrokeAction,
+		TextDrag
+	} from './types.ts';
 	import Illustration from './Illustration.svelte';
 	import StokeCursor from './StokeCursor.svelte';
 	import TypedTextEntry from './TypedTextEntry.svelte';
 
-	export let pen;
-	export let selectedTool;
-	export let selectedToolId;
-	export let shape;
+	type Props = {
+		pen: PenTool;
+		/** Null while typing text, which has no stroke. */
+		selectedTool: SelectedTool | null;
+		selectedToolId?: string;
+		shape: ShapeTool;
+	};
+
+	let { pen, selectedTool, selectedToolId, shape }: Props = $props();
 
 	export function clearCanvas() {
 		clearRect();
@@ -52,28 +63,27 @@
 		return $actions.current.filter(({ name }) => name !== TOOL_TEXT);
 	}
 
-	const hasPointer = window.PointerEvent;
+	const hasPointer = !!window.PointerEvent;
+	const eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
 
+	// Only what the template shows is reactive; the rest is read by the event handlers.
+	let context: CanvasRenderingContext2D;
 	let actionsIndex = 0;
-	let isPointerActive = false;
-	let dragTypedText = { index: 0, active: false };
+	let isPointerActive = $state(false);
+	let dragTypedText: TextDrag = { index: 0, active: false };
 	let offsetTop = 0;
 	let offsetLeft = 0;
-	let paper;
+	let paper = $state<HTMLDivElement>();
 	let pendingResize = false;
-	let pointerLocation = { x: 0, y: 0 };
-	let rafID;
+	let pointerLocation = $state.raw<PointerLocation>({ x: 0, y: 0 });
+	let rafID = 0;
 
-	// eslint-disable-next-line svelte/no-immutable-reactive-statements -- as legacy; 2.9
-	$: eventType = hasPointer ? EVENTS_POINTER : EVENTS_TOUCH;
-
-	function addShape(shapeId) {
+	function addShape(): ShapeAction {
 		const { x, y } = pointerLocation;
 
-		let newShape = {
-			name: shapeId,
+		const newShape: ShapeAction = {
+			name: TOOL_SHAPE,
 			index: actionsIndex,
-			src: shape.src,
 			type: shape.type,
 			x: x - offsetLeft,
 			y: y - offsetTop,
@@ -94,29 +104,31 @@
 		return newShape;
 	}
 
-	function addStroke() {
+	function addStroke(): StrokeAction {
+		const tool = selectedTool!;
+
 		// this causes every single click to add an entry to the array, potentially bloating it with empty entries
 		// we should wait until the mouse has moved at least x pixels before adding an entry to the array
 		isPointerActive = true;
 
 		return {
-			name: selectedTool.name,
-			action: selectedTool.name,
+			name: tool.name as StrokeAction['name'],
+			action: tool.name,
 			index: actionsIndex,
-			lineWidth: selectedTool.lineWidth,
-			color: selectedTool.color,
+			lineWidth: tool.lineWidth,
+			color: tool.color,
 			points: []
 		};
 	}
 
 	function clearRect() {
-		$context.clearRect(0, 0, $canvasElement.width, $canvasElement.height);
+		context.clearRect(0, 0, $canvasElement!.width, $canvasElement!.height);
 	}
 
-	function dragText(event) {
+	function dragText(event: Event) {
 		event.preventDefault();
 
-		recordPoint(event);
+		recordPoint(event as SketchEvent);
 
 		if (dragTypedText.active) {
 			typedText.drag({
@@ -128,7 +140,10 @@
 		}
 	}
 
-	function drawStroke(_context, { name, lineWidth, color, points }) {
+	function drawStroke(
+		_context: CanvasRenderingContext2D,
+		{ name, lineWidth, color, points }: StrokeAction
+	) {
 		if (points.length < 3) return;
 
 		const maxIndex = points.length - 2;
@@ -157,23 +172,24 @@
 		_context.restore();
 	}
 
-	function drawShape(_context, shape) {
+	function drawShape(_context: CanvasRenderingContext2D, shape: ShapeAction) {
 		_context.save();
 		_context.lineWidth = shape.lineWidth;
 		_context.strokeStyle = shape.color;
 
 		switch (shape.type) {
 			case TOOL_ARROW: {
-				const arrowHeadYLength = shape.length < 100 ? shape.length / 5 : 20;
-				const arrowHeadXLength = shape.length - arrowHeadYLength;
+				const length = shape.length ?? 0;
+				const arrowHeadYLength = length < 100 ? length / 5 : 20;
+				const arrowHeadXLength = length - arrowHeadYLength;
 
 				_context.translate(shape.x, shape.y);
-				_context.rotate(shape.angle);
+				_context.rotate(shape.angle ?? 0);
 				_context.beginPath();
 				_context.moveTo(0, 0);
-				_context.lineTo(shape.length, 0);
+				_context.lineTo(length, 0);
 				_context.lineTo(arrowHeadXLength, arrowHeadYLength);
-				_context.moveTo(shape.length, 0);
+				_context.moveTo(length, 0);
 				_context.lineTo(arrowHeadXLength, -arrowHeadYLength);
 				_context.stroke();
 				break;
@@ -197,7 +213,7 @@
 		_context.restore();
 	}
 
-	function handleKeydown(event) {
+	function handleKeydown(event: KeyboardEvent) {
 		const isZed = event.key === 'z';
 
 		if ((event.metaKey || event.ctrlKey) && isZed) {
@@ -209,28 +225,10 @@
 		}
 	}
 
-	function init() {
-		window.visualViewport.addEventListener('resize', resizeCanvas);
-		document.body.addEventListener(eventType.up, stopDrawing, false);
-		$canvasElement.addEventListener(eventType.down, onPointerDown, false);
-		$canvasElement.addEventListener(eventType.up, onPointerUp, false);
-
-		$context = setupCanvas($canvasElement);
-
-		actions.set([
-			{
-				name: TOOL_CHANGE_IMAGE,
-				illustrationTitle: $selectedIllustrationTitle
-			}
-		]);
-
-		resizeCanvas();
-	}
-
-	function onPointerDown(event) {
+	function onPointerDown(event: Event) {
 		event.preventDefault();
 
-		document.activeElement.blur();
+		(document.activeElement as HTMLElement | null)?.blur();
 
 		toolDrawerOpen.set('');
 
@@ -240,10 +238,9 @@
 		// step). Legacy recorded a pen stroke with no points here.
 		if (!selectedToolId) return;
 
-		recordPoint(event);
+		recordPoint(event as SketchEvent);
 
-		// eslint-disable-next-line no-useless-assignment -- as legacy; 2.9
-		let newAction = {};
+		let newAction: SketchAction;
 
 		switch (selectedToolId) {
 			case TOOL_TEXT:
@@ -258,13 +255,13 @@
 				break;
 
 			case TOOL_SHAPE:
-				paper.addEventListener(eventType.move, onPointerMove, false);
+				paper!.addEventListener(eventType.move, onPointerMove, false);
 
-				newAction = addShape(selectedToolId);
+				newAction = addShape();
 				break;
 
 			default:
-				paper.addEventListener(eventType.move, onPointerMove, false);
+				paper!.addEventListener(eventType.move, onPointerMove, false);
 
 				newAction = addStroke();
 				break;
@@ -276,39 +273,38 @@
 		 */
 		actions.push([...clone($actions.current), newAction]);
 
-		paper.addEventListener(eventType.move, onPointerMove, false);
+		paper!.addEventListener(eventType.move, onPointerMove, false);
 
 		render();
 	}
 
 	function onPointerUp() {
-		paper.removeEventListener(eventType.move, onPointerMove, false);
+		paper!.removeEventListener(eventType.move, onPointerMove, false);
 
 		resetPointerLocationId();
 
 		stopDrawing();
 	}
 
-	function onPointerMove(event) {
+	function onPointerMove(event: Event) {
 		event.preventDefault();
 
-		recordPoint(event);
+		recordPoint(event as SketchEvent);
 	}
 
-	function recordPoint(event) {
-		const previousLocation = { ...pointerLocation };
-		pointerLocation = getPointerLocation(event, previousLocation, hasPointer);
+	function recordPoint(event: SketchEvent) {
+		const location = getPointerLocation(event, { ...pointerLocation }, hasPointer);
 
-		if (!pointerLocation) {
-			pointerLocation = { ...previousLocation };
-			return;
-		}
+		// Another pointer than the one drawing: ignore it.
+		if (!location) return;
+
+		pointerLocation = location;
 
 		if (isPointerActive) {
 			const targetIndex = $actions.current.findIndex(({ index }) => index === actionsIndex);
-			let target = clone($actions.current[targetIndex]);
+			const target = clone($actions.current[targetIndex]);
 
-			if (selectedToolId === TOOL_PEN || selectedToolId === TOOL_ERASER) {
+			if (target.name === TOOL_PEN || target.name === TOOL_ERASER) {
 				target.points = [
 					...target.points,
 					{
@@ -318,7 +314,7 @@
 				];
 			}
 
-			if (selectedToolId === TOOL_SHAPE) {
+			if (target.name === TOOL_SHAPE) {
 				switch (target.type) {
 					case TOOL_ARROW:
 						target.dx = pointerLocation.x - target.x - offsetLeft;
@@ -352,14 +348,14 @@
 	function render() {
 		clearRect();
 
-		$context.lineCap = 'round';
-		$context.lineJoin = 'round';
+		context.lineCap = 'round';
+		context.lineJoin = 'round';
 
 		$actions.current.forEach((action) => {
 			switch (action.name) {
 				case TOOL_PEN:
 				case TOOL_ERASER:
-					drawStroke($context, action);
+					drawStroke(context, action);
 					break;
 
 				case TOOL_ERASE_ALL:
@@ -367,7 +363,7 @@
 					break;
 
 				case TOOL_SHAPE:
-					drawShape($context, action);
+					drawShape(context, action);
 					break;
 
 				case TOOL_CHANGE_IMAGE:
@@ -402,24 +398,24 @@
 		requestAnimationFrame(() => {
 			// TODO: Investigate options for when the screen size ends up clipping the canvas due to the locked ratio
 			const oldSize = {
-				width: $canvasElement.width,
-				height: $canvasElement.height
+				width: $canvasElement!.width,
+				height: $canvasElement!.height
 			};
 
-			$context = setupCanvas($canvasElement);
+			context = setupCanvas($canvasElement!);
 
 			updateOffset();
 
 			const scaleFactor = {
-				width: $canvasElement.width / oldSize.width,
-				height: $canvasElement.height / oldSize.height
+				width: $canvasElement!.width / oldSize.width,
+				height: $canvasElement!.height / oldSize.height
 			};
 
-			const scaledStack = [];
+			const scaledStack: SketchAction[][] = [];
 			const stackIndex = $actions.index;
 
 			$actions.stack.forEach((entries) => {
-				const scaledActions = [];
+				const scaledActions: SketchAction[] = [];
 
 				scaledStack.push(scaledActions);
 
@@ -443,7 +439,10 @@
 	}
 
 	// This is very costly. We should rethink how the resizing is handled
-	function scaleAction(action, scaleFactor) {
+	function scaleAction(
+		action: SketchAction,
+		scaleFactor: { width: number; height: number }
+	): SketchAction {
 		switch (action.name) {
 			case TOOL_PEN:
 			case TOOL_ERASER:
@@ -458,7 +457,7 @@
 				};
 
 			case TOOL_SHAPE: {
-				const scaledShape = {
+				const scaledShape: ShapeAction = {
 					...action,
 					x: action.x * scaleFactor.width,
 					y: action.y * scaleFactor.height,
@@ -492,20 +491,20 @@
 	}
 
 	function stopDrawing() {
-		paper.removeEventListener(eventType.move, onPointerMove, false);
+		paper!.removeEventListener(eventType.move, onPointerMove, false);
 
 		if (isPointerActive) ++actionsIndex;
 
 		isPointerActive = false;
 	}
 
-	function toggleTypedTextDrag({ detail: drag }) {
+	function toggleTypedTextDrag(drag: TextDrag) {
 		dragTypedText = drag;
 
 		resetPointerLocationId();
 
 		if (drag.active) {
-			paper.addEventListener(eventType.move, dragText);
+			paper!.addEventListener(eventType.move, dragText);
 
 			const targetIndex = $actions.current.findIndex(({ index }) => index === dragTypedText.index);
 			const target = {
@@ -514,12 +513,12 @@
 
 			actions.push(getUpdatedActions(target, targetIndex));
 		} else {
-			paper.removeEventListener(eventType.move, dragText);
+			paper!.removeEventListener(eventType.move, dragText);
 		}
 	}
 
 	function updateOffset() {
-		const boundingRect = $canvasElement.getBoundingClientRect();
+		const boundingRect = $canvasElement!.getBoundingClientRect();
 		offsetTop = boundingRect.top;
 		offsetLeft = boundingRect.left;
 	}
@@ -535,21 +534,39 @@
 	}
 
 	onMount(() => {
-		init();
-	});
+		const canvas = $canvasElement!;
+		const surface = paper!;
+		const viewport = window.visualViewport!;
 
-	onDestroy(() => {
-		document.body.removeEventListener(eventType.up, stopDrawing, false);
-		$canvasElement.removeEventListener(eventType.down, onPointerDown, false);
-		$canvasElement.removeEventListener(eventType.up, onPointerUp, false);
-		paper.removeEventListener(eventType.move, onPointerMove, false);
-		actions.set();
+		viewport.addEventListener('resize', resizeCanvas);
+		document.body.addEventListener(eventType.up, stopDrawing, false);
+		canvas.addEventListener(eventType.down, onPointerDown, false);
+		canvas.addEventListener(eventType.up, onPointerUp, false);
 
-		window.visualViewport.removeEventListener('resize', resizeCanvas);
+		context = setupCanvas(canvas);
+
+		actions.set([
+			{
+				name: TOOL_CHANGE_IMAGE,
+				illustrationTitle: $selectedIllustrationTitle
+			}
+		]);
+
+		resizeCanvas();
+
+		return () => {
+			document.body.removeEventListener(eventType.up, stopDrawing, false);
+			canvas.removeEventListener(eventType.down, onPointerDown, false);
+			canvas.removeEventListener(eventType.up, onPointerUp, false);
+			surface.removeEventListener(eventType.move, onPointerMove, false);
+			actions.set();
+
+			viewport.removeEventListener('resize', resizeCanvas);
+		};
 	});
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div bind:this={paper} class="paper shadow aspect-ratio-lock">
 	{#if $selectedIllustration}
@@ -561,19 +578,16 @@
 	<div class="typed-text">
 		{#each $typedTextEntries as entry (entry.index)}
 			<TypedTextEntry
-				{...entry}
-				on:close={({ detail }) =>
-					typedText.remove({
-						stack: $actions.current,
-						index: detail.index
-					})}
-				on:drag={toggleTypedTextDrag}
-				on:input={({ detail }) =>
-					typedText.updateContent({
-						stack: $actions.current,
-						index: detail.index,
-						content: detail.content
-					})}
+				content={entry.content}
+				color={entry.color}
+				eventType={entry.eventType}
+				index={entry.index}
+				x={entry.x}
+				y={entry.y}
+				onclose={(index) => typedText.remove({ stack: $actions.current, index })}
+				ondrag={toggleTypedTextDrag}
+				oninput={({ index, content }) =>
+					typedText.updateContent({ stack: $actions.current, index, content })}
 			/>
 		{/each}
 	</div>

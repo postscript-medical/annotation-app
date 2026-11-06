@@ -1,11 +1,19 @@
 import { get } from 'svelte/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { EVENTS_POINTER, TOOL_PEN, TOOL_TEXT } from '../constants.js';
-import { actions, canvasElement } from '../stores.js';
-import typedText from './typed-text.js';
+import { EVENTS_POINTER, TOOL_PEN, TOOL_TEXT } from '../constants.ts';
+import { actions, canvasElement } from '../stores.ts';
+import type { StrokeAction, TextAction } from '../types.ts';
+import typedText from './typed-text.ts';
 
-const stroke = { name: TOOL_PEN, index: 0, points: [] };
-const note = { name: TOOL_TEXT, index: 1, content: 'note', color: 'black', x: 10, y: 10 };
+const stroke = { name: TOOL_PEN, index: 0, points: [] } as unknown as StrokeAction;
+const note = {
+	name: TOOL_TEXT,
+	index: 1,
+	content: 'note',
+	color: 'black',
+	x: 10,
+	y: 10
+} as TextAction;
 
 function state() {
 	const { current, index } = get(actions);
@@ -49,7 +57,7 @@ describe('typedText', () => {
 		// A 400×300 CSS-pixel canvas at a device pixel ratio of 2 (backing store 800×600).
 		beforeEach(() => {
 			vi.stubGlobal('window', { devicePixelRatio: 2 });
-			canvasElement.set({ width: 800, height: 600 });
+			canvasElement.set({ width: 800, height: 600 } as HTMLCanvasElement);
 		});
 
 		afterEach(() => {

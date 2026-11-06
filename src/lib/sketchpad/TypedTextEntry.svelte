@@ -1,47 +1,56 @@
-<svelte:options runes={false} />
-
-<!-- Ported as-is (2.1) from legacy components/sketchpad; legacy (non-runes) mode until 2.9. -->
-<script>
-	// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
-	import { createEventDispatcher, onMount } from 'svelte';
-	import { EVENTS_TOUCH } from './constants.js';
+<!-- From legacy components/sketchpad. -->
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { EVENTS_TOUCH } from './constants.ts';
+	import type { EventNames, TextDrag } from './types.ts';
 	import ButtonIcon from './ButtonIcon.svelte';
 	import IconClose from '../components/icons/IconClose.svelte';
 	import DragHandle from './DragHandle.svelte';
 
-	export let content;
-	export let eventType = EVENTS_TOUCH;
-	export let index = 1;
-	export let x = 0;
-	export let y = 0;
-	export let color;
+	type Props = {
+		content: string;
+		eventType?: EventNames;
+		index?: number;
+		x?: number;
+		y?: number;
+		color: string;
+		onclose?: (index: number) => void;
+		ondrag?: (drag: TextDrag) => void;
+		oninput?: (change: { index: number; content: string }) => void;
+	};
 
-	const dispatch = createEventDispatcher();
-	let container;
-	let boundingRect;
+	let {
+		content,
+		eventType = EVENTS_TOUCH,
+		index = 1,
+		x = 0,
+		y = 0,
+		color,
+		onclose,
+		ondrag,
+		oninput
+	}: Props = $props();
 
-	$: style = `transform: translate3d(${x}px,${y}px,0px)`;
+	let container = $state<HTMLDivElement>();
+	let boundingRect = $state.raw<DOMRect>();
 
-	function closeEntry() {
-		dispatch('close', { index });
-	}
-
-	function updateContent({ target }) {
-		dispatch('input', { index, content: target.value });
-	}
+	const style = $derived(`transform: translate3d(${x}px,${y}px,0px)`);
 
 	onMount(() => {
-		boundingRect = container.getBoundingClientRect();
+		boundingRect = container!.getBoundingClientRect();
 	});
 </script>
 
 <div bind:this={container} class="typed-text-entry" {style}>
 	<!-- svelte-ignore a11y_autofocus -->
-	<textarea autofocus class="typed-annotation" style={`color: ${color};`} on:input={updateContent}
-		>{content}</textarea
-	>
-	<DragHandle {boundingRect} {eventType} {index} on:drag />
-	<ButtonIcon on:click={closeEntry}>
+	<textarea
+		autofocus
+		class="typed-annotation"
+		style={`color: ${color};`}
+		value={content}
+		oninput={(event) => oninput?.({ index, content: event.currentTarget.value })}></textarea>
+	<DragHandle {boundingRect} {eventType} {index} {ondrag} />
+	<ButtonIcon onclick={() => onclose?.(index)}>
 		<IconClose />
 	</ButtonIcon>
 </div>

@@ -1,11 +1,12 @@
 import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { TOOL_PEN } from '../constants.js';
-import { actions } from '../stores.js';
-import getUpdatedActions from './get-updated-actions.js';
+import { TOOL_PEN } from '../constants.ts';
+import { actions } from '../stores.ts';
+import type { StrokeAction } from '../types.ts';
+import getUpdatedActions from './get-updated-actions.ts';
 
-const first = { name: TOOL_PEN, index: 0, points: [{ x: 1, y: 1 }] };
-const second = { name: TOOL_PEN, index: 1, points: [{ x: 2, y: 2 }] };
+const first = { name: TOOL_PEN, index: 0, points: [{ x: 1, y: 1 }] } as StrokeAction;
+const second = { name: TOOL_PEN, index: 1, points: [{ x: 2, y: 2 }] } as StrokeAction;
 
 describe('getUpdatedActions', () => {
 	beforeEach(() => actions.set([first, second]));
@@ -25,7 +26,7 @@ describe('getUpdatedActions', () => {
 	});
 
 	it('appends when `index` is the next free slot', () => {
-		const third = { name: TOOL_PEN, index: 2, points: [] };
+		const third = { name: TOOL_PEN, index: 2, points: [] } as unknown as StrokeAction;
 
 		expect(getUpdatedActions(third, 2)).toEqual([first, second, third]);
 	});

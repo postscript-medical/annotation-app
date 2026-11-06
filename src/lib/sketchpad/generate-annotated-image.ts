@@ -1,17 +1,20 @@
-// @ts-nocheck -- legacy JavaScript ported as-is (2.1); typed in the runes conversion (2.9).
 // Ported as-is (2.1) from legacy `methods/generate-annotated-image.js`: flattens the illustration,
 // the watermark, the canvas strokes and the typed text into one canvas for sharing (2.5).
 // The canvas goes to lib/share as a JPEG; nothing is uploaded.
 import { get } from 'svelte/store';
 import { WATERMARK_URL } from '../images.ts';
-import { canvasElement, dpr, illustrationDisplayed } from './stores.js';
+import { canvasElement, dpr, illustrationDisplayed } from './stores.ts';
 
-function drawTextLine(context, text, x, y) {
+function drawTextLine(context: CanvasRenderingContext2D, text: string, x: number, y: number) {
 	context.fillText(text, x, y);
 }
 
-function drawTypedText(context, parentBoundingRect, dpr) {
-	const entries = Array.from(document.querySelectorAll('.typed-annotation'));
+function drawTypedText(
+	context: CanvasRenderingContext2D,
+	parentBoundingRect: DOMRect,
+	dpr: number
+) {
+	const entries = Array.from(document.querySelectorAll<HTMLTextAreaElement>('.typed-annotation'));
 	const fontSize = 16 * dpr;
 
 	context.font = `${fontSize}px 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif`;
@@ -30,7 +33,7 @@ function drawTypedText(context, parentBoundingRect, dpr) {
 	});
 }
 
-async function fetchBlob(url) {
+async function fetchBlob(url: string) {
 	const response = await fetch(url);
 	// 2.5: a failed fetch would otherwise reach createImageBitmap as an error page.
 	if (!response.ok) throw new Error(`watermark request failed: ${response.status}`);
@@ -38,7 +41,14 @@ async function fetchBlob(url) {
 	return response.blob();
 }
 
-function wrapText(context, text, x, y, maxWidth, lineHeight) {
+function wrapText(
+	context: CanvasRenderingContext2D,
+	text: string,
+	x: number,
+	y: number,
+	maxWidth: number,
+	lineHeight: number
+) {
 	const words = text.split(' ');
 	const newLines = words.flatMap((word) => word.split(/([\r\n])/));
 	let line = '';
@@ -62,11 +72,11 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 }
 
 export default async function generateAnnotatedImage() {
-	const srcCanvas = get(canvasElement);
+	const srcCanvas = get(canvasElement)!;
 	const srcIllustration = get(illustrationDisplayed);
 	const _dpr = get(dpr);
 	const annotatedImage = document.createElement('canvas');
-	const context = annotatedImage.getContext('2d');
+	const context = annotatedImage.getContext('2d')!;
 	const canvasBoundingRect = srcCanvas.getBoundingClientRect();
 	const imageBlob = await fetchBlob(WATERMARK_URL);
 	const watermark = await createImageBitmap(imageBlob);
